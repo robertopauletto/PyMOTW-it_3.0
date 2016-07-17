@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi generici di sistema operativo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+getpass - Chiede all'utente una password senza emettere caratteri
+</titolo_1>
+<descrizione>
+Chiede all'utente un valore, in genere una password, senza emettere sullo schermo i cartteri digitati nella console
+1.5.2 e superiore
+</descrizione>
+<testo_normale>
+Molti programmi che interagiscono con l'utente attraverso un terminale devono richiedere una password senza mostrare quello l'utente sta digitando. Il modulo <strong>getpass</strong> fornisce un modo portabile per gestire in sicurezza queste richieste
+</testo_normale>
+<titolo_2>
+Esempio
+</titolo_2>
+<testo_normale>
+La funzione <code>getpass()</code> stampa un <em>prompt</em> che legge l'input digitato dall'utente, fino a che egli non preme <em>Invio</em>. Quanto digitato viene poi passato come stringa al chiamante
+</testo_normale>
+<py_code>
+import getpass
+
+p = getpass.getpass()
+print 'Hai digitato:', p
+</py_code>
+<testo_normale>
+Il <em>prompt</em> predefinito, se nulla è stato specificato dal chiamante, è  <code>"Password:"</code>.
+</testo_normale>
+<py_output>
+$ python getpass_defaults.py
+
+Password:
+Hai digitato: segreta
+</py_output>
+<testo_normale>
+Il <em>prompt</em> predefinto può essere modificato con qualsiasi valore il proprio programma necessiti.
+</testo_normale>
+<py_code>
+import getpass
+
+p = getpass.getpass(prompt="Qual'è il tuo colore preferito? ")
+if p.lower() == 'blu':
+    print 'Corretto, puoi proseguire.'
+else:
+    print 'Auuuuugh!'
+</py_code>
+<testo_normale>
+Non si consiglia uno schema di autenticazione così debole, ma si vuole solo illustrare il punto.
+</testo_normale>
+<py_output>
+$ python getpass_prompt.py
+Qual'è il tuo colore preferito?
+Corretto, puoi proseguire.
+
+$ python getpass_prompt.py
+Qual'è il tuo colore preferito?
+Auuuuugh!
+</py_output>
+<testo_normale>
+Nella modalità predefinita <code>getpass()</code> utilizza <em>stdout</em> per stampare la stringa <em>prompt</em>. Per un programma che debba produrre un output utilizzabile su sys.stdout, spesso è meglio indirizzare il <em>prompt</em> verso una altro flusso tipo sys.stderr.
+</testo_normale>
+<py_code>
+import getpass
+import sys
+
+p = getpass.getpass(stream=sys.stderr)
+print 'Hai digitato:', p
+</py_code>
+<testo_normale>
+In questo modo l'output standard può essere rediretto (ad un <a href='http://it.wikipedia.org/wiki/Pipeline_software'>pipe</a> oppure ad un file) senza vedere il <em>prompt</em> per la password. Il valore digitato dall'utente non viene comunque ripetuto sullo schermo.
+</testo_normale>
+<py_output>
+$ python getpass_stream.py > /dev/null
+
+Password:
+</py_output>
+<titolo_2>
+Utilizzare getpass Senza un Terminale
+</titolo_2>
+<testo_normale>
+Su Unix, <code>getpass()</code> richiede un <em>tty</em> (comando Unix che restituisce il nome del terminale corrente - n.d.t) che possa controllare tramite <em>termios</em> (una struttura dati utilizzata da tutte le chiamate di libreria del terminale - n.d.t.) in modo che la ripetizione dei caratteri sullo schermo possa essere disabilitata. Il che significa che i valorei non saranno letti da un flusso non di terminale rediretto verso lo standard input.
+</testo_normale>
+<py_output>
+$ echo "sekret" | python getpass_defaults.py
+Traceback (most recent call last):
+ File "getpass_defaults.py", line 34, in
+   p = getpass.getpass()
+ File "/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/getpass.py", line 32, in unix_getpass
+   old = termios.tcgetattr(fd)     # a copy to save
+termios.error: (25, 'Inappropriate ioctl for device')
+</py_output>
+<testo_normale>
+Spetta al chiamante rilevare quando il flusso in input non è un <em>tty</em> ed utilizzare un metodo alternativo per la lettura in quel caso
+</testo_normale>
+<py_code>
+import getpass
+import sys
+
+if sys.stdin.isatty():
+    p = getpass.getpass('Si usa getpass: ')
+else:
+    print 'Si usa readline'
+    p = sys.stdin.readline().rstrip()
+
+print 'Letto: ', p
+</py_code>
+<testo_normale>
+Con un <em>tty</em>
+</testo_normale>
+<py_output>
+$ python getpass_noterminal.py
+Si usa getpass:
+Letto:  segreta
+</py_output>
+<testo_normale>
+Senza un <em>tty</em>
+</testo_normale>
+<py_output>
+$ echo "segreta" | python getpass_noterminal.py
+Si usa readline:
+Letto:  segreta
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/getpass.html|weakref|La documentazione della libreria standard per questo modulo.
+readline.html|readline|Libreria per <em>prompt</em> interattivo
+</vedi_anche>
+</documento_tradotto>

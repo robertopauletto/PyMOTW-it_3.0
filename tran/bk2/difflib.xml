@@ -1,0 +1,328 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di stringa </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+difflib - Calcolare le differenze tra sequenze
+</titolo_1>
+<descrizione>
+Libreria di strumenti per calcolare e lavorare con differenze tra sequenze, specialmente di righe nei file di testo
+2.1
+</descrizione>
+<testo_normale>
+La classe <strong>SequenceMatcher</strong> confronta due sequenze qualsiasi di valori, fintanto che i valori siano divisibili. Usa un algoritmo recursivo per identificare i blocchi più lunghi contigui corrispondenti dalle sequenze, eliminando valori "spazzatura".
+La classe <strong>Differ</strong> lavora sulle sequenze di righe di testo e produce una <a href='http://it.wikipedia.org/wiki/Codifica_delta'>codifica delta</a> in forma leggibile dall'uomo, incluse le differenze all'interno delle singole righe. La classe HtmlDiff produce risultati analoghi, formattati come una tabella HTML
+</testo_normale>
+<titolo_2>
+Dati per il test
+</titolo_2>
+<testo_normale>
+Gli esempi di seguito faranno tutti uso di questi comuni dati per il test nel modulo difflib_data:
+</testo_normale>
+<py_code>
+text1 = """Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
+tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec
+mauris eget magna consequat convallis. Nam sed sem vitae odio
+pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate tristique
+enim. Donec quis lectus a justo imperdiet tempus."""
+text1_lines = text1.splitlines()
+
+text2 = """Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+eu lacus accumsan arcu fermentum euismod. Donec pulvinar, porttitor
+tellus. Aliquam venenatis. Donec facilisis pharetra tortor. In nec
+mauris eget magna consequat convallis. Nam cras vitae mi vitae odio
+pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+adipiscing. Duis vulputate tristique enim. Donec quis lectus a justo
+imperdiet tempus. Suspendisse eu lectus. In nunc. """
+text2_lines = text2.splitlines()
+
+</py_code>
+
+<titolo_2>
+Esempio di Differ
+</titolo_2>
+<testo_normale>
+Con la classe Differ, riprodurre un risultato simile allo strumento da riga comandi diff è semplice:
+</testo_normale>
+<py_code>
+import difflib
+from difflib_data import *
+
+d = difflib.Differ()
+diff = d.compare(text1_lines, text2_lines)
+print '\n'.join(list(diff))
+</py_code>
+<testo_normale>
+Il risultato include i valori originali in entrata da entrambe le liste, inclusi i valori comuni, e dati di marcatura per indicare quali cambiamenti sono stati effettuati. Le righe potrebbero essere prefissate con il simbolo - per indicare che sono nella prima sequenza, ma non nella seconda. Le righe prefissate con il segno + sono nella seconda sequenza, ma non nella prima. Se una riga ha una modifica incrementale tra le versioni, si usa una riga aggiuntiva prefissata con ? per indicare dove ci sono cambiamenti all'interno della riga. Se una riga non è cambiata, viene stampata con uno spazio aggiuntivo a sinistra, per allinearla alle altre righe che potrabbero iniziare con altri marcatori.
+L'inizio di entrambi i segmenti di testo è uguale.
+</testo_normale>
+<py_output>
+1:   Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+</py_output>
+<testo_normale>
+La seconda riga è stata cambiata per includere una virgola nel testo modificato. Entrambe le versioni della riga sono stampate, con una informazione aggiuntiva nella riga 4, che mostra la colonna dove il testo è stato modificato, incluso il fatto che il carattere , è stato aggiunto.
+</testo_normale>
+<py_output>
+2: - eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
+3: + eu lacus accumsan arcu fermentum euismod. Donec pulvinar, porttitor
+4: ?                                                         +
+5:
+</py_output>
+<testo_normale>
+Le righe da 6 a 9 mostrano dove è stato rimosso uno spazio supplementare.
+</testo_normale>
+<py_output>
+6: - tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec
+7: ?                                                             -
+8:
+9: + tellus. Aliquam venenatis. Donec facilisis pharetra tortor. In nec
+</py_output>
+<testo_normale>
+Successivamente è stato fatta una modifica più complessa, sostituendo diverse parole in una frase.
+</testo_normale>
+<py_output>
+10: - mauris eget magna consequat convallis. Nam sed sem vitae odio
+11: ?                                              - --
+12:
+13: + mauris eget magna consequat convallis. Nam cras vitae mi vitae odio
+14: ?                                            +++ +++++   +
+15:
+</py_output>
+<testo_normale>
+L'ultima frase nel paragrafo è stata modificata in modo significativo, quindi la differenza viene rappresentata semplicemente eliminando la vecchia versione ed aggiungendo la nuova (righe 20-23)
+</testo_normale>
+<py_output>
+16:   pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+17:   metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+18:   urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+19:   suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+20: - adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate tristique
+21: - enim. Donec quis lectus a justo imperdiet tempus.
+22: + adipiscing. Duis vulputate tristique enim. Donec quis lectus a justo
+23: + imperdiet tempus. Suspendisse eu lectus. In nunc.
+</py_output>
+<testo_normale>
+La funzione ${sbk}ndiff()${ebk} fornisce essenzialmente lo stesso risultato. Il processo è specificamente modellato per lavorare con dati di testo, eliminando il "rumore" dai dati in entrata.
+</testo_normale>
+<py_code>
+import difflib
+from difflib_data import *
+
+diff = difflib.ndiff(text1_lines, text2_lines)
+print '\n'.join(list(diff))
+</py_code>
+import difflib
+from difflib_data import *
+
+diff = difflib.ndiff(text1_lines, text2_lines)
+print '\n'.join(list(diff))
+<py_output>
+$ python difflib_ndiff.py
+  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+- eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
++ eu lacus accumsan arcu fermentum euismod. Donec pulvinar, porttitor
+?                                                         +
+
+- tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec
+?                                                             -
+
++ tellus. Aliquam venenatis. Donec facilisis pharetra tortor. In nec
+- mauris eget magna consequat convallis. Nam sed sem vitae odio
+?                                             ------
+
++ mauris eget magna consequat convallis. Nam cras vitae mi vitae odio
+?                                            +++        +++++++++
+
+  pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+  metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+  urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+  suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+- adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate tristique
+- enim. Donec quis lectus a justo imperdiet tempus.
++ adipiscing. Duis vulputate tristique enim. Donec quis lectus a justo
++ imperdiet tempus. Suspendisse eu lectus. In nunc.
+</py_output>
+<titolo_2>
+Altri formati di Diff
+</titolo_2>
+<testo_normale>
+Mentre la classe Differ mosta l'intero input, diff unificata include solo le righe modificate ed un poco di contesto. Nella versione 2.3, è stata aggiunta la funzione ${sbk}unified_diff()${ebk} per produrre questo tipo di risultato
+</testo_normale>
+<py_code>
+import difflib
+from difflib_data import *
+
+diff = difflib.unified_diff(text1_lines, text2_lines, lineterm='')
+print '\n'.join(list(diff))
+</py_code>
+<testo_normale>
+Il risultato dovrebbe essere familiare agli utilizzatori di svn od altri strumenti di controllo di versione
+</testo_normale>
+<py_output>
+$ python difflib_unified.py
+---
++++
+@@ -1,10 +1,10 @@
+ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+-eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
+-tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec
+-mauris eget magna consequat convallis. Nam sed sem vitae odio
++eu lacus accumsan arcu fermentum euismod. Donec pulvinar, porttitor
++tellus. Aliquam venenatis. Donec facilisis pharetra tortor. In nec
++mauris eget magna consequat convallis. Nam cras vitae mi vitae odio
+ pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+ metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+ urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+ suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+-adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate tristique
+-enim. Donec quis lectus a justo imperdiet tempus.
++adipiscing. Duis vulputate tristique enim. Donec quis lectus a justo
++imperdiet tempus. Suspendisse eu lectus. In nunc.
+</py_output>
+<testo_normale>
+L'uso di ${sbk}context_diff()${ebk} produce un risultato simile
+</testo_normale>
+<py_output>
+$ python difflib_context.py
+***
+---
+***************
+*** 1,10 ****
+  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+! eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
+! tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec
+! mauris eget magna consequat convallis. Nam sed sem vitae odio
+  pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+  metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+  urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+  suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+! adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate tristique
+! enim. Donec quis lectus a justo imperdiet tempus.
+--- 1,10 ----
+  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+! eu lacus accumsan arcu fermentum euismod. Donec pulvinar, porttitor
+! tellus. Aliquam venenatis. Donec facilisis pharetra tortor. In nec
+! mauris eget magna consequat convallis. Nam cras vitae mi vitae odio
+  pellentesque interdum. Sed consequat viverra nisl. Suspendisse arcu
+  metus, blandit quis, rhoncus ac, pharetra eget, velit. Mauris
+  urna. Morbi nonummy molestie orci. Praesent nisi elit, fringilla ac,
+  suscipit non, tristique vel, mauris. Curabitur vel lorem id nisl porta
+! adipiscing. Duis vulputate tristique enim. Donec quis lectus a justo
+! imperdiet tempus. Suspendisse eu lectus. In nunc.
+</py_output>
+<titolo_2>
+Risultato in HTML
+</titolo_2>
+<testo_normale>
+<strong>HtmlDiff</strong> (nuovo in Python 2.4) genera un risultato in formato HTML con le stesse informazioni della classe Diff.
+Questo esempio ${sbk}usa make_table()${ebk}, ma il metodo ${sbk}make_file()${ebk} produce come risultato un file HTML pienamente formato.
+</testo_normale>
+<py_code>
+import difflib
+from difflib_data import *
+
+d = difflib.HtmlDiff()
+print d.make_table(text1_lines, text2_lines)
+</py_code>
+<py_output>
+$ python difflib_html.py
+
+      <table class="diff" id="difflib_chg_to0__top"
+           cellspacing="0" cellpadding="0" rules="groups" >
+        <colgroup></colgroup> <colgroup></colgroup> <colgroup></colgroup>
+        <colgroup></colgroup> <colgroup></colgroup> <colgroup></colgroup>
+
+        <tbody>
+            <tr><td class="diff_next" id="difflib_chg_to0__0"><a href="#difflib_chg_to0__0">f</a></td><td class="diff_header" id="from0_1">1</td><td nowrap="nowrap">Lorem&nbsp;ipsum&nbsp;dolor&nbsp;sit&nbsp;amet,&nbsp;consectetuer&nbsp;adipiscing&nbsp;elit.&nbsp;Integer</td><td class="diff_next"><a href="#difflib_chg_to0__0">f</a></td><td class="diff_header" id="to0_1">1</td><td nowrap="nowrap">Lorem&nbsp;ipsum&nbsp;dolor&nbsp;sit&nbsp;amet,&nbsp;consectetuer&nbsp;adipiscing&nbsp;elit.&nbsp;Integer</td></tr>
+            <tr><td class="diff_next"><a href="#difflib_chg_to0__1">n</a></td><td class="diff_header" id="from0_2">2</td><td nowrap="nowrap">eu&nbsp;lacus&nbsp;accumsan&nbsp;arcu&nbsp;fermentum&nbsp;euismod.&nbsp;Donec&nbsp;pulvinar&nbsp;porttitor</td><td class="diff_next"><a href="#difflib_chg_to0__1">n</a></td><td class="diff_header" id="to0_2">2</td><td nowrap="nowrap">eu&nbsp;lacus&nbsp;accumsan&nbsp;arcu&nbsp;fermentum&nbsp;euismod.&nbsp;Donec&nbsp;pulvinar<span class="diff_add">,</span>&nbsp;porttitor</td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_3">3</td><td nowrap="nowrap">tellus.&nbsp;Aliquam&nbsp;venenatis.&nbsp;Donec&nbsp;facilisis&nbsp;pharetra&nbsp;tortor.&nbsp;<span class="diff_sub">&nbsp;</span>In&nbsp;nec</td><td class="diff_next"></td><td class="diff_header" id="to0_3">3</td><td nowrap="nowrap">tellus.&nbsp;Aliquam&nbsp;venenatis.&nbsp;Donec&nbsp;facilisis&nbsp;pharetra&nbsp;tortor.&nbsp;In&nbsp;nec</td></tr>
+            <tr><td class="diff_next" id="difflib_chg_to0__1"></td><td class="diff_header" id="from0_4">4</td><td nowrap="nowrap">mauris&nbsp;eget&nbsp;magna&nbsp;consequat&nbsp;convallis.&nbsp;Nam&nbsp;s<span class="diff_sub">ed&nbsp;sem</span>&nbsp;vitae&nbsp;odio</td><td class="diff_next"></td><td class="diff_header" id="to0_4">4</td><td nowrap="nowrap">mauris&nbsp;eget&nbsp;magna&nbsp;consequat&nbsp;convallis.&nbsp;Nam&nbsp;<span class="diff_add">cra</span>s&nbsp;vitae&nbsp;<span class="diff_add">mi&nbsp;vitae&nbsp;</span>odio</td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_5">5</td><td nowrap="nowrap">pellentesque&nbsp;interdum.&nbsp;Sed&nbsp;consequat&nbsp;viverra&nbsp;nisl.&nbsp;Suspendisse&nbsp;arcu</td><td class="diff_next"></td><td class="diff_header" id="to0_5">5</td><td nowrap="nowrap">pellentesque&nbsp;interdum.&nbsp;Sed&nbsp;consequat&nbsp;viverra&nbsp;nisl.&nbsp;Suspendisse&nbsp;arcu</td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_6">6</td><td nowrap="nowrap">metus,&nbsp;blandit&nbsp;quis,&nbsp;rhoncus&nbsp;ac,&nbsp;pharetra&nbsp;eget,&nbsp;velit.&nbsp;Mauris</td><td class="diff_next"></td><td class="diff_header" id="to0_6">6</td><td nowrap="nowrap">metus,&nbsp;blandit&nbsp;quis,&nbsp;rhoncus&nbsp;ac,&nbsp;pharetra&nbsp;eget,&nbsp;velit.&nbsp;Mauris</td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_7">7</td><td nowrap="nowrap">urna.&nbsp;Morbi&nbsp;nonummy&nbsp;molestie&nbsp;orci.&nbsp;Praesent&nbsp;nisi&nbsp;elit,&nbsp;fringilla&nbsp;ac,</td><td class="diff_next"></td><td class="diff_header" id="to0_7">7</td><td nowrap="nowrap">urna.&nbsp;Morbi&nbsp;nonummy&nbsp;molestie&nbsp;orci.&nbsp;Praesent&nbsp;nisi&nbsp;elit,&nbsp;fringilla&nbsp;ac,</td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_8">8</td><td nowrap="nowrap">suscipit&nbsp;non,&nbsp;tristique&nbsp;vel,&nbsp;mauris.&nbsp;Curabitur&nbsp;vel&nbsp;lorem&nbsp;id&nbsp;nisl&nbsp;porta</td><td class="diff_next"></td><td class="diff_header" id="to0_8">8</td><td nowrap="nowrap">suscipit&nbsp;non,&nbsp;tristique&nbsp;vel,&nbsp;mauris.&nbsp;Curabitur&nbsp;vel&nbsp;lorem&nbsp;id&nbsp;nisl&nbsp;porta</td></tr>
+            <tr><td class="diff_next"><a href="#difflib_chg_to0__top">t</a></td><td class="diff_header" id="from0_9">9</td><td nowrap="nowrap"><span class="diff_sub">adipiscing.&nbsp;Suspendisse&nbsp;eu&nbsp;lectus.&nbsp;In&nbsp;nunc.&nbsp;Duis&nbsp;vulputate&nbsp;tristique</span></td><td class="diff_next"><a href="#difflib_chg_to0__top">t</a></td><td class="diff_header" id="to0_9">9</td><td nowrap="nowrap"><span class="diff_add">adipiscing.&nbsp;Duis&nbsp;vulputate&nbsp;tristique&nbsp;enim.&nbsp;Donec&nbsp;quis&nbsp;lectus&nbsp;a&nbsp;justo</span></td></tr>
+            <tr><td class="diff_next"></td><td class="diff_header" id="from0_10">10</td><td nowrap="nowrap"><span class="diff_sub">enim.&nbsp;Donec&nbsp;quis&nbsp;lectus&nbsp;a&nbsp;justo&nbsp;imperdiet&nbsp;tempus.</span></td><td class="diff_next"></td><td class="diff_header" id="to0_10">10</td><td nowrap="nowrap"><span class="diff_add">imperdiet&nbsp;tempus.&nbsp;Suspendisse&nbsp;eu&nbsp;lectus.&nbsp;In&nbsp;nunc.&nbsp;</span></td></tr>
+        </tbody>
+    </table>
+</py_output>
+<titolo_2>
+Dati da buttare
+</titolo_2>
+<testo_normale>
+Tutte le funzioni che producono sequenze di diff accettano parametri per indicare quali righe dovrebbero essere ignorate, e quali caratteri all'interno di una riga dovrebbero essere ignorati. Si può quindi fare in modo che vengano ignorate modifiche tra due versioni di file che riguardano caratteri di marcatura o spazi, ad esempio.
+</testo_normale>
+<py_code>
+from difflib import SequenceMatcher
+
+A = " abcd"
+B = "abcd abcd"
+
+print 'A = "%s"' % A
+print 'B = "%s"' % B
+
+s = SequenceMatcher(None, A, B)
+i, j, k = s.find_longest_match(0, 5, 0, 9)
+print 'isjunk=None     :', (i, j, k), '"%s"' % A[i:i+k], '"%s"' % B[j:j+k]
+
+s = SequenceMatcher(lambda x: x==" ", A, B)
+i, j, k = s.find_longest_match(0, 5, 0, 9)
+print 'isjunk=(x==" ") :', (i, j, k), '"%s"' % A[i:i+k], '"%s"' % B[j:j+k]
+</py_code>
+<testo_normale>
+Il comportamento predefinito di Differ è di non ignorare alcuna riga o carattere esplicitamente, ma di contare sulla capacità di SequenceMatcher di identificare "rumore". Il comportamento predefinito di ndiff è di ignorare spazi e caratteri di tabulazione
+</testo_normale>
+<py_output>
+$ python difflib_junk.py
+A = " abcd"
+B = "abcd abcd"
+isjunk=None     : (0, 4, 5) " abcd" " abcd"
+isjunk=(x==" ") : (1, 0, 4) "abcd" "abcd"
+</py_output>
+<titolo_2>
+SequenceMatcher
+</titolo_2>
+<testo_normale>
+SequenceMatcher, che implementa l'algoritmo di comparazione, può essere usato con sequenze di qualsiasi tipo di oggetto fintanto che lo stesso sia divisibile. Ad esempio due liste di interi possono essere confrontate, ed usando ${sbk}get_opcodes()${ebk} può essere stampato un insieme di istruzioni per convertire la lista originale in una nuova.
+</testo_normale>
+<py_code>
+import difflib
+from difflib_data import *
+
+s1 = [ 1, 2, 3, 5, 6, 4 ]
+s2 = [ 2, 3, 5, 4, 6, 1 ]
+
+matcher = difflib.SequenceMatcher(None, s1, s2)
+for tag, i1, i2, j1, j2 in matcher.get_opcodes(): 
+    print ("%7s s1[%d:%d] (%s) s2[%d:%d] (%s)" % 
+           (tag, i1, i2, s1[i1:i2], j1, j2, s2[j1:j2])) 
+
+</py_code>
+<py_output>
+$ python difflib_seq.py
+ delete s1[0:1] ([1]) s2[0:0] ([])
+  equal s1[1:4] ([2, 3, 5]) s2[0:3] ([2, 3, 5])
+ insert s1[4:4] ([]) s2[3:4] ([4])
+  equal s1[4:5] ([6]) s2[4:5] ([6])
+replace s1[5:6] ([4]) s2[5:6] ([1])
+</py_output>
+<testo_normale>
+Si può usare SequenceMatcher con le proprie classi, così come con i tipi built-in.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/difflib.html|difflib|La documentazione standard della libreria per questo modulo
+http://www.ddj.com/documents/s=1103/ddj8807c/|Pattern Matching: The Gestalt Approach|Discussione su di un algoritmo simile di John W. Ratcliff e D. E. Metzener pubblicato nel Dr. Dobb's Journal del luglio 1988 (in inglese).
+http://www.doughellmann.com/PyMOTW/articles/text_processing.html#article-text-processing|Strumenti di elaborazione del testo|
+</vedi_anche>
+</documento_tradotto>

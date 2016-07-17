@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+difflib - Confrontare sequenze
+</titolo_1>
+<descrizione>
+Il modulo <strong>difflib</strong> contiene strumenti per calcolare e lavorare con differenze tra sequenze. E' particolarmente utile per confrontare testo.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>difflib</strong> contiene strumenti per calcolare e lavorare con differenze tra sequenze. E' particolarmente utile per confrontare testo, ed include funzioni che producono report utilizzando parecchi comuni formati di rappresentazione delle differenze.
+</testo_normale>
+<testo_normale>
+Gli esempi faranno tutti uso di questi comuni dati di test nel modulo <code>difflib_data.py:</code>
+</testo_normale>
+<py_code>
+# difflib_data.py
+
+text1 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
+elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+pulvinar porttitor tellus. Aliquam venenatis. Donec facilisis
+pharetra tortor.  In nec mauris eget magna consequat
+convalis. Nam sed sem vitae odio pellentesque interdum. Sed
+consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+tristique vel, mauris. Curabitur vel lorem id nisl porta
+adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate
+tristique enim. Donec quis lectus a justo imperdiet tempus."""
+
+text1_lines = text1.splitlines()
+
+text2 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
+elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+pulvinar, porttitor tellus. Aliquam venenatis. Donec facilisis
+pharetra tortor. In nec mauris eget magna consequat
+convalis. Nam cras vitae mi vitae odio pellentesque interdum. Sed
+consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+tristique vel, mauris. Curabitur vel lorem id nisl porta
+adipiscing. Duis vulputate tristique enim. Donec quis lectus a
+justo imperdiet tempus.  Suspendisse eu lectus. In nunc."""
+
+text2_lines = text2.splitlines()
+</py_code>
+<titolo_2>
+Confrontare Parti di Testo
+</titolo_2>
+<testo_normale>r
+La classe <code>Differ</code> lavora su sequenze di righe di testo, e produce dei <em>delta</em>, vale a dire istruzioni di modifica, in formato leggibile dall'utente comprese incluse le differenze all'interno di singole righe. L'output predefinito prodotto da <code>Differ</code> è simile allo strumento da riga di comando nei sistemi UNIX <strong>diff</strong>. Il risultato include i valori originali in entrata da entrambe le liste, inclusi i valori comuni, e dati di marcatura per indicare quali cambiamenti sono stati effettuati.
+</testo_normale>
+<lista>
+Le righe prefissate con <code>-</code> indicano che si trovano nella prima sequenza, ma non nella seconda.
+Le righe prefissate con <code>+</code> sono nella seconda sequenza, ma non nella prima.
+Se una riga ha una differenza incrementale tra le versioni, viene utilizzata una riga aggiuntiva prefissata da <code>?</code>  per evidenziare le modifiche con la nuova versione.
+Se una riga non è cambiata, viene stampata con uno spazio aggiuntivo nella colonna di sinistra, per allinearla alle altre righe che potrebbero avere differenze.
+</lista>
+<testo_normale>
+Dividere il testo in una sequenza di singole righe prima di passarlo a <code>compare()</code> fornisce un output più leggibile rispetto al passare stringhe molto grandi.
+</testo_normale>
+<py_code>
+# difflib_differ.py
+
+import difflib
+from difflib_data import *
+
+d = difflib.Differ()
+diff = d.compare(text1_lines, text2_lines)
+print('\n'.join(diff))
+</py_code>
+<testo_normale>
+L'inizio di entrambi i segmenti nei dati di esempio è lo stesso, quindi la prima riga viene stampata senza ulteriori annotazioni.
+</testo_normale>
+<py_output>
+  Lorem ipsum dolor sit amet, consectetuer adipiscing
+  elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+</py_output>
+<testo_normale>
+La terza riga è stata cambiata per includere una virgola nel testo modificato. Entrambe le versioni della riga sono stampate, con una informazione aggiuntiva nella riga 5, che mostra la colonna dove il testo è stato modificato, incluso il fatto che il carattere <code>,</code> è stato aggiunto.
+</testo_normale>
+<py_output>
+- pulvinar porttitor tellus. Aliquam venenatis. Donec facilisis
++ pulvinar, porttitor tellus. Aliquam venenatis. Donec facilisis
+?         +
+</py_output>
+<testo_normale>
+Nelle riga seguente si mostra che è stato rimosso uno spazio supplementare.
+</testo_normale>
+<py_output>
+- pharetra tortor.  In nec mauris eget magna consequat
+?                 -
+
++ pharetra tortor. In nec mauris eget magna consequat
+</py_output>
+<testo_normale>
+Successivamente è stato fatta una modifica più complessa, sostituendo diverse parole in una frase.
+</testo_normale>
+<py_output>
+- convalis. Nam sed sem vitae odio pellentesque interdum. Sed
+?                 - --
+
++ convalis. Nam cras vitae mi vitae odio pellentesque interdum. Sed
+?               +++ +++++   +
+
+
+</py_output>
+<testo_normale>
+L'ultima frase nel paragrafo è stata modificata in modo significativo, quindi la differenza viene rappresentata  eliminando la vecchia versione ed aggiungendo la nuova
+</testo_normale>
+<py_output>
+  consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+  rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+  molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+  tristique vel, mauris. Curabitur vel lorem id nisl porta
+- adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate
+- tristique enim. Donec quis lectus a justo imperdiet tempus.
++ adipiscing. Duis vulputate tristique enim. Donec quis lectus a
++ justo imperdiet tempus.  Suspendisse eu lectus. In nunc.
+</py_output>
+<testo_normale>
+La funzione <code>ndiff()</code> fornisce essenzialmente lo stesso risultato. Il processo è specificamente modellato per lavorare con dati di testo, eliminando il "rumore" dai dati in entrata.
+</testo_normale>
+<titolo_2>
+Altri Formati di Output
+</titolo_2>
+<testo_normale>
+Mentre la classe <code>Differ</code> mostra tutte le righe in input, esiste una funzione, <code>unified_diff()</code> che mostra solo le righe modificate, assieme ad un poco di contesto e produce questo tipo di output.
+</testo_normale>
+<py_code>
+# difflib_unified.py
+
+import difflib
+from difflib_data import *
+
+diff = difflib.unified_diff(
+    text1_lines,
+    text2_lines,
+    lineterm='',
+)
+print('\n'.join(list(diff)))
+</py_code>
+<testo_normale>
+L'argomento <em>lineterm</em> viene usato per dire a <code>unified_diff()</code> di evitare di aggiungere nuove righe a quelle di controllo che ritorna in quanto le righe in input non le comprendono. Le righe nuove sono aggiunte a tutte le righe quando sono stampate. L'output dovrebbe risultare familiare agli utilizzatori di molti strumenti di controllo di versione.
+</testo_normale>
+<py_output>
+$ python3 difflib_unified.py
+
+---
++++
+@@ -1,11 +1,11 @@
+ Lorem ipsum dolor sit amet, consectetuer adipiscing
+ elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+-pulvinar porttitor tellus. Aliquam venenatis. Donec facilisis
+-pharetra tortor.  In nec mauris eget magna consequat
+-convalis. Nam sed sem vitae odio pellentesque interdum. Sed
++pulvinar, porttitor tellus. Aliquam venenatis. Donec facilisis
++pharetra tortor. In nec mauris eget magna consequat
++convalis. Nam cras vitae mi vitae odio pellentesque interdum. Sed
+ consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+ rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+ molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+ tristique vel, mauris. Curabitur vel lorem id nisl porta
+-adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate
+-tristique enim. Donec quis lectus a justo imperdiet tempus.
++adipiscing. Duis vulputate tristique enim. Donec quis lectus a
++justo imperdiet tempus.  Suspendisse eu lectus. In nunc.
+</py_output>
+<testo_normale>
+L'utilizzo di <code>context_diff()</code> produce un output parimenti leggibile.
+</testo_normale>
+<titolo_2>
+Dati da Ignorare
+</titolo_2>
+<testo_normale>
+Tutte le funzioni che producono sequenze di differenze accettano argomenti per indicare quali righe dovrebbero essere ignorate e quali caratteri all'interno di una riga dovrebbero essere ignorati. Questi parametri possono essere usati per saltare modifiche a testo di marcatura oppure modifiche relative a spazi e/o caratteri di controllo nelle due versioni di un file, per esempio.
+</testo_normale>
+<py_code>
+# difflib_junk.py
+
+# Questo esempio è un adattamento dal sorgente di difflib.py.
+
+from difflib import SequenceMatcher
+
+
+def show_results(s):
+    i, j, k = s.find_longest_match(0, 5, 0, 9)
+    print('  i = {}'.format(i))
+    print('  j = {}'.format(j))
+    print('  k = {}'.format(k))
+    print('  A[i:i+k] = {!r}'.format(A[i:i + k]))
+    print('  B[j:j+k] = {!r}'.format(B[j:j + k]))
+
+A = " abcd"
+B = "abcd abcd"
+
+print('A = {!r}'.format(A))
+print('B = {!r}'.format(B))
+
+print('\nSenza rilevamento di caratteri da ignorare:')
+show_results(SequenceMatcher(None, A, B))
+
+print('\nTratta gli spazi come caratteri da ignorare:')
+show_results(SequenceMatcher(lambda x: x == " ", A, B))
+</py_code>
+<testo_normale>
+Il comportamento predefinito di <code>Differ</code> è quello di non ignorare alcuna riga o carattere esplicitamente, ma appoggiarsi alle capacità di <code>SequenceMatcher</code> per individuare il "rumore". Nella modalità predefinita di <code>ndiff()</code> vengono ignorati spazi e caratteri di tabulazione.
+</testo_normale>
+<py_output>
+$ python3 difflib_junk.py
+
+A = ' abcd'
+B = 'abcd abcd'
+
+Senza rilevamento di caratteri da ignorare:
+  i = 0
+  j = 4
+  k = 5
+  A[i:i+k] = ' abcd'
+  B[j:j+k] = ' abcd'
+
+Tratta gli spazi come caratteri da ignorare:
+  i = 1
+  j = 0
+  k = 4
+  A[i:i+k] = 'abcd'
+  B[j:j+k] = 'abcd'
+
+</py_output>
+<titolo_2>
+Confrontare Tipi Arbitrari
+</titolo_2>
+<testo_normale>
+La classe <code>SequenceMatcher</code> confronta due sequenze di qualsiasi tipo, fintanto che gli elementi possono essere utilizzati in funzioni di <a href="https://it.wikipedia.org/wiki/Hash_table" targe='_blank'>hash</a>. La classe utilizza un algoritmo per identificare il blocco di corrispondenza contiguo più lungo dalle sequenze, eliminando valori "spazzatura" che non contribuiscono ai dati reali.
+</testo_normale>
+<py_code>
+# difflib_seq.py
+
+import difflib
+from difflib_data import *
+
+s1 = [1, 2, 3, 5, 6, 4]
+s2 = [2, 3, 5, 4, 6, 1]
+
+print('Dati iniziali:')
+print('s1 =', s1)
+print('s2 =', s2)
+print('s1 == s2:', s1 == s2)
+print()
+
+matcher = difflib.SequenceMatcher(None, s1, s2)
+for tag, i1, i2, j1, j2 in reversed(matcher.get_opcodes()):
+
+    if tag == 'delete':
+        print('Elimina {} dalle posizioni [{}:{}]'.format(
+            s1[i1:i2], i1, i2))
+        del s1[i1:i2]
+
+    elif tag == 'equal':
+        print('s1[{}:{}] e s2[{}:{}] sono uguali'.format(
+            i1, i2, j1, j2))
+
+    elif tag == 'insert':
+        print('Inserisce {} da s2[{}:{}] in s1 a {}'.format(
+            s2[j1:j2], j1, j2, i1))
+        s1[i1:i2] = s2[j1:j2]
+
+    elif tag == 'replace':
+        print(('Sostituisce {} da s1[{}:{}] '
+               'con {} da s2[{}:{}]').format(
+                   s1[i1:i2], i1, i2, s2[j1:j2], j1, j2))
+        s1[i1:i2] = s2[j1:j2]
+
+    print('  s1 =', s1)
+
+print('s1 == s2:', s1 == s2)
+
+</py_code>
+<testo_normale>
+Questo esempio confronta due liste di interi ed usa <code>get_opcodes()</code> per derivare le istruzioni per convertire la lista originale nella nuova versione. Le modifiche sono applicate in ordine inverso in modo che gli indici di lista rimangano precisi dopo l'aggiunta e la rimozione di elementi.
+</testo_normale>
+<py_output>
+$ python3 difflib_seq.py
+
+Dati iniziali:
+s1 = [1, 2, 3, 5, 6, 4]
+s2 = [2, 3, 5, 4, 6, 1]
+s1 == s2: False
+
+Sostituisce [4] da s1[5:6] con [1] da s2[5:6]
+  s1 = [1, 2, 3, 5, 6, 1]
+s1[4:5] e s2[4:5] sono uguali
+  s1 = [1, 2, 3, 5, 6, 1]
+Inserisce [4] da s2[3:4] in s1 a 4
+  s1 = [1, 2, 3, 5, 4, 6, 1]
+s1[1:4] e s2[0:3] sono uguali
+  s1 = [1, 2, 3, 5, 4, 6, 1]
+Elimina [1] dalle posizioni [0:1]
+  s1 = [2, 3, 5, 4, 6, 1]
+s1 == s2: True
+</py_output>
+<testo_normale>
+SequenceMatcher funziona con classi personalizzate, così come per i tipi built-in, fintanto che gli elementi possono essere utilizzati in funzioni di <a href="https://it.wikipedia.org/wiki/Hash_table" targe='_blank'>hash</a>.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/3.5/library/difflib.html|difflib|La documentazione standard della libreria per questo modulo
+http://www.ddj.com/documents/s=1103/ddj8807c/|Pattern Matching: The Gestalt Approach|Discussione su di un algoritmo simile di John W. Ratcliff e D. E. Metzener pubblicato nel Dr. Dobb's Journal del luglio 1988 (in inglese).
+</vedi_anche>
+</documento_tradotto>

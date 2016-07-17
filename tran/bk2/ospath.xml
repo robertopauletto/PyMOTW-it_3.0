@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+os.path - Manipolare i nomi dei file indipendentemente dalla piattaforma
+</titolo_1>
+<descrizione>
+Elaborare, costruire, controllare ed altro sui nomi di file e percorsi
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Scrivere codice per lavorare con file su multiple piattaforme è facile se si usano le funzioni comprese nel modulo <strong>os.path</strong>. Anche i programmi che non si intende portare su diverse piattaforme dovrebbero usare os.path per rendere affidabile l'elaborazione dei percorsi.
+</testo_normale>
+<titolo_2>
+Elaborare i Percorsi    
+</titolo_2>
+<testo_normale>
+Il primo gruppo di funzioni in os.path può essere usato per elaborare delle stringhe che rappresentano dei nomi di file dividendole nelle parti che li compongono. E' importante capire che queste funzioni non dipendono dal fatto che questi percorsi esistano. Esse operano solamente sulle stringhe.
+</testo_normale>
+<testo_normale>
+L'elaborazione dei percorsi dipende da un pugno di variabili definite nel modulo os:    
+</testo_normale>
+<lista>
+os.sep - Il separatore tra le porzioni del percorso (es. "/").
+os.extsep - Il separatore tra il nome del file e la sua "estensione" (es. ".").
+os.pardir - Il componente del percorso che serve per risalire l'albero delle directory su di un livello (es. "..").
+os.curdir - Il componente del percorso che fa riferimento alla directory corrente (es. ".").
+split() spezza il percorso in due parti separate e restituisce la tuple. Il secondo elemento è l'ultimo componente del percorso, ed il primo elemento è tutto quello che lo precede
+</lista>
+<py_code>
+import os.path
+
+for path in [ '/uno/due/tre/
+              '/uno/due/tre/',
+              '/',
+              '.',
+              '']:
+    print '"%s" : "%s"' % (path, os.path.split(path))
+    
+</py_code>
+<py_output>
+$ python ospath_split.py
+"/uno/due/tre" : "('/uno/due', 'tre')"
+"/uno/due/tre/" : "('/one/two/tre', '')"
+"/" : "('/', '')"
+"." : "('', '.')"
+"" : "('', '')"    
+</py_output>
+<testo_normale>
+${sbk}basename()${ebk} restituisce un valore che equivale alla seconda parte del risultato di ${sbk}split()${ebk}.
+</testo_normale>
+<py_code>
+import os.path
+
+for path in [ '/uno/due/tre', 
+              '/uno/due/tre/',
+              '/',
+              '.',
+              '']:
+    print '"%s" : "%s"' % (path, os.path.basename(path))
+    
+</py_code>
+<py_output>
+$ python ospath_basename.py
+"/uno/due/tre" : "tre"
+"/uno/due/tre/" : ""
+"/" : ""
+"." : "."
+"" : ""    
+</py_output>
+<testo_normale>
+${sbk}dirname()${ebk} ritorna il percorso che equivale alla prima parte del risultato di ${sbk}split()${ebk}
+</testo_normale>
+<py_code>
+import os.path
+
+for path in [ '/uno/due/tre', 
+              '/uno/due/tre/',
+              '/',
+              '.',
+              '']:
+    print '"%s" : "%s"' % (path, os.path.dirname(path))
+    
+</py_code>
+<py_output>
+$ python ospath_dirname.py
+"/uno/due/tre" : "/uno/due"
+"/uno/due/tre/" : "/uno/due/tre"
+"/" : "/"
+"." : ""
+"" : ""    
+</py_output>
+<testo_normale>
+${sbk}splitext()${ebk} funziona come split() ma divide il percorso sul separatore di estensione, invece che sui nomi di directory.
+</testo_normale>
+<py_code>
+import os.path
+
+for path in [ 'nomefile.txt', 'nomefile', '/percorso/al/nomefile.txt', '/', '' ]:
+    print '"%s" :' % path, os.path.splitext(path)
+    
+</py_code>
+<py_output>
+$ python ospath_splitext.py 
+"nomefile.txt" : ('nomefile', '.txt')
+"nomefile" : ('nomefile', '')
+"/percorso/al/nomefile.txt" : ('/percorso/al/nomefile', '.txt')
+"/" : ('/', '')
+"" : ('', '')
+</py_output>
+<testo_normale>
+${sbk}commonprefix()${ebk} prende una lista di percorsi come parametro e restituisce una singola stringa che rappresenta un prefisso comune presente in tutti i percorsi. Il valore potrebbe rappresentare un percorso che in realtà non esiste, ed il separatore di percorso non viene considerato, quindi il prefisso potrebbe non fermarsi nei confini del separatore.
+</testo_normale>
+<py_code>
+import os.path
+
+paths = ['/uno/due/tre/quattro',
+         '/uno/due/trequalchealtro',
+         '/uno/due/tre/',
+         ]
+print paths
+print os.path.commonprefix(paths)
+</py_code>
+<py_output>
+$ python ospath_commonprefix.py
+['/uno/due/tre/quattro', '/uno/due/trequalchealtro', '/uno/due/tre/']
+/uno/due/tre
+</py_output>
+<titolo_2>
+Costruire Percorsi
+</titolo_2>
+<testo_normale>
+A parte dividere percorsi esistenti, frequentemente occorre costruire percorsi da altre stringhe.
+</testo_normale>
+<testo_normale>
+Per combinare diversi componenti di percorso in un singolo valore, si usa ${sbk}join()${ebk}:
+</testo_normale>
+<py_code>
+import os.path
+
+for parts in [ ('uno', 'due', 'tre'),
+               ('/', 'uno', 'due', 'tre'),
+               ('/uno', '/due', '/tre'),
+               ]:
+    print parts, ':', os.path.join(*parts)
+</py_code>
+<py_output>
+$ python ospath_join.py
+('uno', 'due', 'tre') : uno/due/tre
+('/', 'uno', 'due', 'tre') : /uno/due/tre
+('/uno', '/due', '/tre') : /tre
+</py_output>
+<testo_normale>
+E' anche facile lavorare con percorsi che includono componenti inseriti in "variabili" che possono essere espanse automaticamente. Per esempio ${sbk}expanduser()${ebk} converte il carattere tilde (~) nella directory home dell'utente.
+</testo_normale>
+<py_code>
+import os.path
+
+for user in [ '', 'dhellmann', 'postgres' ]:
+    lookup = '~' + user
+    print lookup, ':', os.path.expanduser(lookup)
+</py_code>
+<py_output>
+$ python ospath_expanduser.py
+~ : /Users/dhellmann
+~dhellmann : /Users/dhellmann
+~postgres : /var/empty
+</py_output>
+<testo_normale>
+${sbk}expandvars()${ebk} è più generico, ed espande ogni variabile di ambiente della shell presente nel percorso
+</testo_normale>
+<py_code>
+import os.path
+import os
+
+os.environ['LA_MIA_VARIABILE'] = 'VALORE'
+
+print os.path.expandvars('/percorso/al/$LA_MIA_VARIABILE')
+</py_code>
+<py_output>
+$ python ospath_expandvars.py
+/percorso/al/VALORE
+</py_output>
+<titolo_2>
+Normalizzare Percorsi
+</titolo_2>
+<testo_normale>
+I percorsi assemblati da stringhe separate   usando ${sbk}join()${ebk} o con variabili incorporate potrebbero risultare con separatori extra o componenti di percorso relativo. L'uso di ${sbk}normpath()${ebk} pulisce tutto:
+</testo_normale>
+<py_code>
+import os.path
+
+for path in [ 'uno//due//tre', 
+              'uno/./due/./tre', 
+              'uno/../uno/due/tre',
+              ]:
+    print path, ':', os.path.normpath(path)
+</py_code>
+<py_output>
+$ python ospath_normpath.py
+uno//due//tre : uno/due/tre
+uno/./due/./tre : uno/due/tre
+uno/../uno/due/tre : uno/due/tre
+</py_output>
+<testo_normale>
+Per convertire un percorso relativo in un nome di file con percorso assoluto si usa ${sbk}abspath()${ebk}.
+</testo_normale>
+<py_code>
+import os.path
+
+for path in [ '.', '..', './uno/due/tre', '../uno/due/tre']:
+    print '"%s" : "%s"' % (path, os.path.abspath(path))
+</py_code>
+<py_output>
+$ python ospath_abspath.py
+"." : "/Users/dhellmann/Documents/PyMOTW/src/PyMOTW/ospath"
+".." : "/Users/dhellmann/Documents/PyMOTW/src/PyMOTW"
+"./uno/due/tre" : "/Users/dhellmann/Documents/PyMOTW/src/PyMOTW/ospath/uno/due/tre"
+"../uno/due/tre" : "/Users/dhellmann/Documents/PyMOTW/src/PyMOTW/uno/due/tre"
+</py_output>
+<titolo_2>
+Data / Ora di File
+</titolo_2>
+<testo_normale>
+A parte il lavoro con i percorsi, <strong>os.path</strong> include anche qualche funzione per recuperare le proprietà dei file, la qual cosa può essere molto più conveniente che chiamare ${sbk}os.stat()${ebk}:
+</testo_normale>
+<py_code>
+import os.path
+import time
+
+print 'File           :', __file__
+print 'Ultimo accesso :', time.ctime(os.path.getatime(__file__))
+print 'Ultima modifica:', time.ctime(os.path.getmtime(__file__))
+print 'Change time    :', time.ctime(os.path.getctime(__file__))
+print 'Dimensione     :', os.path.getsize(__file__)
+</py_code>
+<py_output>
+File           : ospath_properties.py
+Ultimo accesso : Sat Jan 23 13:15:30 2010
+Ultima modifica: Sat Jan 23 13:15:26 2010
+Change time    : Sat Jan 23 13:15:26 2010
+Dimensione     : 310
+</py_output>
+<titolo_2>
+Verificare i File    
+</titolo_2>
+<testo_normale>
+Quando un programma trova un nome di percorso, spesso deve sapere se il percorso fa riferimento ad un file o ad una directory. Se si sta lavorando su di una piattaforma che lo supporta, si potrebbe avere bisogno di sapere se il percorso si riferisce ad un link simbolico o ad un punto di montaggio. Si potrebbe anche volere verificare se il percorso esiste o meno. <strong>os.path</strong> fornisce delle funzioni per verificare tutte queste condizioni.
+</testo_normale>
+<py_code>
+import os.path
+
+for file in [ __file__, os.path.dirname(__file__), '/', './link_non_valido']:
+    print "File               :", file
+    print "Assoluto           :", os.path.isabs(file)
+    print "E' un file?        :", os.path.isfile(file)
+    print "E' una directory?  :", os.path.isdir(file)
+    print "E' un  Link?       :", os.path.islink(file)
+    print "Punto di montaggio?:", os.path.ismount(file)
+    print 'Esiste?            :', os.path.exists(file)
+    print 'Esiste il Link?    :', os.path.lexists(file)
+    print
+</py_code>
+<py_output>
+$ ln -s /non/esiste link_non_valido    
+$ python ospath_tests.py 
+File               : ospath_tests.py
+Assoluto           : False
+E' un file?        : True
+E' una directory?  : False
+E' un  Link?       : False
+Punto di montaggio?: False
+Esiste?            : True
+Esiste il Link?    : True
+
+File               : 
+Assoluto           : False
+E' un file?        : False
+E' una directory?  : False
+E' un  Link?       : False
+Punto di montaggio?: False
+Esiste?            : False
+Esiste il Link?    : False
+
+File               : /
+Assoluto           : True
+E' un file?        : False
+E' una directory?  : True
+E' un  Link?       : False
+Punto di montaggio?: True
+Esiste?            : True
+Esiste il Link?    : True
+
+File               : ./link_non_valido
+Assoluto           : False
+E' un file?        : False
+E' una directory?  : False
+E' un  Link?       : True
+Punto di montaggio?: False
+Esiste?            : False
+Esiste il Link?    : True
+</py_output>
+<titolo_2>
+Attraversare un albero di directory
+</titolo_2>
+<testo_normale>
+${sbk}os.path.walk()${ebk} attraversa tutte le directory in un albero e chiama una funzione che viene fornita alla quale vengono passati il nome della directory ed i nomi del contenuto di quella directory. Questo esempio produce un elenco ricorsivo di directory, ignorando le directory svn.
+</testo_normale>
+<py_code>
+import os
+import os.path
+import pprint
+
+def visit(arg, dirname, names):
+    print dirname, arg
+    for name in names:
+        subname = os.path.join(dirname, name)
+        if os.path.isdir(subname):
+            print '  %s/' % name
+        else:
+            print '  %s' % name
+    print
+
+os.mkdir('esempio')
+os.mkdir('esempio/uno')
+f = open('esempio/uno/file.txt', 'wt')
+f.write('contenuto')
+f.close()
+f = open('esempio/due.txt', 'wt')
+f.write('contenuto')
+f.close()
+os.path.walk('esempio', visit, '(Dati utente)')
+</py_code>
+<py_output>
+$ python ospath_walk.py
+esempio (Dati utente)
+  uno/
+  due.txt
+
+esempio/uno (Dati utente)
+  file.txt
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-os.path.html|os.path|La documentazione della libreria standard per questo modulo.
+os.html|os|Il modulo os è il genitore di os.path.
+http://www.doughellmann.com/PyMOTW/articles/file_access.html#article-file-access|Accesso ai File|
+</vedi_anche>
+</documento_tradotto>

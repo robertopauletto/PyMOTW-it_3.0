@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>moduli numerici e matematici </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+fractions - Numeri razionali
+</titolo_1>
+<descrizione>
+Implementa una classe per lavorare coi numeri razionali
+2.6 e superiore
+</descrizione>
+<testo_normale>
+La classe <strong>Fraction</strong> implementa le operazioni numeriche per i numeri razionali basate sull'API definita da <em>Rational</em> in <em>numbers</em>.
+</testo_normale>
+<titolo_2>
+Creare istanze di frazioni
+</titolo_2>
+<testo_normale>
+Come per <a href='decimal.html'><strong>decimal</strong></a>, i nuovi valori possono essere creati in diversi modi. Uno facile è quello di crearli da valori di numeratore e denominatore separati:
+</testo_normale>
+<py_code>
+import fractions
+
+for n, d in [ (1, 2), (2, 4), (3, 6) ]:
+    f = fractions.Fraction(n, d)
+    print '%s/%s = %s' % (n, d, f)
+</py_code>
+<testo_normale>
+Il comune denominatore più basso viene mantenuto mentre vengono calcolati i nuovi valori.
+</testo_normale>
+<py_output>
+$ python fractions_create_integers.py
+1/2 = 1/2
+2/4 = 1/2
+3/6 = 1/2
+</py_output>
+<testo_normale>
+Un altro modo per creare una frazione è usare una rappresentazione stringa di ${sbk}&lt;numeratore&gt; / &lt;denominatore&gt;${ebk}
+</testo_normale>
+<py_code>
+import fractions
+
+for s in [ '1/2', '2/4', '3/6' ]:
+    f = fractions.Fraction(s)
+    print '%s = %s' % (s, f)
+</py_code>
+<py_output>
+$ python fractions_create_strings.py
+1/2 = 1/2
+2/4 = 1/2
+3/6 = 1/2
+</py_output>
+<testo_normale>
+Le stringhe possono anche usare la più comune notazione decimale o a virgola mobile di ${sbk}[&lt;cifre&gt;].[&lt;cifre&gt;]${ebk}.
+</testo_normale>
+<py_code>
+import fractions
+
+for s in [ '0.5', '1.5', '2.0' ]:
+    f = fractions.Fraction(s)
+    print '%s = %s' % (s, f)
+</py_code>
+<py_output>
+$ python fractions_create_strings_floats.py
+0.5 = 1/2
+1.5 = 3/2
+2.0 = 2
+</py_output>
+<testo_normale>
+Ci sono metodi di classe per creare istanze di Fraction direttamente da altre rappresentazioni di valori razionali tipo float o <a href='decimal.html'><strong>decimal</strong></a>.
+</testo_normale>
+<py_code>
+import fractions
+
+for v in [ 0.1, 0.5, 1.5, 2.0 ]:
+    print '%s = %s' % (v, fractions.Fraction.from_float(v))
+</py_code>
+<testo_normale>
+Notare che, per i valori a virgola mobile che non possono essere espressi esattamente, la rappresentazione razionale potrebbe contenere risultati inaspettati.    
+</testo_normale>
+<py_output>
+$ python fractions_from_float.py
+0.1 = 3602879701896397/36028797018963968
+0.5 = 1/2
+1.5 = 3/2
+2.0 = 2
+</py_output>
+<testo_normale>
+L'uso di rappresentazioni <a href='decimal.html'><strong>decimali</strong></a> dei valori fornisce il risultato che ci si aspetta.
+</testo_normale>
+<py_code>
+import decimal
+import fractions
+
+for v in [ decimal.Decimal('0.1'), 
+           decimal.Decimal('0.5'), 
+           decimal.Decimal('1.5'), 
+           decimal.Decimal('2.0'),
+           ]:
+    print '%s = %s' % (v, fractions.Fraction.from_decimal(v))
+</py_code>
+<py_output>
+$ python fractions_from_decimal.py
+0.1 = 1/10
+0.5 = 1/2
+1.5 = 3/2
+2.0 = 2    
+</py_output>   
+<titolo_2>
+Aritmetica
+</titolo_2>
+<testo_normale>
+Una volta che le frazioni sono istanziate, possono essere usare in espressioni matematiche come ci si potrebbe aspettare.
+</testo_normale>
+<py_code>
+import fractions
+
+f1 = fractions.Fraction(1, 2)
+f2 = fractions.Fraction(3, 4)
+
+print '%s + %s = %s' % (f1, f2, f1 + f2)
+print '%s - %s = %s' % (f1, f2, f1 - f2)
+print '%s * %s = %s' % (f1, f2, f1 * f2)
+print '%s / %s = %s' % (f1, f2, f1 / f2)
+</py_code>
+<py_output>
+$ python fractions_arithmetic.py
+1/2 + 3/4 = 5/4
+1/2 - 3/4 = -1/4
+1/2 * 3/4 = 3/8
+1/2 / 3/4 = 2/3
+</py_output>
+<titolo_2>
+Approssimazione dei valori
+</titolo_2>
+<testo_normale>
+Una utile caratteristica di <strong>Fraction</strong> è la capacità di convertire un numero a virgola mobile in un valore razionale approssimato limitando la dimensione del denominatore.
+</testo_normale>
+<py_code>
+import fractions
+import math
+
+print 'PI       =', math.pi
+
+f_pi = fractions.Fraction(str(math.pi))
+print 'Nessun limite =', f_pi
+
+for i in range(1, 100, 5):
+    limited = f_pi.limit_denominator(i)
+    print '{0:8} = {1}'.format(i, limited)
+</py_code>
+<py_output>
+$ python fractions_limit_denominator.py
+PI       = 3.14159265359
+Nessun limite = 314159265359/100000000000
+       1 = 3
+       6 = 19/6
+      11 = 22/7
+      16 = 22/7
+      21 = 22/7
+      26 = 22/7
+      31 = 22/7
+      36 = 22/7
+      41 = 22/7
+      46 = 22/7
+      51 = 22/7
+      56 = 22/7
+      61 = 179/57
+      66 = 201/64
+      71 = 223/71
+      76 = 223/71
+      81 = 245/78
+      86 = 267/85
+      91 = 267/85
+      96 = 289/92
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/fractions.html|fractions|La documentazione della libreria standard per questo modulo.
+decimal.html|decimal|Il modulo decimal fornisce una API per matematica a virgola fissa e mobile.
+http://docs.python.org/library/fractions.html|numbers|Classi base astratte numeriche.
+</vedi_anche>
+</documento_tradotto>

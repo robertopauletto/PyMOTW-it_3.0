@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>moduli numerici e matematici </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+functools - Strumenti per generare decoratori ed altri wrapper di funzione
+</titolo_1>
+<descrizione>
+Il modulo functools include strumenti per il wrapping di funzioni ed altri oggetti chiamabili
+nuovo nella 2.5
+</descrizione>
+<testo_normale>
+Lo strumento primario fornito dal modulo <strong>functools</strong> è la classe ${sbk}partial${ebk}, che può essere usata per "impacchettare" un chiamabile con parametri predifiniti. L'oggetto risultante è a sua volta chiamabile e può essere trattato come se fosse la funzione originale. Richiede tutti gli stessi parametri del chiamabile originale e può essere chiamato con parametri aggiuntivi sia posizionali che nominativi.
+</testo_normale>
+<titolo_2>
+partial
+</titolo_2>
+<testo_normale>
+Questo esempio mostra due semplici oggetti partial per la funzione ${sbk}myfunc()${ebk}. Si noti che ${sbk}show_details()${ebk} stampa gli attributi func, args e keywords della funzione dell'oggetto partial.
+</testo_normale>
+<py_code>
+import functools
+
+def myfunc(a, b=2):
+    """Docstring per myfunc()."""
+    print '\tchiamata myfunc con:', (a, b)
+    return
+
+def show_details(name, f, is_partial=False):
+    """Mostra i dettagli di un oggetto chiamabile."""
+    print '%s:' % name
+    print '\toggetto:', f
+    if not is_partial:
+        print '\t__name__:', f.__name__
+    print '\t__doc__', repr(f.__doc__)
+    if is_partial:
+        print '\tfunc:', f.func
+        print '\targs:', f.args
+        print '\tkeywords:', f.keywords
+    return
+
+show_details('myfunc', myfunc)
+myfunc('a', 3)
+print
+
+p1 = functools.partial(myfunc, b=4)
+show_details('partial con nominale predefinito', p1, True)
+p1('predefinito a')
+p1('sovrascritto b', b=5)
+print
+
+p2 = functools.partial(myfunc, 'predefinito a', b=99)
+show_details('partial con predefiniti', p2, True)
+p2()
+p2(b='sovrascritto b')
+print
+
+print 'Parametri insufficienti:'
+p1()
+</py_code>
+<testo_normale>
+Alla fine dell'esempio, il primo partial creato viene chiamato senza passare un valore per a, provocando una eccezione
+</testo_normale>
+<py_output>
+$ python functools_partial.py
+myfunc:
+	oggetto: <function myfunc at 0xb76d241c>
+	__name__: myfunc
+	__doc__ 'Docstring per myfunc().'
+	chiamata myfunc con: ('a', 3)
+
+partial con nominale predefinito:
+	oggetto: <functools.partial object at 0xb76da9b4>
+	__doc__ 'partial(func, *args, **keywords) - new function with partial application\n\tof the given arguments and keywords.\n'
+	func: <function myfunc at 0xb76d241c>
+	args: ()
+	keywords: {'b': 4}
+	chiamata myfunc con: ('predefinito a', 4)
+	chiamata myfunc con: ('sovrascritto b', 5)
+
+partial con predefiniti:
+	oggetto: <functools.partial object at 0xb76dab44>
+	__doc__ 'partial(func, *args, **keywords) - new function with partial application\n\tof the given arguments and keywords.\n'
+	func: <function myfunc at 0xb76d241c>
+	args: ('predefinito a',)
+	keywords: {'b': 99}
+	chiamata myfunc con: ('predefinito a', 99)
+	chiamata myfunc con: ('predefinito a', 'sovrascritto b')
+
+Parametri insufficienti:
+Traceback (most recent call last):
+  File "t.py", line 38, in <module>
+    p1()
+TypeError: myfunc() takes at least 1 non-keyword argument (0 given)
+</py_output>
+<titolo_2>
+update_wrapper    
+</titolo_2>
+<testo_normale>
+Come illustrato nell'esempio precedente, l'oggetto partial non ha attributi __name__ o __doc__ predefiniti. La perdita di questi attributi per le funzioni decorate le rende più difficili per il debug. Se si usa ${sbk}update_wrapper${ebk}, si possono copiare od aggiungere attributi dalla funzione originale all'oggetto partial.
+</testo_normale>
+<py_code>
+import functools
+
+def myfunc(a, b=2):
+    """Docstring per myfunc()."""
+    print '\tchiamata myfunc con:', (a, b)
+    return
+
+def show_details(name, f):
+    """Mostra dettagli di un oggetto chiamabile."""
+    print '%s:' % name
+    print '\tobject:', f
+    print '\t__name__:', 
+    try:
+        print f.__name__
+    except AttributeError:
+        print '(no __name__)'
+    print '\t__doc__', repr(f.__doc__)
+    print
+    return
+
+show_details('myfunc', myfunc)
+
+p1 = functools.partial(myfunc, b=4)
+show_details('wrapper grezzo', p1)
+
+print 'Aggiornamento del wrapper:'
+print '\tassegnazione:', functools.WRAPPER_ASSIGNMENTS
+print '\taggiornamento:', functools.WRAPPER_UPDATES
+print
+
+functools.update_wrapper(p1, myfunc)
+show_details('wrapper aggiornato', p1)
+</py_code>
+<testo_normale>
+Gli attributi aggiunti al wrapper sono definiti in functools.WRAPPER_ASSIGNMENTS, mentre functools.WRAPPER_UPDATES elenca i valori da modificare.    
+</testo_normale>
+<py_output>
+myfunc:
+	object: <function myfunc at 0xb773909c>
+	__name__: myfunc
+	__doc__ 'Docstring per myfunc().'
+
+wrapper grezzo:
+	object: <functools.partial object at 0xb7741964>
+	__name__: (no __name__)
+	__doc__ 'partial(func, *args, **keywords) - new function with partial application\n\tof the given arguments and keywords.\n'
+
+Aggiornamento del wrapper:
+	assegnazione: ('__module__', '__name__', '__doc__')
+	aggiornamento: ('__dict__',)
+
+wrapper aggiornato:
+	object: <functools.partial object at 0xb7741964>
+	__name__: myfunc
+	__doc__ 'Docstring per myfunc().'
+
+
+</py_output>
+<titolo_2>
+Metodi ed Altri Chiamabili
+</titolo_2>
+<testo_normale>
+I partial lavorano con qualsiasi oggetto chiamabile, inclusi metodi ed istanze.
+</testo_normale>
+<py_code>
+import functools
+
+class MyClass(object):
+    """Classe dimostrativa per functools"""
+    
+    def meth1(self, a, b=2):
+        """Docstring per meth1()."""
+        print '\tchiamata meth1 con:', (self, a, b)
+        return
+    
+    def meth2(self, c, d=5):
+        """Docstring per meth2"""
+        print '\tchiamata meth2 con:', (self, c, d)
+        return
+    wrapped_meth2 = functools.partial(meth2, 'wrapped c')
+    functools.update_wrapper(wrapped_meth2, meth2)
+    
+    def __call__(self, e, f=6):
+        """Docstring per MyClass.__call__"""
+        print '\toggetto chiamato con:', (self, e, f)
+        return
+
+def show_details(name, f):
+    """Mostra dettagli di un oggetto chiamabile."""
+    print '%s:' % name
+    print '\toggetto:', f
+    print '\t__name__:', 
+    try:
+        print f.__name__
+    except AttributeError:
+        print '(nessun __name__)'
+    print '\t__doc__', repr(f.__doc__)
+    return
+    
+o = MyClass()
+
+show_details('meth1 diretta', o.meth1)
+o.meth1('nessun predefinito per a', b=3)
+print
+
+p1 = functools.partial(o.meth1, b=4)
+functools.update_wrapper(p1, o.meth1)
+show_details('meth1 wrapper', p1)
+p1('a va qui')
+print
+
+show_details('meth2', o.meth2)
+o.meth2('nessun predefinito per c', d=6)
+print
+
+show_details('wrapped meth2', o.wrapped_meth2)
+o.wrapped_meth2('nessun predefinito per c', d=6)
+print
+
+show_details('instanza', o)
+o('nessun predefinito per e')
+print
+
+p2 = functools.partial(o, f=7)
+show_details('wrapper di istanza', p2)
+p2('e va qui')
+</py_code>
+<py_output>
+meth1 diretta:
+	oggetto: <bound method MyClass.meth1 of <__main__.MyClass object at 0xb7836d4c>>
+	__name__: meth1
+	__doc__ 'Docstring per meth1().'
+	chiamata meth1 con: (<__main__.MyClass object at 0xb7836d4c>, 'nessun predefinito per a', 3)
+
+meth1 wrapper:
+	oggetto: <functools.partial object at 0xb7834c84>
+	__name__: meth1
+	__doc__ 'Docstring per meth1().'
+	chiamata meth1 con: (<__main__.MyClass object at 0xb7836d4c>, 'a va qui', 4)
+
+meth2:
+	oggetto: <bound method MyClass.meth2 of <__main__.MyClass object at 0xb7836d4c>>
+	__name__: meth2
+	__doc__ 'Docstring per meth2'
+	chiamata meth2 con: (<__main__.MyClass object at 0xb7836d4c>, 'nessun predefinito per c', 6)
+
+wrapped meth2:
+	oggetto: <functools.partial object at 0xb7834a7c>
+	__name__: meth2
+	__doc__ 'Docstring per meth2'
+	chiamata meth2 con: ('wrapped c', 'nessun predefinito per c', 6)
+
+instanza:
+	oggetto: <__main__.MyClass object at 0xb7836d4c>
+	__name__: (nessun __name__)
+	__doc__ 'Classe dimostrativa per functools'
+	oggetto chiamato con: (<__main__.MyClass object at 0xb7836d4c>, 'nessun predefinito per e', 6)
+
+wrapper di istanza:
+	oggetto: <functools.partial object at 0xb7834d24>
+	__name__: (nessun __name__)
+	__doc__ 'partial(func, *args, **keywords) - new function with partial application\n\tof the given arguments and keywords.\n'
+	oggetto chiamato con: (<__main__.MyClass object at 0xb7836d4c>, 'e va qui', 7)
+
+</py_output>
+<titolo_2>
+wraps
+</titolo_2>
+<testo_normale>
+Come detto precedentemente, queste capacità sono particolarmente utili quando usate nei decoratori, visto che la funzione decorata risulta con le proprietà della funzione "grezza" originale. functools fornisce una comoda funzione, ${sbk}wraps()${ebk}, da usare essa stessa come decoratore e per applicare automaticamente ${sbk}update_wrapper()${ebk}.
+</testo_normale>
+<py_code>
+import functools
+
+def show_details(name, f):
+    """Mostra i dettagli di un oggetto chiamabile."""
+    print '%s:' % name
+    print '\toggetto:', f
+    print '\t__name__:', 
+    try:
+        print f.__name__
+    except AttributeError:
+        print '(nessun __name__)'
+    print '\t__doc__', repr(f.__doc__)
+    print
+    return
+
+def simple_decorator(f):
+    @functools.wraps(f)
+    def decorated(a='predefiniti decorati', b=1):
+        print '\tdecorati:', (a, b)
+        print '\t',
+        f(a, b=b)
+        return
+    return decorated
+
+def myfunc(a, b=2):
+    print '\tmyfunc:', (a,b)
+    return
+
+show_details('myfunc', myfunc)
+myfunc('unwrapped, default b')
+myfunc('unwrapped, passing b', 3)
+print
+
+wrapped_myfunc = simple_decorator(myfunc)
+show_details('wrapped_myfunc', wrapped_myfunc)
+wrapped_myfunc()
+wrapped_myfunc('args per decorare', 4)
+</py_code>
+<py_output>
+$ python functools_wraps.py
+myfunc:
+	oggetto: <function myfunc at 0xb778f79c>
+	__name__: myfunc
+	__doc__ None
+
+	myfunc: ('unwrapped, default b', 2)
+	myfunc: ('unwrapped, passing b', 3)
+
+wrapped_myfunc:
+	oggetto: <function myfunc at 0xb778f7d4>
+	__name__: myfunc
+	__doc__ None
+
+	decorati: ('predefiniti decorati', 1)
+		myfunc: ('predefiniti decorati', 1)
+	decorati: ('args per decorare', 4)
+		myfunc: ('args per decorare', 4)
+
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/functools.html|functools|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

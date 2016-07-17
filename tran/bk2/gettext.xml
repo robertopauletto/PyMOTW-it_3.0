@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internazionalizzazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo <!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+gettext - Cataloghi di Messaggi
+</titolo_1>
+<descrizione>
+API per catalogo di messaggi per internazionalizzazione.
+2.1.3 e successive
+</descrizione>
+<testo_normale>
+Il modulo <strong>gettext</strong> fornisce una implementazione in puro Python compatibile con la libreria <a href='http://www.gnu.org/software/gettext/'>GNU gettext</a> per traduzione di messaggi e gestione di catalogo. Gli strumenti disponibili con la distribuzione del sorgente Python consente di estrarre messaggi dalla propria sorgente, costruire un catalogo di messaggi contenente le traduzioni, ed usarlo per stampare un messaggio appropriato per l'utente in fase di esecuzione.
+</testo_normale>
+<testo_normale>
+I cataloghi di messaggi possono essere usati per fornire interfacce internazionalizzate per il proprio programma, mostrando messaggi nella lingua appropriata per l'utente. Essi possono anche essere usati per altre personalizzazioni di messaggi, inclusa lo "<a href='https://it.wikipedia.org/wiki/Skin_(informatica)'>skinning</a>" di una interfaccia per diversi wrappers o partner.
+</testo_normale>
+<note>
+<strong>Nota</strong>: Sebbene la documentazione della libreria standard dice che tutto quello che serve &egrave; incluso in Python, ho scoperto (Doug Hellman - n.d.t.) che <em>pygettext.py</em> si rifiuta di estrarre messaggi racchiusi in una chiamata a <em>ungettext</em>, anche quando si usano quelle che sembrerebbero le appropriate opzioni di riga di comando. Quindi ho finito per installare gli strumenti <a href='http://www.gnu.org/software/gettext/'>GNU gettext </a>dalla sorgente, ed usare invece <em>xgettext</em>
+</note>
+<titolo_2>
+Sguardo di Insieme del Flusso di Lavoro	di Traduzione
+</titolo_2>
+<testo_normale>
+Il processo per impostare ed usare le traduzioni consta di cinque passi:
+</testo_normale>
+<lista_ordinata>
+Marcatura nel proprio codice delle stringhe letterali che contengono i messaggi da tradurre<br /><br />Si inizia con l'identificare i messaggi all'interno del proprio sorgente che occorre tradurre, marcando le stringhe letterali in modo che il programma di estrazione le possa trovare.<br /><br />
+Estrazione dei messaggi<br /><br />Dopo avere identificato le stringhe traducibili nel proprio sorgente, si usa <code>xgettext</code> per estrarre le stringhe e creare un file con estensione <code>.pot</code>, o modello di traduzione. Il modello &egrave; un file di testo con una copia di tutte le stringhe che sono state identificate ed i segnaposto per le loro traduzioni.<br /><br />
+Traduzione dei messaggi.<br /><br />Passare una copia del file <code>.pot</code> al traduttore, modificando l'estensione in <code>.po</code>. Il file <code>.po</code> &egrave; un file sorgente modificabile usato come input per la fase di compilazione. Il traduttore dovrebbe aggiornare i dati di intestazione nel file e fornire le traduzioni per tutte le stringhe.<br /><br />
+"Compilare" il catalogo messaggi dalla traduzione.<br /><br />Quando il traduttore restituisce il file <code>.po</code> completato, si compila il file di testo nel formato binario del catalogo usando <code>msgfmt</code>. Il formato binario viene usato dal codice che cerca nel catalogo in fase di esecuzione.<br /><br />
+Caricare ed attivare l'appropriato catalogo di messaggi in fase di esecuzione <br /><br />Il passo finale &egrave; quello di aggiungere poche righe di codice alla propria applicazione per configurare e caricare il catalogo di messaggi ed installare la funzione di traduzione. Ci sono un paio di metodi per fare questo, con associati compromessi, ognuno dei quali viene trattato di seguito.
+</lista>
+<testo_normale>
+Si analizzano ora questi passi pi&ugrave; dettagliatamente, partendo con le modifiche che occorre fare al proprio codice.
+</testo_normale>
+<titolo_2>
+Creare Cataloghi di Messaggi dal Codice Sorgente
+</titolo_2>
+<testo_normale>
+<strong>gettext</strong> funziona cercando le stringhe letterali incorporate nel proprio programma in un database di traduzioni ed estraendo la stringa tradotta appropriata. Ci sono diverse varianti delle funzionI per accedere al catalogo, a seconda che si lavori con stringhe Unicode o meno. Il modello tradizionale consiste nel legare la funzione di ricerca che si vuole usare al nome <code>_</code> cos&igrave; da non infestare il proprio codice con tante chiamate a funzioni con nomi pi&ugrave; lunghi.
+</testo_normale>
+<testo_normale>
+Il programma di estrazione dei messaggi <code>xgettext</code> cerca i messaggi incorporati in chiamate alle funzioni di ricerca del catalogo. Comprende diversi linguaggi sorgente, ed usa un appropriato analizzatore per ognuno. Se si usano degli alias per le funzioni di ricerca od occorre aggiungere funzioni supplementari, si possono passare a <code>xgettext</code> i nomi dei simboli aggiuntivi da considerare quando si estraggono i messaggi.
+</testo_normale>
+<testo_normale>
+Ecco un semplice script con un singolo messaggio pronto per essere tradotto.
+</testo_normale>
+<py_code>
+import gettext
+
+# Imposta l'accesso al catalogo di messaggi
+t = gettext.translation('gettext_example', 'locale', fallback=True)
+_ = t.ugettext
+
+print _("Questo messaggio si trova nello script.")
+</py_code>
+<testo_normale>
+In questo caso viene usata la versione Unicode della funzione di ricerca <code>ugettext</code>. Il testo "Questo messaggio si trova nello script." &egrave; il messaggio da sostituire dal catalogo. E' stata abilitata la modalit&agrave; <em>fallback</em>, in modo che se lo script viene eseguito senza un catalogo di messaggi viene stampato il messaggio in linea
+</testo_normale>
+<py_output>
+$ python gettext_example.py
+Questo messaggio si trova nello script.
+</py_output>
+<testo_normale>
+Il passo successivo &egrave; l'estrazione del(i) messaggio(i) e la creazione del file <code>.pot</code>, usando <code>pygettext.py</code>
+</testo_normale>
+<py_output>
+$ xgettext -d gettext_example -o gettext_example.pot gettext_example.py
+</py_output>
+<testo_normale>
+Il file in uscita (gettext_example.pot) assomiglia a questo:
+</testo_normale>
+<py_output>
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-04-12 21:11+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gettext_example.py:11
+msgid "Questo messaggio si trova nello script."
+msgstr ""
+</py_output>
+<testo_normale>
+I cataloghi di messaggi sono installati in directory organizzate per <em>dominio</em> e <em>linguaggio</em>. In genere il dominio &egrave; un valore univoco, tipo il nome della propria applicazione. In questo caso &egrave; stato usato <code>gettext_example</code>. Il valore del linguaggio viene fornito dall'ambiente dell'utente in fase di esecuzione, attraverso una delle variabili di ambiente <code>LANGUAGE</code>, <code>LC_ALL</code>, <code>LC_MESSAGES</code> o <code>LANG</code>, a seconda della configurazione e piattaforma. Il linguaggio &egrave; impostato a <code>it_IT</code> (<code>en_US</code> nell'originale - n.d.t.) e sar&agrave; quello usato in tutti gli esempi che seguono.
+</testo_normale>
+<testo_normale>
+Ora che si ha un modello il prossimo passo &egrave; creare la struttura di directory necessaria e copiare il modello al posto giusto. Si utilizzer&agrave; la directory <code>locale</code> all'interno della cartella dei sorgenti di questo sito come radice della directory del catalogo dei messaggi; tipicamente, si vorr&agrave; utilizzare una directory accessibile all'intero sistema. Il percorso completo della sorgente in input del catalogo &egrave; <code>$localdir/$language/LC_MESSAGES/$domain.po</code>, e l'effettivo catalogo ha l'estensione <code>.mo</code>.
+</testo_normale>
+<testo_normale>
+Per questa configurazione, occorre copiare <code>gettext_example.pot</code> in <code>locale/it_IT/LC_MESSAGES/gettext_example.po</code>, quindi modificare i valori nell'intestazione ad aggiungere i messaggi alternativi. Il risultato &egrave; circa questo:
+</testo_normale>
+<py_output>
+# Messaggi da gettext_example.py
+# Copyright (C) 2015
+# Roberto Pauletto <pymotw-it@robyp.x10host.com>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyMOT\n"
+"Report-Msgid-Bugs-To: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"POT-Creation-Date: 2015-10-20 21:11+0200\n"
+"PO-Revision-Date: 2015-10-20 21:11+0200\n"
+"Last-Translator: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"Language-Team: Italian <pymotw-it@robyp.x10host.com><LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gettext_example.py:11
+msgid "Questo messaggio si trova nello script."
+msgstr "Questo messaggio si trova nel catalogo it_IT"
+</py_output>
+<testo_normale>
+Il catalogo viene costruito dal file <code>.po</code> utilizzando <code>msgformat</code>
+</testo_normale>
+<py_output>
+$ cd locale/it_IT/LC_MESSAGES/; msgfmt -o gettext_example.mo gettext_example.po
+</py_output>
+<testo_normale>
+Ora quando viene eseguito lo script, viene stampato il messaggio presente nel catalogo in luogo della stringa in linea nel codice:
+</testo_normale>
+<py_output>
+$ python gettext_example.py
+
+Questo messaggio si trova nel catalogo it_IT
+</py_output>
+<titolo_2>
+Cercare il Catalogo Messaggi in Fase di Esecuzione
+</titolo_2>
+<testo_normale>
+Come sopra descritto, la directory <code>locale</code> contiene i cataloghi di messaggi organizzati in base alla lingua con i nomi dei cataloghi attribuiti per il <code>dominio</code> del programma. I diversi sistemi operativi definiscono i  loro propri valori predefiiniti, tuttavia <strong>gettext</strong> non conosce tutti quei valori. Per la maggior parte delle volte &egrave; pi&ugrave; sicuro attribuire esplicitamente un valore a <code>localedir</code> piuttosto che dover dipendere dal fatto che il valore predefinito sia valido.
+</testo_normale>
+<testo_normale>
+La porzione lingua nel percorso viene presa da una delle diverse variabili di ambiente che possono essere usate per configurare le caratteristiche di localizzazione (<code>LANGUAGE</code>, <code>LC_ALL</code>, <code>LC_MESSAGES</code> e <code>LANG</code>). La prima variabile che viene trovata impostata viene utilizzata. Lingue multiple possono essere selezionate separandone i valori tramite i due punti (<code>:</code>). Per trovare i cataloghi corrispondenti alla lingua utilizziamo questo script:
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import gettext
+
+catalogs = gettext.find('gettext_example', 'locale', all=True)
+print 'Cataloghi:', catalogs
+</py_code>
+<testo_normale>
+Si pu&ograve; ora illustrare come questo funziona creando un paio di cataloghi di messaggi ed eseguendo qualche esperimento.
+</testo_normale>
+<py_output>
+$ cd locale/fr_FR/LC_MESSAGES/; msgfmt -o gettext_example.mo gettext_example.po
+$ cd locale/es_ES/LC_MESSAGES/; msgfmt -o gettext_example.mo gettext_example.po
+$ LANGUAGE=fr_FR
+$ python gettext_find.py
+
+Cataloghi: ['locale/fr_FR/LC_MESSAGES/gettext_example.mo']
+$ LANGUAGE=es_ES
+$ python gettext_find.py
+
+Cataloghi: ['locale/es_ES/LC_MESSAGES/gettext_example.mo']
+LANGUAGE=es_ES:fr_FR
+$ python gettext_find.py
+Cataloghi: ['locale/es_ES/LC_MESSAGES/gettext_example.mo', 'locale/fr_FR/LC_MESSAGES/gettext_example.mo']
+</py_output>
+<testo_normale>
+Sebbene <code>find()</code> mostri l'elenco completo dei cataloghi, solo il primo nella sequenza viene effettivamente caricato per la ricerca dei messaggi.
+</testo_normale>
+<py_output>
+$ LANGUAGE=fr_FR
+$ python gettext_example.py
+
+Questo messaggio si trova nel catalogo fr_FR
+$ LANGUAGE=fr_FR:es_ES
+$ python gettext_example.py
+
+Questo messaggio si trova nel catalogo fr_FR
+$ LANGUAGE=es_ES:fr_FR
+$ python gettext_example.py
+
+Questo messaggio si trova nel catalogo es_ES
+
+</py_output>
+<titolo_2>
+Valori Plurali
+</titolo_2>
+<testo_normale>
+Mentre una semplice sostituzione di messaggi pu&ograve; gestire la maggior parte delle proprie esigenze di traduzione, <strong>gettext</strong> tratta la gestione dei plurali come caso  speciale. A seconda della lingua, la differenza tra le forme singolari e plurali di un messaggio potrebbero variare solo nella parte finale di una singola parola, oppure l'intera struttura della frase potrebbe essere diversa. Potrebbero anche esserci <a href='http://www.gnu.org/software/gettext/manual/gettext.html#Plural-forms'>diverse forme a seconda del livello di pluralit&agrave;</a>. Per facilitare (e rendrere possibile) la gestione dei plurali, si ha un insieme a se stante di funzioni per ottenere la forma plurale di un messaggio.
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from gettext import translation
+import sys
+
+t = translation('gettext_plural', 'locale', fallback=True)
+num = int(sys.argv[1])
+msg = t.ungettext('%(num)d significa singolare.', '%(num)d significa plurale.', num)
+
+# Ci si deve comunque occupare di aggiungere i  valori  al messaggio
+print msg % {'num':num}
+</py_code>
+<py_output>
+$ xgettext -L Python -d gettext_plural -o gettext_plural.pot gettext_plural.py
+</py_output>
+<testo_normale>
+Visto che ci sono forme alternative da tradurre, le sostituizioni sono elencate in un array. Utilizzare un array consente traduzioni per lingue con forme multiple di plurali (il polacco, <a href='http://www.gnu.org/software/gettext/manual/gettext.html#Plural-forms'>ad esempio</a>) ha diverse forme che indicano le relative quantit&agrave;.
+</testo_normale>
+<py_output>
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-24 21:33+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: gettext_plural.py:9
+#, python-format
+msgid "%(num)d significa singolare."
+msgid_plural "%(num)d significa plurale."
+msgstr[0] ""
+msgstr[1] ""
+</py_output>
+<testo_normale>
+Oltre al riempimento delle stringhe di traduzione, si deve anche descrivere il modo nel quale sono formati i plurali in modo che la libreria sappia come muoversi nell'indice dell'array per qualsiasi valore passato. La riga: <code>"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"</code> include due valori da rimpiazzare manualmente, <code>nplurals</code> &egrave; un intero che indica la dimensione dell'array (il numero di transazioni utilizzate)
+e <code>plural</code> &egrave; una espressione in linguaggio C per convertire la quantit&agrave; ricevuta in un indice nell'array quando si cerca la traduzione. La stringa letterale <code>n</code> viene sostituita con la quantit&agrave; passata in <code>ungettext()</code>.
+</testo_normale>
+<testo_normale>
+Ad esempio, l'italiano comprende due forme di plurale. Una quantit&agrave; di <code>0</code> viene trattata come plurale ("0 banane"). L'elemento Plural-Forms dovrebbe essere tipo questo:
+</testo_normale>
+<py_output>
+Plural-Forms: nplurals=2; plural=n != 1;
+</py_output>
+<testo_normale>
+La traduzione della forma singolare andrebbe in posizione 0 e quella plurale in posizione 1.
+</testo_normale>
+<py_output>
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015
+# This file is distributed under the same license as the PACKAGE package.
+# Roberto Pauletto <pymotw-it@robyp.x10host.com>, 2015.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyMOTW2\n"
+"Report-Msgid-Bugs-To: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"POT-Creation-Date: 2015-10-24 21:33+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"Language-Team: Italian <pymotw-it@robyp.x10host.com><LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;"
+
+#: gettext_plural.py:9
+#, python-format
+msgid "%(num)d significa singolare."
+msgid_plural "%(num)d significa plurale."
+msgstr[0] "In it_IT, %(num)d è singolare."
+msgstr[1] "In it_IT, %(num)d è plurale."
+</py_output>
+<testo_normale>
+Se si esegue qualche volta lo script di prova dopo che il catalogo &egrave; stato compilato, si pu&ograve; notare come diversi valori di N sono convertiti come indici per le stringhe di traduzione.
+</testo_normale>
+<py_output>
+$ cd locale/it_IT/LC_MESSAGES/; msgfmt -o gettext_plural.mo gettext_plural.po
+$ python gettext_plural.py 0
+
+In it_IT, 0 &egrave; plurale.
+$ python gettext_plural.py 1
+
+In it_IT, 1 &egrave; singolare.
+$ python gettext_plural.py 2
+
+In it_IT, 2 &egrave; plurale.
+</py_output>
+<titolo_2>
+Localizzazione in Applicazione contro Modulo
+</titolo_2>
+<testo_normale>
+Il perimetro del proprio sforzo di traduzione definisce come si installa e si usano le funzioni di <strong>gettext</strong> nel proprio codice.
+</testo_normale>
+<titolo_3>
+Localizzazione a Livello di Applicazione
+</titolo_3>
+<testo_normale>
+Per traduzioni a livello di applicazione, potrebbe essere accettabile installare una funzione tipo <code>unggettext()</code> globalmente utilizzando lo spazio dei nomi <code>__builtins__</code> visto che si ha il controllo sul livello pi&ugrave; alto del codice dell'applicazione
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import gettext
+gettext.install('gettext_example', 'locale', unicode=True, names=['ngettext'])
+
+print _('Questo messaggio è nello script.')
+</py_code>
+<testo_normale>
+La funzione <code>install()</code> lega <code>gettext()</code> al nome <code>_()</code> nello spazio dei nomi <code>__builtins__</code>. Aggiunge anche <code>ngettext()</code> ed altre funzioni elencate in <em>names</em>. Se <em>unicode</em> &egrave; vero, le versioni Unicode delle funzioni sono utilizzate in luogo delle versioni ASCII predefinite.
+</testo_normale>
+<titolo_3>
+Localizzazione a Livello di Modulo
+</titolo_3>
+<testo_normale>
+Per una libreria, o modulo singolo, non &egrave; una buona idea modificare <code>__builtins__</code> in quanto non si conosce quali conflitti si possono introdurre con valore globale di applicazione. Si possono importare o riagganciare il nomi delle funzioni di traduzione a mano all'inizio del proprio modulo.
+</testo_normale>
+<py_code>
+import gettext
+t = gettext.translation('gettext_example', 'locale', fallback=True)
+_ = t.ugettext
+ngettext = t.ungettext
+
+print _('Questo messaggio è nello script.')
+</py_code>
+<vedi_anche>
+http://docs.python.org/library/gettext.html|gettext|La documentazione della libreria standard per questo modulo
+locale.html|locale|Altri strumenti di localizzazione
+http://www.gnu.org/software/gettext/|GNU gettext|I formati del catalogo messaggi, API, ecc. per questo modulo sono tutti basati sul pacchetto gettext originale da GNU. I formati del file catalogo sono compatibili, e gli script da riga di comando hanno opzioni simili (se non identiche). Il <a href='http://www.gnu.org/software/gettext/manual/gettext.html'>manuale GNU gettext</a> (in inglese - n.d.t.) ha una descrizione dettagliata sui formati di file e descrive le versioni GNU degli strumenti per lavorarci.
+http://legacy.python.org/workshops/1997-10/proceedings/loewis.html|Internazionalizzare Python|Un documento di Martin von Löwis (in inglese - n.d.t.) riguardo alle tecniche per l'internazionalizzazione delle applicazioni Python.
+http://docs.djangoproject.com/en/dev/topics/i18n/|Internazionalizzare Django|Un'altra buona fonte di informazione (in inglese - n.d.t.) sull'uso di gettext, inclusi esempi reali.
+</vedi_anche>
+</documento_tradotto>

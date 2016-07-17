@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi specifici per unix </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+pipes - Template di pipeline di comandi della shell Unix
+</titolo_1>
+<descrizione>
+Crea pipeline di comandi della shell Unix ripetibili
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>pipes</strong> implementa una classe per gestire pipeline di comandi Unix arbitrariamente complesse, Gli input ed output dei comandi possono essere concatenati come con l'operatore ${sev}&nbsp;|&nbsp;${eev} della shell; anche se i singoli comandi devono scrivere su o leggere da file invece che da stdin/stdout.
+</testo_normale>
+<titolo_2>
+Passare Attraverso una Pipe lo Standard I/O
+</titolo_2>
+<testo_normale>
+Un esempio molto semplice, passare lo standard input attraverso una pipe e ricevere i risultati in un file potrebbe essere il seguente:
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+# Si predispone una pipeline molto semplice usando stdio
+p = pipes.Template()
+p.append('cat -', '--')
+p.debug(True)
+
+# Si passa del testo attraverso la pipeline,
+# salvando l'output in un file temporaneo
+t = tempfile.NamedTemporaryFile(mode='r')
+f = p.open(t.name, 'w')
+try:
+    f.write('Porzione di testo')
+finally:
+    f.close()
+
+# Ritorno ad inizio file e lettura del testo scritto
+# nel file temporaneo
+t.seek(0)
+print t.read()
+t.close()
+</py_code>
+<testo_normale>
+Viene creato l'oggetto <em>pipelines.Template</em>, quindi viene aggiunto un singolo comando, ${sev}cat -${eev}. Il comando legge lo standard input e lo scrive allo standard output, senza modifiche. Il secondo parametro per ${sbk}append()${ebk} codifica le sorgenti di input ed output per il comando in due caratteri (input, quindi output). L'uso di ${sev}&nbsp;-&nbsp;${eev} significa che il comando usa lo standard I/O. L'uso di ${sev}&nbsp;f&nbsp;${eev} significa che il comando deve leggere da un file (come potrebbe essere nel caso di una pipeline per l'elaborazione di un'immagine).
+</testo_normale>
+<testo_normale>
+Il metodo ${sbk}debug()${ebk} attiva/disattiva l'output di debug. Quando il debug è abilitato, i comandi che sono eseguiti vengono stampati ed alla shell viene passato ${sev}set -x${eev} in modo che venga eseguito in modalità dettagliata ("verbose").
+</testo_normale>
+<testo_normale>
+Dopo che è stata impostata la pipeline, viene creato un <em>NamedTemporaryFile</em> per fornire alla pipeline un file su cui scrivere il suo output. Occorre sempre specificare un file come parametro per ${sbk}open()${ebk}, sia in lettura che scrittura.
+</testo_normale>
+<py_output>
+$ python pipes_simple_write.py 
+cat - >/tmp/tmpqdcQW4
++ cat -
+Porzione di testo
+</py_output>
+<testo_normale>
+Leggere da una pipeline funziona praticamente allo stesso modo, con poche modifiche ai parametri. Per questo esempio, occorre impostare il contenuto del file di input prima di aprire la pipeline. Quindi si può passare quel nome di file come input di ${sbk}open()${ebk}.
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+# Si predispone una pipeline molto semplice usando stdio
+p = pipes.Template()
+p.append('cat -', '--')
+p.debug(True)
+
+# Si imposta un file di input 
+t = tempfile.NamedTemporaryFile(mode='w')
+t.write('Porzione di testo')
+t.flush()
+
+# Si passa del testo attraverso la pipeline,
+# salvando l'output in un file temporaneo
+f = p.open(t.name, 'r')
+try:
+    contents = f.read()
+finally:
+    f.close()
+
+print contents
+</py_code>
+<testo_normale>
+Si può leggere il risultato dalla pipeline direttamente
+</testo_normale>    
+<py_output>
+python pipes_simple_read.py 
+cat - &lt;/tmp/tmps_ABth
++ cat -
+Porzione di testo
+</py_output>
+<titolo_2>
+Usare i File invece che i Flussi
+</titolo_2>
+<testo_normale>
+Alcuni comandi devono lavorare sui file in un filesystem invece che con flussi di input. Comandi che elaborano un grande numero di dati potrebbero fornire prestazioni migliori in questo modo, visto che non si bloccheranno sul prossimo comando che sta leggendo il loro output. Qualsiasi cosa che funzioni su dati non basati su flussi deve avere questa capacità (es. i database od altri strumenti di manipolazione di file binari). Per supportare questa modalità operativa, ${sbk}append()${ebk} consente di specificare un <em>tipo</em> di ${sev}&nbsp;f&nbsp;${eev}, ed il codice della pipeline creerà i necessari file temporanei. I nomi di file sono passati alla shell come ${sev}$IN${eev} e ${sev}$OUT${eev}, quindi questi nomi di variabili devono comparire nella propria stringa di comandi.
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+p = pipes.Template()
+p.append('cat $IN > $OUT', 'ff')
+p.debug(True)
+
+t = tempfile.NamedTemporaryFile('r')
+f = p.open(t.name, 'w')
+try:
+    f.write('Porzione di testo')
+finally:
+    f.close()
+
+t.seek(0)
+print t.read()
+t.close()
+</py_code>
+<testo_normale>
+Così si vede, sono stati creati parecchi file temporanei intermedi per mantenere l'input e l'output di ogni passo.
+</testo_normale>
+<py_output>
+$ python pipes_file_kind.py 
+trap 'rm -f /tmp/tmpDWnC9N; exit' 1 2 3 13 14 15
+cat >/tmp/tmpDWnC9N
+IN=/tmp/tmpDWnC9N; OUT=/tmp/tmp79Dd6d; cat $IN > $OUT
+rm -f /tmp/tmpDWnC9N
++ trap rm -f /tmp/tmpDWnC9N; exit 1 2 3 13 14 15
++ cat
++ IN=/tmp/tmpDWnC9N
++ OUT=/tmp/tmp79Dd6d
++ cat /tmp/tmpDWnC9N
++ rm -f /tmp/tmpDWnC9N
+Porzione di testo
+</py_output>
+<testo_normale>
+I valori <em>kind</em> di input ed output possono essere mescolati, in modo che diversi passi della pipeline possano usare a piacimento i file o lo standard I/O.
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+p = pipes.Template()
+p.append('cat $IN', 'f-')
+p.append('cat - > $OUT', '-f')
+p.debug(True)
+
+t = tempfile.NamedTemporaryFile('r')
+f = p.open(t.name, 'w')
+try:
+    f.write('Porzione di testo')
+finally:
+    f.close()
+
+t.seek(0)
+print t.read()
+t.close()
+</py_code>
+<testo_normale>
+Le istruzioni <em>trap</em> che si vedono nell'output assicurano che i file temporanei creati dalla pipeline siano puliti anche se una attività nel mezzo fallisce oppure se la shell viene chiusa.
+</testo_normale>
+<py_output>
+$ python pipes_mixed_kinds.py 
+trap 'rm -f /tmp/tmpN_eiEw; exit' 1 2 3 13 14 15
+cat >/tmp/tmpN_eiEw
+IN=/tmp/tmpN_eiEw; cat $IN |
+{ OUT=/tmp/tmp1BUupk; cat - > $OUT; }
+rm -f /tmp/tmpN_eiEw
++ trap rm -f /tmp/tmpN_eiEw; exit 1 2 3 13 14 15
++ cat
++ IN=/tmp/tmpN_eiEw
++ cat /tmp/tmpN_eiEw
++ OUT=/tmp/tmp1BUupk
++ cat -
++ rm -f /tmp/tmpN_eiEw
+Porzione di testo
+</py_output>
+<titolo_2>
+Un Esempio più Complesso    
+</titolo_2>
+<testo_normale>
+Tutti gli esempi fino a qui sono stati piuttosto rozzi. Sono stati concepiti per illustrare l'uso di ${sbk}pipes.Template()${ebk} senza dovere dipendere da una profonda conoscenza della programmazione della shell in generale. Questo esempio è più complesso, e mostra come parecchi comandi possano essere combinati per manipolare i dati prima di portarli all'interno di Python.
+</testo_normale>
+<testo_normale>
+Lo script <a href='http://www.doughellmann.com/projects/virtualenvwrapper/'>virtualwrapper</a> comprende una funzione di shell per elencare tutti gli ambienti virtuali che si sono creati. La funzione viene usata per il completamento con il tasto "tab" e può essere chiamata direttamente per elencare gli ambienti, nel caso ci si dimentichi un nome. Il cuore di quella funzione è una piccola pipeline che cerca in ${sev}$WORKON_HOME${eev} le directory che potrebbero sembrare degli ambienti virtuali (es. hanno uno script ${sev}activate${eev}). Quella pipeline é:
+</testo_normale>
+<py_output>
+(cd "$WORKON_HOME"; for f in */bin/activate; do echo $f; done) \
+    | sed 's|^\./||' \
+    | sed 's|/bin/activate||' \
+    | sort
+</py_output>    
+<testo_normale>
+Implementata usando <strong>pipes</strong> la pipeline diventa:
+</testo_normale>
+<py_code>
+
+import pipes
+import pprint
+import tempfile
+
+p = pipes.Template()
+p.append('cd "$WORKON_HOME"; for f in */bin/activate; do echo $f; done', '--')
+p.append(r"sed 's|^\./||'", '--')
+p.append("sed 's|/bin/activate||'", '--')
+p.append('sort', '--')
+
+t = tempfile.NamedTemporaryFile('r')
+
+f = p.open(t.name, 'r')
+try:
+    sandboxes = [ l.strip() for l in f.readlines() ]
+finally:
+    f.close()
+
+print 'SANDBOXES:'
+pprint.pprint(sandboxes)
+</py_code>
+<testo_normale>
+Visto che ogni nome di sandbox  viene scritto in una riga a parte, l'analisi dell'output è semplice:
+</testo_normale>
+<py_output>
+$ python pipes_multistep.py
+SANDBOXES:
+['CastSampler',
+ 'bbtest',
+ 'bill',
+ 'blogbackup',
+ 'cursive.tools',
+ 'docket',
+ 'docket-new',
+ 'doughellmann',
+ 'email_recovery',
+ 'ical2org',
+ 'mytweets',
+ 'nose',
+ 'odtwritertest',
+ 'paramiko',
+ 'personal',
+ 'psf-sprints',
+ 'psfboard',
+ 'pulse',
+ 'pyatl',
+ 'pymag',
+ 'pymotw',
+ 'pymotw-ja',
+ 'pymotw26',
+ 'python-dev',
+ 'racemi',
+ 'racemi_status',
+ 'reporting_server',
+ 'rst2marsedit',
+ 'sphinx-contrib',
+ 'sphinx-contrib.old',
+ 'virtualenvwrapper']
+</py_output>
+<titolo_2>
+Passare File Attraverso le Pipeline
+</titolo_2>
+<testo_normale>
+Se l'input della propria pipeline esiste già in un file su disco, non c'è necessità di leggerlo dentro Python semplicemente per passarlo alla pipeline. Si può usare il metodo ${sbk}copy()${ebk} per passare il file direttamente attraverso la pipeline e creare un file di output per la lettura.
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+p = pipes.Template()
+p.debug(True)
+p.append('grep -n tortor $IN', 'f-')
+
+t = tempfile.NamedTemporaryFile('r')
+
+p.copy('lorem.txt', t.name)
+
+t.seek(0)
+print t.read()
+t.close()
+</py_code>
+<py_output>
+$ python pipes_copy.py
++ IN=lorem.txt
++ grep -n tortor lorem.txt
+IN=lorem.txt; grep -n tortor $IN >/var/folders/9R/9R1t+tR02Raxzk+F71Q50U+++Uw/-Tmp-/tmplLJu9t
+3:elementum elit tortor eu quam. Duis tincidunt nisi ut ante. Nulla
+6:lacus. Praesent placerat tortor sed nisl. Nunc blandit diam egestas
+11:eget velit auctor tortor blandit sollicitudin. Suspendisse imperdiet
+</py_output>
+<titolo_2>
+Clonare Template
+</titolo_2>
+<testo_normale>
+Una volta che si ha un template di pipeline, si potrebbe volerlo usare per diverse volte o creare varianti senza ricostruire l'intero oggetto. Il metodo ${sbk}clone()${ebk} rende semplici entrambe le operazioni. Questo esempio costruisce una semplice pipeline per contare le parole, quindi antepone i comandi ad un paio di cloni per farli cercare parole diverse.
+</testo_normale>
+<py_code>
+import pipes
+import tempfile
+
+count_word_substring = pipes.Template()
+#count_word_substring.debug(True)
+count_word_substring.append('grep -f - /usr/share/dict/words', '--')
+count_word_substring.append('wc -l', '--')
+
+count_py = count_word_substring.clone()
+count_py.prepend('echo "py"', '--')
+f = count_py.open('/dev/null', 'r')
+try:
+    print '  "py": %5s' % f.read().strip()
+finally:
+    f.close()
+
+count_perl = count_word_substring.clone()
+count_perl.prepend('echo "perl"', '--')
+f = count_perl.open('/dev/null', 'r')
+try:
+    print '"perl": %5s' % f.read().strip()
+finally:
+    f.close()
+</py_code>
+<testo_normale>
+Anteponendo un comando personalizzato per ogni clone, si possono creare pipeline separate che eseguono la stessa funzione base con piccole variazioni.
+</testo_normale>
+<py_output>
+$ python pipes_clone.py
+  "py":  1379
+"perl":    71
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/pipes.html|pipes|La documentazione della libreria standard per questo modulo.
+tempfile.html|tempfile|Il modulo tempfile comprende delle classi per gestire i file temporanei
+subprocess.html|subprocess|Anche il modulo subprocess supporta la concatenazione degli input ed output dei processi.
+</vedi_anche>
+</documento_tradotto>

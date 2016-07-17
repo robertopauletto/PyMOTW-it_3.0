@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>tipi di dato </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+array - Sequenza di dati di tipo fisso	
+</titolo_1>
+<descrizione>
+Gestire sequenze di dati numerici di tipo fisso con efficacia
+1.4 e successive
+</descrizione>
+<testo_normale>
+Il modulo <strong>array</strong> definisce una struttura di dati in sequenza che ricorda parecchio una ${sbk}list${ebk} ad eccezione del fatto che tutti i membri devono essere dello stesso tipo. I tipi supportati sono elencati nella <a href='http://docs.python.org/library/array.html'>documentazione della libreria standard</a>. Sono tutti numerici od altri tipi primitivi a dimensione fissa come i byte.
+</testo_normale>
+<tabella_semplice>
+Codice;Tipo;Dimensione Minima (byte)
+c;character;1
+b;int;1
+B;int;1
+u;Unicode character;2 o 4 (dipende dalla compilazione)
+h;int;2
+H;int;2
+i;int;2
+I;long;2
+l;int;4
+L;long;4
+f;float;4
+d;float;8
+</tabella_semplice>
+<titolo_2>
+Inizializzazione dell'array
+</titolo_2>
+<testo_normale>
+Un <strong>array</strong> viene istanziato con un parametro che ne descrive il tipo di dati consentito, e, possibilmente, una sequenza di inizializzazione.
+</testo_normale>
+<py_code>
+import array
+import binascii
+
+s = 'Un array di esempio.'
+a = array.array('c', s)
+
+print 'Come string:', s
+print 'Come array :', a
+print 'Come hex   :', binascii.hexlify(a)
+</py_code>
+<testo_normale>
+In questo esempio, l'array è configurato per contenere una sequenza di byte e viene inizializzato con una semplice stringa. 
+</testo_normale>
+<py_output>
+$ python array_string.py 
+Come string: Un array di esempio.
+Come array : array('c', 'Un array di esempio.')
+Come hex   : 556e206172726179206469206573656d70696f2e
+</py_output>
+<titolo_2>
+Manipolare Array
+</titolo_2>
+<testo_normale>
+Un <strong>array</strong> può essere esteso od altrimenti manipolato allo stesso modo delle altre sequenze di Python.
+</testo_normale>
+<py_code>
+import array
+
+a = array.array('i', xrange(5))
+print 'Iniziale :', a
+
+a.extend(xrange(5))
+print 'Esteso   :', a
+
+print 'Slice    :', a[3:6]
+
+print 'Iteratore:', list(enumerate(a))
+</py_code>
+<py_output>
+$ python array_sequence.py 
+Iniziale : array('i', [0, 1, 2, 3, 4])
+Esteso   : array('i', [0, 1, 2, 3, 4, 0, 1, 2, 3, 4])
+Slice    : array('i', [3, 4, 0])
+Iteratore: [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 0), (6, 1), (7, 2), (8, 3), (9, 4)]
+</py_output>
+<titolo_2>
+Array e File 
+</titolo_2>
+<testo_normale>
+Il contenuto di un array può essere scritto e letto da un file usando i metodi built-in scritti con efficacia allo scopo.
+</testo_normale>
+<py_code>
+import array
+import binascii
+import tempfile
+
+a = array.array('i', xrange(5))
+print 'A1:', a
+
+# Scrivo un array di cifre in un file
+output = tempfile.NamedTemporaryFile()
+a.tofile(output.file) # devo passare un *vero* file
+output.flush()
+
+# Leggo i dati grezzi
+input = open(output.name, 'rb')
+raw_data = input.read()
+print 'Contenuto grezzo:', binascii.hexlify(raw_data)
+
+# Leggo i dati in un array
+input.seek(0)
+a2 = array.array('i')
+a2.fromfile(input, len(a))
+print 'A2:', a2
+</py_code>
+<testo_normale>
+Questo esempio illustra una lettura di dati "grezzi", direttamente dal file binario contro una lettura in un nuovo array convertendo poi i byte nel tipo appropriato.
+</testo_normale>
+<py_output>
+$ python array_file.py
+A1: array('i', [0, 1, 2, 3, 4])
+Contenuto grazzo: 0000000001000000020000000300000004000000
+A2: array('i', [0, 1, 2, 3, 4])
+</py_output>
+<titolo_2>
+Alternare l'Ordine dei Byte
+</titolo_2>
+<testo_normale>
+Se i dati nell'array non sono nell'ordine di byte nativo, oppure occorre scambiarli prima che vengano scritti in un file destinato ad un sistema con un ordine di byte diverso, è semplice convertire l'intero array senza iterare attraverso gli elementi da Python.
+</testo_normale>
+<py_code>
+import array
+import binascii
+
+def to_hex(a):
+    chars_per_item = a.itemsize * 2 # 2 cifre esadecimali
+    hex_version = binascii.hexlify(a)
+    num_chunks = len(hex_version) / chars_per_item
+    for i in xrange(num_chunks):
+        start = i*chars_per_item
+        end = start + chars_per_item
+        yield hex_version[start:end]
+
+a1 = array.array('i', xrange(5))
+a2 = array.array('i', xrange(5))
+a2.byteswap()
+
+fmt = '%10s %10s %10s %10s'
+print fmt % ('A1 hex', 'A1', 'A2 hex', 'A2')
+print fmt % (('-' * 10,) * 4)
+for values in zip(to_hex(a1), a1, to_hex(a2), a2):
+    print fmt % values
+</py_code>
+<py_output>
+$ python array_byteswap.py
+    A1 hex         A1     A2 hex         A2
+---------- ---------- ---------- ----------
+  00000000          0   00000000          0
+  01000000          1   00000001   16777216
+  02000000          2   00000002   33554432
+  03000000          3   00000003   50331648
+  04000000          4   00000004   67108864
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/array.html|array|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/struct/index.html#module-struct|struct|Il modulo struct
+http://www.scipy.org/|Numerical Python| NumPy è una libreria Python per lavorare con efficacia con grandi insiemi di dati
+http://www.doughellmann.com/PyMOTW/articles/data_structures.html#article-data-structures|Strutture di dati in memoria|
+</vedi_anche>
+</documento_tradotto>

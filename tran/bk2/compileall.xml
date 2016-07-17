@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>servizi del linguaggio python</categoria>
+<titolo_1>
+compileall - Compila in Bytecode i File Sorgente
+</titolo_1>
+<descrizione>
+Converte i file sorgente nella versione compilata <a href="http://it.wikipedia.org/wiki/Bytecode">bytecode</a>
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>compileall</strong> cerca i file sorgente e li compila nella loro rappresentazione <a href="http://it.wikipedia.org/wiki/Bytecode">bytecode</a>, salvando il risultato in file con suffisso <code>.pyc</code> oppure <code>.pyo</code>.
+</testo_normale>
+<titolo_2>
+Compilare una directory
+</titolo_2>
+<testo_normale>
+Si usa <code>compile_dir()</code> per scorrere una directory in modo ricorsivo e compilare in <a href="http://it.wikipedia.org/wiki/Bytecode">bytecode</a> i file contenuti.
+</testo_normale>
+<py_code>
+import compileall
+
+compileall.compile_dir('examples')
+</py_code>    
+<testo_normale>
+Nella modalità predefinita, sono esaminate tutte le sottodirectory fino alla profondità di 10. Quando si usa un <a href="http://it.wikipedia.org/wiki/Concurrent_Versions_System">sistema di controllo di versione</a> tipo <em>subversion</em> la cosa può condurre ad una scansione non necessaria, come si vede qui:
+</testo_normale>
+<py_output>
+$ python compileall_compile_dir.py
+
+Listing examples ...
+Listing examples/.svn ...
+Listing examples/.svn/prop-base ...
+Listing examples/.svn/text-base ...
+Compiling examples/a.py ...
+Listing examples/subdir ...
+Listing examples/subdir/.svn ...
+Listing examples/subdir/.svn/prop-base ...
+Listing examples/subdir/.svn/text-base ...
+Compiling examples/subdir/b.py ...
+</py_output>
+<testo_normale>
+Per escludere le directory si uilizza l'argomento <em class='snip'>rx</em> per passare una <a href="re.html">espressione regolare</a> che trovi corrispondenza con i nomi da escludere.
+</testo_normale>
+<py_code>
+import compileall
+import re
+
+compileall.compile_dir('examples', 
+    rx=re.compile(r'/\.svn'))
+</py_code>    
+<py_output>
+$ python compileall_exclude_dirs.py
+
+Listing examples ...
+Listing examples/.svn ...
+Listing examples/.svn/prop-base ...
+Listing examples/.svn/text-base ...
+Compiling examples/a.py ...
+Listing examples/subdir ...
+Listing examples/subdir/.svn ...
+Listing examples/subdir/.svn/prop-base ...
+Listing examples/subdir/.svn/text-base ...
+Compiling examples/subdir/b.py ...
+</py_output>
+<testo_normale>
+L'argomento <em class='snip'>maxlevels</em> controlla la profondità della ricorsione. Ad esempio, per evitare completamente la ricorsione passare <em class="code">0</em>
+</testo_normale>
+<py_code>
+import compileall
+import re
+
+compileall.compile_dir('examples', 
+    maxlevels=0, 
+    rx=re.compile(r'/\.svn'))
+</py_code>    
+<py_output>
+$ python compileall_recursion_depth.py
+
+Listing examples ...
+Compiling examples/a.py ...
+</py_output>
+<titolo_2>
+Compilare sys.path
+</titolo_2>
+<testo_normale>
+Tutti i file sorgente trovati in <em>sys.path</em> possono essere compilati con una singola chiamata a <code>compile_path()</code>.
+</testo_normale>
+<py_code>
+import compileall
+import sys
+
+sys.path[:] = ['examples', 'nientequi']
+print 'sys.path =', sys.path
+compileall.compile_path()
+</py_code>    
+<testo_normale>
+Questo esempio sostituisce il contenuto predefinito di <em>sys.path</em> per evitare errori di permessi quando si esegue lo script, tuttavia dimostra comunque il comportamento predefinito. Si noti che il valore di <em class="snip">maxlevels</em> viene predefinito come <em class="code">0</em>.
+</testo_normale>
+<py_output>
+$ python compileall_path.py 
+
+sys.path = ['examples', 'nientequi']
+Listing examples ...
+Listing nientequi ...
+Can't list nientequi
+</py_output>
+<titolo_2>
+Da Riga di Comando
+</titolo_2>
+<testo_normale>
+E' anche possibile chiamare <strong>compileall</strong> da riga di comando, come si potrebbe fare quando lo si vuole integrare con un sistema di compilazione tramite un <em>Makefile</em>. Ad esempio:
+</testo_normale>
+<py_output>
+$ python -m compileall -h
+
+option -h not recognized
+usage: python compileall.py [-l] [-f] [-q] [-d destdir] [-x regexp] [-i list] [directory|file ...]
+
+arguments: zero or more file and directory names to compile; if no arguments given, 
+           defaults to the equivalent of -l sys.path
+
+options:
+-l: don't recurse into subdirectories
+-f: force rebuild even if timestamps are up-to-date
+-q: output only error messages
+-d destdir: directory to prepend to file paths for use in compile-time tracebacks and in
+            runtime tracebacks in cases where the source file is unavailable
+-x regexp: skip files matching the regular expression regexp; the regexp is searched for
+           in the full path of each file considered for compilation
+-i file: add all the files and directories listed in file to the list considered for
+         compilation; if "-", names are read from stdin
+
+</py_output>
+<testo_normale>
+Per ricreare l'esempio qui sopra, saltando le directory <em class="code">.svn</em> si dovrebbe eseguire:
+</testo_normale>
+<py_output>
+$ python -m compileall -x '/\.svn' examples
+
+Listing examples ...
+Listing examples/.svn ...
+Listing examples/.svn/prop-base ...
+Listing examples/.svn/text-base ...
+Compiling examples/a.py ...
+Listing examples/subdir ...
+Listing examples/subdir/.svn ...
+Listing examples/subdir/.svn/prop-base ...
+Listing examples/subdir/.svn/text-base ...
+Compiling examples/subdir/b.py ...
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/compileall.html|compileall|La documentazione della libreria standard per questo modulo
+</vedi_anche>
+</documento_tradotto>

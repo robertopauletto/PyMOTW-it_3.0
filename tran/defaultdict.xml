@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+defaultdict - le chiavi mancanti ritornano un valore predefinito
+</titolo_1>
+<descrizione>
+<code>defaultdict</code> consente al chiamante di specificare in anticipo il valore predefinito, quando il contenitore viene inizializzato.
+
+</descrizione>
+<testo_normale>
+Il tipo <code>dict</code> standard include il metodo <code>setdefault()</code> per recuperare un valore ed impostarne uno predefinito se detto valore non esiste. Di contro, <code>defaultdict</code> consente al chiamante di specificare in anticipo il valore predefinito, quando il contenitore viene inizializzato .
+</testo_normale>
+<py_code>
+# collections_defaultdict.py
+
+import collections
+
+
+def default_factory():
+    return 'valore predefinito'
+
+d = collections.defaultdict(default_factory, foo='bar')
+print('d:', d)
+print('foo =>', d['foo'])
+print('bar =>', d['bar'])
+</py_code>
+<testo_normale>
+La cosa funziona bene fintanto che è appropriato che tutte le chiavi usino lo stesso valore predefinito. Può essere particolarmente utile se il valore predefinito è un tipo usato per aggregare od accumulare valori, tipo <code>list</code>, <code>set</code>, od anche <code>int</code>. La documentazione della libreria standard comprende diversi esempi per l'uso di <code>defaultdict</code> in questo modo.
+</testo_normale>
+<py_output>
+$ python3 collections_defaultdict.py
+
+d: defaultdict(<function default_factory at 0x7faa532188c8>, {'foo': 'bar'})
+foo => bar
+bar => valore predefinito
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.defaultdict|defaultdict|La documentazione standard della libreria per questo modulo
+https://docs.python.org/3.5/library/collections.html#collections.defaultdict|defaultdict examples|Esempio dell'uso di defaultdict dalla documentazione della libreria standard
+http://jtauber.com/blog/2008/02/27/evolution_of_default_dictionaries_in_python/|Evolution of Default Dictionaries in Python|Discussione sul blog di James Tauber di come <code>defaultdict</code> riporti diversi mezzi di inizializzazione di dizionari
+</vedi_anche>
+</documento_tradotto>

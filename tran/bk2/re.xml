@@ -1,0 +1,2086 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di stringa </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+re - Espressioni Regolari
+</titolo_1>
+<descrizione>
+Cercare e/o modificare del testo usando modelli formali
+1.5 e superiore
+</descrizione>
+<testo_normale>
+Le <i><a href='http://it.wikipedia.org/wiki/Espressione_regolare'>espressioni regolari</i></a>  sono dei modelli, descritti con una sintassi formale, per cercare corrispondenze in un testo. I modelli sono interpretati come un insieme di istruzioni, le quali sono poi eseguite con una stringa come input per produrre un sottoinsieme di corrispondenze oppure una versione modificata della stringa originale. Il termine &quot;espressione regolare&quot; (regular expression in inglese - n.d.t.) viene spesso abbreviato come &quot;regex&quot; oppure &quot;regexp&quot; nella conversazione. Le espressioni possono comprendere corrispondenza letterale del testo, ripetizione, composizione di modello, diramazione ed altre sofisticate regole. Un grande numero di problemi di elaborazione di testo sono più semplici da risolvere usando una espressione regolare invece che creare un analizzatore ed elaboratore lessicale per lo scopo specifico.
+</testo_normale>
+<testo_normale>
+Le espressioni regolari sono tipicamente usate in applicazioni che comprendono molta elaborazione di testo. Ad esempio sono comunemente usate come modelli di ricerca in programmi per la modifica di testo (text editors) usati dagli sviluppatori, compreso vi, emacs fino ai moderni ambienti integrati di programmazione (IDE). C'è anche una intera serie di utilità da riga di comando Unix tipo <em>sed</em>, <em>grep</em> ed <em>awk</em>. Molti linguaggi di programmazione includono il supporto per le espressioni regolari nella sintassi del linguaggio (Perl, Ruby, Awk e Tcl). Altri linguaggi tipo C, C++ e Python supportano le espressioni regolari attraverso librerie di estensione.
+</testo_normale>
+<testo_normale>
+Ci sono varie implementazioni open source di espressioni regolari, ognuna delle quali condivide una sintassi base ma con diverse estensioni o modifiche rispetto alla loro caratteristiche avanzate. La sintassi usata nel modulo Python <strong>re</strong> si basa sulla sintassi usata nelle espressioni regolari in Perl, con pochi arricchimenti specifici di Python.
+</testo_normale>
+<note>
+Sebbene la definizione formale di &quot;espressione regolare&quot; sia limitata ad espressioni che descrivono linguaggi normali, alcune delle estensioni supportate da <strong>re</strong> vanno oltre la descrizione dei linguaggi normali. Il termine "espressione regolare" viene qui usato in senso più generale e vuol dire qualsiasi espressione che possa essere elaborata del modulo <strong>re</strong> di Python.
+</note>
+<titolo_2>
+Trovare Corrispondenze nel Testo
+</titolo_2>
+<testo_normale>
+L'uso più comune per <strong>re</strong> è la ricerca di modelli nel testo. Questo esempio cerca due stringhe letterali: &quot;questo&quot; e &quot;quello&quot;, in una stringa di testo.
+</testo_normale>
+<py_code>
+import re
+
+patterns = [ 'questo', 'quello' ]
+text = 'questo testo ha corrispondenza nel modello?'
+
+for pattern in patterns:
+    print 'Ricerca di "%s" in "%s" ->' % (pattern, text),
+
+    if re.search(pattern,  text):
+        print 'trovata corrispondenza!'
+    else:
+        print 'nessuna corrispondenza'
+</py_code>
+<testo_normale>
+${sbk}search()${ebk} riceve il modello ed il testo da scorrere, e restituisce un oggetto ${sbk}Match${ebk} se si trova corrispondenza, altrimenti ${sbk}search()${ebk} ritorna <em class='code'>None</em>.
+</testo_normale>
+<py_output>
+$ python re_simple.py 
+
+Ricerca di "questo" in "questo testo ha corrispondenza nel modello?" -> trovata corrispondenza!
+Ricerca di "quello" in "questo testo ha corrispondenza nel modello?" -> nessuna corrispondenza
+</py_output>
+<testo_normale>
+L'oggetto <em class='code'>Match</em> restituito da ${sbk}search()${ebk} contiene informazioni circa la natura della corrispondenza, compresa la stringa in input originale, l'espressione regolare usata e la locazione all'interno della stringa originale nella quale si trova la corrispondenza.
+</testo_normale>
+<py_code>
+import re
+
+pattern = 'questo'
+text = 'questo testo ha corrispondenza nel modello?'
+
+match = re.search(pattern, text)
+
+s = match.start()
+e = match.end()
+
+print 'Trovato "%s" in "%s" da %d a %d ("%s")' % \
+    (match.re.pattern, match.string, s, e, text[s:e])
+</py_code>
+<testo_normale>
+I metodi ${sbk}start()${ebk} ed ${sbk}end()${ebk} forniscono gli interi indice all'interno della stringa mostrando dove si trova il testo che corrisponde al modello.
+</testo_normale>
+<py_output>
+$ python re_simple_match.py 
+Trovato "questo" in "questo testo ha corrispondenza nel modello?" da 0 a 6 ("questo")
+</py_output>
+<titolo_2>
+Compilare le Espressioni
+</titolo_2>
+<testo_normale>
+<strong>re</strong> comprende delle funzioni a livello di modulo per lavorare con le espressioni regolari come stringhe di testo, ma in genere è più efficace <em>compilare</em> le espressioni che un proprio programma usa frequentemente. La funzione ${sbk}compile()${ebk} converte una espressione stringa in un oggetto <em class='code'>RegexObject</em>.
+</testo_normale>
+<py_code>
+import re
+
+# Pre-compilazione  del modello
+regexes = [ re.compile(p) for p in [ 'questo',
+                                     'quello',
+                                     ]
+            ]
+text = 'questo testo ha corrispondenza nel modello?'
+
+for regex in regexes:
+    print 'Ricerca di "%s" in "%s" ->' % (regex.pattern, text),
+
+    if regex.search(text):
+        print 'trovata corrispondenza!'
+    else:
+        print 'nessuna corrispondenza'
+</py_code>
+<testo_normale>
+Le funzioni a livello di modulo mantengono una cache delle espressioni compilate, ma la dimensione della stessa è limitata e l'usare espressioni compilate direttamente significa che si può evitare il tempo necessario per la ricerca nella cache. Precompilando una qualsiasi espressione che il proprio modulo utilizza quando viene caricato si ottiene lo spostamento del lavoro di compilazione alla fase di inizializzazione dell'applicazione, invece che in un punto nel quale il programma risponde ad una azione dell'utente.
+</testo_normale>
+<py_output>
+$ python re_simple_compiled.py 
+
+Ricerca di "questo" in "questo testo ha corrispondenza nel modello?" -> trovata corrispondenza!
+Ricerca di "quello" in "questo testo ha corrispondenza nel modello?" -> nessuna corrispondenza
+</py_output>
+<titolo_2>
+Corrispondenze Multiple
+</titolo_2>>
+<testo_normale>
+Fino a qui in tutti i modelli di esempio si usa ${sbk}search()${ebk} per cercare singole istanze di stringhe di testo letterali. La funzione ${sbk}findall()${ebk} restituisce tutte le sottostringhe dell'input che trovano corrispondenza nel modello senza sovrapporsi.
+</testo_normale>
+<py_code>
+import re
+
+text = 'abbaaabbbbaaaaa'
+
+pattern = 'ab'
+
+for match in re.findall(pattern, text):
+    print 'Trovato "%s"' % match
+</py_code>
+<testo_normale>
+Ci sono due istanze di ${sev}ab${eev} nella stringa in input.
+</testo_normale>
+<py_output>
+$ python re_findall.py 
+
+Trovato "ab"
+Trovato "ab"
+</py_output>
+<testo_normale>
+${sbk}finditer()${ebk} restituisce un iteratore che produce delle istanze di <em class='code'>Match</em>  in luogo delle stringhe restituite da ${sbk}findall()${ebk}
+</testo_normale>
+<py_code>
+import re
+
+text = 'abbaaabbbbaaaaa'
+
+pattern = 'ab'
+
+for match in re.finditer(pattern, text):
+    s = match.start()
+    e = match.end()
+    print 'Trovato "%s" a %d:%d' % (text[s:e], s, e)
+</py_code>
+<testo_normale>
+In questo esempio si cercano le stesse due occorrenze di ${sev}ab${eev}, e l'istanza di <em class='code'>Match</em> mostra dove si trovano nell'input originale
+</testo_normale>
+<py_output>
+$ python re_finditer.py 
+
+Trovato "ab" a 0:2
+Trovato "ab" a 5:7
+</py_output>
+<titolo_2>
+Sintassi del Modello
+</titolo_2>>
+<testo_normale>
+Le espressioni regolari supportano modelli molto più potenti che semplici stringhe letterali di testo. I modelli possono essere ripetuti, possono essere ancorati a diverse locazioni logiche all'interno dell'input e possono essere espressi in forme compatte che non richiedono che ognuno dei caratteri letterali sia presente nel modello. Tutte queste caratteristiche vengono usate per combinare valori di testo letterali con <em>metacaratteri</em> che sono parte della sintassi dei modelli delle espressioni regolari implementata da <strong>re</strong>. Gli esempi che seguono utilizzeranno questo programma di test per esplorere le varianti nei modelli.
+</testo_normale>
+<py_code>
+import re
+
+def test_patterns(text, patterns=[]):
+    """Dato un testo sorgente ed un elenco di modelli, cerca 
+    corrispondenze per ogni modello all'interno del testo e le 
+    stampa a stdout
+    """
+    # Mostra la posizione dei caratteri ed il testo in input
+    print
+    print ''.join(str(i/10 or ' ') for i in range(len(text)))
+    print ''.join(str(i%10) for i in range(len(text)))
+    print text
+
+    # Cerca le corrispondenze per ogni modello nel testo e stampa i risultati
+    for pattern in patterns:
+        print
+        print 'Corrispondenza con "%s"' % pattern
+        for match in re.finditer(pattern, text):
+            s = match.start()
+            e = match.end()
+            print '  %2d : %2d = "%s"' % \
+                (s, e-1, text[s:e])
+    return
+
+if __name__ == '__main__':
+    test_patterns('abbaaabbbbaaaaa', ['ab'])
+</py_code>
+<testo_normale>
+L'ouput di ${sbk}test_patterns()${ebk} mostra il testo in input, comprese le posizioni dei caratteri, così come gli estremi della sottostringa da ogni porzione dell'input che corrisponde al modello.
+</testo_normale>
+<py_output>
+$ python re_test_patterns.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "ab"
+   0 :  1 = "ab"
+   5 :  6 = "ab"
+</py_output>
+<titolo_2>
+Ripetizioni
+</titolo_2>
+<testo_normale>
+Ci sono cinque modi per esprimere ripetizione in un modello. Un modello seguito dal metacarattere ${sev}*${eev} viene ripetuto <strong>zero o più</strong> volte (il che significa che il modello può anche non essere presente per costituire una corrispondenza). Con il <em>metacarattere</em> ${sev}+${eev} il modello deve apparire <strong>almeno una</strong> volta. Usando ${sev}?${eev} si desidera che il modello appaia <strong>zero od una volta</strong>. Per uno specifico numero di corrispondenze si usa ${sev}{m}${eev} dopo il modello, dove <em>m</em> viene sostituito dal numero di volte per le quali la corrispondenza col modello dovrebbe ripetersi. Infine, per consentire un numero di ripetizioni variabile, ma limitato, si usa ${sev}{m,n}${eev} dove <em>m</em> è il numero minimo di ripetizioni ed <em>n</em> è quello massimo. Non valorizzare (<em>n</em> ${sev}{m,}${eev}) vuol dire che il valore deve apparire almeno <em>m</em> volte, senza tetto massimo.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [ 'ab*',     # a seguito da zero o più b
+                'ab+',     # a seguito da uno o più b
+                'ab?',     # a seguito da zero od una b
+                'ab{3}',   # a seguito da tre b
+                'ab{2,3}', # a seguito da due a tre b
+                ])
+</py_code>
+<testo_normale>
+Si noti quante corrispondenze in più ci sono per ${sev}ab*${eev} ed ${sev}ab?${eev} rispetto a ${sev}ab+${eev}.
+</testo_normale>
+<py_output>
+$ python re_repetitions.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "ab*"
+   0 :  2 = "abb"
+   3 :  3 = "a"
+   4 :  4 = "a"
+   5 :  9 = "abbbb"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "ab+"
+   0 :  2 = "abb"
+   5 :  9 = "abbbb"
+
+Corrispondenza con "ab?"
+   0 :  1 = "ab"
+   3 :  3 = "a"
+   4 :  4 = "a"
+   5 :  6 = "ab"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "ab{3}"
+   5 :  8 = "abbb"
+
+Corrispondenza con "ab{2,3}"
+   0 :  2 = "abb"
+   5 :  8 = "abbb"
+</py_output>
+<testo_normale>
+Il normale comportamento per una istruzione di ripetizione è di consumare tanto input quanto possibiile mentre si ricerca la corrispondenza del modello. Questo comportamento detto <em>greedy</em> (avido - n.d.t.) potrebbe generare meno corrispondenze individuali, oppure le corrispondenze potrebbero comprendere più testo in input di quanto voluto.
+Questo comportamento può essere disabilitato facendo seguire l'istruzione di ripetizione da ${sev}?${eev}.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [ 'ab*?',     # a seguito da zero o più b
+                'ab+?',     # a seguito da uno o più b
+                'ab??',     # a seguito da zero od una b
+                'ab{3}?',   # a seguito da tre b
+                'ab{2,3}?', # a seguito da due a tre b
+                ])
+</py_code>
+<testo_normale>
+Disabilitando l'opzione di consumo <em>greedy</em> dell'input per tutti i modelli dove zero o più occorrenze di ${sev}b${eev} sono consentite significa che le sottostringhe nelle quali si trova corrispondenza non includono alcun carattere <em>b</em>.
+</testo_normale>
+<py_output>
+$ python re_repetitions_non_greedy.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "ab*?"
+   0 :  0 = "a"
+   3 :  3 = "a"
+   4 :  4 = "a"
+   5 :  5 = "a"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "ab+?"
+   0 :  1 = "ab"
+   5 :  6 = "ab"
+
+Corrispondenza con "ab??"
+   0 :  0 = "a"
+   3 :  3 = "a"
+   4 :  4 = "a"
+   5 :  5 = "a"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "ab{3}?"
+   5 :  8 = "abbb"
+
+Corrispondenza con "ab{2,3}?"
+   0 :  2 = "abb"
+   5 :  7 = "abb"
+</py_output>
+<titolo_2>
+Insiemi di Caratteri
+</titolo_2>
+<testo_normale>
+Un insieme di caratteri è un gruppo di caratteri ognuno dei quali può trovare corrispondenza in un certo punto nel modello. Ad esempio ${sev}[ab]${eev} troverà corrispondenza sia con <em>a</em> che con <em>b</em>.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [ '[ab]',    # sia a che b
+                'a[ab]+',  # a seguito da uno o più a oppure b
+                'a[ab]+?', # a seguito da uno o più a oppure b, non greedy
+                ])
+</py_code>
+<testo_normale>
+La forma <em>greedy</em> dell'espressione ${sev}a[ab]+${eev} consuma l'intera stringa visto che la prima lettera è una <em>a</em> ed ogni carattere seguente è una <em>a</em> oppure una <em>b</em>.
+</testo_normale>
+<py_output>
+$ python re_charset.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "[ab]"
+   0 :  0 = "a"
+   1 :  1 = "b"
+   2 :  2 = "b"
+   3 :  3 = "a"
+   4 :  4 = "a"
+   5 :  5 = "a"
+   6 :  6 = "b"
+   7 :  7 = "b"
+   8 :  8 = "b"
+   9 :  9 = "b"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "a[ab]+"
+   0 : 14 = "abbaaabbbbaaaaa"
+
+Corrispondenza con "a[ab]+?"
+   0 :  1 = "ab"
+   3 :  4 = "aa"
+   5 :  6 = "ab"
+  10 : 11 = "aa"
+  12 : 13 = "aa"
+</py_output>
+<testo_normale>
+Un insieme di caratteri può anche essere usato per escludere specifici caratteri. Il marcatore speciale ${sev}^${eev} significa: 'cerca i caratteri che <strong>non</strong> sono presenti nell'insieme seguente'.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('Questa è una porzione di testo --  con punteggiatura.',
+              [ '[^-. ]+',  # sequenze senza -, ., o spazi
+                ])
+</py_code>
+<testo_normale>
+Il modello trova tutte le sottostringhe che non contengono i caratteri: ${sev}-${eev}, ${sev}.${eev}, oppure uno spazio
+</testo_normale>
+<py_output>
+$ python re_charset_exclude.py 
+
+          1111111111222222222233333333334444444444555
+01234567890123456789012345678901234567890123456789012
+Questa è una porzione di testo -- con punteggiatura.
+
+Corrispondenza con "[^-. ]+"
+   0 :  5 = "Questa"
+   7 :  8 = "è"
+  10 : 12 = "una"
+  14 : 21 = "porzione"
+  23 : 24 = "di"
+  26 : 30 = "testo"
+  35 : 37 = "con"
+  39 : 51 = "punteggiatura"
+</py_output>
+<testo_normale>
+Se l'insieme di caratteri cresce, la digitazione di ciascun carattere che dovrebbe (o no) trovare corrispondenza diventerebbe piuttosto tediosa. Un formato più compatto si ottiene usando una gamma di caratteri (<em>character ranges</em>) che consente di definire un insieme di caratteri in modo da includere tutti quelli adiacenti ai limiti di partenza ed arrivo.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('Questa porzione di testo -- con punteggiatura.',
+              [ '[a-z]+',      # sequenza di lettere minuscole
+                '[A-Z]+',      # sequenza di lettere maiuscole
+                '[a-zA-Z]+',   # sequenza di lettere maiuscole o minuscole
+                '[A-Z][a-z]+', # una lettera maiuscola seguita da lettere  minuscole
+                ]) 
+</py_code>
+<testo_normale>
+Qui la gamma ${sev}a-z${eev} comprende le lettere minuscole ASCII e la gamma ${sev}A-Z${eev} comprende le lettere maiuscole ASCII. Le gamme possono anche essere combinate in un singolo insieme di caratteri
+</testo_normale>
+<py_output>
+$ python re_charset_ranges.py 
+
+          111111111122222222223333333333444444
+0123456789012345678901234567890123456789012345
+Questa porzione di testo -- con punteggiatura.
+
+Corrispondenza con "[a-z]+"
+   1 :  5 = "uesta"
+   7 : 14 = "porzione"
+  16 : 17 = "di"
+  19 : 23 = "testo"
+  28 : 30 = "con"
+  32 : 44 = "punteggiatura"
+
+Corrispondenza con "[A-Z]+"
+   0 :  0 = "Q"
+
+Corrispondenza con "[a-zA-Z]+"
+   0 :  5 = "Questa"
+   7 : 14 = "porzione"
+  16 : 17 = "di"
+  19 : 23 = "testo"
+  28 : 30 = "con"
+  32 : 44 = "punteggiatura"
+
+Corrispondenza con "[A-Z][a-z]+"
+   0 :  5 = "Questa"
+</py_output>
+<testo_normale>
+Un caso particolare di insieme di caratteri è il <em>metacarattere</em> punto (${sev}.${eev}), che indica che il modello dovrebbe trovare corrispondenza per qualsiasi singolo carattere in quella posizione.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [ 'a.',   # a seguito da qualsiasi carattere
+                'b.',   # b seguito da qualsiasi carattere
+                'a.*b', # a seguito da qualunque cosa, che finisca per b
+                'a.*?b', # a seguito da qualunque cosa, che finisca per b
+                ])
+</py_code>
+<testo_normale>
+Il combinare il punto con la ripetizione potrebbe portare a corrispondenze molto lunghe a meno di non usare la forma <em>non-greedy</em>.
+</testo_normale>
+<py_output>
+$ python re_charset_dot.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "a."
+   0 :  1 = "ab"
+   3 :  4 = "aa"
+   5 :  6 = "ab"
+  10 : 11 = "aa"
+  12 : 13 = "aa"
+
+Corrispondenza con "b."
+   1 :  2 = "bb"
+   6 :  7 = "bb"
+   8 :  9 = "bb"
+
+Corrispondenza con "a.*b"
+   0 :  9 = "abbaaabbbb"
+
+Corrispondenza con "a.*?b"
+   0 :  1 = "ab"
+   3 :  6 = "aaab"
+</py_output>
+<titolo_2>
+Codici di Escape
+</titolo_2>
+<testo_normale>
+Una rappresentazione ancora più compatta si ottiene usando sequenze predefinite di codici di escape per parecchi insiemi di caratteri predefiniti. I codici di escape riconosciuti da <strong>re</strong> sono:
+</testo_normale>
+<tabella_semplice>
+Codice, Descrizione
+\d, una cifra
+\D, una non-cifra
+\s, un <em>whitespace</em> (tabulatori / spazi / interruzioni di riga ecc.)
+\S, non <em>whitespace</em>
+\w, alfanumerio
+\W, non-alfanumerico
+</tabella_semplice>
+<note>
+Le sequenze di escape sono indicate facendo precedere il carattere da una barra rovesciata (${sev}\${eev}). Sfortunatamente una barra rovesciata dovrebbe essa stessa essere oggetto di escape nelle normali stringhe in Python, il che si traduce in espressioni che sono difficili da leggere. L'uso di stringhe <em>raw</em> (grezze), create facendo precedere il valore da ${sev}r${eev} per specificare le espressioni regolari elimina questo problema e mantiene la leggibilità del codice.
+</note>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('This is a prime #1 example!',
+              [ r'\d+', # sequenza di cifre
+                r'\D+', # sequenza di non-cifre
+                r'\s+', # sequenza di whitespace
+                r'\S+', # sequenza di non-whitespace
+                r'\w+', # caratteri alfanumerici
+                r'\W+', # non-alfanumerici
+                ])
+</py_code>
+<testo_normale>
+Queste espressioni di esempio combinano sequenze di codici di escape con ripetizioni per trovare corrispondenze di caratteri simili nella stringa di input.
+</testo_normale>
+<py_output>
+$ python re_escape_codes.py 
+
+          11111111112222222
+012345678901234567890123456
+This is a prime #1 example!
+
+Corrispondenza con "\d+"
+  17 : 17 = "1"
+
+Corrispondenza con "\D+"
+   0 : 16 = "This is a prime #"
+  18 : 26 = " example!"
+
+Corrispondenza con "\s+"
+   4 :  4 = " "
+   7 :  7 = " "
+   9 :  9 = " "
+  15 : 15 = " "
+  18 : 18 = " "
+
+Corrispondenza con "\S+"
+   0 :  3 = "This"
+   5 :  6 = "is"
+   8 :  8 = "a"
+  10 : 14 = "prime"
+  16 : 17 = "#1"
+  19 : 26 = "example!"
+
+Corrispondenza con "\w+"
+   0 :  3 = "This"
+   5 :  6 = "is"
+   8 :  8 = "a"
+  10 : 14 = "prime"
+  17 : 17 = "1"
+  19 : 25 = "example"
+
+Corrispondenza con "\W+"
+   4 :  4 = " "
+   7 :  7 = " "
+   9 :  9 = " "
+  15 : 16 = " #"
+  18 : 18 = " "
+  26 : 26 = "!"
+</py_output>
+<testo_normale>
+Per cercare una corrispondenza con dei caratteri che sono parte della sintassi delle espressioni regolari occorre fare precedere gli stessi dalla barra rovesciata
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns(r'\d+ \D+ \s+ \S+ \w+ \W+',
+              [ r'\\d\+',
+                r'\\D\+',
+                r'\\s\+',
+                r'\\S\+',
+                r'\\w\+',
+                r'\\W\+',
+                ])
+</py_code>
+<testo_normale>
+Questi modelli includono la barra rovesciata ed il segno più, visto che questi sono metacaratteri aventi uno speciale significato in una espressione regolare sono preceduti dalla barra rovesciata.
+</testo_normale>
+<py_output>
+$ python re_escape_escapes.py 
+
+          1111111111222
+01234567890123456789012
+\d+ \D+ \s+ \S+ \w+ \W+
+
+Corrispondenza con "\\d\+"
+   0 :  2 = "\d+"
+
+Corrispondenza con "\\D\+"
+   4 :  6 = "\D+"
+
+Corrispondenza con "\\s\+"
+   8 : 10 = "\s+"
+
+Corrispondenza con "\\S\+"
+  12 : 14 = "\S+"
+
+Corrispondenza con "\\w\+"
+  16 : 18 = "\w+"
+
+Corrispondenza con "\\W\+"
+  20 : 22 = "\W+"
+</py_output>
+<titolo_2>
+Ancoraggio
+</titolo_2>
+<testo_normale>
+Oltre a descrivere il contenuto di un modello in cui cercare corrispondenza, si possono anche specificare le posizioni relative del testo in input nelle quali il modello dovrebbe apparire usando istruzioni di <em>ancoraggio</em>
+</testo_normale>
+<tabella_semplice>
+Codice,Significato
+^,inizio della stringa o della riga
+$,fine della stringa o della riga
+\A,inizio della stringa
+\Z,fine della stringa
+\b,stringa vuota all'inizio o alla fine di una parola
+\B,string vuota non all'inizio o alla fine di una parola
+</tabella_semplice>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('Ecco una porzione di testo -- contiene punteggiatura.',
+              [ r'^\w+',     # parola ad inizio stringa
+                r'\A\w+',    # parola ad inizio stringa
+                r'\w+\S*$',  # parola alla fine della stringa, con punteggiatura opzionale
+                r'\w+\S*\Z', # parola alla fine della stringa, con punteggiatura opzionale
+                r'\w*t\w*',  # parola che contiene 't'
+                r'\bt\w+',   # 't' ad inizio parola
+                r'\w+e\b',   # 'e' alla fine della parola
+                r'\Bt\B',    # 't', non inizia o finisce in una parola
+                ])
+</py_code>
+<testo_normale>
+I modelli in questo esempoio per la corrispondenza di parole ad inizio o fine stringa sono diversi in quanto la parola alla fine della stringa è seguita da un simbolo di punteggiatura per concludere la frase. Il modello ${sev}\w+$ ${eev} non troverebbe corrispondenza, visto che ${sev}.${eev} non viene considerato un carattere alfanumerico.
+</testo_normale>
+<py_output>
+$ python re_anchoring.py
+
+          1111111111222222222233333333334444444444555
+01234567890123456789012345678901234567890123456789012
+Ecco una porzione di testo -- contiene punteggiatura.
+
+Corrispondenza con "^\w+"
+   0 :  3 = "Ecco"
+
+Corrispondenza con "\A\w+"
+   0 :  3 = "Ecco"
+
+Corrispondenza con "\w+\S*$"
+  39 : 52 = "punteggiatura."
+
+Corrispondenza con "\w+\S*\Z"
+  39 : 52 = "punteggiatura."
+
+Corrispondenza con "\w*t\w*"
+  21 : 25 = "testo"
+  30 : 37 = "contiene"
+  39 : 51 = "punteggiatura"
+
+Corrispondenza con "\bt\w+"
+  21 : 25 = "testo"
+
+Corrispondenza con "\w+e\b"
+   9 : 16 = "porzione"
+  30 : 37 = "contiene"
+
+Corrispondenza con "\Bt\B"
+  24 : 24 = "t"
+  33 : 33 = "t"
+  42 : 42 = "t"
+  48 : 48 = "t"
+</py_output>
+<titolo_2>
+Restingere La Ricerca
+</titolo_2>
+<testo_normale>
+In situazioni dove si sa in anticipo che si dovrebbe cercare solo un sottoinsieme dell'intero input, si può ulteriormente restringere la corrispondenza dell'espressione regolare indicando a <strong>re</strong> di limitare il raggio di ricerca. Ad esempio, se il proprio modello di corrispondenza appare all'inizio dell'input, usando ${sbk}match()${ebk} in luogo di ${sbk}search()${ebk}, si ancora la ricerca senza dovere esplicitamente includere un'ancora nel modello di ricerca.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- con punteggiatura.'
+pattern = 'te'
+
+print 'Testo  :', text
+print 'Modello:', pattern
+
+m = re.match(pattern, text)
+print 'Match  :', m
+s = re.search(pattern, text)
+print 'Search :', s
+</py_code>
+<testo_normale>
+Visto che il testo da cercare non si trova all'inizio del testo in input, esso non viene trovato usando ${sbk}match()${ebk}. La sequenza peraltro appare due volte nel testo, quindi ${sbk}search()${ebk} la trova.
+</testo_normale>
+<py_output>
+$ python re_match.py 
+Testo  : Questa è una porzione di testo -- con punteggiatura.
+Modello: te
+Match  : None
+Search : <_sre.SRE_Match object at 0x1d06098>
+</py_output>
+<testo_normale>
+Il metodo ${sbk}search()${ebk} di una espressione regolare compilata accetta opzionalmente dei parametri posizionali (<em>start</em> ed <em>end</em>) per limitare la ricerca ad una sottostringa dell'input.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- con punteggiatura.'
+
+pattern = re.compile(r'\b\w*te\w*\b')
+
+print 'Testo:', text
+print
+
+pos = 0
+while True:
+    match = pattern.search(text, pos)
+    if not match:
+        break
+    s = match.start()
+    e = match.end()
+    print '  %2d : %2d = "%s"' % \
+        (s, e-1, text[s:e])
+    # Spostamento avanti nel testo per la ricerca successiva
+    pos = e
+</py_code>
+<testo_normale>
+Questo esempio implementa una forma meno efficiente di ${sbk}iterall()${ebk}. Ogni volta che viene trovata una corrispondenza la posizione finale di quella corrispondenza viene usata per la successiva ricerca.
+</testo_normale>
+<py_output>
+$ python re_search_substring.py 
+
+Testo: Questa è una porzione di testo -- con punteggiatura.
+
+  26 : 30 = "testo"
+  39 : 51 = "punteggiatura"
+</py_output>
+<titolo_2>
+Sezionare le Corrispondenze con i Gruppi
+</titolo_2>
+<testo_normale>
+Cercare corrispondenze di modelli è la base delle potenti capacità fornite dalle espressioni regolari. L'aggiunta di <em>gruppi</em> ad un modello consente di isolare parte del testo corrispondente, espandendo queste capacità per creare un 
+<a href='http://it.wikipedia.org/wiki/Parsing'>parser</a>. I gruppi sono definiti racchiudendo i modelli di corrispondenza tra parentesi tonde.
+</testo_normale>
+<py_code>
+from re_test_patterns import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [ 'a(ab)',    # 'a' seguito da 'ab' letterale
+                'a(a*b*)',  # 'a' seguito da 0-n 'a' e 0-n 'b'
+                'a(ab)*',   # 'a' seguito da 0-n 'ab'
+                'a(ab)+',   # 'a' seguito da 1-n 'ab'
+                ])
+</py_code>
+<testo_normale>
+Qualsiasi espressione regolare può essere convertita in un gruppo ed annidata in una espressione più grande. Tutti i modificatori di ripetizione possono essere applicati ad un gruppo nel suo insieme, richiedendo la ripetizione dell'intero modello di corrispondenza del gruppo.
+</testo_normale>
+<py_output>
+$ python re_groups.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Corrispondenza con "a(ab)"
+   4 :  6 = "aab"
+
+Corrispondenza con "a(a*b*)"
+   0 :  2 = "abb"
+   3 :  9 = "aaabbbb"
+  10 : 14 = "aaaaa"
+
+Corrispondenza con "a(ab)*"
+   0 :  0 = "a"
+   3 :  3 = "a"
+   4 :  6 = "aab"
+  10 : 10 = "a"
+  11 : 11 = "a"
+  12 : 12 = "a"
+  13 : 13 = "a"
+  14 : 14 = "a"
+
+Corrispondenza con "a(ab)+"
+   4 :  6 = "aab"
+</py_output>
+<testo_normale>
+Per accedere alle sottostringhe trovate dai singoli gruppi all'interno del modello, si usa il metodo ${sbk}groups()${ebk} dell'oggetto <em class='code'>Match</em>.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- con punteggiatura.'
+
+print text
+print
+
+for pattern in [ r'^(\w+)',          # parola ad inizio stringa
+                 r'(\w+)\S*$',        # parola a fine stringa, con punteggiatura opzionale
+                 r'(\bt\w+)\W+(\w+)', # parola che inizia con 't' poi un'altra parola
+                 r'(\w+o)\b',         # parola che finisce con 'o'
+                 ]:
+    regex = re.compile(pattern)
+    match = regex.search(text)
+    print 'Corrispondenza: "%s"' % pattern
+    print '  ', match.groups()
+    print
+</py_code>
+<testo_normale>
+${sbk}Match.groups()${ebk} ritorna una sequenza di stringhe nell'ordine del gruppo all'interno dell'espressione che trova corrispondenza nella stringa.
+</testo_normale>
+<py_output>
+$ python re_groups_match.py 
+
+Questa è una porzione di testo -- con punteggiatura.
+
+Corrispondenza: "^(\w+)"
+   ('Questa',)
+
+Corrispondenza: "(\w+)\S*$"
+   ('punteggiatura',)
+
+Corrispondenza: "(\bt\w+)\W+(\w+)"
+   ('testo', 'con')
+
+Corrispondenza: "(\w+o)\b"
+   ('testo',)
+</py_output>
+<testo_normale>
+Se si sta usando un raggruppamento per trovare parti di una stringa, ma non serve tutto il contenuto delle parti che hanno trovato corrispondenza nei gruppi, si può ottenere di confrontare solo un singolo gruppo con ${sbk}group()${ebk}.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- con punteggiatura.'
+
+print 'Testo in input              :', text
+
+# parola che inizia con 't, poi un'altra parola
+regex = re.compile(r'(\bt\w+)\W+(\w+)')
+print 'Modello di corrispondenza   :', regex.pattern
+
+match = regex.search(text)
+print 'Intera corrispondenza       :', match.group(0)
+print 'Parola inizia con  "t"      :', match.group(1)
+print 'Parola dopo la parola con"t":', match.group(2)
+</py_code>
+<testo_normale>
+Il gruppo <strong>0</strong> rappresenta la stringa corrispondente all'intera espressione, ed i sotto-gruppi sono numerati a partire da <strong>1</strong> nell'ordine in cui le loro parentesi sinistre appaiono nell'espressione
+</testo_normale>
+<py_output>
+$ python re_groups_individual.py 
+
+Testo in input              : Questa è una porzione di testo -- con punteggiatura.
+Modello di corrispondenza   : (\bt\w+)\W+(\w+)
+Intera corrispondenza       : testo -- con
+Parola inizia con  "t"      : testo
+Parola dopo la parola con"t": con
+</py_output>
+<testo_normale>
+Python estende la sintassi base per il raggruppamento aggiungendo <em>gruppi con intestazione</em>. L'uso di nomi per fare riferimento ai gruppi facilita la modifica del modello di corrispondenza nel tempo, senza dovere anche modificare il codice usato per trovare le corrispondenze. Per assegnare un nome ad un gruppo si usa la sintassi <em class='code'>(P?&lt;nome&gt;modello)</em>.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- con punteggiatura.'
+print text
+print 
+
+for pattern in [ r'^(?P<prima_parola>\w+)',
+                 r'(?P<ultima_parola>\w+)\S*$',
+                 r'(?P<parola_t>\bt\w+)\W+(?P<altra_parola>\w+)',
+                 r'(?P<finisce_con_o>\w+o)\b',
+                 ]:
+    regex = re.compile(pattern)
+    match = regex.search(text)
+    print 'Corrispondenza "%s"' % pattern
+    print '  ', match.groups()
+    print '  ', match.groupdict()
+    print
+</py_code>
+<testo_normale>
+Si usa ${sbk}groupdict()${ebk} per recuperare i gruppi con i nomi mappati dal dizionario alle sottostringhe corrispondenti. I modelli con nome sono anche inclusi nella sequenza ordinata restituita da ${sbk}groups()${ebk}
+</testo_normale>
+<py_output>
+$ python re_groups_named.py 
+
+Questa è una porzione di testo -- con punteggiatura.
+
+Corrispondenza "^(?P<prima_parola>\w+)"
+   ('Questa',)
+   {'prima_parola': 'Questa'}
+
+Corrispondenza "(?P<ultima_parola>\w+)\S*$"
+   ('punteggiatura',)
+   {'ultima_parola': 'punteggiatura'}
+
+Corrispondenza "(?P<parola_t>\bt\w+)\W+(?P<altra_parola>\w+)"
+   ('testo', 'con')
+   {'parola_t': 'testo', 'altra_parola': 'con'}
+
+Corrispondenza "(?P<finisce_con_o>\w+o)\b"
+   ('testo',)
+   {'finisce_con_o': 'testo'}
+</py_output>
+<testo_normale>
+Una versione aggiornata di ${sbk}test_patterns()${ebk} che mostra i gruppi con intestazione e quelli numerati che hanno trovato corrispondenza rispetto ad un modello renderà l'esempio che segue molto più facile da seguire.
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+import re
+
+
+def test_patterns(text, patterns=[]):
+    """Dato un testo sorgente ed un elenco di modelli
+    cerca corrispondenze per ogni modello all'interno del testo
+    e le stampa su stdout.
+    """
+    # Mostra la posizione del carattere ed il testo in input
+    print
+    print ''.join(str(i/10 or ' ') for i in range(len(text)))
+    print ''.join(str(i%10) for i in range(len(text)))
+    print text
+
+    # Cerca corrispondenza nel testo per ogni modello
+    # e stampa i risultati
+    for pattern in patterns:
+        print
+        print 'Cerco corrispondenze ... "%s"' % pattern
+        for match in re.finditer(pattern, text):
+            s = match.start()
+            e = match.end()
+            print '  %2d : %2d = "%s"' % \
+                (s, e-1, text[s:e])
+            print '    Grouppi:', match.groups()
+            if match.groupdict():
+                print '    Gruppi con intestazione:', match.groupdict()
+            print
+    return
+</py_code>
+<testo_normale>
+Visto che un gruppo è esso stesso una espressione regolare completa, i gruppi possono essere annidati all'interno di altri gruppi per espressioni regolari ancor più complicate.
+</testo_normale>
+<py_code>
+from re_test_patterns_groups import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [r'a((a*)(b*))', # 'a' seguito da 0-n 'a' e 0-n 'b'
+               ])
+</py_code>
+<testo_normale>
+In questo caso, il gruppo ${sev}(a*)${eev} corrisponde ad una stringa vuota, quindi il valore restituito da ${sbk}groups()${ebk} comprende quella stringa vuota come valore che ha trovato corrispondenza.
+</testo_normale>
+<py_output>
+$ python re_groups_nested.py
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Cerco corrispondenze ... "a((a*)(b*))"
+   0 :  2 = "abb"
+    Grouppi: ('bb', '', 'bb')
+
+   3 :  9 = "aaabbbb"
+    Grouppi: ('aabbbb', 'aa', 'bbbb')
+
+  10 : 14 = "aaaaa"
+    Grouppi: ('aaaa', 'aaaa', '')
+
+</py_output>
+<testo_normale>
+I gruppi sono anche utili per specificare modelli alternativi di corrispondenza. Si usa ${sev}|${eev} per indicare che un modello oppure un altro dovrebbero trovare corrispondenza. Si consideri con cautela il piazzamento di ${sev}|${eev}. La prima espressione in questo esempio corrisponde ad una sequenza di ${sev}a${eev} seguita da una sequenza che consiste interamente di una singola lettera, ${sev}a${eev} oppure ${sev}b${eev}. Il secondo modello corrisponde ad una ${sev}a${eev} seguita da una sequenza che potrebbe includere <em>sia</em> ${sev}a${eev} che ${sev}b${eev}. I modelli sono simili, ma le corrispondenze che ne risultano sono completamente diverse.
+</testo_normale>
+<py_code>
+from re_test_patterns_groups import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [r'a((a+)|(b+))', # 'a' seguito da una sequanza di 'a' o da una sequenza di 'b'
+               r'a((a|b)+)',    # 'a' seguito da una sequenza di 'a' o 'b'
+               ])
+</py_code>
+<testo_normale>
+Quando un gruppo alternativo non trova corrispondenza, ma vi è corrispondenza con l'intero modello, il valore restituito da ${sbk}groups()${ebk} comprende un valore <em class='code'>None</em> nel punto nella sequenza laddove il gruppo alternativo dovrebbe apparire.
+</testo_normale>
+<py_output>
+$ python re_groups_alternative.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Cerco corrispondenze ... "a((a+)|(b+))"
+   0 :  2 = "abb"
+    Grouppi: ('bb', None, 'bb')
+
+   3 :  5 = "aaa"
+    Grouppi: ('aa', 'aa', None)
+
+  10 : 14 = "aaaaa"
+    Grouppi: ('aaaa', 'aaaa', None)
+
+
+Cerco corrispondenze ... "a((a|b)+)"
+   0 : 14 = "abbaaabbbbaaaaa"
+    Grouppi: ('bbaaabbbbaaaaa', 'a')
+
+</py_output>
+<testo_normale>
+E' anche utile definire un gruppo contenente un sotto modello nei casi in cui la stringa che trova corrispondenza nel sotto modello non è parte di quello che si vuole estrarre dal testo completo. Questi gruppi sono detti <em>non-capturing</em> vale a dire che non vengono trattenuti. Per creare un gruppo <em>non-capturing</em> si usa la sintassi: <em class='code'>(?:modello)</em>
+</testo_normale>
+<py_code>
+from re_test_patterns_groups import test_patterns
+
+test_patterns('abbaaabbbbaaaaa',
+              [r'a((a+)|(b+))',     # forma capturing 
+               r'a((?:a+)|(?:b+))', # forma non-capturing
+               ])
+</py_code>
+<testo_normale>
+Confronto dei gruppi restituiti dalle forme <em>capturing</em> e <em>non-capturing</em> di un modello con gli stessi risultati di corrispondenza
+</testo_normale>
+<py_output>
+$ python re_groups_non_capturing.py 
+
+          11111
+012345678901234
+abbaaabbbbaaaaa
+
+Cerco corrispondenze ... "a((a+)|(b+))"
+   0 :  2 = "abb"
+    Grouppi: ('bb', None, 'bb')
+
+   3 :  5 = "aaa"
+    Grouppi: ('aa', 'aa', None)
+
+  10 : 14 = "aaaaa"
+    Grouppi: ('aaaa', 'aaaa', None)
+
+
+Cerco corrispondenze ... "a((?:a+)|(?:b+))"
+   0 :  2 = "abb"
+    Grouppi: ('bb',)
+
+   3 :  5 = "aaa"
+    Grouppi: ('aa',)
+
+  10 : 14 = "aaaaa"
+    Grouppi: ('aaaa',)
+</py_output>
+<titolo_2>
+Opzioni di Ricerca
+</titolo_2>
+<testo_normale>
+E' possibile modificare il modo nel quale il motore che cerca le corrispondenze elabora una espressione usando dei flag opzione. Questi flag possono essere combinati usando una operazione  <em>bitwise</em> <em class='code'>or</em>, quindi passati a <em class='code'>compile()</em>, <em class='code'>search()</em>, <em class='code'>match()</em>, ed altre funzioni che accettano un modello per la ricerca.
+</testo_normale>
+<titolo_3>
+Corrispondenza Senza Distinzione Maiuscolo/Minuscolo (Case-insensitive)
+</titolo_3>
+<testo_normale>
+<em class='code'>IGNORECASE</em> fa sì che i caratteri letterali ed i gruppi di caratteri nel modello trovino corrispondenza sia nei caratteri maiuscoli che quelli minuscoli
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questo e quello'
+pattern = r'\bQ\w+'
+with_case = re.compile(pattern)
+without_case = re.compile(pattern, re.IGNORECASE)
+
+print 'Testo           :', text
+print 'Modello         :', pattern
+print 'Case-sensitive  :', with_case.findall(text)
+print 'Case-insensitive:', without_case.findall(text)
+</py_code>
+<testo_normale>
+Visto che il modello comprende la lettera Q, senza impostare <em class='code'>IGNORECASE</em> la sola corrispondenza è con la parola <em>Questo</em>. Quando la differenza maiuscolo/minuscolo viene ignorata, viene trovata corrispondenza anche con <em>quello</em>.
+</testo_normale>
+<py_output>
+$ python re_flags_ignorecase.py 
+Testo           : Questo e quello
+Modello         : \bQ\w+
+Case-sensitive  : ['Questo']
+Case-insensitive: ['Questo', 'quello']
+</py_output>
+<titolo_3>
+Input con Righe Multiple
+</titolo_3>
+<testo_normale>
+Ci sono due flag che influenzano il modo in cui funziona la ricerca su righe multiple. Il flag <em class='code'>MULTILINE</em> controlla in che modo il codice di ricerca della corrispondenza elabora le istruzioni di ancoraggio per il testo che contiene caratteri di ritorno a capo (newline). Quando ci si trova in modalità <em class='code'>MULTILINE</em> le regole di ancoraggio per <em class='code'>^</em> e <em class='code'>$</em> si applicano all'inizio ed alla fine di ciascuna riga, in aggiunta all'intera stringa.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questa è una porzione di testo -- senza punteggiatura.\nEd una seconda riga'
+pattern = r'(^\w+)|(\w+\S*$)'
+single_line = re.compile(pattern)
+multiline = re.compile(pattern, re.MULTILINE)
+
+print 'Testo        :', repr(text)
+print 'Modello      :', pattern
+print 'Singola riga :', single_line.findall(text)
+print 'Riga multipla:', multiline.findall(text)
+</py_code>
+<testo_normale>
+Il modello nell'esempio trova corrispondenza sulla prima ed ultima parola del testo in input. Trova corrispondenza anche con <em>riga</em> anche se non c'è un ritorno a capo.
+</testo_normale>
+<py_output>
+$ python re_flags_multiline.py 
+Testo        : 'Questa é una porzione di testo -- con punteggiatura.\nEd una seconda riga'
+Modello      : (^\w+)|(\w+\S*$)
+Singola riga : [('Questa', ''), ('', 'riga')]
+Riga multipla: [('Questa', ''), ('', 'punteggiatura.'), ('Ed', ''), ('', 'riga')]
+</py_output>
+<testo_normale>
+<em class='code'>DOTALL</em> è l'altro flag con attinenza al testo multiriga. Normalmente il carattere punto <em class='code'>.</em> trova corrispondenza con qualsiasi cosa sia nel testo in input ad eccezione del carattere di ritorno a capo. Il flag consente al punto di trovare corrispondenza anche con il carattere di ritorno a capo.
+</testo_normale>
+<py_code>
+import re
+
+text = u'Questa è una porzione di testo -- senza punteggiatura.\nEd una seconda riga'
+pattern = r'.+'
+no_newlines = re.compile(pattern)
+dotall = re.compile(pattern, re.DOTALL)
+
+print 'Testo             :', repr(text)
+print 'Modello           :', pattern
+print 'No ritorni a capo :', no_newlines.findall(text)
+print 'Dotall            :', dotall.findall(text)
+</py_code>
+<testo_normale>
+Senza il flag <em class='code'>DOTALL</em> ogni riga del testo in input trova corrispondenza con il modello separatamente. Aggiungendo il flag viene viceversa consumata l'intera stringa
+</testo_normale>
+<py_output>
+$ python re_flags_dotall.py 
+Testo             : 'Questa è una porzione di testo -- con punteggiatura.\nEd una seconda riga'
+Modello           : .+
+No ritorni a capo : ['Questa è una porzione di testo -- con punteggiatura.', 'Ed una seconda riga']
+Dotall            : ['Questa è una porzione di testo -- con punteggiatura.\nEd una seconda riga']
+</py_output>
+<titolo_3>
+Unicode
+</titolo_3>
+<testo_normale>
+In Python 2, gli oggetti stringa <em class='code'>str</em> usano l'insieme di caratteri ASCII, e l'elaborazione delle espressioni regolari assume che il modello ed il testo in input siano entrambi in ASCII. I codici di escape descritti in precedenza sono predefiniti in termini di ASCII. Questa presunzione significa che il modello <em class='code'>\w+</em> trova corrispondenza con la parola "French" ma non "Français" visto che <em class='code'>ç</em> non fa parte dell'insieme dei caratteri ASCII. Per abilitare la corrispondenza con l'insieme di caratteri Unicode in Python 2, occorre aggiungere il flag <em class='code'>UNICODE</em> quando si compila il modello.
+</testo_normale>
+<py_code>
+import re
+import codecs
+import sys
+
+# Imposta la codifica dello standard output a UTF-8.
+sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
+
+text = u'Français złoty Österreich'
+pattern = ur'\w+'
+ascii_pattern = re.compile(pattern)
+unicode_pattern = re.compile(pattern, re.UNICODE)
+
+print 'Testo    :', text
+print 'Modello  :', pattern
+print 'ASCII   :', u', '.join(ascii_pattern.findall(text))
+print 'Unicode :', u', '.join(unicode_pattern.findall(text))
+</py_code>
+<testo_normale>
+Le altre sequenze di escape (<em class='code'>\W</em>, <em class='code'>\b</em>, <em class='code'>\B</em>, <em class='code'>\d</em>, <em class='code'>\D</em>, <em class='code'>\s</em> e <em class='code'>\S</em> ) sono elaborate in modo diverso per Unicode. Invece di assumere i membri dell'insieme di caratteri identificati dalla sequenza di escape, il motore dell'espressione regolare consulta il database Unicode per trovare le proprietà per ogni carattere
+</testo_normale>
+<note>
+Python 3 utilizza in modalità predefinita Unicode per tutte le stringhe, quindi il flag non è necessario.
+</note>
+<py_output>
+$ python re_flags_unicode.py 
+Testo    : Français złoty Österreich
+Modello  : \w+
+ASCII   : Fran, ais, z, oty, sterreich
+Unicode : Français, złoty, Österreich
+</py_output>
+<titolo_3>
+Sintassi Dettagliata dell'Espressione
+</titolo_3>
+<testo_normale>
+Il formato compatto della sintassi delle espressioni regolari può essere un impedimento mano a mano che le espressioni diventano più complicate. Quando il numero dei gruppi nella propria espressione inizia ad aumentare, sarà difficile tenere traccia del perchè ciascun elemento è richiesto ed esattamente in quale modo le parti dell'espressione interagiscono. L'uso di gruppi nominati aiuta a mitigare queste difficoltà, ma una migliore soluzione è quella di  usare espressionii in modalità <em>verbose</em> (dettagliata), che consente di aggiungere commenti e spaziature supplementari.
+</testo_normale>
+<testo_normale>
+Un modello per convalidare indirizzi email illustrerà come la modalità <em>verbose</em> facilita il lavorare con le espressioni regolari. La prima versione riconosce gli indirizzi che finiscono per uno dei tre domini di più alto livello: .com, .org, ed .edu.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile('[\w\d.+-]+@([\w\d.]+\.)+(com|org|edu)', re.UNICODE)
+
+candidates = [
+    u'first.last@example.com',
+    u'first.last+category@gmail.com',
+    u'valid-address@mail.example.com',
+    u'not-valid@example.foo',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza'
+    else:
+        print '  Nessuna corrispondenza'
+</py_code>
+<testo_normale>
+Questa espressione è già complessa. Ci sono diverse classi di caratteri, gruppi, ed espressioni di ripetizione
+</testo_normale>
+<py_output>
+$ python re_email_compact.py 
+
+Candidato: first.last@example.com
+  Corrispondenza
+
+Candidato: first.last+category@gmail.com
+  Corrispondenza
+
+Candidato: valid-address@mail.example.com
+  Corrispondenza
+
+Candidato: not-valid@example.foo
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Convertendo l'espressione in formato più descrittivo faciliterà l'ampliamento della stessa.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    '''
+    [\w\d.+-]+       # nome utente
+    @
+    ([\w\d.]+\.)+    # prefisso del nome di dominio
+    (com|org|edu)    # dovremmo supportare più domini di livello più alto
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'first.last+category@gmail.com',
+    u'valid-address@mail.example.com',
+    u'not-valid@example.foo',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza'
+    else:
+        print '  Nessuna corrispondenza'    
+</py_code>
+<testo_normale>
+L'espressione trova corrispondenza con lo stesso input, ma in questa forma dettagliata è più leggibile. I commenti aiutano anche ad identificare le diverse parti del modello in modo che possa essere ampliato per trovare corrispondenza con più input.
+</testo_normale>
+<py_output>
+$ python re_email_verbose.py 
+
+Candidato: first.last@example.com
+  Corrispondenza
+
+Candidato: first.last+category@gmail.com
+  Corrispondenza
+
+Candidato: valid-address@mail.example.com
+  Corrispondenza
+
+Candidato: not-valid@example.foo
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+La versione dettagliata elabora un input che comprende il nome di una persona e l'indirizzo email, come potrebbe apparire in una intestazione email. Il nome viene per primo e rimane separato, quindi segue l'indirizzo email racchiuso tra parentesi angolari (&lt; e &gt;).
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    '''
+    # Un nome è composto da lettere e può includere "." per titoli, 
+    # abbreviazoini ed iniziali intermedie
+    ((?P<name>
+       ([\w.,]+\s+)*[\w.,]+)
+       \s*
+       # Gli indirizzi email sono racchiusi tra parentesi angolari: < >
+       # ma noi ne vogliamo solo uno se trovaiamo un nome, quindi 
+       # manteniamo la parentesi di partenza in questo gruppo
+       <
+    )? # l'intero nome è opzionale
+
+    # L'indirizzo email vero e proprio: username@domain.tld
+    (?P<email>
+      [\w\d.+-]+       # nome utente
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >? # parentesi angolare di chiusura opzionale
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'first.last+category@gmail.com',
+    u'valid-address@mail.example.com',
+    u'not-valid@example.foo',
+    u'First Last <first.last@example.com>',
+    u'No Brackets first.last@example.com',
+    u'First Last',
+    u'First Middle Last <first.last@example.com>',
+    u'First M. Last <first.last@example.com>',
+    u'<first.last@example.com>',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Nome corrisponde :', match.groupdict()['name']
+        print '  email corrisponde:', match.groupdict()['email']
+    else:
+        print '  Nessuna corrispondenza'
+</py_code>
+<testo_normale>
+Come per tutti gli altri linguaggi di programmazione, la possibilità di inserire commenti dettagliati all'interno delle espressioni regolari aiuta la loro manutenzione. Questa versione finale comprende delle note di implementazione per futuri curatori di questo codice e spazi per separare i gruppi gli uni dagli altri e per evidenziare i loro livelli di annidamento.
+</testo_normale>
+<py_output>
+$ python re_email_with_name.py 
+
+Candidato: first.last@example.com
+  Nome corrisponde : None
+  email corrisponde: first.last@example.com
+
+Candidato: first.last+category@gmail.com
+  Nome corrisponde : None
+  email corrisponde: first.last+category@gmail.com
+
+Candidato: valid-address@mail.example.com
+  Nome corrisponde : None
+  email corrisponde: valid-address@mail.example.com
+
+Candidato: not-valid@example.foo
+  Nessuna corrispondenza
+
+Candidato: First Last <first.last@example.com>
+  Nome corrisponde : First Last
+  email corrisponde: first.last@example.com
+
+Candidato: No Brackets first.last@example.com
+  Nome corrisponde : None
+  email corrisponde: first.last@example.com
+
+Candidato: First Last
+  Nessuna corrispondenza
+
+Candidato: First Middle Last <first.last@example.com>
+  Nome corrisponde : First Middle Last
+  email corrisponde: first.last@example.com
+
+Candidato: First M. Last <first.last@example.com>
+  Nome corrisponde : First M. Last
+  email corrisponde: first.last@example.com
+
+Candidato: <first.last@example.com>
+  Nome corrisponde : None
+  email corrisponde: first.last@example.com
+</py_output>
+<titolo_3>
+Incorporare Flag nei Modelli
+</titolo_3>
+<testo_normale>
+In situazioni dove non si possono aggiungere flag durante la compilazione di una espressione, tipo quando si sta passando un modello ad una funzione in una libreria che verrà compilata più tardi, si possono incorporare i flag all'interno della stringa di espressione steesa. Ad esempio, per attivare la modalità <em>case-insensitive</em> si aggiunge <em class='code'>(?i)</em> all'inizio dell'espressione.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Questo e quello.'
+pattern = r'(?i)\bQ\w+'
+regex = re.compile(pattern)
+
+print 'Testo         :', text
+print 'Modello       :', pattern
+print 'Corrispondenza:', regex.findall(text)        
+</py_code>
+<testo_normale>
+Visto che l'opzione controlla il modo nel quale l'intera espressione viene elaborata, il flag dovrebbe sempre essere inserito all'inizio dell'espressione.
+</testo_normale>
+<py_output>
+$ python re_flags_embedded.py 
+Testo         : Questo e quello.
+Modello       : (?i)\bQ\w+
+Corrispondenza: ['Questo', 'quello']
+</py_output>
+<testo_normale>
+Le abbreviazioni per tutti i flag sono:
+</testo_normale>
+<tabella_semplice>
+Flag,Abbreviazione
+IGNORECASE,i
+MULTILINE,m
+DOTALL,s
+UNICODE,u
+VERBOSE,x
+</tabella_semplice>
+<testo_normale>
+</testo_normale>
+<testo_normale>
+I flag annidati possono essere combinati piazzandoli all'interno dello stesso gruppo. Ad esempio <em class='code'>(?imu)</em> attiva la modalità case-insensitive per stringhe Unicode multiriga.
+</testo_normale>
+<titolo_2>
+Guardare Avanti, o Indietro
+</titolo_2>
+<testo_normale>
+Ci sono molti casi laddove è utile trovare una corrispondenza con solo una parte del modello solamente se vi è corrispondenza con qualche altra parte. Ad esempio in una espressione che analizza un indirizzo email le parentesi angolari sono entrambe contrassegnate come opzionali. In realtà, però, le parentesi dovrebbero esser accoppiate e l'espressione dovrebbe trovare corrispondenza solo se entrambe, o nessuna sono presenti. Questa versione modificata dell'espressione utilizza una asserzione <em>positive look ahead</em> per trovare la coppia. La sintassi per questa asserzione è <em class='code'>(?=pattern)</em>.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    '''
+    # Un nome è composto da lettere, e può comprendere "." per abbreviazioni
+    # ed iniziali del secondo nome
+    ((?P<name>
+       ([\w.,]+\s+)*[\w.,]+
+     )
+     \s+
+    ) # name non è più opzionale
+
+    # LOOKAHEAD
+    # Gli indirizzi email sono incorporati in parentesi angolari, ma si 
+    # vogliono le parentesi sono se sono presenti entrambe, oppure nessuna.
+    (?= (<.*>$)       # il resto è racchiuso tra parentesi angolari
+        |
+        ([^<].*[^>]$) # il resto *non* è racchiuso tra parentesi angolari
+      )
+
+    # parentesi angolare aperta opzionale
+
+    # L'indirizzo vero e proprio: username@domain.tld
+    (?P<email>
+      [\w\d.+-]+       # nome utente
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >? # parentesi angolare chiusa opzionale
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'Nome Cognome <first.last@example.com>',
+    u'No Parentesi first.last@example.com',
+    u'Parentesi aperta <first.last@example.com',
+    u'Parentesi Chiusa first.last@example.com>',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza con il nome :', match.groupdict()['name']
+        print '  Corrispondenza con email   :', match.groupdict()['email']
+    else:
+        print '  Nessuna corrispondenza'
+
+</py_code>
+<testo_normale>
+Ci sono diversi importanti cambiamenti in questa versione dell'espressione. Per prima cosa la porzione del nome non è più opzionale. Questo vuole dire che gli indirizzi a se stanti non troveranno corrispondenza, ma in questo modo si previene la corrispondenza con combinazioni di nome/indirizzo formattate impropriamente. La regola di <em>positive look ahead</em> dopo il gruppo "name" asserisce che il resto della stringa deve essere racchiuso tra una coppia di parentesi angolari, o che non ci siano parentesi spaiate, le parentesi o sono presenti a coppie simmetriche oppure non ci sono affatto. <em>positive look ahead</em> viene espressa come gruppo ma la corrispondenza per un gruppo <em>look ahead</em> non consuma alcuna parte del testo in input, in modo che il resto del modello riprende dallo stesso punto dopo che viene trovata corrispondenza per il <em>look ahead</em>
+</testo_normale>
+<py_output>
+$ python re_look_ahead.py 
+
+Candidato: Nome Cognome <first.last@example.com>
+  Corrispondenza con il nome : Nome Cognome
+  Corrispondenza con email   : first.last@example.com
+
+Candidato: No Parentesi first.last@example.com
+  Corrispondenza con il nome : No Parentesi
+  Corrispondenza con email   : first.last@example.com
+
+Candidato: Parentesi aperta <first.last@example.com
+  Nessuna corrispondenza
+
+Candidato: Parentesi Chiusa first.last@example.com>
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Una asserzione <em>negative look ahead</em> (<em class='code'>(?!pattern)</em>) dice che il modello non trova corrispondenza con il testo che segue il punto corrente. Ad esempio il modello di riconoscimento di un indirizzo email potrebbe essere modificato in modo da ignorare gli indirizzi <em class='code'>noreply</em> comunemente usati dai sistemi automatizzati.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    '''
+    ^
+
+    # Un indirizzo: username@domain.tld
+
+    # Ignora gli indirizzi noreply 
+    (?!noreply@.*$)
+
+    [\w\d.+-]+       # nome utente
+    @
+    ([\w\d.]+\.)+    # prefisso del nome di dominio
+    (com|org|edu)    # limita i domini di livello più alto consentiti
+
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'noreply@example.com',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza:', candidate[match.start():match.end()]
+    else:
+        print '  Nessuna corrispondenza'
+</py_code>
+<testo_normale>
+L'indirizzo che comincia con <em class='code'>noreply</em> non trova corrispondenza con il modello visto che l'asserzione look ahead fallisce.
+</testo_normale>
+<py_output>
+ $ python re_negative_look_ahead.py 
+
+Candidato: first.last@example.com
+  Corrispondenza: first.last@example.com
+
+Candidato: noreply@example.com
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Invece che cercare in avanti istanze di <em class='code'>noreply</em> nella porzione dell'indirizzo email riservata al nome utente, il modello può anche essere scritto usando una asserzione negativa <em>look behind</em> dopo che è stata trovata corrispondenza con il nome utente usando la sintassi <em class='code'>(?&lt;!pattern)</em>.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    '''
+    ^
+
+    # Un indirizzo: username@domain.tld
+
+    [\w\d.+-]+       # nome utente
+
+    # Ignora gli indirizzi noreply
+    (?<!noreply)
+
+    @
+    ([\w\d.]+\.)+    # prefisso del nome di dominio
+    (com|org|edu)    # limita i domini di livello più alto consentiti
+
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'noreply@example.com',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza:', candidate[match.start():match.end()]
+    else:
+        print '  Nessuna corrispondenza'
+</py_code>
+<testo_normale>
+La ricerca a ritroso funziona in modo leggermente diverso rispetto a quella in avanti <em>look ahead</em>, nel senso che l'espressione deve usare un modello a lunghezza fissa. Le ripetizioni sono consentite, fintanto che le si limita ad un numero fisso (nessun carattere jolly od intervalli)
+</testo_normale>
+<py_output>
+$ python re_negative_look_behind.py 
+
+Candidato: first.last@example.com
+  Corrispondenza: first.last@example.com
+
+Candidato: noreply@example.com
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Una asserzione <em>look behind</em> positiva può essere usata per trovare testo seguendo un modello che usa la sintassi <em class='code'>(?<=pattern)</em>. Ad esempio, questa espressione trova degli handle di Twitter (un 'twitter handle' è il nome utente che viene scelto da un sottoscrittore - n.d.t. ).
+</testo_normale>
+<py_code>
+import re
+
+twitter = re.compile(
+    '''
+    # Un twitter handle: @username
+    (?<=@)
+    ([\w\d_]+)       # nome utente
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+text = '''Questo testo include due Twitter handle.
+Uno per @ThePSF, ed uno per l'autore, @doughellmann.
+'''
+
+print text
+for match in twitter.findall(text):
+    print 'Handle:', match
+</py_code>
+<testo_normale>
+Il modello trova corrispondenza nelle sequenze di caratteri che possono comporre un handle Twitter, fintanto che sono preceduti da <em class='code'>@</em>.
+</testo_normale>
+<py_output>
+$ python re_look_behind.py 
+Questo testo include due Twitter handle.
+Uno per @ThePSF, ed uno per l'autore, @doughellmann.
+
+Handle: ThePSF
+Handle: doughellmann
+</py_output>
+<titolo_2>
+Espressioni Autoreferenzianti
+</titolo_2>
+<testo_normale>
+I valori che corrispondono possono essere usati in parti successive di una espressione. Ad esempio, lo script in questo articolo utilizzato per la ricerca delle email può essere aggiornato in modo che trovi corrispondenza solo per gli indirizzi composti da nome e cognome di una persona, includendo riferimenti a ritroso a questi gruppi. Il modo più facile per conseguire questo risultato è fare riferimento ai gruppi precedentemente estratti tramite un numero identificativo, usando <em class='code'>\num</em>.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    r'''
+
+    # Il nome normale
+    (\w+)               # Nome
+    \s+
+    (([\w.]+)\s+)?      # Secondo nome opzionale o inizilae
+    (\w+)               # Cognome
+
+    \s+
+
+    <
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      \1               # nome
+      \.
+      \4               # cognome
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >
+    ''',
+    re.UNICODE | re.VERBOSE | re.IGNORECASE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Diverso Nome <nome.cognome@example.com>',
+    u'Nome SecondoNome Cognome <nome.cognome@example.com>',
+    u'Nome S. Cognome <nome.cognome@example.com>',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza con nome :', match.group(1), match.group(4)
+        print '  Corrispondenza con email:', match.group(5)
+    else:
+        print '  Nessuna corrispondenza  :'
+        
+</py_code>
+<testo_normale>
+Sebbene la sintassi sia semplice, la creazione di riferimenti a ritroso usando un identificativo numerico ha un paio di svantaggi. Dal punto di vista pratico, quando l'espressione viene modificata, occorre contare nuovamente i gruppi e forse aggiornare ogni riferimento. Un altro svantaggio è che è possibile fare in questo modo solo 99 riferimenti, in quanto un numero identificativo di tre cifre verrebbe interpretato come un valore ottale di un carattere invece che un riferimento ad un gruppo. D'altro canto, se si hanno più di 99 gruppi nella propria espressione ci si troveranno difficoltà di mantenimento molto più serie del non essere capaci di fare riferimento ad alcuni gruppi nell'espressione
+</testo_normale>
+<py_output>
+$ python re_refer_to_group.py 
+
+Candidato: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+
+Candidato: Diverso Nome <nome.cognome@example.com>
+  Nessuna corrispondenza  :
+
+Candidato: Nome SecondoNome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+
+Candidato: Nome S. Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+</py_output>
+<testo_normale>
+L'elaboratore dell'espressione in Python comprende anche una estensione che usa <em class='code'>(?P=name)</em> per fare riferimento al nome del gruppo con il quale l'espressione ha trovato precedentemente una corrispondenza.
+</testo_normale>
+<py_code>
+import re
+
+address = re.compile(
+    r'''
+
+    # Il nome normale
+    (?P<nome>\w+)
+    \s+
+    (([\w.]+)\s+)?      # Secondo nome opzionale o inizilae
+    (?P<cognome>\w+)    # Cognome
+
+    \s+
+
+    <
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      (?P=nome)
+      \.
+      (?P=cognome)      
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >
+    ''',
+    re.UNICODE | re.VERBOSE | re.IGNORECASE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Diverso Nome <nome.cognome@example.com>',
+    u'Nome SecondoNome Cognome <nome.cognome@example.com>',
+    u'Nome S. Cognome <nome.cognome@example.com>',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza con name :', match.groupdict()['nome'], match.groupdict()['cognome']
+        print '  Corrispondenza con email:', match.groupdict()['email']    
+    else:
+        print '  Nessuna corrispondenza  :'
+     
+</py_code>
+<testo_normale>
+L'espressione per l'indirizzo è compilata con il flag per ignorare le maiuscole/minuscolo (<em class='code'>IGNORECASE</em>), visto che i nomi propri in genere hanno la prima lettera maiuscola al contrario degli indirizzi email.
+</testo_normale>
+<py_output>
+$ python re_refer_to_named_group.py 
+
+Candidato: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con name : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+
+Candidato: Diverso Nome <nome.cognome@example.com>
+  Nessuna corrispondenza  :
+
+Candidato: Nome SecondoNome Cognome <nome.cognome@example.com>
+  Corrispondenza con name : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+
+Candidato: Nome S. Cognome <nome.cognome@example.com>
+  Corrispondenza con name : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+</py_output>
+<testo_normale>
+L'altro meccanismo per usare riferimenti a ritroso nelle espressioni consente di seguire un modello diverso in base al fatto che una corrispondenza con un precedente gruppo sia stato trovata o meno. Il modello di email può essere corretto in modo che le parentesi angolari siano richieste se è presente un nome e non se l'indirizzo email è a se stante. La sintassi per verificare se si è verificata corrispondenza con un gruppo è <em class='code'>(?(id)yes-expression|no-expression)</em>, dove <em>id</em> è l'identificativo (numerico o nominale, <em>yes-expression</em> è il modello da usare se il gruppo ha un valore e <em>no-expression</em> è il modello da usare altrimenti).
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+
+import re
+
+address = re.compile(
+    '''
+    ^
+
+    # Un nome è composto da lettere, e può comprendere "." per abbreviazioni
+    # di titoli ed iniziali di secondo nome
+    (?P<nome>
+       ([\w.]+\s+)*[\w.]+
+     )?
+    \s*
+
+    # Gli indirizzi email sono racchiusi tra parentesi angolari, ma vogliamo
+    # le parentesi solo se troviamo un nome
+    (?(nome)
+      # visto che abbiamo un nome il resto è racchiuso tra parentesi angolari
+      (?P<parentesi>(?=(<.*>$)))
+      |
+      # non abbiamo un nome ed il resto non deve comprendere parentesi angolari
+      (?=([^<].*[^>]$))
+     )
+
+    # Cerchiamo le parentesi angolari solo se l'asserzione look ahead le ha 
+    # trovate entrambe
+    (?(parentesi)<|\s*)
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      [\w\d.+-]+       # nome utente
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+     )
+
+    # Cerchiamo le parentesi angolari solo se l'asserzione look ahead le ha 
+    # trovate entrambe
+    (?(parentesi)>|\s*)
+    
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Nessuna parentesi nome.cognome@example.com>',
+    u'Parentesi aperta <nome.cognome@example.com',
+    u'Parentesi chiusa nome.cognome@example.com>',
+    u'no.parentesi@example.com',
+    ]
+
+for candidate in candidates:
+    print
+    print 'Candidato:', candidate
+    match = address.search(candidate)
+    if match:
+        print '  Corrispondenza con name :', match.groupdict()['nome']
+        print '  Corrispondenza con email:', match.groupdict()['email']
+    else:
+        print '  Nessuna Corrispondenza'
+</py_code>
+<testo_normale>
+Questa versione del recupero indirizzi email usa due controlli. Se vi è corrispondenza con il gruppo <em class='code'>nome</em> l'asserzione look ahead richiede entrambe le parentesi angolari ed imposta il gruppo <em class='code'>parentesi</em>. Se <em class='code'>nome</em> non trova corrispondenza, l'asserzione richiede che il resto del testo non abbia parentesi angolari attorno. Successivamente, se il gruppo <em class='code'>parentesi</em> è impostato, il vero modello di codice  per la corrispondenza consuma le parentesi usando modelli letterali, in caso contrario consuma un qualsiasi spazio.
+</testo_normale>
+<py_output>
+$ python re_id.py 
+
+Candidato: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con name : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+
+Candidato: Nessuna parentesi nome.cognome@example.com>
+  Nessuna Corrispondenza
+
+Candidato: Parentesi aperta <nome.cognome@example.com
+  Nessuna Corrispondenza
+
+Candidato: Parentesi chiusa nome.cognome@example.com>
+  Nessuna Corrispondenza
+
+Candidato: no.parentesi@example.com
+  Corrispondenza con name : None
+  Corrispondenza con email: no.parentesi@example.com
+</py_output>
+<titolo_2>
+Modificare Stringhe con i Modelli
+</titolo_2>
+<testo_normale>
+Oltre alla ricerca attraverso il testo <em class='code'>re</em> supporta anche la modifica del testo usando espressioni regolari come meccanismo di ricerca, e le modifiche possono fare riferimento a gruppi per i quali è stata trovata corrispondenza nell'espressione regolare come parte del testo del testo da sostituire. Si usa ${sbk}sub()${ebk} per sostituire tutte le occorrenze del modello con un altra stringa.
+</testo_normale>
+<py_code>
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}', re.UNICODE)
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print 'Testo    :', text
+print 'Grassetto:', bold.sub(r'<b>\1</b>', text)
+</py_code>
+<testo_normale>
+I riferimenti al testo cha ha trovato corrispondenza può essere inserito usando la sintassi <em class='code'>\num</em> usata per il riferimento all'indietro qui sopra.
+</testo_normale>
+<py_output>
+$ python re_sub.py 
+
+Testo    : Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.
+</py_output>
+<testo_normale>
+Per usare gruppi nominativi nella sostituzione si usa la sintassi <em class='code'>\g&lt;nome></em>.
+</testo_normale>
+<py_code>
+import re
+
+bold = re.compile(r'\*{2}(?P<bold_text>.*?)\*{2}', re.UNICODE)
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print 'Testo    :', text
+print 'Grassetto:', bold.sub(r'<b>\g<bold_text></b>', text)
+
+</py_code>
+<testo_normale>
+La sintassi <em class='code'>\g&lt;nome></em> funziona anche con riferimenti numerati, ed usandola si elimina ogni ambiguità tra gruppi numerici e le cifre letterali che li circondano
+</testo_normale>
+<py_output>
+$ python re_sub_named_groups.py 
+
+Testo    : Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.
+</py_output>
+<testo_normale>
+Per limitare il numero delle sostituzioni eseguite si passa un valore a <em class='code'>count</em>.
+</testo_normale>
+<py_code>
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}', re.UNICODE)
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print 'Testo    :', text
+print 'Grassetto:', bold.sub(r'<b>\1</b>', text, count=1)
+</py_code>
+<testo_normale>
+Viene effettuata solo la prima sostituzione visto che <em class='code'>count</em> è uguale a ${sev}1${eev}.
+</testo_normale>
+<py_output>
+$ python re_sub_count.py 
+
+Testo    : Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche **questo**.
+</py_output>
+<testo_normale>
+${sbk}subn()${ebk} funziona come ${sbk}sub()${ebk} a parte il fatto che ritorna sia la stringa modificata che il conteggio delle sostituzioni effettuate.
+</testo_normale>
+<py_code>
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}', re.UNICODE)
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print 'Testo    :', text
+print 'Grassetto:', bold.subn(r'<b>\1</b>', text)
+</py_code>
+<testo_normale>
+In questo esempio il modello di ricerca trova due corrispondenze.
+</testo_normale>
+<py_output>
+$ python re_subn.py 
+
+Testo    : Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: ('Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.', 2)
+</py_output>
+<titolo_2>
+Dividere con i Modelli
+</titolo_2>
+<testo_normale>
+${sbk}str.split()${ebk} è uno dei metodi più frequentemente usati per smembrare le stringhe per elaborarle. Come caratteri di separazione supporta solo valori letterali, mentre talvolta è necessaria una espressione regolare se l'input non è foramattato con consistenza. Ad esempio molti linguaggi di <a href='http://it.wikipedia.org/wiki/Linguaggio_di_markup'>markup</a> di testo semplice definiscono i separatori di paragrafi come due o più caratteri di nuova riga (newline <em class='code'>\n</em>). In questo caso ${sbk}str.split()${ebk} non può essere usata causa la parte "o più" della definizione.
+</testo_normale>
+<testo_normale>
+Una strategia per identificare paragrafi usando ${sbk}findall()${ebk} sarebbe quella di usare un modello tipo <em class='code'>(.+?)\n{2,}</em>.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Paragrafo uno\nsu due righe.\n\nParagrafo due.\n\n\nParagrafo tre.'
+
+for num, para in enumerate(re.findall(r'(.+?)\n{2,}', text, flags=re.DOTALL)):
+    print num, repr(para)
+    print
+</py_code>
+<testo_normale>
+Il modello non riesce a recuperare il paragrafo tre alla fine del testo in input, come dimostrato dal fatto che "Paragrafo tre" non si trova nell'output.
+</testo_normale>
+<py_output>
+$ python re_paragraphs_findall.py 
+
+0 'Paragrafo uno\nsu due righe.'
+
+1 'Paragrafo due.'
+</py_output>
+<testo_normale>
+Estendendo il modello per indicare che il paragrafo finisce con due o più caratteri di nuova riga, o con la fine dell'input risolve il problema ma rende il modello più complicato. Utilizzando ${sbk}re.split()${ebk} invece che ${sbk}re.findall()${ebk} consente di gestire la condizione delle estremità automaticamente e mantiene il modello semplice.
+</testo_normale>
+<py_code>
+import re
+
+text = 'Paragrafo uno\nsu due righe.\n\nParagrafo due.\n\n\nParagrafo tre.'
+   
+print 'Con findall:'
+for num, para in enumerate(re.findall(r'(.+?)(\n{2,}|$)', text, flags=re.DOTALL)):
+    print num, repr(para)
+    print
+
+print
+print 'Con split:'
+for num, para in enumerate(re.split(r'\n{2,}', text)):
+    print num, repr(para)
+    print
+
+</py_code>
+<testo_normale>
+L'argomento per il modello passato a ${sbk}split()${ebk} esprime la specifica del markup con più precisione: due o più caratteri di nuova riga caratterizzano un punto di separazione di paragrafi nella stringa in input.
+</testo_normale>
+<py_output>
+$ python re_split.py 
+
+Con findall:
+0 ('Paragrafo uno\nsu due righe.', '\n\n')
+
+1 ('Paragrafo due.', '\n\n\n')
+
+2 ('Paragrafo tre.', '')
+
+
+Con split:
+0 'Paragrafo uno\nsu due righe.'
+
+1 'Paragrafo due.'
+
+2 'Paragrafo tre.'
+</py_output>
+<testo_normale>
+Il racchiudere l'espressione tra parentesi per definire un gruppo fa sì che ${sbk}split()${ebk} funzioni più come ${sbk}str.partition()${ebk}, in modo che restituisca i valori di separazione così come le altre parti della stringa
+</testo_normale>
+<py_code>
+import re
+
+text = 'Paragrafo uno\nsu due righe.\n\nParagrafo due.\n\n\nParagrafo tre.'
+   
+print
+print 'Con split:'
+for num, para in enumerate(re.split(r'(\n{2,})', text)):
+    print num, repr(para)
+    print    
+</py_code>
+<testo_normale>
+L'output ora comprende ciascun paragrafo, assieme alla sequenza dei caratteri di nuova riga che li separano.
+</testo_normale>
+<py_output>
+$ python re_split_groups.py 
+ 
+Con split:
+0 'Paragrafo uno\nsu due righe.'
+
+1 '\n\n'
+
+2 'Paragrafo due.'
+
+3 '\n\n\n'
+
+4 'Paragrafo tre.'
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/re.html|re|La documentazione della libreria standard per questo modulo (lingua inglese)
+http://docs.python.org/howto/regex.html|Regular Expressions HOWTO|Introduzione alle espressioni regolari per gli sviluppatori Python di Andrew Kuchling.
+http://kodos.sourceforge.net/|Kodos|Uno strumento per il test delle espressioni regolari di Phil Schwartz.
+http://it.wikipedia.org/wiki/Espressione_regolare|Wikipedia: Espressione Regolare| Una pagina introduttiva ai concetti delle espressioni regolari ed alle tecniche
+locale.html|locale|Il modulo <strong>locale</strong> si usa per impostare la propria configurazione di linguaggio quando si lavora con testo Unicode
+http://docs.python.org/2/library/unicodedata.html|unicodedata|Accesso programmatico al database delle proprietà dei caratteri Unicode
+</vedi_anche>
+</documento_tradotto>

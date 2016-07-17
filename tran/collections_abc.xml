@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+collections.abc - Classi base astratte per contenitori
+</titolo_1>
+<descrizione>
+Classi base astratte per tipi di dato contenitore
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>collections.abc</strong> contiene le classi base astratte che definiscono le <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> per le strutture dati contenitore in Python, fornite dal modulo <a href="collections.html">collections</a>.
+</testo_normale>
+<tabella_semplice>
+CLASSE;CLASSE BASE;SCOPO API
+Container;;Caratteristiche base di un contenitore, tipo l'operatore <code>in</code>
+Hashable;;Aggiunge supporto per fornire un valore hash all'istanza contenitore
+Iterable;;Può creare un iteratore sui contenuti di un contenitore
+Iterator;Iterable;E' un iteratore sul contenuti di un contenitore
+Sized;;Aggiunge metodi per contenitori che sono consapevoli della propria dimensione
+Callable;;Per contenitori che possono essere chiamati come una funzione
+Sequence;Sized, Iterable, Container;Supporta il recupero di elementi individuali, l'iterazione e la modifiche dell'ordine degli elementi
+MutableSequence;Sequence;Supporta l'aggiunta e la rimozione di elementi ad una istanza dopo che è stata creata
+Set;Sized, Iterable, Container;Supporta operazioni sugli insiemi tipo intersezioni ed unioni
+MutableSet;Set;Aggiunge metodi per manipolare il contenuto degli insiemi dopo la creazione
+Mapping;Sized, Iterable, Container;Definisce le <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> a sola lettura utilizzate da <code>dict</code>
+MutableMapping;Mapping;Definisce i metodi per manipolare il contenuto di una mappatura dopo la creazione
+MappingView;Sized;Definisce le <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> di vista per accedere una mappatura da un iteratore
+ItemsView;MappingView, Set;Parte dell'<a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> di vista
+KeysView;MappingView, Set;Parte dell'<a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> di vista
+ValuesView;MappingView;Parte dell'<a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> di vista
+</tabella_semplice>
+<testo_normale>
+Oltre a definire chiaramente le <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> per i contenitori con semantiche differenti, queste classi base astratte possono essere usate per verificare tramite <code>is_instance()</code> se un oggetto supporta una <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> prima di chiamarlo. Alcune delle classi possono anche fornire implementazioni di metodi, e possono anche essere utilizzate come mix-in (classi che contengono metodi che altre classi possono utilizzare senza essere classi genitore di queste altre classi) per costruire tipi di contenitore personalizzati senza implementare da zero tutti i metodi.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.abc.html|collections.abc|La documentazione standard della libreria per questo modulo
+</vedi_anche>
+</documento_tradotto>
+

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+            <p class="pull-right visible-xs">
+            </p>
+            <div class="jumbotron" >
+                <h3 class="pymotwit-jumbo-title" >{{ modulo.titolo|safe }}</h3>
+                <table class="pymotwit-jumbo">
+                    {% if modulo.descrizione %}
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Scopo:</td>
+                        <td class="pymotwit-jumbo-def">{{ modulo.descrizione|safe }}</td>
+                    </tr>
+                        
+                    {% endif %}
+                    <!-- 
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Versione Python</td>
+                        <td>{{ modulo.versione }}</td>
+                    </tr>
+                    -->
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                {{ modulo.main_content|safe }}
+
+                </div><!--/span-->
+            </div><!--/row-->
+            <p>
+                <hr />
+            </p>
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <!-- La barra dell'indice viene composta se esiste almeno un elemento -->
+            {% if modulo.indice_laterale %}
+            <div class="well sidebar-nav" style='position: fixed;' >
+                <ul class="nav">
+                    <li>Indice articolo</li>
+                    {% for voce in modulo.indice_laterale %}
+                        <li>{{ voce|safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div><!--/.well -->
+            {% endif %}
+        </div><!--/span-->
+    </div><!--/row-->
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted">{{ modulo.footer.nome_sito }} {{ modulo.footer.periodo }} / Documento aggiornato il: {{ modulo.footer.data_agg }}
+            - Contatto: pymotw-it(at)robyp.x10host.com</p>
+        </div>
+    </div
+
+
+{% endblock %}
+

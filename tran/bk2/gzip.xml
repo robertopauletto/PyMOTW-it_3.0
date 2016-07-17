@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione dati ed archiviazione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+gzip - Leggere e scrivere file zip GNU 
+</titolo_1>
+<descrizione>
+Leggere e scrivere file gzip.
+1.5.2 e successive
+</descrizione>
+<testo_normale>
+Il modulo <strong>gzip</strong> fornisce una interfaccia tipo file ai file zip GNU. usando zlib per comprimere e decomprimere i dati.
+</testo_normale>
+<titolo_2>
+Scrivere File Compressi
+</titolo_2>
+<testo_normale>
+La funzione a livello di modulo ${sbk}open()${ebk} crea una istanza della classe tipo file <strong>GzipFile</strong>. Sono forniti i metodi usuali per scrivere e leggere dati. Per scrivere dati in un file compresso si apre il file in modalità ${sbk}'w'${ebk}.
+</testo_normale>
+<py_code>
+
+import gzip
+import os
+
+outfilename = 'esempio.txt.gz'
+output = gzip.open(outfilename, 'wb')
+try:
+    output.write('Il contenuto del file di esempio va qui.\n')
+finally:
+    output.close()
+
+print outfilename, 'contiene', os.stat(outfilename).st_size, 'byte di dati compressi'
+os.system('file -b --mime %s' % outfilename)
+</py_code>
+<py_output>
+$ python gzip_write.py 
+esempio.txt.gz contiene 73 byte di dati compressi
+application/x-gzip; charset=binary
+</py_output>
+<testo_normale>
+Si possono usare diversi livelli di compressione passando il parametro <em>compresslevel</em>. I valori validi vanno da 1 a 9 incluso. I valori inferiori sono più veloci e comprimono di meno. I valori più alti sono più lenti e comprimono di più, fino ad un certo punto.
+</testo_normale>
+<py_code>
+import gzip
+import os
+import hashlib
+
+def get_hash(data):
+    return hashlib.md5(data).hexdigest()
+
+data = open('lorem.txt', 'r').read() * 1024
+cksum = get_hash(data)
+
+print 'Livello  Dimensione  Checksum'
+print '-------  ----------  ---------------------------------'
+print 'dati     %10d  %s' % (len(data), cksum)
+
+for i in xrange(1, 10):
+    filename = 'livello-di-compressione-%s.gz' % i
+    output = gzip.open(filename, 'wb', compresslevel=i)
+    try:
+        output.write(data)
+    finally:
+        output.close()
+    size = os.stat(filename).st_size
+    cksum = get_hash(open(filename, 'rb').read())
+    print '%5d    %10d  %s' % (i, size, cksum)
+</py_code>
+<testo_normale>
+La colonna centrale di cifre nel risultato dello script è la dimensione in byte dei file prodotti. Come si vede, per questi dati in input, i valori di compressione più alti non sempre pagano in termini di riduzione di spazio di salvataggio. I risultati possono variare a seconda dai dati in input
+</testo_normale>
+<py_output>
+$ python gzip_compresslevel.py 
+Livello  Dimensione  Checksum
+-------  ----------  ---------------------------------
+dati         717824  d90f6ff01d9929094f85502aba935250
+    1          7975  64980dbf11fd43218a926cc9e22947d6
+    2          7953  bc2543c47a762686ccf947cbe2bd46b2
+    3          7128  e1ae88a683119ea3a1de79edccdbc835
+    4          3965  b737ace97be7ca542bf1b2148b872459
+    5          3965  5d2d77553df74cb3c30849539f01f4d5
+    6          3965  3a42b581b7ac60baa541119e63ad662e
+    7          3965  f125c40aa4d945a936cd1f2b31391dc7
+    8          3965  bd2a44355cfc76c893c4e24e9fc477a7
+    9          3965  c7d006fc37b1c0466e8e2f794462968a
+</py_output>
+<testo_normale>
+<testo_normale>
+Una istanza di GzipFile include anche il metodo ${sbk}writelines()${ebk} che può essere usato per scrivere una sequenza di stringhe.
+</testo_normale>
+<py_code>
+import gzip
+import itertools
+import os
+
+output = gzip.open('righe_di_esempio.txt.gz', 'wb')
+try:
+    output.writelines(itertools.repeat('La stessa riga, ripetutamente.\n', 10))
+finally:
+    output.close()
+
+os.system('gzcat righe_di_esempio.txt.gz')
+</py_code>
+<py_output>
+$ python gzip_file_writelines.py 
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+</py_output>
+<titolo_2>
+Leggere Dati Compressi    
+</titolo_2>
+<testo_normale>
+Per leggere dati da file precedentemente compressi si apre semplicemente il file in modalità ${sbk}'r'${ebk}.
+</testo_normale>
+<py_code>
+import gzip
+
+input_file = gzip.open('esempio.txt.gz', 'rb')
+try:
+    print input_file.read()
+finally:
+    input_file.close()
+</py_code>
+<testo_normale>
+Questo esempio legge il file scritto da ${sbk}gzip_write.py${ebk} nella sezione precedente. 
+</testo_normale>
+<py_output>
+$ python gzip_read.py 
+Il contenuto del file di esempio va qui.
+</py_output>
+<testo_normale>
+Quando si legge un file, è anche possibile cercare e leggere solo alcune parti di dati.
+</testo_normale>
+<py_code>
+import gzip
+
+input_file = gzip.open('esempio.txt.gz', 'rb')
+try:
+    print 'Intero file:'
+    all_data = input_file.read()
+    print all_data
+    
+    expected = all_data[5:15]
+    
+    # porta il puntatore ad inizio file
+    input_file.seek(0)
+    
+    # si sposta di 5 byte
+    input_file.seek(5)
+    print 'A partire da posizione 5 per 10 byte:'
+    partial = input_file.read(10)
+    print partial
+    
+    print
+    print expected == partial
+finally:
+    input_file.close()
+</py_code>
+<testo_normale>
+La poszione di ${sbk}seek()${ebk} è relativa ai dati <em>non compressi</em>, quindi il chiamante non deve neanche sapere che il file è compresso.
+</testo_normale>
+<py_output>
+$ python gzip_seek.py 
+Intero file:
+Il contenuto del file di esempio va qui.
+
+A partire da posizione 5 per 10 byte:
+ntenuto de
+
+True
+</py_output>
+<py_output>
+$ python bz2_file_seek.py 
+Intero file:
+Il contenuto del file di esempio va qui.
+
+A partire da posizione 5 per 10 byte:
+ntenuto de
+
+True
+</py_output>
+<titolo_2>
+Lavorare con i Flussi    
+</titolo_2>
+<testo_normale>
+E' possibile usare la classe GzipFile per comprimere o decomprimere direttamente un flusso di dati, invece che un intero file. Questo risulta utile quando si lavora con dati che sono trasmessi attraverso un socket o da un handle di file (aperto) già esistente. Si può anche usare un buffer StringIO.    
+</testo_normale>
+<py_code>
+
+import gzip
+from cStringIO import StringIO
+import binascii
+
+uncompressed_data = 'La stessa riga, ripetutamente.\n' * 10
+print 'NON COMPRESSI:', len(uncompressed_data)
+print uncompressed_data
+
+buf = StringIO()
+f = gzip.GzipFile(mode='wb', fileobj=buf)
+try:
+    f.write(uncompressed_data)
+finally:
+    f.close()
+
+compressed_data = buf.getvalue()
+print 'COMPRESSI:', len(compressed_data)
+print binascii.hexlify(compressed_data)
+
+inbuffer = StringIO(compressed_data)
+f = gzip.GzipFile(mode='rb', fileobj=inbuffer)
+try:
+    reread_data = f.read(len(uncompressed_data))
+finally:
+    f.close()
+
+print
+print 'RILETTURA:', len(reread_data)
+print reread_data
+</py_code>
+<note>
+Quando si rileggono dati precedentemente compressi, si passa la lunghezza esplicita a read(). Se questo non viene fatto si otterrà un errore CRC, possibilmente perchè StringIO restituisce una stringa vuota prima di EOF. Se si sta lavorando con flussi di dati compressi, si vorrà far precedere i dati da una rappresentazione sotto forma di intero dell'effettivo ammontare dei dati da leggere.    
+</note>
+<py_output>
+$ python gzip_StringIO.py 
+NON COMPRESSI: 310
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+
+COMPRESSI: 54
+1f8b0800be8a9e4b02fff34954282e492d2e4e5428ca4c4fd4019205a925a52589b9a97925a97a5c3ea3d2d8a401eb77dfed36010000
+
+RILETTURA: 310
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/gzip.html|gzip|La documentazione della libreria standard per questo modulo.
+zlib.html|zlib|Il modulo zlib è una interfaccia a basso livello della compressione gzip.
+zipfile.html|zipfile|Il modulo zipfile fornisce l'accesso agli archivi ZIP.
+bz2.html|bz2|Il modulo bz2 usa il formato di compressione bz2.
+tarfile.html|tarfile|Il modulo tarfile include il supporto built-in per leggere archivi compressi tar.
+</vedi_anche>
+</documento_tradotto>

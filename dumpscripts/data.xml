@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<top>
+  <child>Questo figlio contiene testo.</child>
+  <child_with_tail>Questo figlio contiene testo normale</child_with_tail>e testo in "coda".
+  <with_attributes name="value" foo="bar" />
+  <entity_expansion attribute="Questo &#38; Quello">Quello &#38; Questo</entity_expansion>
+</top>
+  

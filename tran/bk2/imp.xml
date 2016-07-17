@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>importazione moduli </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+imp - Interfaccia al meccanismo di importazione modulo.
+</titolo_1>
+<descrizione>
+Espone l'implementazione dell'istruzione Python import.
+2.2.1 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>imp</strong> comprende funzioni che espongono parte dell'implementazione sottostante il meccanismo di importazione di Python per caricare il codice in pacchetti e moduli. E' un punto di accesso per l'importazione dinamica di moduli, ed &egrave; utile in alcuni casi laddove non si conosce il nome del modulo che occorre importare quando si sta scrivendo il proprio codice (es. per plugin od estensioni di una applicazione).
+</testo_normale>
+<titolo_2>
+Il Pacchetto Example
+</titolo_2>
+<testo_normale>
+Gli esempi seguenti usano un pacchetto chiamato &quot;example&quot; con ${sev}__init__py:${eev}
+</testo_normale>
+<py_code>
+print 'Importazione del pacchetto example'
+</py_code>
+<testo_normale>
+ed un modulo chiamato submodule che contiene:
+</testo_normale>
+<py_code>
+print 'Importazione di submodule'
+</py_code>
+<testo_normale>
+Si osservi il testo stampato dalle istruzioni print nell'output di esempio quando il pacchetto od il modulo sono importati.
+</testo_normale>
+<titolo_2>
+Tipi di modulo
+</titolo_2>
+<testo_normale>
+Python supporta parecchi stili di moduli. Ognuno dei quali richiede la sua propria gestione in fase di apertura ed aggiunta allo spazio dei nomi. Alcuni dei tipi supportati ed i loro parametri possono essere elencati dalla funzione ${sbk}get_suffixes()${ebk}.
+</testo_normale>
+<py_code>
+import imp
+
+module_types = { imp.PY_SOURCE:   'sorgente',
+                 imp.PY_COMPILED: 'compilato',
+                 imp.C_EXTENSION: 'estensione',
+                 imp.PY_RESOURCE: 'risorsa',
+                 imp.PKG_DIRECTORY: 'pacchetto',
+                 }
+
+def main():
+    fmt = '%10s %10s %10s'
+    print fmt % ('Estensione', 'Modalit&agrave;', 'Tipo')
+    print '-' * 32
+    for extension, mode, module_type in imp.get_suffixes():
+        print fmt % (extension, mode, module_types[module_type])
+
+if __name__ == '__main__':
+    main()
+</py_code>
+<testo_normale>
+${sbk}get_suffixes()${ebk} restituisce una sequenza di tuple che contiene l'estensione del file, la modalit&agrave; usata per aprire il file, ed un tipo codice ottenuto da una costante definita nel modulo. Questa tabella &egrave; incompleta, poich&egrave; alcuni dei moduli o tipi di pacchetto importabili non corrispondono a singoli file.
+</testo_normale>
+<py_output>
+$ python imp_get_suffixes.py 
+
+Estensione  Modalit&agrave;       Tipo
+--------------------------------
+       .so         rb estensione
+ module.so         rb estensione
+       .py          U   sorgente
+      .pyc         rb  compilato
+</py_output>
+<titolo_2>
+Trovare Moduli
+</titolo_2>
+<testo_normale>
+Il primo passo per caricare un modulo &egrave; trovarlo. ${sbk}find_module()${ebk} scorre il percorso di ricerca di importazione cercando un pacchetto o modulo con il nome fornito. Restituisce un handle di file aperto (se appropriato per il tipo), <i>filename</i> (il nome del file) dove il modulo &egrave; stato trovato, e <i>description</i> (una tupla tipo quella restituita da ${sbk}get_suffixes()${ebk}).
+</testo_normale>
+<py_code>
+import imp
+from imp_get_suffixes import module_types
+
+print 'Pacchetto:'
+f, filename, description = imp.find_module('example')
+print module_types[description[2]], filename
+print
+
+print 'Sub-modulo:'
+f, filename, description = imp.find_module('submodule', [filename])
+print module_types[description[2]], filename
+if f: f.close()
+</py_code>
+<testo_normale>.
+${sbk}find_module()${ebk} non presta attenzione ai nomi di pacchetto con puntini nel nome ("example.submodule"), quindi il chiamante deve prendersi cura del passaggio del percorso corretto per un qualsiasi modulo annidato. Questo significa che quando si importa submodule dal pacchetto, occorre fornire un percorso che punti alla directory del pacchetto affinch&egrave; ${sbk}find_module()${ebk} possa essere in grado di trovare il modulo che si sta cercando.
+</testo_normale>
+<py_output>
+$ python imp_find_module.py 
+
+Pacchetto:
+pacchetto /home/robby/pydev/pymotw-it/dumpscripts/example
+
+Sub-modulo:
+sorgente /home/robby/pydev/pymotw-it/dumpscripts/example/submodule.py
+</py_output>
+<testo_normale>
+Se ${sbk}find_module${ebk} non riesce a trovare il modulo, solleva una eccezione <a href='eccezioni.html#importerror'>ImportError</a>.
+</testo_normale>
+<py_code>
+import imp
+
+try:
+    imp.find_module('modulo_che_non_esiste')
+except ImportError, err:
+    print 'ImportError:', err
+</py_code>
+<py_output>
+$ python imp_find_module_error.py 
+
+ImportError: No module named modulo_che_non_esiste
+</py_output>
+<titolo_2>
+Caricare Moduli
+</titolo_2>
+<testo_normale>
+Una volta che si &egrave; trovato il modulo si usa ${sbk}load_module()${ebk} per importarlo effettivamente. ${sbk}load_module()${ebk} riceve il percorso completo del modulo (punti inclusi) ed i valori restituiti da ${sbk}find_module()${ebk} (la tupla con l'handle di file aperto, il nome del file e la descrizione).
+</testo_normale>
+<py_code>
+import imp
+
+f, filename, description = imp.find_module('example')
+example_package = imp.load_module('example', f, filename, description)
+print 'Pacchetto:', example_package
+
+f, filename, description = imp.find_module('submodule', 
+                                           example_package.__path__)
+try:
+    submodule = imp.load_module('example.module', f, filename, description)
+    print 'Sub-modulo:', submodule
+finally:
+    f.close()
+</py_code>
+<testo_normale>
+${sbk}load_module()${ebk} crea un nuovo oggetto modulo con il nome fornito, carica il codice contenuto, quindi lo aggiunge a sys.modules
+</testo_normale>
+<py_output>
+$ python imp_load_module.py 
+
+Importazione del pacchetto example
+Pacchetto: <module 'example' from '/home/robby/pydev/pymotw-it/dumpscripts/example/__init__.py'>
+Importazione di submodule
+Sub-modulo: <module 'example.module' from '/home/robby/pydev/pymotw-it/dumpscripts/example/submodule.py'>
+</py_output>
+<testo_normale>
+Chiamando ${sbk}load_module()${ebk} per un modulo che &egrave; gi&agrave; stato importato, si ottiene lo stesso effetto della chiamata di ${sbk}reload()${ebk} sull'oggetto modulo esistente
+</testo_normale>
+<py_code>
+import imp
+import sys
+
+for i in range(2):
+    print i,
+    try:
+        m = sys.modules['example']
+    except KeyError:
+        print '(non in sys.modules)',
+    else:
+        print '(presente in sys.modules)',
+    f, filename, description = imp.find_module('example')
+    example_package = imp.load_module('example', f, filename, description)
+</py_code>
+<testo_normale>
+Invece di creare un nuovo modulo, il contenuto del modulo esistente viene semplicemente rimpiazzato.
+</testo_normale>
+<py_output>
+$ python imp_load_module_reload.py 
+
+0 (non in sys.modules) Importazione del pacchetto example
+1 (presente in sys.modules) Importazione del pacchetto example
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/imp.html|imp|La documentazione della libreria standard per questo modulo
+http://www.doughellmann.com/PyMOTW/sys/imports.html#sys-imports|Moduli ed Import|Agganci per importazione, il percorso di ricerca dei moduli ed altro.
+inspect.html|inspect|Carica informazioni per un modulo programmaticamente.
+http://www.python.org/dev/peps/pep-0302|PEP 302|Nuovi agganci per import
+http://www.python.org/dev/peps/pep-0369|POP 369|Agganci post import.
+</vedi_anche>
+</documento_tradotto>

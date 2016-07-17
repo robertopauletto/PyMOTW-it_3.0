@@ -1,0 +1,947 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Algoritmi</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+contextlib - Utilità per la Gestione di Contesto
+</titolo_1>
+<descrizione>
+Utilità per creare e lavorare con gestori di contesto
+
+</descrizione>
+<titolo_2>
+API del Gestore di Contesto
+</titolo_2>
+<testo_normale>
+Un <em>gestore di contesto</em> (context manager) è responsabile di una risorsa all'interno di un blocco di codice, che possibilmente dallo stesso viene creata quando il flusso del codice entra nel blocco, quindi viene ripulita quando il flusso esce dal blocco. Ad esempio, gli oggetti <strong>file</strong> supportano l'API del gestore di contesto per facilitare l'assicurarsi che essi vengano chiusi dopo che tutte le operazioni di lettura e scrittura sono terminate.
+</testo_normale>
+<py_code>
+# contextlib_file.py
+
+with open('/tmp/pymotw.txt', 'wt') as f:
+    f.write('il contenuto va qui')
+# file viene chiuso automaticamente
+</py_code>
+<testo_normale>
+Un <em>gestore di contesto</em> viene abilitato dall'istruzione <strong>with</strong>, e l'<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> coinvolge due metodi: <code>__enter__()</code> viene eseguito quando il flusso di esecuzione entra nel blocco di codice all'interno di <strong>with</strong>. Esso ritorna un oggetto da utilizzare all'interno del contesto. Quando il flusso di esecuzione abbandona il blocco <strong>with</strong>, viene chiamato il metodo <code>__exit__()</code> del gestore di contesto per ripulire qualsivoglia risorsa sia stata utilizzata.
+</testo_normale>
+<py_code>
+# contextlib_api.py
+
+class Context:
+
+    def __init__(self):
+        print('__init__()')
+
+    def __enter__(self):
+        print('__enter__()')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('__exit__()')
+
+with Context():
+    print('Lavoro eseguito nel contesto')
+</py_code>
+<testo_normale>
+La combinazione di un gestore di contesto e dell'istruzione <strong>with</strong> costituisce un modo più compatto di scrivere un blocco <code>try:finally</code>, visto che il metodo <code>__exit__()</code> del gestore di contesto viene sempre chiamato, anche se viene sollevata una eccezione.
+</testo_normale>
+<py_output>
+$ python3 contextlib_api.py
+
+__init__()
+__enter__()
+Lavoro eseguito nel contesto
+__exit__()
+</py_output>
+<testo_normale>
+Il metodo <code>__enter__()</code> può restituire un qualsiasi oggetto che venga associato ad un nome specificato nella clausola <strong>as</strong> dell'istruzione <strong>with</strong>. In questo esempio, <code>Context</code> ritorna un oggetto che utilizza il contesto aperto.
+</testo_normale>
+<py_code>
+# contextlib_api_other_object.py
+
+class DentroIlContesto(object):
+
+    def __init__(self, context):
+        print('DentroIlContesto.__init__({})'.format(context))
+
+    def do_something(self):
+        print('DentroIlContesto.do_something()')
+
+    def __del__(self):
+        print('DentroIlContesto.__del__')
+
+
+class Context:
+
+    def __init__(self):
+        print('Context.__init__()')
+
+    def __enter__(self):
+        print('Context.__enter__()')
+        return DentroIlContesto(self)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('Context.__exit__()')
+
+with Context() as c:
+    c.do_something()
+</py_code>
+<testo_normale>
+Il valore associato alla variabile <code>c</code> è l'oggetto restituito da <code>__enter__()</code>, che non è necessariamente l'istanza di <code>Context</code> creata nell'istruzione <strong>with</strong>.
+</testo_normale>
+<py_output>
+$ python3 contextlib_api_other_object.py
+
+Context.__init__()
+Context.__enter__()
+DentroIlContesto.__init__(<__main__.Context object at 0x7f0b895f6b38>)
+DentroIlContesto.do_something()
+Context.__exit__()
+DentroIlContesto.__del__
+</py_output>
+<testo_normale>
+Il metodo <code>__exit__()</code> riceve argomenti che contengono dettagli di qualsiasi eccezione venga sollevata all'interno del blocco <strong>with</strong>.
+</testo_normale>
+<py_code>
+# contextlib_api_error.py
+
+class Context:
+
+    def __init__(self, handle_error):
+        print('__init__({})'.format(handle_error))
+        self.handle_error = handle_error
+
+    def __enter__(self):
+        print('__enter__()')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('__exit__()')
+        print('  exc_type =', exc_type)
+        print('  exc_val  =', exc_val)
+        print('  exc_tb   =', exc_tb)
+        return self.handle_error
+
+with Context(True):
+    raise RuntimeError('messaggio di errore gestito')
+
+print()
+
+with Context(False):
+    raise RuntimeError('messaggio di errore propagato')
+</py_code>
+<testo_normale>
+Se il gestore di contesto può gestire l'eccezione, <code>__exit__()</code> dovrebbe restituire un valore <code>True</code> per indicare che l'eccezione non deve propagarsi. Restituire <code>False</code> fa sì che l'eccezione sia sollevata nuovamente dopo che <code>__exit__()</code> ritorna.
+</testo_normale>
+<py_output>
+$ python3 contextlib_api_error.py
+
+__init__(True)
+__enter__()
+__exit__()
+  exc_type = <class 'RuntimeError'>
+  exc_val  = messaggio di errore gestito
+  exc_tb   = <traceback object at 0x7f1596dac508>
+
+__init__(False)
+__enter__()
+__exit__()
+  exc_type = <class 'RuntimeError'>
+  exc_val  = messaggio di errore propagato
+  exc_tb   = <traceback object at 0x7f1596dac508>
+Traceback (most recent call last):
+  File "contextlib_api_error.py", line 26, in <module>
+    raise RuntimeError('messaggio di errore propagato')
+RuntimeError: messaggio di errore propagato
+</py_output>
+<titolo_2>
+Gestori di Contesto come Decoratori di Funzione
+</titolo_2>
+<testo_normale>
+La classe <code>ContextDecorator</code> aggiunge supporto alle normali classi di gestori di supporto per consentirne l'uso anche come decoratori di funzione
+</testo_normale>
+<py_code>
+# contextlib_decorator.py
+
+import contextlib
+
+
+class Context(contextlib.ContextDecorator):
+
+    def __init__(self, how_used):
+        self.how_used = how_used
+        print('__init__({})'.format(how_used))
+
+    def __enter__(self):
+        print('__enter__({})'.format(self.how_used))
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('__exit__({})'.format(self.how_used))
+
+
+@Context('come decoratore')
+def func(message):
+    print(message)
+
+print()
+with Context('come gestore di contesto'):
+    print("Lavoro in esecuzione all'interno del contesto")
+
+print()
+func("Lavoro in esecuzione all'interno della funzione incapsulata")
+</py_code>
+<testo_normale>
+Una differenza nell'utilizzo del gestore di contesto come decoratore è che il valore restituito da <code>__enter__()</code> non è disponibile all'interno della funzione che viene decorata, al contrario dell'utilizzo con <code>with</code> ed <code>as</code>. Gli argomenti passati alla funzione decorata sono disponibili nei consueti modi.
+</testo_normale>
+<py_output>
+$ python3 contextlib_decorator.py
+
+__init__(come decoratore)
+
+__init__(come gestore di contesto)
+__enter__(come gestore di contesto)
+Lavoro in esecuzione all'interno del contesto
+__exit__(come gestore di contesto)
+
+__enter__(come decoratore)
+Lavoro in esecuzione all'interno della funzione incapsulata
+__exit__(come decoratore)
+</py_output>
+<titolo_2>
+Dal Generatore al Gestore di Contesto
+</titolo_2>
+<testo_normale>
+Creare gestori di contesto nel modo tradizionale, vale a dire scrivendo una classe che abbia i metodi <code>__enter__()</code> ed <code>__exit__()</code> non è difficile. Tuttavia qualche volta può essere inutilmente dispendioso rispetto alle necessità gestire un pezzo triviale di contesto. In questo tipo di situazioni si  utilizza il decoratore <code>contextmanager()</code> per convertire una funzione generatore in un gestore di contesto.
+</testo_normale>
+<py_code>
+# contextlib_contextmanager.py
+
+import contextlib
+
+
+@contextlib.contextmanager
+def make_context():
+    print('  in entrata')
+    try:
+        yield {}
+    except RuntimeError as err:
+        print('  ERRORE:', err)
+    finally:
+        print('  in uscita')
+
+print('Normale:')
+with make_context() as value:
+    print('    dentro l\'istruzione with:', value)
+
+print('\nErrore gestito:')
+with make_context() as value:
+    raise RuntimeError('si mostra un esempio di gestione di un errore')
+
+print('\nErrore non gestito:')
+with make_context() as value:
+    raise ValueError('questa eccezione non è gestita')
+</py_code>
+<testo_normale>
+Il generatore dovrebbe inizializzare il contesto, trattenerlo esattamente una volta, quindi ripulire il contesto. Il valore trattenuto, se esiste, viene legato alla variabile nella clausola <strong>as</strong> dell'istruzione <strong>with</strong>. Le eccezioni all'interno del blocco <strong>with</strong> sono nuovamente sollevate all'interno del generatore, in modo che ivi possano essere trattate.
+</testo_normale>
+<py_output>
+$ python3 contextlib_contextmanager.py
+
+Normale:
+  in entrata
+    dentro l'istruzione with: {}
+  in uscita
+
+Errore gestito:
+  in entrata
+  ERRORE: si mostra un esempio di gestione di un errore
+  in uscita
+
+Errore non gestito:
+  in entrata
+  in uscita
+Traceback (most recent call last):
+  File "contextlib_contextmanager.py", line 26, in <module>
+    raise ValueError('questa eccezione non è gestita')
+ValueError: questa eccezione non è gestita
+</py_output>
+<testo_normale>
+Il gestore di contesto restituito da <code>contextmanager()</code> è derivato da <code>ContextDecorator</code>, quindi può essere eseguito anche come decoratore di funzione.
+</testo_normale>
+<py_code>
+# contextlib_contextmanager_decorator.py
+
+import contextlib
+
+
+@contextlib.contextmanager
+def make_context():
+    print('  in entrata')
+    try:
+        # Trattiene il controllo, ma non un valore, poichè qualasiasi
+        # valore trattenuto non è disponibile quando il gestore di
+        # contesto viene usato come decoratore.
+        yield
+    except RuntimeError as err:
+        print('  ERRORE:', err)
+    finally:
+        print('  in uscita')
+
+
+@make_context()
+def normal():
+    print('    dentro l\'istruzione with:')
+
+
+@make_context()
+def throw_error(err):
+    raise err
+
+
+print('Normale:')
+normal()
+
+print('\nErrore gestito:')
+throw_error(RuntimeError('si mostra un esempio di gestione di un errore'))
+
+print('\nErrore non gestito:')
+throw_error(ValueError('questa eccezione non è gestita'))
+</py_code>
+<testo_normale>
+Come nell'esempio del <code>ContextDecorator</code> qui sopra, quando il gestore di contesto viene utilizzato come decoratore il valore trattenuto dal generatore non è disponibile all'interno della funzione decorata. Gli argomenti passati alla funzione decorata sono ancora disponibili, come dimostrato da <code>thrown_error()</code>  in questo esempio.
+</testo_normale>
+<py_output>
+$ python3 contextlib_contextmanager_decorator.py
+Normale:
+  in entrata
+    dentro l'istruzione with:
+  in uscita
+
+Errore gestito:
+  in entrata
+  ERRORE: si mostra un esempio di gestione di un errore
+  in uscita
+
+Errore non gestito:
+  in entrata
+  in uscita
+Traceback (most recent call last):
+  File "contextlib_contextmanager_decorator.py", line 37, in <module>
+    throw_error(ValueError('questa eccezione non è gestita'))
+  File "/usr/lib/python3.5/contextlib.py", line 30, in inner
+    return func(*args, **kwds)
+  File "contextlib_contextmanager_decorator.py", line 27, in throw_error
+    raise err
+ValueError: questa eccezione non è gestita
+</py_output>
+<titolo_2>
+Chiudere Handle Aperti
+</titolo_2>
+<testo_normale>
+La classe <code>file</code> supporta l'<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> del gestore di contesto direttamente, ma alcuni altri oggetti che rappresentano <em>handle</em> aperti non lo fanno. L'esempio che viene fornito nella documentazione della libreria standard per <strong>contextlib</strong> è l'oggetto ritornato da <code>urllib.urlopen()</code>. Ci sono altre classi obsolete che usano un metodo <code>close()</code> ma non supportano l'<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> del gestore di contesto. Per assicurare che un <em>handle</em> venga chiuso, si utilizzi <code>closing()</code> per creare un gestore di contesto per quel tipo di classi.
+</testo_normale>
+<py_code>
+# contextlib_closing.py
+
+import contextlib
+
+class Door(object):
+    def __init__(self):
+        print('  __init__()')
+        self.status = 'aperto'
+
+    def close(self):
+        print('  close()')
+        self.status = 'chiuso'
+
+print('Esempio Normale:')
+with contextlib.closing(Door()) as door:
+    print('  dentro l\'istruzione with: {}'.format(door.status))
+print('  al di fuori dell\'istruzione with: {}'.format(door.status))
+
+
+print('\nEsempio di gestione errore:')
+try:
+    with contextlib.closing(Door()) as door:
+        print('  sollevata da dentro l\'istruzione with')
+        raise RuntimeError('messaggio di errore')
+except Exception as err:
+    print('  Si è verificato un errore:', err)
+</py_code>
+<testo_normale>
+L'<em>handle</em> viene chiuso a prescindere che si verifichi un errore nel blocco <strong>with</strong>.
+</testo_normale>
+<py_output>
+$ python3 contextlib_closing.py
+
+Esempio Normale:
+  __init__()
+  dentro l'istruzione with: aperto
+  close()
+  al di fuori dell'istruzione with: chiuso
+
+Esempio di gestione errore:
+  __init__()
+  sollevata da dentro l'istruzione with
+  close()
+  Si è verificato un errore: messaggio di errore
+</py_output>
+<titolo_2>
+Ignorare Eccezioni
+</titolo_2>
+<testo_normale>
+E' frequentemente utile ignorare eccezioni sollevate dalle librerie, poichè l'errore indica che lo stato desiderata è già stato acquisito, oppure che può essere altrimenti ignorato. Il modo più comune per ignorare eccezioni è con l'istruzione <code>try:except</code> con una sola istruzione <code>pass</code> nel blocco <code>except</code>.
+</testo_normale>
+<py_code>
+# contextlib_ignore_error.py
+
+import contextlib
+
+
+class NonFatalError(Exception):
+    pass
+
+
+def non_idempotent_operation():
+    raise NonFatalError(
+        'L\'operazione è fallita a causa di uno stato esistente'
+    )
+
+
+try:
+    # idempotenza: https://it.wikipedia.org/wiki/Idempotenza
+    print('si prova una operazione non-idempotente')
+    non_idempotent_operation()
+    print('successo!')
+except NonFatalError:
+    pass
+
+print('finito')
+</py_code>
+<testo_normale>
+In questo caso, l'operazione fallisce e l'errore viene ignorato.
+</testo_normale>
+<py_output>
+$ python3 contextlib_ignore_error.py
+
+si prova una operazione non-idempotente
+finito
+</py_output>
+<testo_normale>
+La forma <code>try:except</code> può essere rimpiazzata da <code>contextlib.suppress()</code> per sopprimere in modo più esplicito una classe di eccezioni che si verifica in qualsiasi punto del blocco <code>with</code>.
+</testo_normale>
+<py_code>
+# contextlib_suppress.py
+
+import contextlib
+
+
+class NonFatalError(Exception):
+    pass
+
+
+def non_idempotent_operation():
+    raise NonFatalError(
+        'L\'operazione è fallita a causa di uno stato esistente'
+    )
+
+
+with contextlib.suppress(NonFatalError):
+    # idempotenza: https://it.wikipedia.org/wiki/Idempotenza
+    print('si prova una operazione non-idempotente')
+    non_idempotent_operation()
+    print('successo!')
+
+print('finito')
+</py_code>
+<testo_normale>
+In questa versione aggiornata, l'eccezione viene ignorata completamente.
+</testo_normale>
+<py_output>
+$ python3 contextlib_ignore_error.py
+
+si prova una operazione non-idempotente
+finito
+</py_output>
+<titolo_2>
+Redirigere i Flussi in Uscita
+</titolo_2>
+<testo_normale>
+Del codice di libreria progettato poco accuratamente potrebbe scrivere direttamente su <code>sys.stdout</code> o <code>sys.stderr</code> senza fornire argomenti per configurare diverse destintazioni di output. I gestori di contesto <code>redirect_stdout()</code> e <code>redirect_stderr()</code> possono essere utilizzati per catturare l'output da funzioni per le quali il codice sorgente non può essere modificato per accettare nuovi argomenti per l'output.
+</testo_normale>
+<py_code>
+# contextlib_redirect.py
+
+from contextlib import redirect_stdout, redirect_stderr
+import io
+import sys
+
+
+def misbehaving_function(a):
+    sys.stdout.write('(stdout) A: {!r}\n'.format(a))
+    sys.stderr.write('(stderr) A: {!r}\n'.format(a))
+
+
+capture = io.StringIO()
+with redirect_stdout(capture), redirect_stderr(capture):
+    misbehaving_function(5)
+
+print(capture.getvalue())
+</py_code>
+<testo_normale>
+In questo esempio, <code>misbehaving_function()</code> scrive sia su <code>stdout</code> che su <code>stderr</code>, ma i due gestori di contesto inviano quell'output alla stessa istanza di <code>io.StringIO</code> dove viene salvato per essere utilizzato successivamente.
+</testo_normale>
+<py_output>
+$ python3 contextlib_redirect.py
+
+(stdout) A: 5
+(stderr) A: 5
+</py_output>
+<note>
+Sia <code>redirect_stdout()</code>   che <code>redirect_stderr()</code> modificano lo stato globale rimpiazzando oggetti nel modulo <strong>sys</strong>, e dovrebbero essere usate con cautela. Le funzioni non sono <a href="https://it.wikipedia.org/wiki/Thread_safety">thread safe</a> e potrebbero interferire con altre operazioni che si attendono che i flussi di output standard siano attaccati a dispositivi di terminale.
+</note>
+<titolo_2>
+Pile di Gestori di Contesto Dinamiche
+</titolo_2>
+<testo_normale>
+La maggior parte di gestori di contesto operano su di un oggetto alla volta, tipo un singolo file od un handle di database. In questi casi, l'oggetto è noto in anticipo ed il codice che utilizza il gestore di contesto può essere costruito attorno a quel singolo oggetto. In altri casi, un programma potrebbe aver bisogno di creare un numero di oggetti sconosciuto in un contesto, volendo poi pulirli tutti quando il flusso di controllo esce dal contesto. <code>ExitStack</code> è stato craeto per gestire questi casi più dinamici.
+</testo_normale>
+<testo_normale>
+Una istanza di <code>ExitStack</code> mantiene una struttura dati <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> per i <a href="https://it.wikipedia.org/wiki/Callback">callback</a> di pulizia. I <a href="https://it.wikipedia.org/wiki/Callback">callback</a> sono popolati esplicitamente all'interno del contesto, e tutti i <a href="https://it.wikipedia.org/wiki/Callback">callback</a> registrati sono chiamati in ordine inverso quando il flusso di controllo esce dal contesto. Il risultato è simile all'avere istruzioni <strong>with</strong> con annidamento multiplo, eccetto il fatto che sono impostate dinamicamente.
+</testo_normale>
+<titolo_3>
+Impilare  i Gestori di Contesto
+</titolo_3>
+<testo_normale>
+Ci sono parecchi modi per popolare <code>ExitStack</code>. Questo esempio usa <code>enter_context()</code> per aggiungere un nuovo gestore di contesto allo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a>.
+</testo_normale>
+<py_code>
+# contextlib_exitstack_enter_context.py
+
+import contextlib
+
+
+@contextlib.contextmanager
+def make_context(i):
+    print('{} in entrata'.format(i))
+    yield {}
+    print('{} in uscita'.format(i))
+
+
+def variable_stack(n, msg):
+    with contextlib.ExitStack() as stack:
+        for i in range(n):
+            stack.enter_context(make_context(i))
+        print(msg)
+
+
+variable_stack(2, 'all\'interno del contesto')
+</py_code>
+<testo_normale>
+<code>enter_context()</code> prima chiama <code>__enter__()</code> sul gestore di contesto, quindi registra il suo metodo <code>__exit__()</code> come <a href="https://it.wikipedia.org/wiki/Callback">callback</a> da chiamare quando viene svuotato lo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a>.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_enter_context.py
+
+0 in entrata
+1 in entrata
+all'interno del contesto
+1 in uscita
+0 in uscita
+</py_output>
+<testo_normale>
+I gestori di contesto dati ad <code>ExitStack</code> sono trattati come se fossero una serie di istruzioni <strong>with</strong> annidate. Gli errori che si verificassero in qualunque punto all'interno del contesto si propagano attraverso la normale gestione di errore dei gestori di contesto. Le seguenti classi di gestori di contesto illustrano il modo nel quale gli errori si propagano.
+</testo_normale>
+<py_code>
+# contextlib_context_managers.py
+
+import contextlib
+
+
+class Tracker:
+    "Classe base per i gestori di contesto."
+
+    def __init__(self, i):
+        self.i = i
+
+    def msg(self, s):
+        print('  {}({}): {}'.format(
+            self.__class__.__name__, self.i, s))
+
+    def __enter__(self):
+        self.msg('in entrata')
+
+
+class HandleError(Tracker):
+    "Se si riceve una eccezione si tratta come fosse gestita"
+
+    def __exit__(self, *exc_details):
+        received_exc = exc_details[1] is not None
+        if received_exc:
+            self.msg('gestione eccezione {!r}'.format(
+                exc_details[1]))
+        self.msg('in uscita {}'.format(received_exc))
+        # Ritorna un valore booleano che indica se l'eccezione
+        # è stata gestita
+        return received_exc
+
+
+class PassError(Tracker):
+    "Se si riceve una eccezione, la si propaga."
+
+    def __exit__(self, *exc_details):
+        received_exc = exc_details[1] is not None
+        if received_exc:
+            self.msg('passaggio dell\'eccezione {!r}'.format(
+                exc_details[1]))
+        self.msg('in uscita')
+        # Return False, indicating any exception was not handled.
+        return False
+
+
+class ErrorOnExit(Tracker):
+    "Genera una eccezione."
+
+    def __exit__(self, *exc_details):
+        self.msg('sollevo un errore')
+        raise RuntimeError('da {}'.format(self.i))
+
+
+class ErrorOnEnter(Tracker):
+    "Genera una eccezione."
+
+    def __enter__(self):
+        self.msg('sollevo un errore in entrata')
+        raise RuntimeError('from {}'.format(self.i))
+
+    def __exit__(self, *exc_info):
+        self.msg('in uscita')
+
+</py_code>
+<testo_normale>
+L'esempio che usa queste classi è basato sulla funzione <code>variable_stack()</code>. la quale usa i gestori di contesto ricevuti per generare un <code>ExitStack</code>, costruendo il contesto complessivo uno per uno. Gli esempi di seguito passano diversi gestori di contesto per esplorare il comportamento di gestione degli errori. Lo script è il seguente:
+</testo_normale>
+<py_code>
+# contextlib_exitstack_enter_context_errors.py
+
+from contextlib_context_managers import *
+
+
+def variable_stack(n):
+    with contextlib.ExitStack() as stack:
+        for i in n:
+            stack.enter_context(i)
+
+
+print('Nessun errore:')
+variable_stack([
+    HandleError(1),
+    PassError(2),
+])
+
+print('\nErrore alla fine dello stack di contesti:')
+variable_stack([
+    HandleError(1),
+    HandleError(2),
+    ErrorOnExit(3),
+])
+
+print('\nErrore nel mezzo dello stack di contesti:')
+variable_stack([
+    HandleError(1),
+    PassError(2),
+    ErrorOnExit(3),
+    HandleError(4),
+])
+
+try:
+    print('\nErrore ignorato:')
+    variable_stack([
+        PassError(1),
+        ErrorOnExit(2),
+    ])
+except RuntimeError:
+    print('errore gestito al di fuori del contesto')
+</py_code>
+<testo_normale>
+Il primo caso è uno senza eccezioni:
+</testo_normale>
+<py_code>
+print('Nessun errore:')
+variable_stack([
+    HandleError(1),
+    PassError(2),
+])
+</py_code>
+<testo_normale>
+Il secondo è un esempio di gestione di eccezioni all'interno dei gestori di contesto alla fine dello stack, nel quale tutti i contesti aperti sono chiusi mano a mano che lo stack si svuota.
+</testo_normale>
+<py_code>
+print('\nErrore alla fine dello stack di contesti:')
+variable_stack([
+    HandleError(1),
+    HandleError(2),
+    ErrorOnExit(3),
+])
+</py_code>
+<testo_normale>
+Il terzo è un esempio di gestione di eccezioni all'interno dei gestori di contesto nel mezzo dello stack, laddove l'errore non si verifica fino a che alcuni contesti sono già stati chiusi, e di conseguenza non vedono l'errore.
+</testo_normale>
+<py_code>
+print('\nErrore nel mezzo dello stack di contesti:')
+variable_stack([
+    HandleError(1),
+    PassError(2),
+    ErrorOnExit(3),
+    HandleError(4),
+])
+</py_code>
+<testo_normale>
+Per ultimo un esempio di eccezione che rimane non gestita e si propaga fino al codice chiamante.
+</testo_normale>
+<py_code>
+try:
+    print('\nErrore ignorato:')
+    variable_stack([
+        PassError(1),
+        ErrorOnExit(2),
+    ])
+except RuntimeError:
+    print('errore gestito al di fuori del contesto')
+</py_code>
+<testo_normale>
+Se un qualsiasi gestore di contesto nello stack riceve una eccezione e ritorna un valore <code>True</code>, fa sì che quell'eccezione non si propaghi ad alcun altro contesto.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_enter_context_errors.py
+
+Nessun errore:
+  HandleError(1): in entrata
+  PassError(2): in entrata
+  PassError(2): in uscita
+  HandleError(1): in uscita False
+
+Errore alla fine dello stack di contesti:
+  HandleError(1): in entrata
+  HandleError(2): in entrata
+  ErrorOnExit(3): in entrata
+  ErrorOnExit(3): sollevo un errore
+  HandleError(2): gestione eccezione RuntimeError('da 3',)
+  HandleError(2): in uscita True
+  HandleError(1): in uscita False
+
+Errore nel mezzo dello stack di contesti:
+  HandleError(1): in entrata
+  PassError(2): in entrata
+  ErrorOnExit(3): in entrata
+  HandleError(4): in entrata
+  HandleError(4): in uscita False
+  ErrorOnExit(3): sollevo un errore
+  PassError(2): passaggio dell'eccezione RuntimeError('da 3',)
+  PassError(2): in uscita
+  HandleError(1): gestione eccezione RuntimeError('da 3',)
+  HandleError(1): in uscita True
+
+Errore ignorato:
+  PassError(1): in entrata
+  ErrorOnExit(2): in entrata
+  ErrorOnExit(2): sollevo un errore
+  PassError(1): passaggio dell'eccezione RuntimeError('da 2',)
+  PassError(1): in uscita
+errore gestito al di fuori del contesto
+</py_output>
+<titolo_3>
+Callback di Contesti Arbitrari
+</titolo_3>
+<testo_normale>
+<code>ExitStack</code> supporta anche <a href="https://it.wikipedia.org/wiki/Callback">callback</a> arbitrari per la chiusura di un contesto, rendendo facile la pulizia delle risorse che non sono controllate tramite il gestore di contesto.
+</testo_normale>
+<py_code>
+# contextlib_exitstack_callbacks.py
+
+import contextlib
+
+
+def callback(*args, **kwds):
+    print('closing callback({}, {})'.format(args, kwds))
+
+
+with contextlib.ExitStack() as stack:
+    stack.callback(callback, 'arg1', 'arg2')
+    stack.callback(callback, arg3='val3')
+</py_code>
+<testo_normale>
+Proprio come nel caso dei metodi <code>__exit__()</code> dei gestori di contesto completi, i <a href="https://it.wikipedia.org/wiki/Callback">callback</a>  sono invocati in ordine inverso rispetto a quello di registrazione.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_callbacks.py
+
+callback di chiusura((), {'arg3': 'val3'})
+callback di chiusura(('arg1', 'arg2'), {})
+</py_output>
+<testo_normale>
+I callback sono invocati a prescindere dal punto nel quale si verifichi un errore, e ad essi non viene passata alcuna informazione circa il fatto che un errore si sia verificato. Il loro valore di ritorno viene ignorato.
+</testo_normale>
+<py_code>
+# contextlib_exitstack_callbacks_error.py
+
+import contextlib
+
+
+def callback(*args, **kwds):
+    print('callback di chiusura({}, {})'.format(args, kwds))
+
+
+try:
+    with contextlib.ExitStack() as stack:
+        stack.callback(callback, 'arg1', 'arg2')
+        stack.callback(callback, arg3='val3')
+        raise RuntimeError('errore sollevato')
+except RuntimeError as err:
+    print('ERRORE: {}'.format(err))
+</py_code>
+<testo_normale>
+Visto che non hanno accesso all'errore, i <a href="https://it.wikipedia.org/wiki/Callback">callback</a> non possono impedire alle eccezioni di propagarsi attraverso il resto dello <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> dei gestori di contesto.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_callbacks_error.py
+
+callback di chiusura((), {'arg3': 'val3'})
+callback di chiusura(('arg1', 'arg2'), {})
+ERRORE: errore sollevato
+</py_output>
+<testo_normale>
+I <a href="https://it.wikipedia.org/wiki/Callback">callback</a> costituiscono un modo conveniente per definire chiaramente una logica di pulizia senza l'onere di dover creare una nuova classe di gestore di contesto. Per migliorare la leggibilità del codice, quella logica può essere incapsulata in una funzione in linea, e <code>callback()</code> può essere utilizzato come decoratore.
+</testo_normale>
+<py_code>
+# contextlib_exitstack_callbacks_decorator.py
+
+import contextlib
+
+
+with contextlib.ExitStack() as stack:
+
+    @stack.callback
+    def inline_cleanup():
+        print('inline_cleanup()')
+        print('local_resource = {!r}'.format(local_resource))
+
+    local_resource = 'risorsa creata nel contesto'
+    print('all\'interno del contesto')
+</py_code>
+<testo_normale>
+Non c'è modo di specificare gli argomenti per funzioni registrate utilizzando <code>callback()</code> nella forma di decoratore. In ogni caso, se il <a href="https://it.wikipedia.org/wiki/Callback">callback</a> di pulizia viene definito in linea, le regole di contesto gli danno accesso alle variabili definite nel codice chiamante.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_callbacks_decorator.py
+
+all'interno del contesto
+inline_cleanup()
+local_resource = 'risorsa creata nel contesto'
+</py_output>
+<titolo_3>
+Stack Parziali
+</titolo_3>
+<testo_normale>
+Talvolta quando si costruiscono contesti complessi, è utile avere la possibilità di interrompere una operazione se il contesto non può essere costruito completamente, e di ritardare la pulizia di tutte le risorse ad un tempo successivo se tutto viene impostato correttamente. Ad esempio, se una operazione necessita di parecchie connessioni di rete che devono restare attive per lungo tempo, sarebbe meglio non far partire l'operazione se una connessione fallisce. In ogni caso, se tutte le connessioni possono essere aperte esse devono restare aperte più a lungo della durata di un singolo gestore di contesto. Il metodo <code>pop_all()</code> di <code>ExitStack</code> può essere utilizzato in questo scenario.
+</testo_normale>
+<testo_normale>
+<code>pop_all()</code> pulisce tutti i gestori di contesto ed i <a href="https://it.wikipedia.org/wiki/Callback">callback</a> dallo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> dal quale è stato chiamato, e ritorna un nuovo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> con gli stessi gestori di contesto e <a href="https://it.wikipedia.org/wiki/Callback">callback</a>. Il metodo <code>close()</code> del nuovo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> può essere invocato più tardi, dopo che lo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> originale non esiste più, per pulire le risorse.
+</testo_normale>
+<py_code>
+# contextlib_exitstack_pop_all.py
+
+import contextlib
+
+from contextlib_context_managers import *
+
+
+def variable_stack(contexts):
+    with contextlib.ExitStack() as stack:
+        for c in contexts:
+            stack.enter_context(c)
+        # Ritorna il metodo  close() del nuovo stakc come funzione
+        # di pulizia.
+        return stack.pop_all().close
+    # Ritorna esplicitamente None. Indica che ExitStack potrebbe non essere
+    # inizializzato in modo pulito ma quella pulizia è già stata fatta
+    return None
+
+
+print('Nessun errore:')
+cleaner = variable_stack([
+    HandleError(1),
+    HandleError(2),
+])
+cleaner()
+
+print('\nErrore gestito nella costruzione dello stack dei gestori di contesto:')
+try:
+    cleaner = variable_stack([
+        HandleError(1),
+        ErrorOnEnter(2),
+    ])
+except RuntimeError as err:
+    print('errore catturato {}'.format(err))
+else:
+    if cleaner is not None:
+        cleaner()
+    else:
+        print('nessun pulitore ritornato')
+
+print('\nrrore gestito nella costruzione dello stack dei gestori di contesto:')
+try:
+    cleaner = variable_stack([
+        PassError(1),
+        ErrorOnEnter(2),
+    ])
+except RuntimeError as err:
+    print('errore catturato {}'.format(err))
+else:
+    if cleaner is not None:
+        cleaner()
+    else:
+        print('nessun pulitore ritornato')
+</py_code>
+<testo_normale>
+Questo esempio utilizza le stesse classi di gestore di contesto definite in precedenza, con la differenza che <code>ErrorOnEnter</code> produce un errore su <code>__enter__()</code> invece che su <code>__exit__()</code>. All'interno di <code>variable_stack()</code>, se tutti i contesti sono acceduti senza errori, viene ritornato il metodo <code>close()</code> di un nuovo <code>ExitStack</code>. Se capita un errore, <code>variable_stack()</code> ritorna <code>None</code> per indicare che il lavoro di pulizia è già stato fatto. Se capita un errore non gestito, lo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> parziale viene pulito e l'errore è propagato.
+</testo_normale>
+<py_output>
+$ python3 contextlib_exitstack_pop_all.py
+
+Nessun errore:
+  HandleError(1): in entrata
+  HandleError(2): in entrata
+  HandleError(2): in uscita False
+  HandleError(1): in uscita False
+
+Errore gestito nella costruzione dello stack dei gestori di contesto:
+  HandleError(1): in entrata
+  ErrorOnEnter(2): sollevo un errore in entrata
+  HandleError(1): gestione eccezione RuntimeError('from 2',)
+  HandleError(1): in uscita True
+nessun pulitore ritornato
+
+rrore gestito nella costruzione dello stack dei gestori di contesto:
+  PassError(1): in entrata
+  ErrorOnEnter(2): sollevo un errore in entrata
+  PassError(1): passaggio dell'eccezione RuntimeError('from 2',)
+  PassError(1): in uscita
+errore catturato from 2
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/contextlib.html|contextlib|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-0343|PEP 343|L'istruzione <strong>with</strong>
+http://docs.python.org/library/stdtypes.html#typecontextmanager|Context Managers Types|Descrizione dell'API del gestore di contesto dalla guida di riferimento di Python
+http://www.wefearchange.org/2013/05/resource-management-in-python-33-or.html|Resource management in Python 3.3 or contextlib.ExitStack FTW!|Descrizione dell'uso di <code>ExitStack</code> per sviluppare codice sicuro di Barry Warsaw.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>protocolli internet e supporto</categoria>
+<titolo_1>
+urlparse - Divide un URL nei suoi componenti
+</titolo_1>
+<descrizione>
+Divide un URL nei suoi componenti
+1.4 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>urllparse</strong> fornisce funzioni per dividere un <a href='http://it.wikipedia.org/wiki/Uniform_Resource_Locator'>URL</a> nei suoi compondenti, così come sono definiti dalle relative specifiche RFC
+</testo_normale>
+<titolo_2>
+Elaborazione
+</titolo_2>
+<testo_normale>
+Il valore restituito dalla funzione <code>urlparse()</code> è un oggetto che appare come una tupla di 6 elementi
+</testo_normale>
+<py_code>
+from urlparse import urlparse
+
+parsed = urlparse('http://netloc/path;parameters?query=argument#fragment')
+print parsed
+</py_code>        
+<testo_normale>
+Le parti di URL disponibili attraverso l'interfaccia della tupla sono lo schema (scheme), la locazione di rete (netloc), il percorso (path), i parametri (params), la query (query) ed il frammento (fragment)
+</testo_normale>
+<py_output>
+$ python urlparse_urlparse.py 
+
+ParseResult(scheme='http', netloc='netloc', path='/path', params='parameters', query='query=argument', fragment='fragment')
+</py_output>
+<testo_normale>
+Sebbene il valore di ritorno si comporta come una tuple in realtà è una <a href="collections.html#namedtuple">namedtuple</a>, una sottoclasse di <em>tuple</em> che supporta l'accesso alle parti di URL tramite attributi nominali in luogo degli indici. La qual cosa è particolarmente utile se, come me (Doug Hellmann - n.d.t.) non si riesce a ricordare l'ordine dell'indice. Oltre a facilitare la vita del programmatore, l'API per gli attributi offre accesso a parecchi valori non disponibili tramite l'API della <em>tuple</em>.
+</testo_normale>
+<py_code>
+from urlparse import urlparse
+parsed = urlparse('http://user:pass@NetLoc:80/path;parameters?query=argument#fragment')
+print 'scheme  :', parsed.scheme
+print 'netloc  :', parsed.netloc
+print 'path    :', parsed.path
+print 'params  :', parsed.params
+print 'query   :', parsed.query
+print 'fragment:', parsed.fragment
+print 'username:', parsed.username
+print 'password:', parsed.password
+print 'hostname:', parsed.hostname, '(netloc in minuscolo)'
+print 'port    :', parsed.port
+</py_code>        
+<testo_normale>
+Gli attributi <em>username</em> e <em>password</em> sono disponibili quando presenti nell'URL mentre valgono <code>None</code> quando non ci sono. <em>hostname</em> ha lo stesso valore di <em>netloc</em>, tutto minuscolo. Il valore di <em>port</em> viene convertito in un intero, se presente, ed a <code>None</code> in caso contrario.
+</testo_normale>
+<py_output>
+$ python urlparse_urlparseattrs.py 
+
+scheme  : http
+netloc  : user:pass@NetLoc:80
+path    : /path
+params  : parameters
+query   : query=argument
+fragment: fragment
+username: user
+password: pass
+hostname: netloc (netloc in minuscolo)
+port    : 80
+</py_output>
+<testo_normale>
+La funzione <code>urlsplit()</code> è alternativa ad <code>urlparse()</code>. Si comporta in modo leggermente diverso visto che non divide i parametri dall'URL. Questo è utile per gli URL che seguono le specifiche <a href="http://tools.ietf.org/html/rfc2396.html">RFC 2396</a>, che supportano parametri per ciascun segmento del percorso (path)
+</testo_normale>
+<py_code>
+from urlparse import urlsplit
+parsed = urlsplit('http://user:pass@NetLoc:80/path;parameters/path2;parameters2?query=argument#fragment')
+print parsed
+print 'scheme  :', parsed.scheme
+print 'netloc  :', parsed.netloc
+print 'path    :', parsed.path
+print 'query   :', parsed.query
+print 'fragment:', parsed.fragment
+print 'username:', parsed.username
+print 'password:', parsed.password
+print 'hostname:', parsed.hostname, '(netloc in minuscolo)'
+print 'port    :', parsed.port
+</py_code>        
+<testo_normale>
+Visto che i parametri non sono stati divisi, la API della <em>tupla</em> mostrerà 5 elementi invece che 6, e non c'è l'attributo <em>params</em>
+</testo_normale>
+<py_output>
+$ python urlparse_urlsplit.py 
+
+SplitResult(scheme='http', netloc='user:pass@NetLoc:80', path='/path;parameters/path2;parameters2', query='query=argument', fragment='fragment')
+scheme  : http
+netloc  : user:pass@NetLoc:80
+path    : /path;parameters/path2;parameters2
+query   : query=argument
+fragment: fragment
+username: user
+password: pass
+hostname: netloc (netloc in minuscolo)
+port    : 80
+</py_output>
+<testo_normale>
+Per dividere semplicemente l'identificatore del frammento dall'URL, qualora occorresse trovare il nome base della pagina da un URL, si usa <code>urldefrag()</code>
+</testo_normale>
+<py_code>
+from urlparse import urldefrag
+original = 'http://netloc/path;parameters?query=argument#fragment'
+print original
+url, fragment = urldefrag(original)
+print url
+print fragment
+</py_code>        
+<testo_normale>
+Il valore ritornato è una tupla che contiene l'URL di base ed il frammento.
+</testo_normale>
+<py_output>
+$ python urlparse_urldefrag.py 
+
+http://netloc/path;parameters?query=argument#fragment
+http://netloc/path;parameters?query=argument
+fragment
+</py_output>
+<titolo_2>
+Ricostruire
+</titolo_2>
+<testo_normale>
+Ci sono diversi modi per ricostruire in una singola stringa un URL diviso. L'oggetto URL elaborato ha un metodo <code>geturl()</code>. 
+</testo_normale>
+<py_code>
+from urlparse import urlparse
+original = 'http://netloc/path;parameters?query=argument#fragment'
+print 'ORIGINALE:', original
+parsed = urlparse(original)
+print 'ELABORATO:', parsed.geturl()
+</py_code>        
+<testo_normale>
+<code>geturl()</code> funziona solo su di oggetti ritornati da <code>urlparse()</code> oppure <code>urlsplit()</code>.
+</testo_normale>
+<py_output>
+$ python urlparse_geturl.py 
+
+ORIGINALE: http://netloc/path;parameters?query=argument#fragment
+ELABORATO: http://netloc/path;parameters?query=argument#fragment
+</py_output>
+<testo_normale>
+Se si ha una normale tupla di valori si può usare <code>urlunparse()</code> per combinarne gli elementi in un URL
+</testo_normale>
+<py_code>
+from urlparse import urlparse, urlunparse
+original = 'http://netloc/path;parameters?query=argument#fragment'
+print 'ORIGINALE:', original
+parsed = urlparse(original)
+print 'ELABORATO:', type(parsed), parsed
+t = parsed[:]
+print 'TUPLA    :', type(t), t
+print 'NUOVO    :', urlunparse(t)
+</py_code>        
+<testo_normale>
+Mentre i valori ritornati da <code>urlparse()</code> possono essere usati come tupla, in questo esempio viene esplicitamente creata una nuova tupla per mostrare che <code>urlunparse()</code> funziona anche con normali tuple.
+</testo_normale>
+<py_output>
+$ python urlparse_urlunparse.py 
+
+ORIGINALE: http://netloc/path;parameters?query=argument#fragment
+ELABORATO: <class 'urlparse.ParseResult'> ParseResult(scheme='http', netloc='netloc', path='/path', params='parameters', query='query=argument', fragment='fragment')
+TUPLA    : <type 'tuple'> ('http', 'netloc', '/path', 'parameters', 'query=argument', 'fragment')
+NUOVO    : http://netloc/path;parameters?query=argument#fragment
+</py_output>
+<testo_normale>
+Se l'URL in input comprende anche parti superflue, esse possono essere ignorate dalla versione ricostruita dell'URL.
+</testo_normale>
+<py_code>
+from urlparse import urlparse, urlunparse
+original = 'http://netloc/path;?#'
+print 'ORIGINALE:', original
+parsed = urlparse(original)
+print 'ELABORATO:', type(parsed), parsed
+t = parsed[:]
+print 'TUPLA    :', type(t), t
+print 'NUOVO    :', urlunparse(t)
+</py_code>        
+<testo_normale>
+In questo caso, <em>parameters</em>, <em>query</em>, e <em>fragment</em> sono tutti mancanti nell'URL originale. Il nuovo URL non sembra uguale all'originale, ma è equivalente in base allo standard
+</testo_normale>
+<py_output>
+$ python urlparse_urlunparseextra.py 
+
+ORIGINALE: http://netloc/path;?#
+ELABORATO: <class 'urlparse.ParseResult'> ParseResult(scheme='http', netloc='netloc', path='/path', params='', query='', fragment='')
+TUPLA    : <type 'tuple'> ('http', 'netloc', '/path', '', '', '')
+NUOVO    : http://netloc/path
+</py_output>
+<titolo_2>
+Unire
+</titolo_2>
+<testo_normale>
+Oltre all'elaborazione dell'URL, <strong>urlparse</strong> comprende anche <code>urljoin()</code> per costruire URL assoluti da un frammento relativo
+</testo_normale>
+<py_code>
+from urlparse import urljoin
+print urljoin('http://www.example.com/path/file.html', 'anotherfile.html')
+print urljoin('http://www.example.com/path/file.html', '../anotherfile.html')
+</py_code>        
+<testo_normale>
+In questo esempio, la porzione relativa del percorso ("../") viene presa in considerazione quanto viene calcolato il secondo URL.
+</testo_normale>
+<py_output>
+$ python urlparse_urljoin.py 
+
+http://www.example.com/path/anotherfile.html
+http://www.example.com/anotherfile.html
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/urlparse.html|urlparse|La documentazione della libreria standard per questo modulo
+urllib2.html|urllib2|API alternativa per accedere ad URL remoti
+urllib.html|urllib|Ottiene il contenuto di una risorsa identificata da un URL
+</vedi_anche>
+</documento_tradotto>

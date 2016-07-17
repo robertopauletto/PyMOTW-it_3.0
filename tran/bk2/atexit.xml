@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>servizi python in fase di esecuzione</categoria>
+<titolo_1>
+atexit - Chiama funzioni quando un programma è in chiusura
+</titolo_1>
+<descrizione>
+Registra funzioni che saranno chiamate quando un programma è in chiusura
+2.1.3 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>atexit</strong> fornisce una semplice interfaccia per registrare funzioni che saranno chiamate quando un programma si sta normalmente chiudendo. Anche il modulo <strong>sys</strong> fornisce un aggancio, <code>sys.exitfunc</code>, ma è possibile registrare solo una funzione. Il registro di <strong>atexit</strong> può essere usato simultaneamente da molteplici moduli e librerie.
+</testo_normale>
+<titolo_2>
+Esempi
+</titolo_2>
+<testo_normale>
+Un semplice esempio per registrare una funzione tramite <code>atexit.register()</code> potrebbe essere questo:
+</testo_normale>
+<py_code>
+import atexit
+
+def all_done():
+    print 'all_done()'
+
+print 'In registrazione'
+atexit.register(all_done)
+print 'Registrato'
+</py_code>
+<testo_normale>
+Visto che il programma non fa null'altro, <code>all_done()</code> viene chiamata immediatamente.
+</testo_normale>
+<py_output>
+$ python atexit_simple.py
+
+In registrazione
+Registrato
+all_done()
+</py_output>
+<testo_normale>
+E' anche possibile registrare più di una funzione, e fornire argomenti. Questo può essere utile per disconnettersi in modo pulito da database, rimuovere file termporanei ecc.. Visto che è possibile passare argomenti alle funzioni registrate, non occorre neppure mantenere una lista separata di cose da pulire, basta registrare una funzione di pulizia più di una volta.
+</testo_normale>
+<py_code>
+import atexit
+
+def my_cleanup(name):
+    print 'my_cleanup(%s)' % name
+
+atexit.register(my_cleanup, 'prima')
+atexit.register(my_cleanup, 'seconda')
+atexit.register(my_cleanup, 'terza')
+</py_code>
+<testo_normale>
+Si noti in che l'ordine di chiamata delle funzioni in uscita è inverso rispetto a quello di registrazione. Questo consente di pulire i moduli nell'ordine inverso rispetto a quello di importazione (e di conseguenza di registrazione delle loro funzioni di atexit), il che dovrebbe ridurre i conflitti di dipendenza.
+</testo_normale>
+<py_output>
+$ python atexit_multiple.py
+
+my_cleanup(terza)
+my_cleanup(seconda)
+my_cleanup(prima)
+</py_output>
+<titolo_2>
+Quando non vengono chiamate le funzioni di atexit?
+</titolo_2>
+<testo_normale>
+I <a href="http://it.wikipedia.org/wiki/Callback">callback</a> registrati con atexit non sono invocati se
+</testo_normale>
+<lista>
+il programma muore a causa di un segnale
+viene invocato direttamente <code>os._exit()</code>
+un errore fatale in Python viene rilevato (nell'interprete)
+</lista>
+<testo_normale>
+Per dimostrare come un programma viene ucciso da un segnale, si può modificare uno degli esempi dall'articolo su <a href="subprocess.html">subprocess</a>. Due file sono coinvolti, i programmi figlio e genitore. Il genitore fa partire il figlio, si mette in pausa, quindi lo uccide:
+</testo_normale>
+<py_code>
+import os
+import signal
+import subprocess
+import time
+
+proc = subprocess.Popen('atexit_signal_child.py')
+print 'GENITORE: In pausa prima di inviare il segnale...'
+time.sleep(1)
+print 'GENITORE: Invio segnale al figlio'
+os.kill(proc.pid, signal.SIGTERM)
+</py_code>
+<testo_normale>
+Il filgio imposta un <a href="http://it.wikipedia.org/wiki/Callback">callback</a> atexit per provare che lo stesso non viene effettuato
+</testo_normale>
+<py_code>
+import atexit
+import time
+import sys
+
+def not_called():
+    print 'FIGLIO: il gestore di atexit non dovrebbe essere stato chiamato'
+
+print 'FIGLIO: Registrazione del gestore atexit'
+sys.stdout.flush()
+atexit.register(not_called)
+
+print 'FIGLIO: In pausa in attesa del segnale'
+sys.stdout.flush()
+time.sleep(5)
+</py_code>
+<testo_normale>
+Quando viene eseguito, si dovrebbe ottenere qualcosa del tipo:
+</testo_normale>
+<py_output>
+$ python atexit_signal_parent.py
+
+FIGLIO: Registrazione del gestore atexit
+FIGLIO: In pausa in attesa del segnale
+GENITORE: In pausa prima di inviare il segnale...
+GENITORE: Invio segnale al figlio
+</py_output>
+<testo_normale>
+Si noti che lo script figlio (atexit_signal_child.py) non stampa il messaggio inserito nella funzione <code>not_called()</code>.
+</testo_normale>
+<testo_normale>
+Alla stessa stregua, se un programma salta il normale percorso di uscita può evitare che venga chiamata il <a href="http://it.wikipedia.org/wiki/Callback">callback</a> atexit.
+</testo_normale>
+<py_code>
+import atexit
+import os
+
+def not_called():
+    print 'Questa non dovrebbe essere chiamata'
+
+print 'Sto registrando ...'
+atexit.register(not_called)
+print 'Registrata'
+
+print 'Sto uscendo...'
+os._exit(0)
+</py_code>
+<testo_normale>
+Visto che viene chiamato <code>os._exit(0)</code>, invece di uscire normalmente, il <a href="http://it.wikipedia.org/wiki/Callback">callback</a> non viene effettuato.
+</testo_normale>
+<py_output>
+$ python atexit_os_exit.py
+
+Sto registrando ...
+Registrata
+Sto uscendo...
+</py_output>
+<testo_normale>
+Se si fosse usato <code>sys.exit()</code> il <a href="http://it.wikipedia.org/wiki/Callback">callback</a> sarebbe comunque stata chiamato
+</testo_normale>
+<py_code>
+import atexit
+import sys
+
+def all_done():
+    print 'all_done()'
+
+print 'Sto registrando ...'
+atexit.register(all_done)
+print 'Registrata'
+
+print 'Sto uscendo...'
+sys.exit()
+</py_code>
+<py_output>
+$ python atexit_sys_exit.py
+
+Sto registrando ...
+Registrata
+Sto uscendo...
+all_done()
+</py_output>
+<testo_normale>
+La simulazione di un errore fatale nell'interprete Python viene lasciata al lettore come esercitazione.
+</testo_normale>
+<titolo_2>
+Eccezioni nei Callback di atexit
+</titolo_2>
+<testo_normale>
+I <em>traceback</em> risultanti da eccezioni sollevate dai <a href="http://it.wikipedia.org/wiki/Callback">callback</a> atexit sono stampate alla console e l'ultima eccezione sollevata viene risollevata in modo da risultare il messaggio di errore finale del programma.
+</testo_normale>
+<py_code>
+import atexit
+
+def exit_with_exception(message):
+    raise RuntimeError(message)
+
+atexit.register(exit_with_exception, 'Registrata per prima')
+atexit.register(exit_with_exception, 'Registrata per seconda')
+</py_code>
+<testo_normale>
+Ancora una volta si noti che l'ordine di registrazione controlla l'ordine di esecuzione. Se un errore in un <a href="http://it.wikipedia.org/wiki/Callback">callback</a> introduce un errore in un altro (registrato prima, ma chiamato dopo), il messaggio di errore finale potrebbe non essere quello più utile da mostrare all'utente.
+</testo_normale>
+<py_output>
+$ python atexit_exception.py
+
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "atexit_exception.py", line 7, in exit_with_exception
+    raise RuntimeError(message)
+RuntimeError: Registrata per seconda
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "atexit_exception.py", line 7, in exit_with_exception
+    raise RuntimeError(message)
+RuntimeError: Registrata per prima
+Error in sys.exitfunc:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "atexit_exception.py", line 7, in exit_with_exception
+    raise RuntimeError(message)
+RuntimeError: Registrata per prima
+</py_output>
+<testo_normale>
+In generale è probabile che si voglia gestire e registare tutte le eccezioni nelle proprie funzioni di pulizia, visto che fa confusione avere un programma che scarica errori in uscita.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/atexit.html|atexit|La documentazione della libreria standard per questo modulo
+</vedi_anche>
+</documento_tradotto>

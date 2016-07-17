@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Strutture Dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+pprint - Stampa Pretty-print di Strutture Dati
+</titolo_1>
+<descrizione>
+pprint produce stampe esteticamente piacevoli di viste di strutture dati
+</descrizione>
+<testo_normale>
+<note>
+Per <strong>pretty-print</strong> si intende l'applicazione di diverse convenzioni di formattazione per testo, codice sorgente, linguaggi di marcatura ecc.. Queste convenzioni in genere consistono nel cambiare posizione, spaziatura, colore, contrasto, dimensione per rendere il contenuto più facilmente leggibile e comprensibile dalle persone. (n.d.t.)
+</note>
+<testo_normale>
+Il modulo <strong>pprint</strong> comprende un "pretty printer" per produrre rappresentazioni esteticamente piacevoli di strutture di dati. Il formattatore produce rappresentazioni di strutture di dati che possono essere correttamente elaborate dall'interprete, e che risultano facilmente leggibili all'occhio umano. L'output viene mantenuto se possibile in una singola riga e viene indentato se deve essere diviso in diverse righe.
+</testo_normale>
+<testo_normale>
+Gli esempi qui sono tutti basati su <code>pprint_data.py</code>, che contiene
+</testo_normale>
+<py_code>
+# pprint_data.py
+
+data = [
+    (1, {'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'}),
+    (2, {'e': 'E', 'f': 'F', 'g': 'G', 'h': 'H',
+         'i': 'I', 'j': 'J', 'k': 'K', 'l': 'L'}),
+]
+</py_code>
+<titolo_2>
+Stampare
+</titolo_2>
+<testo_normale>
+Il modo più semplice di usare il modulo è tramite la funzione <code>pprint()</code>.
+</testo_normale>
+<py_code>
+# pprint_pprint.py
+
+from pprint import pprint
+
+from pprint_data import data
+
+print('PRINT:')
+print(data)
+print()
+print('PPRINT:')
+pprint(data)
+</py_code>
+<testo_normale>
+<code>pprint()</code> formatta un oggetto o lo scrive nel flusso dati passato come argomento (oppure su <code>sys.stdout</code> nella modalità predefinita).
+</testo_normale>
+<py_output>
+PRINT:
+[(1, {'d': 'D', 'a': 'A', 'b': 'B', 'c': 'C'}), (2, {'l': 'L', 'j': 'J', 'i': 'I', 'h': 'H', 'f': 'F', 'k': 'K', 'e': 'E', 'g': 'G'})]
+
+PPRINT:
+[(1, {'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'}),
+ (2,
+  {'e': 'E',
+   'f': 'F',
+   'g': 'G',
+   'h': 'H',
+   'i': 'I',
+   'j': 'J',
+   'k': 'K',
+   'l': 'L'})]
+</py_output>
+<titolo_2>
+Formattare
+</titolo_2>
+<testo_normale>
+Se occorre formattare una struttura dati senza scriverla direttamente ad un flusso (per delle registrazioni in un log, ad esempio) si usa <code>pformat()</code> per costruire una rappresentazione in formato stringa.
+</testo_normale>
+<py_code>
+# pprint_pformat.py
+
+import logging
+from pprint import pformat
+from pprint_data import data
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(levelname)-8s %(message)s',
+)
+
+logging.debug('Dati formattati per registrazione')
+formatted = pformat(data)
+for line in formatted.splitlines():
+    logging.debug(line.rstrip())
+</py_code>
+<testo_normale>
+La stringa formattata può essere indipendentemente stampata o registrata in un log
+</testo_normale>
+<py_output>
+$ python3 pprint_pformat.py
+
+DEBUG    Dati formattati per registrazione
+DEBUG    [(1, {'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'}),
+DEBUG     (2,
+DEBUG      {'e': 'E',
+DEBUG       'f': 'F',
+DEBUG       'g': 'G',
+DEBUG       'h': 'H',
+DEBUG       'i': 'I',
+DEBUG       'j': 'J',
+DEBUG       'k': 'K',
+DEBUG       'l': 'L'})]
+</py_output>
+<titolo_2>
+Classi Arbitrarie
+</titolo_2>
+<testo_normale>
+La classe <code>PrettyPrinter</code> usata da <strong>pprint()</strong> può funzionare anche con classi personalizzate, se esse definiscono un metodo <code>__repr__()</code>.
+</testo_normale>
+<py_code>
+# pprint_arbitrary_object.py
+
+from pprint import pprint
+
+
+class node:
+
+    def __init__(self, name, contents=[]):
+        self.name = name
+        self.contents = contents[:]
+
+    def __repr__(self):
+        return (
+            'node(' + repr(self.name) + ', ' +
+            repr(self.contents) + ')'
+        )
+
+
+trees = [
+    node('nodo-1'),
+    node('nodo-2', [node('nodo-2-1')]),
+    node('nodo-3', [node('nodo-3-1')]),
+]
+pprint(trees)
+</py_code>
+<testo_normale>
+Le rappresentazioni degli oggetti annidati sono combinate da <code>PrettyPrinter</code> per restituire l'intera rappresentazione in formato stringa
+</testo_normale>
+<py_output>
+$ python3 pprint_arbitrary_object.py
+
+[node('nodo-1', []),
+ node('nodo-2', [node('nodo-2-1', [])]),
+ node('nodo-3', [node('nodo-3-1', [])])]
+</py_output>
+<titolo_2>
+Ricorsione
+</titolo_2>
+<testo_normale>
+Le strutture dati ricorsive sono rappresentate con un riferimento alla sorgente originale dei dati, nella forma <code>&lt;Ricorsione su nome del tipo con id=numero></code>.
+</testo_normale>
+<py_code>
+# pprint_recursion.py
+
+from pprint import pprint
+
+local_data = ['a', 'b', 1, 2]
+local_data.append(local_data)
+
+print('id(local_data) =>', id(local_data))
+pprint(local_data)
+</py_code>
+<testo_normale>
+In questo esempio, la lista <code>local_data</code> è stata aggiunta a se stessa, creando un riferimento ricorsivo.
+</testo_normale>
+<py_output>
+$ python3 pprint_recursion.py
+
+id(local_data) => 140612206137800
+['a', 'b', 1, 2, <Recursion on list with id=140612206137800>]
+</py_output>
+<titolo_2>
+Limitare l'Output Nidificato
+</titolo_2>
+<testo_normale>
+Per strutture dati molto profonde, si potrebbe non volere includere tutti i dettagli nell'output. I dati potrebbero non essere formattati in modo appropriato, il testo formattato potrebbe essere troppo grande per essere gestito oppure parte dei dati potrebbe essere non pertinente.
+</testo_normale>
+<py_code>
+# pprint_depth.py
+
+from pprint import pprint
+
+from pprint_data import data
+
+pprint(data, depth=1)
+</py_code>
+<testo_normale>
+Il parametro <em>depth</em> può controllare quanto profondamente all'interno della struttura dati nidificata pretty printer si deve spingere. I livelli non inclusi sono rappresentati da ellissi.
+</testo_normale>
+<py_output>
+$ python3 pprint_depth.py
+
+[(...), (...)]
+</py_output>
+<titolo_2>
+Controllare la Larghezza dell'Output
+</titolo_2>
+<testo_normale>
+L'opzione predefinita di larghezza per il testo formattato è di 80 colonne. Per modificare la larghezza si usa il parametro <em>width</em>  con <code>pprint()</code>.
+</testo_normale>
+<py_code>
+# pprint_width.py
+
+from pprint import pprint
+
+from pprint_data import data
+
+for width in [80, 5]:
+    print('LARGHEZZA =', width)
+    pprint(data, width=width)
+    print()
+</py_code>
+<testo_normale>
+Quando la larghezza è insufficiente per accomodare la struttura dati formattata, le righe non sono troncate o divise in quanto la cosa potrebbe generare una sintassi non valida.
+</testo_normale>
+<py_output>
+$ python3 pprint_width.py
+
+LARGHEZZA = 80
+[(1, {'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'}),
+ (2,
+  {'e': 'E',
+   'f': 'F',
+   'g': 'G',
+   'h': 'H',
+   'i': 'I',
+   'j': 'J',
+   'k': 'K',
+   'l': 'L'})]
+
+LARGHEZZA = 5
+[(1,
+  {'a': 'A',
+   'b': 'B',
+   'c': 'C',
+   'd': 'D'}),
+ (2,
+  {'e': 'E',
+   'f': 'F',
+   'g': 'G',
+   'h': 'H',
+   'i': 'I',
+   'j': 'J',
+   'k': 'K',
+   'l': 'L'})]
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/pprint.html|pprint|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

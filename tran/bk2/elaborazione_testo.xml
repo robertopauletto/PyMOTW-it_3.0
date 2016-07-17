@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<categoria>caratteristiche della libreria standard</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+Strumenti di Elaborazione del Testo
+</titolo_1>
+<descrizione>
+</descrizione>
+<testo_normale>
+La classe <strong>string</strong> è il più ovvio strumento  per l'elaborazione del testo disponibile ai programmatori Python, ma vi è abbondanza di altri strumenti nella libreria  standard per facilitare la manipolazione del testo.
+</testo_normale>
+<titolo_2>
+Il Modulo string
+</titolo_2>
+<testo_normale>
+Codice "vecchia maniera" utilizzerà le funzioni dal modulo <a href='string.html'>string</a>, al posto dei metodi degli oggetti stringa. Esiste un equivalente metodo per ogni funzione del modulo, e l'uso delle funzioni è deprecato per nuovo codice.
+</testo_normale>
+<testo_normale>
+Codice più nuovo potrebbe usare <code>string.Template</code> come semplice modo per parametrizzare le stringhe al di là delle caratteristiche delle classi <strong>string</strong> oppure <strong>unicode</strong>. Sebbene non ricco di caratteristiche al pari dei framework web o dei moduli di estensione disponibili in PyPI, <code>string.Template</code> è un buon compromesso per template modificabili dall'utente dove i valori dinamici devono essere inseriti in blocchi di testo statico.
+</testo_normale>
+<titolo_2>
+Testo in Input
+</titolo_2>
+<testo_normale>
+Leggere da un file è sufficientemente facile, ma se si sta scrivendo un filtro riga-per-riga con il modulo <a href='fileinput.html'>fileinput</a> è ancora più facile. Le API di <strong>fileinput</strong> eseguono le chiamate per iterare sul generatore ${sbk}input()${ebk}, elaborando ogni riga non appena letta. Il generatore gestisce l'elaborazione degli argomenti da riga di comando per i nomi di file oppure recede per leggere direttamente da <code>sys.stdin</code>. Il risultato è uno strumento flessibile che può essere eseguito direttamente su di un file o come parte di una <a href='http://it.wikipedia.org/wiki/Pipeline'><em>pipeline</em></a>
+</testo_normale>
+<titolo_2>
+Testo in Output
+</titolo_2>
+<testo_normale>
+Il modulo <a href='textwrap.html'>textwrap</a> comprende strumenti per la formattazione del testo da paragrafi limitando la larghezza dell'output, aggiungendo indentazione, ed inserendo interruzioni di riga per separare le righe in modo consistente.
+</testo_normale>
+<titolo_2>
+Confrontare Valori
+</titolo_2>
+<testo_normale>
+La libreria standard comprende due moduli dedicati al confronto di valori di testo al di là delle funzionalità built-in di confronto per eguaglianza ed ordinamento supportate dagli oggetti stringa. <a href='re.html'>re</a> fornisce una libreria di espressioni regolari completa, per la gran parte implementata in C per le prestazioni. Le espressioni regolari sono adatte per trovare sottostringhe all'interno di un più vasto insieme di dati, per confrontare stringhe rispetto ad un modello (oppure rispetto ad un'altra stringa fissa), ed una moderata elaborazione.
+</testo_normale>
+<testo_normale>
+<a href='difflib.html'>difflib</a>, d'altro canto, mostra le effettive differenze tra sequenze di testo in relazione alle parti aggiunte, rimosse o modificate. L'output delle funzioni di comparazione in <a href='difflib.html'>difflib</a> può essere usato per fornire <em>feedback</em> più dettagliato all'utente sul dove si sono verificati cambiamenti nei due input, sul come un documento sia stato modificato nel tempo ecc.
+</testo_normale>
+</documento_tradotto>

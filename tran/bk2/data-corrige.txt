@@ -1,0 +1,4 @@
+http://www.doughellmann.com/PyMOTW/StringIO/index.html;conctatenation; concatenation
+http://www.doughellmann.com/PyMOTW/struct/index.html;See also->binasscii;link to standard library doc is missing
+
+http://www.doughellmann.com/PyMOTW/textwrap/index.html;syntax highlighting missing for the script textwrap_fill_width.py

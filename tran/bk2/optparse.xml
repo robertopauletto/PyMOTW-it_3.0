@@ -1,0 +1,289 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi generici di sistema operativo </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+optparse - Analizzatore di opzioni di riga di comando per rimpiazzare getopt
+</titolo_1>
+<descrizione>
+Analizzatore di opzioni di riga di comando per rimpiazzare getopt
+2.3
+</descrizione>
+<testo_normale>
+Il modulo <strong>optparse</strong> è una moderna alternativa per l'analisi delle opzioni da riga di comando che offre diverse caratteristiche non disponibili in <a href='getopt.html'>getopt</a>, inclusa la conversione del tipo, il callback delle opzioni, e la generazione automatica dell'aiuto. Ci sono molte più caratteristiche di optparse di quelle che possono essere trattate qui, ma si spera che questa introduzione consenta di potere scrivere in poco tempo un programma da riga di comando.
+</testo_normale>
+<titolo_2>
+Creare un OptionParser
+</titolo_2>
+<testo_normale>
+Con <strong>optparse</strong> ci sono due fasi nell'elaborazione delle opzioni. Per primo viene costruita una istanza di <strong>OptionParser</strong> che viene poi configurata con le opzioni previste. Quindi una sequenza di opzioni viene ricevuta ed elaborata.
+</testo_normale>
+<py_code>
+import optparse
+parser = optparse.OptionParser()
+</py_code>
+<testo_normale>
+In genere, una volta che il parser è stato creato, ogni opzione viene aggiunta al parser esplicitamente, con le informazioni rispetto a cosa fare quando l'opzione viene riscontrata nella riga di comando. E' anche possibilie passare un elenco di opzioni al costruttore di <strong>OptionParser</strong>, ma questa forma non sembra essere usata così frequentemente.
+</testo_normale>
+<titolo_2>
+Definire le Opzioni
+</titolo_2>
+<testo_normale>
+Le opzioni dovrebbero essere aggiunte una alla volta usando il metodo  ${sbk}add_option()${ebk}. Una qualsiasi stringa non nominata di parametri all'inizio dell'elenco dei parametri viene trattata come nome di opzione. Per creare alias per un'opzione, ad esempio per avere una forma breve ed una completa della stessa opzione basta passare entrambi i nomi.
+</testo_normale>
+<testo_normale>
+A differenza di <a href='getopt.html'>getopt</a>, che elabora solamente le opzioni, <strong>optparse</strong> è una completa libreria per la <em>elaborazione</em> delle opzioni. Le opzioni possono attivare diverse azioni, specificate dal parametro <em>action</em> da passare ad ${sbk}add_option()${ebk}. Le azioni supportate comprendono la memorizzazione del parametro (singolarmente o come parte di un elenco), la memorizzazione di un valore costante quando l'opzione viene rilevata (inclusa la getione speciale dei valori true/false per gli switch booleani), il contare il numero di volte in cui una opzione viene vista e la chiamata di un callback.
+</testo_normale>
+<testo_normale>
+L'azione predefinita è la memorizzazione del parametro nell'opzione. In questo caso, se viene passato un tipo, il valore del parametro viene convertito in quel tipo prima di essere memorizzato. Se viene passato il parametro <em>dest</em>, il valore dell'opzione viene salvato in un attributo di quel nome nell'oggetto di opzioni restituito quando i parametri di riga di comando vengono analizzati.
+</testo_normale>
+<titolo_2>
+Analizzare una Riga di Comando
+</titolo_2>
+<testo_normale>
+Una volta che tutte le opzioni sono definite, la riga di comando viene analizzata passando una sequenza di stringhe di parametro a ${sbk}parse_args()${ebk}. Nella modalità predefinita, i parametri sono presi da ${sev}sys.argv[1:]${eev}, ma è possibile anche passare la propria lista. Le opzioni sono elaborate usando la sintassi GNU/POSIX, in modo che le opzioni ed i valori dei parametri possano essere mescolati nella sequenza.
+</testo_normale>
+<testo_normale>
+Il valore restituito da ${sbk}parse_args()${ebk} è una tuple di due parti che contiene una istanza di <em>optparse.Values</em> e l'elenco dei parametri del comando che non sono stati interpretati come opzioni. L'istanza di <em>Values</em> contiene i valori dell'opzione come attributi, quindi se il valore di ${sev}dest${eev} è ${sev}"miaopzione"${eev}, al suo valore si accede come ${sev}options.miaopzione${eev}.
+</testo_normale>
+<titolo_2>
+Semplici Esempi
+</titolo_2>
+<testo_normale>
+Ecco un semplice esempio con tre opzioni diverse: una booleana (${sev}-a${eev}), una semplice opzione stringa (${sev}-b${eev}), ed una opzione integer (${sev}-c${eev}).
+</testo_normale>
+<py_code>
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('-a', action="store_true", default=False)
+parser.add_option('-b', action="store", dest="b")
+parser.add_option('-c', action="store", dest="c", type="int")
+
+print parser.parse_args(['-a', '-bval', '-c', '3'])
+</py_code>
+<testo_normale>
+Le opzioni nella riga di comando vengono analizzate con le stesse regole usate da ${sbk}getopt.gnu_getopt()${ebk}, quindi ci sono due modi per passare i valori ad opzioni a carattere singolo. L'esempio di cui sopra usa entrambe le forme, ${sev}-bval${eev} e ${sev}-c val${eev}.
+</testo_normale>
+<py_output>
+$ python optparse_short.py
+(&lt;Values at 0xb788940c: {'a': True, 'c': 3, 'b': 'val'}&gt;, [])
+</py_output>
+<testo_normale>
+Si noti che il tipo del valore associato a ${sev}'c'${eev} nell'output è un intero, visto che ad <strong>OptionParser</strong> è stato detto di convertire il parametro prima di conservarlo.
+</testo_normale>
+<testo_normale>
+A differenza di <a href='getopt.html'>getopt</a>, nomi di opzione "lunghi" non sono trattati in modo diverso da <strong>optparse</strong>:
+</testo_normale>
+<py_code>
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('--noarg', action="store_true", default=False)
+parser.add_option('--witharg', action="store", dest="witharg")
+parser.add_option('--witharg2', action="store", dest="witharg2", type="int")
+
+print parser.parse_args([ '--noarg', '--witharg', 'val', '--witharg2=3' ])
+</py_code>
+<testo_normale>
+Ed i risultati sono simili:
+</testo_normale>
+<py_output>
+$ python optparse_long.py
+(&lt;Values at 0x3b56c0: {'noarg': True, 'witharg': 'val', 'witharg2': 3}&gt;, [])
+</py_output>
+<titolo_2>
+Confronto con getopt
+</titolo_2>
+<testo_normale>
+Ecco una implementazoine dello stesso programma di esempio usato nel capitolo riguardo a <a href='getopt.html'>getopt</a>:
+</testo_normale>
+<py_code>
+import optparse
+import sys
+
+print 'ARGV       :', sys.argv[1:]
+
+parser = optparse.OptionParser()
+parser.add_option('-o', '--output',
+                  dest="output_filename",
+                  default="default.out",
+                  )
+parser.add_option('-v', '--verbose',
+                  dest="verbose",
+                  default=False,
+                  action="store_true",
+                  )
+parser.add_option('--version',
+                  dest="version",
+                  default=1.0,
+                  type="float",
+                  )
+options, remainder = parser.parse_args()
+
+print 'VERSIONE   :', options.version
+print 'VERBOSE    :', options.verbose
+print 'OUTPUT     :', options.output_filename
+print 'RIMANENTI  :', remainder
+</py_code>
+<testo_normale>
+Si noti come le opzioni ${sev}-o${eev} ed ${sev}--output${eev} sono rese equivalenti aggiungendole allo stesso tempo. Entrambe le opzioni possono essere usate nella riga di comando. La forma breve:
+</testo_normale>
+<py_output>
+$ python optparse_getoptcomparison.py -o output.txt
+ARGV       : ['-o', 'output.txt']
+VERSIONE   : 1.0
+VERBOSE    : False
+OUTPUT     : output.txt
+RIMANENTI  : []
+</py_output>
+<testo_normale>
+o la forma lunga:
+</testo_normale>
+<py_output>
+$ python optparse_getoptcomparison.py --output output.txt
+ARGV       : ['--output', 'output.txt']
+VERSIONE   : 1.0
+VERBOSE    : False
+OUTPUT     : output.txt
+RIMANENTI  : []
+</py_output>
+<testo_normale>
+Può essere usato anche un qualsiasi prefisso univoco dell'opzione lunga:
+</testo_normale>
+<py_output>
+$ python optparse_getoptcomparison.py --out output.txt
+ARGV       : ['--out', 'output.txt']
+VERSIONE   : 1.0
+DETTAGLIATO: False
+OUTPUT     : output.txt
+RIMANENTI  : []
+</py_output>
+<titolo_2>
+Callback alle Opzioni
+</titolo_2>
+<testo_normale>
+A parte memorizzazione diretta dei parametri per le opzioni, è possibile definire delle funzioni di callback da chiamare quando l'opzione viene rilavata nella riga di comando. I callback per le opzioni ricevono 4 parametri: l'istanza di <strong>Option</strong> che sta causando il callback, la stringa dell'opzione da riga di comando, un qualsiasi valore di parametro associato all'opzione ed una istanza dell'OptionParser che sta eseguendo il lavoro di analisi.
+</testo_normale>
+<py_code>
+import optparse
+
+def flag_callback(option, opt_str, value, parser):
+    print 'flag_callback:'
+    print '\toption:', repr(option)
+    print '\topt_str:', opt_str
+    print '\tvalue:', value
+    print '\tparser:', parser
+    return
+
+def with_callback(option, opt_str, value, parser):
+    print 'with_callback:'
+    print '\toption:', repr(option)
+    print '\topt_str:', opt_str
+    print '\tvalue:', value
+    print '\tparser:', parser
+    return
+
+parser = optparse.OptionParser()
+parser.add_option('--flag', action="callback", callback=flag_callback)
+parser.add_option('--with',
+                  action="callback",
+                  callback=with_callback,
+                  type="string",
+                  help="Include caratteristiche opzionali")
+
+parser.parse_args(['--with', 'foo', '--flag'])
+</py_code>
+<testo_normale>
+In questo esempio l'opzione ${sev}--with${eev} viene configurata per ottenere un parametro stringa (altri tipi come gli interi ed i valori a virgola mobile sono parimenti supportati).
+</testo_normale>
+<py_output>
+$ python optparse_callback.py
+with_callback:
+        option: &lt;Option at 0xb76f9eac: --with&gt;
+        opt_str: --with
+        value: foo
+        parser: &lt;optparse.OptionParser instance at 0xb76f9bac&gt;
+flag_callback:
+        option: &lt;Option at 0xb76f9ccc: --flag&gt;
+        opt_str: --flag
+        value: None
+        parser: &lt;optparse.OptionParser instance at 0xb76f9bac&gt;
+</py_output>
+<testo_normale>
+I callback possono essere configurati per ottenere parametri multipli usando l'opzione <em>nargs</em>.
+</testo_normale>
+<py_code>
+import optparse
+
+def with_callback(option, opt_str, value, parser):
+    print 'with_callback:'
+    print '\toption:', repr(option)
+    print '\topt_str:', opt_str
+    print '\tvalue:', value
+    print '\tparser:', parser
+    return
+
+parser = optparse.OptionParser()
+parser.add_option('--with',
+                  action="callback",
+                  callback=with_callback,
+                  type="string",
+                  nargs=2,
+                  help="Include caratteristiche opzionali")
+
+parser.parse_args(['--with', 'foo', 'bar'])
+</py_code>
+<testo_normale>
+In questo caso i parametri sono passati alla funzione callback come una tuple attraverso il parametro <em>value</em>.
+</testo_normale>
+<py_output>
+$ python optparse_callback_nargs.py
+with_callback:
+        option: <Option at 0xb76d4c2c: --with>
+        opt_str: --with
+        value: ('foo', 'bar')
+        parser: <optparse.OptionParser instance at 0xb76d4b0c>
+</py_output>
+<titolo_2>
+Messaggi di Aiuto
+</titolo_2>
+<testo_normale>
+ <strong>OptionParser</strong> include automaticamente una opzione di aiuto per tutti gli insiemi di opzioni, quindi se l'utente passa ${sev}--help${eev} in riga di comando vedrà le istruzioni per eseguire il programma. Il messaggio di aiuto comprende tutte le opzioni con un'indicazione del fatto che ricevano o meno un parametro. E' anche possibile passare un testo di aiuto ad ${sbk}add_option()${ebk} per fornire una descrizione più dettagliata di una opzione.
+</testo_normale>
+<py_code>
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('--no-foo', action="store_true",
+                  default=False,
+                  dest="foo",
+                  help="Disabilita foo",
+                  )
+parser.add_option('--with', action="store", help="Include caratteristiche opzionali")
+
+parser.parse_args()
+</py_code>
+<testo_normale>
+Le opzioni sono elencate in ordine alfabetico, con gli alias inclusi nella stessa riga. Quando un'opzione riceve un parametro il valore di ${sev}<em>dest</em>${eev} viene incluso come nome del parametro nell'output di aiuto. Il testo di aiuto viene stampato nella colonna di destra.
+</testo_normale>
+<py_output>
+$ python optparse_help.py --helpUsage: optparse_help.py [options]
+
+Options:
+  -h, --help   show this help message and exit
+  --no-foo     Disabilita foo
+  --with=WITH  Include caratteristiche opzionali
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-optparse.html|optparse|La documentazione della libreria standard per questo modulo.
+getopt.html|getopt|Il modulo getopt
+argparse.html|argparse|Rimpiazzo più recente per optparse.
+</vedi_anche>
+</documento_tradotto>

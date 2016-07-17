@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+Il Modulo Pyhton della Settimana (PyMOTW-it)
+</titolo_1>
+<testo_normale>
+Questo sito (in continuo aggiornamento) contiene la traduzione italiana della serie <a href="http://www.doughellmann.com/PyMOTW/"><strong>Python Module of the Week (PyMOTW)</strong></a>, curata da Doug Hellman.
+</testo_normale>
+<testo_normale>
+Questa serie di articoli offre una analisi della libreria standard Python attraverso vari esempi e spiegazioni.
+</testo_normale>
+<testo_normale>
+Come neofita del linguaggio Python ho molto apprezzato gli articoli di Doug. che si sono rivelati, almeno per me, una ottima fonte di apprendimento.
+</testo_normale>
+<testo_normale>
+Spero che questa traduzione possa aiutare coloro che programmano in Python e non hanno molta dimestichezza con la lingua inglese.
+</testo_normale>
+<vedi_anche>
+||contatto: pinco.palla@dom.it
+</vedi_anche>
+
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+-->
+</documento_tradotto>

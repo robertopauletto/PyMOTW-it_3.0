@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+getpass - Fornisce il prompt all'utente per una password senza emettere caratteri.
+</titolo_1>
+<descrizione>
+Fornisce all'utente un prompt per ottenere un valore, in genere una password, senza stampare alla console quanto digitato
+1.5.2
+</descrizione>
+<testo_normale>
+Molti programmi che interagiscono con l'utente tramite terminale necessitano di valori di password da chiedere all'utente senza mostrare sullo schermo quello che l'utente digita. Il modulo <strong>getpass</strong> fornisce un modo portabile per gestire questi prompt per la richiesta di password in sicurezza.
+</testo_normale>
+<titolo_2>
+Esempio
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}getpass()${ebk} stampa un prompt, quindi legge l'input dall'utente fino a che non viene premuto return. L'input viene poi passato al chiamante sotto forma di stringa.
+</testo_normale>
+<py_code>
+import getpass
+
+p = getpass.getpass()
+print 'Hai digitato:', p
+</py_code>
+<testo_normale>
+Il prompt predefinito, se il chiamante non ne ha specificato uno, è "${sev}Password:${eev}".
+</testo_normale>
+<py_output>
+$ python getpass_defaults.py 
+Password: 
+Hai digitato: segreto
+</py_output>
+<testo_normale>
+Si può modificare il prompt con qualsiasi cosa il proprio programma necessiti:
+</testo_normale>
+<py_code>
+import getpass
+
+p = getpass.getpass(prompt="Qual'è il tuo colore preferito? ")
+if p.lower() == 'blu':
+    print 'Corretto, puoi proseguire.'
+else:
+    print 'Auuuuugh!'    
+</py_code>
+<testo_normale>
+Ovviamente uno schema di autenticazione così debole non si consiglia, tuttavia illustra il punto.    
+</testo_normale>
+<py_output>
+$ python getpass_prompt.py 
+Qual'è il tuo colore preferito? 
+Corretto, puoi proseguire.
+$ python getpass_prompt.py 
+Qual'è il tuo colore preferito? 
+Auuuuugh!
+</py_output>
+<testo_normale>
+Nella modalità predefinita ${sbk}getpass()${ebk} usa stdout per stampare la stringa di prompt. Per un programma che possa produrre dell' output utile su ${sev}sys.stdout${eev}, è spesso meglio inviare il prompt in un altro flusso tipo ${sev}sys.stderr${eev}.
+</testo_normale>
+<py_code>
+import getpass
+import sys
+
+p = getpass.getpass(stream=sys.stderr)
+print 'Hai digitato:', p    
+</py_code>
+<testo_normale>
+In questo modo l'output standard può essere rediretto (ad una pipe o ad un file) senza vedere il prompt per la password. Il valore digitato dall'utente comunque non è stampato sullo schermo:    
+</testo_normale>
+<py_output>
+$ python getpass_stream.py > /dev/null
+Password: 
+</py_output>
+<titolo_2>
+Usare getpass senza un Terminale    
+</titolo_2>
+<testo_normale>
+Sotto Unix, ${sbk}getpass()${ebk} richiede sempre un tty che possa controllare tramite termios, in modo che la stampa dei caratteri digitati possa essere disabilitata. Questo significa che i valori non saranno letti da un flusso non di terminale rediretto allo standard input.
+</testo_normale>
+<py_output>
+$ echo "segreto" | python getpass_defaults.py
+Traceback (most recent call last):
+ File "getpass_defaults.py", line 34, in
+   p = getpass.getpass()
+ File "/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/getpass.py", line 32, in unix_getpass
+   old = termios.tcgetattr(fd)     # a copy to save
+termios.error: (25, 'Inappropriate ioctl for device')
+</py_output>
+<testo_normale>
+Spetta al chiamante il rilevare quando un flusso in input non è un tty ed usare un metodo alternativo per la lettura in quel caso.    
+</testo_normale>
+<py_code>
+import getpass
+import sys
+
+if sys.stdin.isatty():
+    p = getpass.getpass('Si usa getpass: ')
+else:
+    print 'Si usa readline'
+    p = sys.stdin.readline().rstrip()
+
+print 'Letto: ', p
+</py_code>
+<testo_normale>
+Con un tty    
+</testo_normale>
+<py_output>
+$ python getpass_noterminal.py 
+Si usa getpass: 
+Letto:  segreto
+</py_output>
+<testo_normale>
+Senza un tty    
+</testo_normale>
+<py_output>
+$ echo "segreto" | python getpass_noterminal.py 
+Si usa readline: 
+Letto:  segreto
+</py_output>
+
+<vedi_anche>
+http://docs.python.org/library/getpass.html|getpass|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/readline/index.html#module-readline|readline|Libreria per prompt interattivo
+</vedi_anche>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

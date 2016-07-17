@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<titolo_2>
+Multicast 
+</titolo_2>
+<testo_normale>
+Le connessioni <a href='http://it.wikipedia.org/wiki/Point-to-Point_Protocol'><i>point-to-point</i></a> gesticono molte delle necessità di counicazione, ma per passare la stessa informazione tra molti pari diventà difficile da gestire mano a mano che il numero delle connessioni cresce. Inviare messaggi separatamente ad ogni ricettore consuma tempo e banda ulteriore, il che può costituire un problema per applicazioni tipo lo streaming video od audio. L'uso del <i>multicast</i> per la consegna dei messaggi a più di un punto di destinazione alla volta è di maggiore efficacia perchè l'infrastruttura di rete assicura che i pacchetti siano consegnati a tutti i destinatari.
+</testo_normale>
+<testo_normale>
+I messaggi multicast sono sempre inviati usando UDP, visto che TCP richiede un canale di comunicazione <a href='http://it.wikipedia.org/wiki/Livello_di_trasporto'><i>end-to-end</i></a>. Gli indirizzi per il multicast, chiamati <i>gruppi multicast</i> sono un sottoinsieme di un ventaglio di normali indirizzi IPv4 (da 224.0.0.0 fino a 230.255.255.255) riservati al traffico multicast. Questi indirizzi sono trattati in modo speciale dai router e ed i commutatori(switches) di rete, in modo che i messaggi inviati al gruppo possano essere distrubuiti attraverso Internet a tutti i destinatari che si sono uniti a qual gruppo.
+</testo_normale>
+<note>
+Alcuni router e switches gestiti hanno disabilitato il traffico multicast in modo predefinito. Se si hanno problemi nell'eseguire i programmi di esempio, verificare le impostazioni hardware della propria rete.
+</note>
+<titolo_2>
+Inviare Messaggi Multicast
+</titolo_2>
+<testo_normale>
+Questo client echo modificato invierà un messaggio ad un gruppo multicast, quindi riporterà tutte le risposte che riceve. Visto che non vi è modo di  sapere quante risposte ci si possa attendere, usa un valore di timeout sul socket per evitare di bloccarsi indefinitivamente nell'attesa di una risposta.
+</testo_normale>
+<py_code>
+import socket
+import struct
+import sys
+
+message = 'dati molto importanti'
+multicast_group = ('224.3.29.71', 10000)
+
+# Crea il socket datagram
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Imposta un timeout in modo che il socket non blocchi indefinitivamente mentre
+# tenta di ricevere dati
+sock.settimeout(0.2)
+</py_code>
+<testo_normale>
+Il socket deve anche essere configurato con un <a href='http://it.wikipedia.org/wiki/Time_to_live'><i>time-to-live-</i></a> (TTL) per i messaggi. Il TTL controlla quante reti ricevano il pacchetto. TTL si imposta tramite l'opzione ${sev}IP_MULTICAST_TTL${eev} e ${sbk}socketopt()${ebk}. Il valore predefinito, ${sev}1${eev}, significa che i pacchetti non sono smistati dal router oltre il segmento corrente della rete. Il valore può arrivaare fino a 255, e dovrebbe essere impacchettato in un singolo byte.
+</testo_normale>
+<py_code>
+# Imposta il time-to-live per i messaggi ad 1 in modo che non vadano
+# oltre il segmento locale di rete.
+ttl = struct.pack('b', 1)
+sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+</py_code>
+<testo_normale>
+La parte restante del programma di invio assomiglai al client di eco UDP, eccetto che ci si attendono risposte multiple quindi viene usato un ciclo per chiamare ${sbk}recvfrom()${ebk} che continua fino al timeout.
+</testo_normale>
+<py_code>
+try:
+
+    # Invia dati al gruppo multicast
+    print >>sys.stderr, 'in invio "%s"' % message
+    sent = sock.sendto(message, multicast_group)
+
+    # Cerca le risposte da tutti i ricettori
+    while True:
+        print >>sys.stderr, 'in attesa di ricezione'
+        try:
+            data, server = sock.recvfrom(16)
+        except socket.timeout:
+            print >>sys.stderr, 'raggiunto time out, non ci sono più risposte'
+            break
+        else:
+            print >>sys.stderr, 'recevuto "%s" from %s' % (data, server)
+
+finally:
+    print >>sys.stderr, 'chiusura socket'
+    sock.close()
+</py_code>
+<titolo_2>
+Ricevere Messaggi Multicast
+</titolo_2>
+<testo_normale>
+Il primo passo per approntare un ricevitore multicast è di creare il socket UDP.
+</testo_normale>
+<py_code>
+import socket
+import struct
+import sys
+
+multicast_group = '224.3.29.71'
+server_address = ('', 10000)
+
+# Create the socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Bind to the server address
+sock.bind(server_address)
+</py_code>
+<testo_normale>
+Dopo la creazione ed il collegamento del socket alla porta, esso può essere aggiunto al gruppo multicast usando ${sbk}setsockopt()${ebk} per modificare l'opzione ${sev}IP_ADD_MEMBERSHIP${eev}.  Il valore dell'opzione è una rappresentazione impacchettata in 8 byte dell'indirizzo del gruppo multicast seguito dall'interfaccia di rete sulla quale il server dovrebbe essere in ascolto per il traffico, identificata dal suo indirizzo IP. In questo caso, il ricevitore è in ascolto su tutte le interfacce tramite l'uso di ${sev}INADDR_ANY${eev}.
+</testo_normale>
+<py_code>
+# Dice al sistema opearativo di aggiungere il socket al gruppo multicast
+# su tutte le interfacce
+group = socket.inet_aton(multicast_group)
+mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+</py_code>
+<testo_normale>
+Il ciclo principale per il ricevitore è proprio come quello del normale server echo UDP
+</testo_normale>
+<py_code>
+# Ciclo di ricezione/risposta
+while True:
+    print >>sys.stderr, '\nIn attesa di ricevere un messaggio'
+    data, address = sock.recvfrom(1024)
+    
+    print >>sys.stderr, 'recevuti %s byte da %s' % (len(data), address)
+    print >>sys.stderr, data
+
+    print >>sys.stderr, 'invio riconoscimento a', address
+    sock.sendto('ack', address)
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<py_output>
+[A]$ python ./socket_multicast_receiver.py
+
+In attesa di ricevere un messaggio
+ricevuti 19 byte da ('192.168.1.17', 51382)
+dati molto importanti
+invio riconoscimento a ('192.168.1.17', 51382)
+
+[B]$ python ./socket_multicast_receiver.py
+
+binding to ('', 10000)
+
+In attesa di ricevere un messaggio
+ricevuti 19 byte da ('192.168.1.17', 51382)
+dati molto importanti
+invio riconoscimento a ('192.168.1.17', 51382)
+</py_output>
+<testo_normale>
+Il programma che invia è in esecuzione sull'host ${sev}A${eev}.
+</testo_normale>
+<py_output>
+$ python ./socket_multicast_sender.py
+
+in invio "dati molto importanti"
+in attesa di ricezione
+ricevuto "ack" da ('192.168.1.17', 10000)
+in attesa di ricezione
+ricevuto "ack" da ('192.168.1.8', 10000)
+in attesa di ricezione
+raggiunto time out, non ci sono più risposte
+chiusura socket
+</py_output>
+<testo_normale>
+Il messaggio viene inviato una volta e due riconoscimenti del messaggio in uscita sono stati ricevuti, uno dall'host ${sev}A${eev} ed uno da ${sev}B${eev}
+</testo_normale>
+<vedi_anche>
+http://it.wikipedia.org/wiki/Multicast|Wikipedia: Multicast|Un articolo che descrive i dettagli tecnici del multicast.
+http://it.wikipedia.org/wiki/IP_Multicast|Wikipedia: IP Multicast|Un articolo circa il multicasting IP, con informazioni sull'indirizzamento.
+</vedi_anche>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

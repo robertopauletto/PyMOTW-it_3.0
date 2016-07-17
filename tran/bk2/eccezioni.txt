@@ -1,0 +1,154 @@
+AttributeError
+
+Quando fallisce un riferimento od una assegnazione ad un attributo, viene sollevato AttributeError
+Ad esempio, quando si tenta di referenziare un attributo che non esiste:
+O quando si tenta di modificare un attributo a sola lettura:
+
+EOFError
+
+Un EOFError viene sollevato quando una funzione incorporata tipo input() o raw_input() non leggono alcun dato prima 
+di trovare la fine del flusso di input. I metodi di file come read() restituiscono una stringa vuota alla fine del file.
+
+FloatingPointError
+
+Viene sollevato dalle operazioni con virgola mobile che risultano in errori, quando il controllo dell'eccezione su 
+virgola mobile (fpectl) è attivo. Per abilitare fpectl occorre che l'interprete sia  compilato con il flag --with-fpectl.
+L'uso di fpectl è sconsigliato nella documentazione della libreria standard (http://docs.python.org/lib/module-fpectl.html)
+
+GeneratorExit
+
+Viene sollevato all'interno di un generatore, viene chiamato il metodo close() del generatore.
+
+IOError
+
+Sollevato quando fallisce una operazione di input od output, ad esempio se il disco è pieno, od un file di input non esiste.
+
+ImportError
+
+Sollevato quando un modulo, od un membro di un modulo, non può essere importato. Sono poche le condizioni laddove un
+ImportError possa essere sollevato:
+
+1. Se un modulo non esiste.
+2. Se si usa from X import Y e Y non si trova all'interno del modulo X
+
+IndexError
+
+Sollevato quando il riferimento di una sequenza è fuori dai limiti
+
+KeyError
+
+Viene sollevato quando un valore non viene trovato come chiave di un dizionario.
+
+KeyboardInterrupt
+
+Viene sollevato ogniqualvolta l'utente preme Ctrl-C (o Canc) per interrompere l'esecuzione di un programma.
+Al contrario di molte altre eccezioni, KeyboardInterrupt eredita direttamente da BaseException per evitare di
+venire intercettata dei gestori delle eccezioni globali che catturano Exception.
+
+Premere Ctrl-C al prompt causa una eccezione KeyboardInterrupt
+
+MemoryError
+
+Se il programma esaurisce la memoria ed è possibile recuperarne (ad esempio eliminando alcuni oggetti), viene 
+sollevata MemoryError
+
+NameError
+
+Viene sollevata quando nel vostro codice ci sono riferimenti ad un nome che sembra non esiste nel contesto corrente.
+Ad esempio un nome di variabile non definita
+
+NotImplementedError
+
+Le classi base definite dall'utente possono sollevare NotImplementedError per indicare che un metodo od un comportamento
+deve essere definito nella sottoclasse, simulando una interfaccia
+
+OSError
+
+Funge da classe di errore per il modulo os, e viene sollevato quando l'errore fuoriesce da una funzione specifica di os
+
+OverflowError
+
+Quando una operazione matematica eccede i limiti del tipo di variabile, viene sollevata OverflowError. Gli interi long
+allocano tanto più spazio quanto più crescono i valori, quindi alla fine sollevano MemoryError. La gestione delle 
+eccezioni di virgola mobile non è standardizzata, quindi i valori a virgola mobile non sono verificati.
+Gli interi normali sono convertiti nei corrispondenti valori long quando necessario.
+
+ReferenceError
+
+Quando si usa un proxy weakref per accedere ad un oggetto che è già stato recuperato dalla garbage collection, si genera un errore 
+ReferenceError
+
+RuntimeError
+
+Una eccezione RuntimeError si usa quando non si può applicare nessun'altra eccezione più specifica. L'interprete 
+solleva questa eccezione raramente, ma qualche porzione di codice utente lo può fare.
+
+StopIteration
+
+Quando un iterator ha concluso il ciclo, il suo metodo next() solleva StopIteration. Questa eccezione non è considerata un errore.
+
+SyntaxError
+
+Ogni volta che il parser trova codice sorgente che non riesce a comprendere viene sollevata SyntaxError. Può succedere
+quando si importa un modulo, si chiama exec() od eval(). Gli attributi dell'eccezione possono essere usati per trovare
+esattamente quale parte del testo in input ha causato l'eccezione.
+
+SystemError
+
+Quando l'errore capita nell'interprete stesso ed esiste qualche possibilità di continuare l'esecuzione con successo, si 
+solleva un SystemError. SystemError in genere indica un baco nell'interprete e dovrebbe essere notificato al curatore.
+
+SystemExit
+
+Quando si chiama sys.exit(), invece di uscire immediatamente viene sollevata SystemExit. Questo consente alla parte di codice
+di "pulizia" che si strova nel blocco try:finally di essere eseguita, ed ai chiamanti (come i debugger ed i framework di testo)
+di catturare l'eccezione ed evitare di uscire.
+
+TypeError
+
+Le eccezioni TypeError sono causati combinando tipi di oggetti errati, o chiamando una funzione con il tipo di oggetto sbagliato.
+
+UnboundLocalError
+
+E' un tipo di NameError specifico per i nomi di variabili locali.
+
+La differenza tra NameError globale e UnboundLocal è il modo nel quale viene usato il nome. Visto che il nome
+"local_val" si trova nella parte sinistra di una espressione, viene interpretato come nome di variabile locale.
+
+UnicodeError
+
+UnicodeError è una sottoclasse di ValueError e viene sollevato quando si verifica un problema di Unicode. Ci sono
+sottoclassi separate per UnicodeEncodeError, UnicodeDecodeError, e UnicodeTranslateError.
+
+ValueError
+
+Viene usato quando una funzione riceve un valore del giusto tipo ma dal valore non valido
+
+ZeroDivisionError
+
+Quando zero è il denominatore di una operazione di divisione, viene sollevata ZeroDivisionError
+
+Categorie di avvertimenti 
+
+Si sono parecchie eccezioni definite per l'uso nel modulo warnings
+
+Warning
+    La class base per tutti gli avvertimenti.
+UserWarning
+    La class base per gli avvertimenti provenienti dal codice utente
+DeprecationWarning
+    Usata per caratteristiche non più mantentute.
+PendingDeprecationWarning
+    Used per caratteristiche che presto saranno deprecate.
+SyntaxWarning
+    Usata per sintassi discutibile.
+RuntimeWarning
+    Usati per eventi che accadono in fase di esecuzione che potrebbero causare problemi.
+FutureWarning
+    Avverte circa le modifiche al linguaggio od alla libreria che saranno attive in futuro
+ImportWarning
+    Avverte di un problema nell'importazione di un module.
+UnicodeWarning
+    Avverte di problemi circa il testo unicode. 
+
+

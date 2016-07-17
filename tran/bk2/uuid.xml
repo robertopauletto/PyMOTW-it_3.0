@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>protocolli internet e supporto </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+uuid - Identificatori Universalmente Univoci
+</titolo_1>
+<descrizione>
+Implementare gli Identificatori Universalmente Univoci (Universally Unique Identifiers) come descritti in <a href='http://tools.ietf.org/html/rfc4122.html'>RFC 4122</a>
+2.5 e superiore
+</descrizione>
+<testo_normale>
+<a href='http://tools.ietf.org/html/rfc4122.html'>RFC 4122</a> definisce un sistema per creare Identificatori Universalmente Univoci per delle risorse in modo che non sia necessario mantenerne traccia tramite la gestione di un archivio centralizzato. I valori UUID sono lunghi 128 bit e "possono garantire l'univocit&agrave; attraverso lo spazio ed il tempo". Sono utili per identificare documenti, host, applicazioni client, ed altre situazioni nelle quali sia necessario un valore univoco. RFC &egrave; in particolare orientato verso la creazione di uno spazio dei nomi chiamato "Uniform Resource Name".
+</testo_normale>
+<testo_normale>
+Le specifiche coprono tre algoritmi principali:
+</testo_normale>
+<lista>
+Uso degli indirizzi IEEE 802 MAC come fonte di univocit&agrave;
+Uso dei numeri pseudo-casuali
+Uso di stringhe ben note in combinazione con hashing crittografico
+</lista>
+<testo_normale>
+In tutti i casi il valore di origine viene combinato con l'ora di sistema ed una sequenza di valori temporali (per mantenere univocit&agrave; nel caso che l'orologia sia messo indietro).
+</testo_normale>
+<titolo_2>
+UUID 1 - Indirizzi IEEE 802 MAC 
+</titolo_2>
+<testo_normale>
+Nella versione UUID 1 valori sono calcolati usndo l'indirizzo MAC dell'host. Il modulo <strong>uuid</strong> usa ${sbk}getnode()${ebk} per recuperare un valore MAC in un dato sistema:
+</testo_normale>
+<py_code>
+import uuid
+
+print hex(uuid.getnode())
+</py_code>
+<py_output>
+$ python uuid_getnode.py 
+0x1aa09d114fL
+</py_output>
+<testo_normale>
+Se un sistema ha pi&ugrave; di una scheda di rete, e di conseguenza pi&ugrave; di un MAC, potrebbe essere restituito uno qualsiasi dei valori.
+</testo_normale>
+<testo_normale>
+Per generare un UUID per un dato host, identificato dal suo indirizzo MAC, si usa la funzione ${sbk}uuid1()${ebk}. Si pu&ograve; passare un identificatore di nodo, oppure lasciare il campo vuoto per usare il valore restituito da ${sbk}getnode()${ebk}.
+</testo_normale>
+<py_code>
+import uuid
+
+u = uuid.uuid1()
+
+print u
+print type(u)
+print 'bytes   :', repr(u.bytes)
+print 'hex     :', u.hex
+print 'int     :', u.int
+print 'urn     :', u.urn
+print 'variant :', u.variant
+print 'version :', u.version
+print 'fields  :', u.fields
+print '\ttime_low            : ', u.time_low
+print '\ttime_mid            : ', u.time_mid
+print '\ttime_hi_version     : ', u.time_hi_version
+print '\tclock_seq_hi_variant: ', u.clock_seq_hi_variant
+print '\tclock_seq_low       : ', u.clock_seq_low
+print '\tnode                : ', u.node
+print '\ttime                : ', u.time
+print '\tclock_seq           : ', u.clock_seq
+</py_code>
+<testo_normale>
+I componenti dell'oggetto UUID restituito possono essere indirizzati tramite degli attributi di istanza a sola lettura. Alcuni attributi, come <em>hex</em>, <em>int</em> ed <em>urn</em> sono diverse rappresentazioni del valore UUID.
+</testo_normale>
+<py_output>
+$ python uuid_uuid1.py 
+e5aada06-31d0-11e0-882c-001aa09d114f
+<class 'uuid.UUID'>
+bytes   : '\xe5\xaa\xda\x061\xd0\x11\xe0\x88,\x00\x1a\xa0\x9d\x11O'
+hex     : e5aada0631d011e0882c001aa09d114f
+int     : 305280323556775533215399297575468994895
+urn     : urn:uuid:e5aada06-31d0-11e0-882c-001aa09d114f
+variant : specified in RFC 4122
+version : 1
+fields  : (3853179398L, 12752L, 4576L, 136L, 44L, 114363797839L)
+	time_low            :  3853179398
+	time_mid            :  12752
+	time_hi_version     :  4576
+	clock_seq_hi_variant:  136
+	clock_seq_low       :  44
+	node                :  114363797839
+	time                :  135162762097252870
+	clock_seq           :  2092
+</py_output>
+<testo_normale>
+A causa della componente tempo, ogni volta che viene chiamato ${sbk}uuid1()${ebk} viene restituito un nuovo valore.
+</testo_normale>
+<py_code>
+import uuid
+
+for i in xrange(3):
+    print uuid.uuid1()
+</py_code>
+<testo_normale>
+Si noti che nell'output cambia solo la componente temporale (all'inizio della stringa).
+</testo_normale>
+<py_output>
+$ python uuid_uuid_repeat.py 
+
+573190de-31d1-11e0-a532-001aa09d114f
+5731d0b2-31d1-11e0-a532-001aa09d114f
+57320500-31d1-11e0-a532-001aa09d114f
+</py_output>
+<testo_normale>
+Visto ogni computer ha il proprio indirizzo MAC, quando si eseguono gli script di esempio i valori saranno completamente diversi, visto che cambier&agrave; anche l'identificatore di nodo alla fine dell'UUID.
+</testo_normale>
+<py_code>
+import uuid
+
+node1 = uuid.getnode()
+print hex(node1), uuid.uuid1(node1)
+
+node2 =  0x1e5274040e
+print hex(node2), uuid.uuid1(node2)
+</py_code>
+<py_output>
+$ python uuid_uuid_othermac.py 
+
+0x1aa09d114fL d4cd9538-31d1-11e0-971e-001aa09d114f
+0x1e5274040eL d4cd98a8-31d1-11e0-a0cb-001e5274040e
+</py_output>
+<titolo_2>
+UUID 3 e 5 - Valori Basati sui Nomi
+</titolo_2>
+<testo_normale>
+E' anche utile, in certi contesti, creare valori UUID da nomi invece che da valori casuali o basati sul tempo. Le versioni 3 e 5 delle specifiche UUID usano valori hash crittografici (MD5 oppure SHA-1) per combinare valori di origine specifici dello spazio dei nomi con "nomi" (nomi di host DNS, URL, identificatori di oggetti, ecc.). Ci sono diversi spazi dei nomi ben noti, identificati da valori UUID predefiniti, per lavorare con DNS, URL, ISO OID ed <a href='http://it.wikipedia.org/wiki/X.500'>X.500 Distinguished Names</a>. Si possono anche definire spazi dei nomi specifici per una propria applicazione generando e salvando i valori UUID.
+</testo_normale>
+<testo_normale>
+Per crare un UUID da un nome DNS, si passa ${sev}uuid.NAMESPACE_DNS${eev} come parametro per lo spazio dei nomi ad ${sbk}uuid3()${ebk} oppure ${sbk}uuid5()${ebk}:
+</testo_normale>
+<py_code>
+import uuid
+
+hostnames = ['www.doughellmann.com', 'blog.doughellmann.com']
+
+for name in hostnames:
+    print name
+    print '\tMD5   :', uuid.uuid3(uuid.NAMESPACE_DNS, name)
+    print '\tSHA-1 :', uuid.uuid5(uuid.NAMESPACE_DNS, name)
+</py_code>
+<py_output>
+$ python uuid_uuid3_uuid5.py 
+
+www.doughellmann.com
+	MD5   : bcd02e22-68f0-3046-a512-327cca9def8f
+	SHA-1 : e3329b12-30b7-57c4-8117-c2cd34a87ce9
+blog.doughellmann.com
+	MD5   : 9bdabfce-dfd6-37ab-8a3f-7f7293bcf111
+	SHA-1 : fa829736-7ef8-5239-9906-b4775a5abacb
+</py_output>
+<testo_normale>
+Il valore UUID per un dato nome in uno spazio dei nomi &egrave; sempre lo stesso, non importa quando o dove esso viene calcolato. I valori per lo stesso nome in spazi dei nomi diversi sono diversi.
+</testo_normale>
+<py_code>
+import uuid
+
+for i in xrange(3):
+    print uuid.uuid3(uuid.NAMESPACE_DNS, 'www.doughellmann.com')
+</py_code>
+<py_output>
+$ python uuid_uuid3_repeat.py 
+
+bcd02e22-68f0-3046-a512-327cca9def8f
+bcd02e22-68f0-3046-a512-327cca9def8f
+bcd02e22-68f0-3046-a512-327cca9def8f
+</py_output>
+<titolo_2>
+UUID 4 - Valori Casuali
+</titolo_2>
+<testo_normale>
+Talvolta i valori UUID basati sull'host e sullo spazio dei nomi sono sono "diversi abbastanza". Ad esempio, in casi dove si voglia usare UUID come chiave di ricerca, &egrave; desiderabile una sequenza di valori pi&ugrave; casuale con pi&ugrave; differenziazioni per evitare collisioni in una tabella di hash. Il disporre di valori con meno cifre comuni rende inoltre pi&ugrave; semplice trovarli nei file di registro. Per aggiungere una differenziazione maggiore nel proprio UUID, si usa ${sbk}uuid4()${ebk} per generare i valori usando dati in input casuali.
+</testo_normale>
+<py_code>
+import uuid
+
+for i in xrange(3):
+    print uuid.uuid4()
+</py_code>
+<py_output>
+$ python uuid_uuid4.py 
+
+02fdb5cc-8e8c-41ec-b016-6c76cee34823
+7ce11b55-b95c-407f-9685-ccf7b4027ee0
+ef7eed78-fb59-4d06-b28d-8f4e5be1a984
+</py_output>
+<titolo_2>
+Lavorare con Oggetti UUID
+</titolo_2>
+<testo_normale>
+Oltre a generare nuovi valori UUID, si possono anche elaborare stringhe in diversi formati per creare oggetti UUID. Questo rende facile il controntarli, ordinarli ecc.
+</testo_normale>
+<py_code>
+import uuid
+
+def show(msg, l):
+    print msg
+    for v in l:
+        print '\t', v
+    print
+
+input_values = [ 
+    'urn:uuid:f2f84497-b3bf-493a-bba9-7c68e6def80b',
+    '{417a5ebb-01f7-4ed5-aeac-3d56cd5037b0}',
+    '2115773a-5bf1-11dd-ab48-001ec200d9e0',
+    ]
+
+show('input_values', input_values)
+
+uuids = [ uuid.UUID(s) for s in input_values ]
+show('convertiti in uuid', uuids)
+
+uuids.sort()
+show('ordinati', uuids)
+</py_code>
+<py_output>
+$ python uuid_uuid_objects.py 
+
+input_values
+	urn:uuid:f2f84497-b3bf-493a-bba9-7c68e6def80b
+	{417a5ebb-01f7-4ed5-aeac-3d56cd5037b0}
+	2115773a-5bf1-11dd-ab48-001ec200d9e0
+
+convertiti in uuid
+	f2f84497-b3bf-493a-bba9-7c68e6def80b
+	417a5ebb-01f7-4ed5-aeac-3d56cd5037b0
+	2115773a-5bf1-11dd-ab48-001ec200d9e0
+
+ordinati
+	2115773a-5bf1-11dd-ab48-001ec200d9e0
+	417a5ebb-01f7-4ed5-aeac-3d56cd5037b0
+	f2f84497-b3bf-493a-bba9-7c68e6def80b
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-uuid.html|uuid|La documentazione della libreria standard per questo modulo
+http://tools.ietf.org/html/rfc4122.html|RFC 4122|Uno spazio dei nomi URN per Universally Unique IDentifiers (UUID)
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,501 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione dati ed archiviazione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+bz2 - Compressione bzip2
+</titolo_1>
+<descrizione>
+Compressione bzip2
+2.3 e successive
+</descrizione>
+<testo_normale>
+Il modulo <strong>bz2</strong> è una interfaccia alla libreria bzip2, usata per comprimere dati per salvataggio o trasmissione. Sono fornite tre API:
+</testo_normale>
+<lista>
+funzioni di compressione/decompressione "in un colpo solo" per operare su una massa di dati
+oggetti iterativi di compressione/decompressione per lavorare con flussi di dati
+una classe tipo file che supporta la lettura e la scrittura come per i file non compressi
+</lista>
+<titolo_2>
+Operazioni "In Un Colpo Solo" in Memoria
+</titolo_2>
+<testo_normale>
+Il modo più semplice per lavorare con bz2 richiede il mantenimento di tutti i dati da comprimere o decomprimere in memoria, quindi l'uso di ${sbk}compress()${ebk} e ${sbk}decompress()${ebk}
+</testo_normale>
+<py_code>
+
+import bz2
+import binascii
+
+original_data = 'Questo è il testo originale.'
+print 'Originale    :', len(original_data), original_data
+
+compressed = bz2.compress(original_data)
+print 'Compresso    :', len(compressed), binascii.hexlify(compressed)
+
+decompressed = bz2.decompress(compressed)
+print 'Decompresso  :', len(decompressed), decompressed
+</py_code>
+<py_output>
+python bz2_memory.py 
+Originale    : 29 Questo è il testo originale.
+Compresso    : 69 425a683931415926535985dea0de00000293944001200022a59e00004008002000314c001342269903d279421c7d60495d20c17cb4d535d32f47c5dc914e14242177a83780
+Decompresso  : 29 Questo è il testo originale.
+</py_output>
+<testo_normale>
+Si noti che per testi brevi, la versione compressa può essere significativamente più lunga. Sebbene i risultati reali dipendono dai dati in input, per piccole porzioni di testo è interessante osservare il sovraccarico di compressione.
+</testo_normale>
+<py_code>
+import bz2
+
+original_data = 'Questo è il testo originale.'
+
+fmt = '%15s  %15s'
+print fmt % ('len(data)', 'len(compressed)')
+print fmt % ('-' * 15, '-' * 15)
+
+for i in xrange(20):
+    data = original_data * i
+    compressed = bz2.compress(data)    
+    print fmt % (len(data), len(compressed)), '*' if len(data) < len(compressed) else ''
+</py_code>
+<py_output>
+$ python bz2_lengths.py 
+      len(data)  len(compressed)
+---------------  ---------------
+              0               14 *
+             29               69 *
+             58               75 *
+             87               79 
+            116               78 
+            145               85 
+            174               85 
+            203               80 
+            232               81 
+            261               88 
+            290               88 
+            319               89 
+            348               88 
+            377               89 
+            406               89 
+            435               83 
+            464               84 
+            493               92 
+            522               92 
+            551               95 
+</py_output>
+<titolo_2>
+Lavorare con i Flussi    
+</titolo_2>
+<testo_normale>
+L'approccio in-memoria non è realistico in usi pratici, visto che raramente si vuole mantenere in memoria allo stesso tempo sia i dati compressi che quelli non compressi. L'alternativa è l'uso degli oggetti <strong>BZ2Compressor</strong> e <strong>BZ2Decompressor</strong> per lavorare con flussi di dati, così che non sia necessario accomodare in memoria l'intero insieme di dati.
+</testo_normale>
+<testo_normale>
+Il semplice server qui sotto risponde a richieste che consistono in nomi di file scrivendone una versione compressa verso il socket usato per comunicare con il client. Ha una spezzettatura artificale sul posto per illustrare il comportamento di buffering che si manifesta quando i dati passati a ${sbk}compress()${ebk} o ${sbk}decompress()${ebk} non risultano in un blocco di output completo compresso o decompresso.
+</testo_normale>
+<avvertimento>
+Il server ha delle ovvie carenze di sicurezza. Non eseguirlo su un server in una internet aperta od in qualsivoglia ambiente dove la sicurezza potrebbe essere un problema.
+</avvertimento>
+<py_code>
+
+import bz2
+import logging
+import SocketServer
+import binascii
+
+BLOCK_SIZE = 32
+
+class Bz2RequestHandler(SocketServer.BaseRequestHandler):
+
+    logger = logging.getLogger('Server')
+    
+    def handle(self):
+        compressor = bz2.BZ2Compressor()
+        
+        # Scopre cosa vuole il client
+        filename = self.request.recv(1024)
+        self.logger.debug('il client ha richiesto: "%s"', filename)
+        
+        # Invia blocchi del file mentre vengono compressi
+        with open(filename, 'rb') as input:
+            while True:            
+                block = input.read(BLOCK_SIZE)
+                if not block:
+                    break
+                self.logger.debug('GREZZI "%s"', block)
+                compressed = compressor.compress(block)
+                if compressed:
+                    self.logger.debug('INVIO "%s"', binascii.hexlify(compressed))
+                    self.request.send(compressed)
+                else:
+                    self.logger.debug('BUFFERING')
+        
+        # Invia qualsiasi dato rimasto nel buffer al compressore
+        remaining = compressor.flush()
+        while remaining:
+            to_send = remaining[:BLOCK_SIZE]
+            remaining = remaining[BLOCK_SIZE:]
+            self.logger.debug('SVUOTAMENTO "%s"', binascii.hexlify(to_send))
+            self.request.send(to_send)
+        return
+
+
+if __name__ == '__main__':
+    import socket
+    import threading
+    from cStringIO import StringIO
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(name)s: %(message)s',
+                        )
+    logger = logging.getLogger('Client')
+
+    # Imposta un server, che viene eseguito in un thread separato
+    address = ('localhost', 0) # Ottiene una porta dal kernel
+    server = SocketServer.TCPServer(address, Bz2RequestHandler)
+    ip, port = server.server_address # Scopre quale porta è stata ottenuta
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True)
+    t.start()
+
+    # Connessione al server
+    logger.info('Contatto il server su %s:%s', ip, port)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Chiede un file
+    requested_file = 'lorem.txt'
+    logger.debug('invio del nome del file: "%s"', requested_file)
+    len_sent = s.send(requested_file)
+
+    # Riceve una risposta
+    buffer = StringIO()
+    decompressor = bz2.BZ2Decompressor()
+    while True:
+        response = s.recv(BLOCK_SIZE)
+        if not response:
+            break
+        logger.debug('LETTURA "%s"', binascii.hexlify(response))
+
+        # Include tutti i dati non consumati quando si alimenta il decompressore.
+        decompressed = decompressor.decompress(response)
+        if decompressed:
+            logger.debug('DECOMPRESSI "%s"', decompressed)
+            buffer.write(decompressed)
+        else:
+            logger.debug('BUFFERING')
+
+    full_response = buffer.getvalue()
+    lorem = open('lorem.txt', 'rt').read()
+    logger.debug('la risposta corrisponde al contenuto del file: %s', full_response == lorem)
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<py_output>
+$ python bz2_server.py 
+Client: Contatto il server su 127.0.0.1:55477
+Client: invio del nome del file: "lorem.txt"
+Server: il client ha richiesto: "lorem.txt"
+Server: GREZZI "Lorem ipsum dolor sit amet, cons"
+Server: BUFFERING
+Server: GREZZI "ectetuer adipiscing elit.
+Vivamu"
+Server: BUFFERING
+Server: GREZZI "s eget elit. In posuere mi non r"
+Server: BUFFERING
+Server: GREZZI "isus. Mauris id quam posuere
+lec"
+Server: BUFFERING
+Server: GREZZI "tus sollicitudin varius. Praesen"
+Server: BUFFERING
+Server: GREZZI "t at mi. Nunc eu velit. Sed augu"
+Server: BUFFERING
+Server: GREZZI "e
+massa, fermentum id, nonummy a"
+Server: BUFFERING
+Server: GREZZI ", nonummy sit amet, ligula. Cura"
+Server: BUFFERING
+Server: GREZZI "bitur
+eros pede, egestas at, ult"
+Server: BUFFERING
+Server: GREZZI "ricies ac, pellentesque eu, tell"
+Server: BUFFERING
+Server: GREZZI "us. 
+
+Sed sed odio sed mi luctus"
+Server: BUFFERING
+Server: GREZZI " mollis. Integer et nulla ac aug"
+Server: BUFFERING
+Server: GREZZI "ue convallis
+accumsan. Ut felis."
+Server: BUFFERING
+Server: GREZZI " Donec lectus sapien, elementum "
+Server: BUFFERING
+Server: GREZZI "nec, condimentum ac,
+interdum no"
+Server: BUFFERING
+Server: GREZZI "n, tellus. Aenean viverra, mauri"
+Server: BUFFERING
+Server: GREZZI "s vehicula semper porttitor,
+ips"
+Server: BUFFERING
+Server: GREZZI "um odio consectetuer lorem, ac i"
+Server: BUFFERING
+Server: GREZZI "mperdiet eros odio a sapien. Nul"
+Server: BUFFERING
+Server: GREZZI "la
+mauris tellus, aliquam non, e"
+Server: BUFFERING
+Server: GREZZI "gestas a, nonummy et, erat. Viva"
+Server: BUFFERING
+Server: GREZZI "mus
+sagittis porttitor eros.
+"
+Server: BUFFERING
+Server: SVUOTAMENTO "425a68393141592653590a507eff00004a5780001040052c274b003fe7ff2040"
+Server: SVUOTAMENTO "01b3771cc61a684984d4f4d09a000d034d1a26a14f50cd4d188f4d401a9e8a7a"
+Server: SVUOTAMENTO "81a6800000094d2684f493d51fa500d1a03d430e78e24741cd4b06ddff956eae"
+Server: SVUOTAMENTO "3f1a3b76432d2e051f9b7390d32b538b92631bbe9777744532514e8e171256ba"
+Server: SVUOTAMENTO "a7af2916d87fd7d6b3957b40a4e4bc86999a42431421608aa6c70b0b8120f610"
+Server: SVUOTAMENTO "b41451dc213c3f381c7330cfb1dd52e8eb43274529233857083721aca8a49a4a"
+Server: SVUOTAMENTO "1a24e500e86f82505c785077bcd333f485774a094b21d15b44b7333c4d1855f6"
+Server: SVUOTAMENTO "3c2b9c668d0a12e140bea04711168a5edbcc6436e302e5aea032b88d885115d0"
+Server: SVUOTAMENTO "3238bcf7c371ac4662b5bb86e6f04b483f08bb194659d91920bd09db35213531"
+Server: SVUOTAMENTO "8984366f19ca7a25ea20e248671149c04808676e57b746e5e08763edea787f43"
+Server: SVUOTAMENTO "8646e60e0cd0132cf1ad2644d3f6188330d79ab1526b109e8a077109d0e227c7"
+Server: SVUOTAMENTO "7d8ae87694ca51264b35a0feb38286582bb323832d634b4292ccf66a1c96bf52"
+Server: SVUOTAMENTO "8e60dcbd79c74bdc8e4ae91c21fa69a064aa4ad323142704fe2ee48a70a12014"
+Server: SVUOTAMENTO "a0fdfe"
+Client: LETTURA "425a68393141592653590a507eff00004a5780001040052c274b003fe7ff2040"
+Client: BUFFERING
+Client: LETTURA "01b3771cc61a684984d4f4d09a000d034d1a26a14f50cd4d188f4d401a9e8a7a"
+Client: BUFFERING
+Client: LETTURA "81a6800000094d2684f493d51fa500d1a03d430e78e24741cd4b06ddff956eae"
+Client: BUFFERING
+Client: LETTURA "3f1a3b76432d2e051f9b7390d32b538b92631bbe9777744532514e8e171256ba"
+Client: BUFFERING
+Client: LETTURA "a7af2916d87fd7d6b3957b40a4e4bc86999a42431421608aa6c70b0b8120f610"
+Client: BUFFERING
+Client: LETTURA "b41451dc213c3f381c7330cfb1dd52e8eb43274529233857083721aca8a49a4a"
+Client: BUFFERING
+Client: LETTURA "1a24e500e86f82505c785077bcd333f485774a094b21d15b44b7333c4d1855f6"
+Client: BUFFERING
+Client: LETTURA "3c2b9c668d0a12e140bea04711168a5edbcc6436e302e5aea032b88d885115d0"
+Client: BUFFERING
+Client: LETTURA "3238bcf7c371ac4662b5bb86e6f04b483f08bb194659d91920bd09db35213531"
+Client: BUFFERING
+Client: LETTURA "8984366f19ca7a25ea20e248671149c04808676e57b746e5e08763edea787f43"
+Client: BUFFERING
+Client: LETTURA "8646e60e0cd0132cf1ad2644d3f6188330d79ab1526b109e8a077109d0e227c7"
+Client: BUFFERING
+Client: LETTURA "7d8ae87694ca51264b35a0feb38286582bb323832d634b4292ccf66a1c96bf52"
+Client: BUFFERING
+Client: LETTURA "8e60dcbd79c74bdc8e4ae91c21fa69a064aa4ad323142704fe2ee48a70a12014"
+Client: DECOMPRESSI "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Curabitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauris vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+Client: LETTURA "a0fdfe"
+Client: BUFFERING
+Client: la risposta corrisponde al contenuto del file: True
+</py_output>
+<titolo_2>
+Flussi con Contenuto Misto    
+</titolo_2>
+<testo_normale>
+La classe BZ2Decompressor può essere anche usata in situazioni dove i dati compressi e decompressi sono mescolati assieme. Dopo la decompressione di tutti i dati, l'attributo ${sbk}usused_data${ebk} contiene tutti i dati che non sono stati usati.
+</testo_normale>
+<py_code>
+
+import bz2
+
+lorem = open('lorem.txt', 'rt').read()
+compressed = bz2.compress(lorem)
+combined = compressed + lorem
+
+decompressor = bz2.BZ2Decompressor()
+decompressed = decompressor.decompress(combined)
+
+print 'Decompressi che corrispondono a lorem       :', decompressed == lorem
+print 'Dati inutilizzati che corrispondono a lorem :', decompressor.unused_data == lorem
+</py_code>
+<py_output>
+$ python bz2_mixed.py 
+Decompressi che corrispondono a lorem       : True
+Dati inutilizzati che corrispondono a lorem : True
+</py_output>
+<titolo_2>
+Scrivere File Compressi
+</titolo_2>
+<testo_normale>
+La classe <strong>BZ2File</strong> può essere usata per scrivere/leggere da file compressi utilizzando i noti metodi per scrivere e leggere dati. Per scrivere dati in un file compresso, si apre il file in modalità ${sbk}'w'${ebk}.
+</testo_normale>
+<py_code>
+import bz2
+import os
+
+output = bz2.BZ2File('esempio.txt.bz2', 'wb')
+try:
+    output.write('Il contenuto del file di esempio va qui.\n')
+finally:
+    output.close()
+
+os.system('file esempio.txt.bz2')
+</py_code>
+<py_output>
+$ python bz2_file_write.py 
+esempio.txt.bz2: bzip2 compressed data, block size = 900k
+</py_output>
+<testo_normale>
+Diversi livelli di compressione possono essere usati attraverso il parametro <em>compresslevel</em>. I valori validi vanno da 1 a 9 incluso. I valori di compressione più bassi sono più veloci ma comprimono di meno. I valori altri sono più lenti e comprimono di più, fino a un certo punto.
+</testo_normale>
+<py_code>
+import bz2
+import os
+
+data = open('lorem.txt', 'r').read() * 1024
+print 'Input contiene %d byte' % len(data)
+
+for i in xrange(1, 10):
+    filename = 'livello-di-compressione-%s.bz2' % i
+    output = bz2.BZ2File(filename, 'wb', compresslevel=i)
+    try:
+        output.write(data)
+    finally:
+        output.close()
+    os.system('cksum %s' % filename)
+</py_code>
+<testo_normale>
+La colonna centrale di numeri nel risultato dello script rappresenta la dimensione in byte dei file prodotti. Come si vede, per questi dati in input, i valori di compressione più alti non sempre pagano in termini di spazio di salvataggio ridotto per gli stessi dati in input. Naturalmente i risultati possono variare.    
+</testo_normale>
+<py_output>
+$ python bz2_file_compresslevel.py 
+Input contiene 717824 byte
+3882651858 8582 livello-di-compressione-1.bz2
+1785998277 4638 livello-di-compressione-2.bz2
+3346999582 3445 livello-di-compressione-3.bz2
+3354183099 2495 livello-di-compressione-4.bz2
+2908834805 2450 livello-di-compressione-5.bz2
+840793847 2324 livello-di-compressione-6.bz2
+2263994987 2055 livello-di-compressione-7.bz2
+1354681605 1059 livello-di-compressione-8.bz2
+4136245310 1059 livello-di-compressione-9.bz2
+</py_output>
+<testo_normale>
+Una istanza di BZ2File include anche il metodo ${sbk}writelines()${ebk} che può essere usato per scrivere una sequenza di stringhe.
+</testo_normale>
+<py_code>
+import bz2
+import itertools
+import os
+
+output = bz2.BZ2File('righe_di_esempio.txt.bz2', 'wb')
+try:
+    output.writelines(itertools.repeat('La stessa riga, ripetutamente.\n', 10))
+finally:
+    output.close()
+
+    os.system('bzcat righe_di_esempio.txt.bz2')
+</py_code>
+<py_output>
+$ python bz2_file_writelines.py 
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+La stessa riga, ripetutamente.
+</py_output>
+<titolo_2>
+Leggere File Compressi
+</titolo_2>
+<testo_normale>
+Per leggere dati da file precedentemente compressi si apre semplicemente il file in modalità ${sbk}'r'${ebk}.
+</testo_normale>
+<py_code>
+import bz2
+
+input_file = bz2.BZ2File('esempio.txt.bz2', 'rb')
+try:
+    print input_file.read()
+finally:
+    input_file.close()
+</py_code>
+<testo_normale>
+Questo esempio legge il file scritto da ${sbk}bz2_file_write.py${ebk} nella sezione precedente. 
+</testo_normale>
+<py_output>
+$ python bz2_file_read.py 
+Il contenuto del file di esempio va qui.
+</py_output>
+<testo_normale>
+Quando si legge un file, è anche possibile cercare e leggere solo alcune parti di dati.
+</testo_normale>
+<py_code>
+import bz2
+
+input_file = bz2.BZ2File('esempio.txt.bz2', 'rb')
+try:
+    print 'Intero file:'
+    all_data = input_file.read()
+    print all_data
+    
+    expected = all_data[5:15]
+    
+    # porta il puntatore ad inizio file
+    input_file.seek(0)
+    
+    # si sposta di 5 byte
+    input_file.seek(5)
+    print 'A partire da posizione 5 per 10 byte:'
+    partial = input_file.read(10)
+    print partial
+    
+    print
+    print expected == partial
+finally:
+    input_file.close()
+</py_code>
+<testo_normale>
+La poszione di ${sbk}seek()${ebk} è relativa ai dati <em>non compressi</em>, quindi il chiamante non deve neanche sapere che il file è compresso.
+</testo_normale>
+<py_output>
+$ python bz2_file_seek.py 
+Intero file:
+Il contenuto del file di esempio va qui.
+
+A partire da posizione 5 per 10 byte:
+ntenuto de
+
+True
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/bz2.html|bz2|La documentazione della libreria standard per questo modulo.
+http://www.bzip.org/|bzip.org|La home page di bzip2.
+zlib.html|zlib|Il modulo zlib per la compressione GNU zip. 
+gzip.html|gzip|Una interfaccia tipo file per i file compressi GNU zip. 
+</vedi_anche>
+</documento_tradotto>

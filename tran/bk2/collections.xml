@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>tipi di dato </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+collections - Tipi di dato contenitore
+</titolo_1>
+<descrizione>
+Tipi di dato contenitore
+2.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo collections include tipi di dato contenitore oltre ai tipi builtin list e dict.
+</testo_normale>
+<titolo_2>
+Counter
+</titolo_2>
+<testo_normale>
+<strong>Counter</strong> è un contenitore che tiene traccia di quante volte vengono aggiunti valori equivalenti. Può essere usato per implementare gli stessi algoritmi per i quali vengono comunemente usate in altri linguaggi le strutture dati <a href='http://it.wikipedia.org/wiki/Multiinsieme'>multiset</a> e <a href='http://it.wikipedia.org/wiki/Lista_di_strutture_dati#Comparazione'>bag</a>
+</testo_normale>
+<titolo_3>
+Inizializzazione
+</titolo_3>
+<testo_normale>
+<strong>Counter</strong> supporta tre forme di inizializzazione. Il suo costruttore può essere chiamato con una sequenza di elementi, un dizionario contenente chiavi e conteggi, oppure usando argomenti <em>keyword</em> che mappano nomi stringa a conteggi.
+</testo_normale>
+<py_code>
+import collections
+
+print collections.Counter(['a', 'b', 'c', 'a', 'b', 'b'])
+print collections.Counter({'a':2, 'b':3, 'c':1})
+print collections.Counter(a=2, b=3, c=1)
+</py_code>
+<testo_normale>
+Il risultato di tutte e tre le forme di inizializzazione è il medesimo.
+</testo_normale>
+<py_output>
+$ python collections_counter_init.py
+
+Counter({'b': 3, 'a': 2, 'c': 1})
+Counter({'b': 3, 'a': 2, 'c': 1})
+Counter({'b': 3, 'a': 2, 'c': 1})
+</py_output>
+<testo_normale>
+Un <strong>Counter</strong> vuoto può essere costruito senza argomenti e popolato tramite il metodo <code>update()</code>
+</testo_normale>
+<py_code>
+import collections
+
+c = collections.Counter()
+print 'Iniziale  :', c
+
+c.update('abcdaab')
+print 'Sequenza  :', c
+
+c.update({'a':1, 'd':5})
+print 'Dizionario:', c
+</py_code>
+<testo_normale>
+Invece che essere sostituiti, i valori del contatore sono incrementati in base ai nuovi dati. In questo esempio il contatore per <code>a</code> passa da 3 a 4
+</testo_normale>
+<py_output>
+$ python collections_counter_update.py
+
+Iniziale  : Counter()
+Sequenza  : Counter({'a': 3, 'b': 2, 'c': 1, 'd': 1})
+Dizionario: Counter({'d': 6, 'a': 4, 'b': 2, 'c': 1})
+</py_output>
+<titolo_3>
+Accedere ai Contatori
+</titolo_3>
+<testo_normale>
+Una volta che un <strong>Counter</strong> viene popolato, i suoi valori possono essere recuperati usando l'<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a> dei dizionari.
+</testo_normale>
+<py_code>
+import collections
+
+c = collections.Counter('abcdaab')
+
+for letter in 'abcde':
+    print '%s : %d' % (letter, c[letter])
+</py_code>
+<testo_normale>
+<strong>Counter</strong> non solleva una eccezione <a href='eccezioni.html#keyerror'><em code>KeyError</em></a> in caso di chiavi non presenti. Se un valore non è stato passato in entrata (come la <code>e</code> in questo esempio) il suo contatore sarà 0.
+</testo_normale>
+<py_output>
+$ python collections_counter_get_values.py
+
+a : 3
+b : 2
+c : 1
+d : 1
+e : 0
+</py_output>
+<testo_normale>
+Il metodo <code>elements()</code> ritorna un iteratore che fornisce tutti gli elementi noti a <strong>Counter</strong>.
+</testo_normale>
+<py_code>
+import collections
+
+c = collections.Counter('estramamente')
+c['z'] = 0
+print c
+print list(c.elements())
+</py_code>
+<testo_normale>
+L'ordine degli elementi non è garantito, e gli elementi con contatore minore di zero non sono inclusi
+</testo_normale>
+<py_output>
+$ python collections_counter_elements.py
+
+Counter({'e': 3, 'a': 2, 'm': 2, 't': 2, 'n': 1, 's': 1, 'r': 1, 'z': 0})
+['a', 'a', 'e', 'e', 'e', 'm', 'm', 'n', 's', 'r', 't', 't']
+</py_output>
+<testo_normale>
+Si usi <code>most_common()</code> per produrre una sequenza dei <em>n</em> valori di input presenti più frequentemente e dei loro rispettivi contatori.
+</testo_normale>
+<py_code>
+import collections
+
+c = collections.Counter()
+with open('/usr/share/dict/words', 'rt') as f:
+    for line in f:
+        c.update(line.rstrip().lower())
+
+print 'Più comuni:'
+for letter, count in c.most_common(3):
+    print '%s: %7d' % (letter, count)
+</py_code>
+<testo_normale>
+In questo esempio si contano le lettere che appaiono in tutte le parole del dizionario di sistema (per i sistemi operativi Unix ed OS-X - n.d.t.) per generare una distribuzione di frequenza, quindi vengono stampate le tre lettere più comuni. Tralasciando l'argomento per <code>most_common()</code>, viene generata una lista di tutti gli elementi, in ordine di frequenza.
+</testo_normale>
+<py_output>
+$ python collections_counter_most_common.py
+
+Più comuni:
+s:   90113
+e:   88833
+i:   66986
+</py_output>
+<titolo_3>
+Aritmetica
+</titolo_3>
+<testo_normale>
+Le istanze di <strong>Counter</strong> supportano l'aritmetica e le operazioni sugli insiemi per l'aggregazione dei risultati.
+</testo_normale>
+<py_code>
+import collections
+
+c1 = collections.Counter(['a', 'b', 'c', 'a', 'b', 'b'])
+c2 = collections.Counter('alfabeto')
+
+print 'C1:', c1
+print 'C2:', c2
+
+print '\nContatori combinati:'
+print c1 + c2
+
+print '\nSottrazione:'
+print c1 - c2
+
+print '\nIntersezione (considerando i minimi positivi):'
+print c1 & c2
+
+print '\nUnione (considerando i massimi):'
+print c1 | c2
+</py_code>
+<testo_normale>
+Ogni volta che viene prodotto un nuovo <strong>Counter</strong> tramite una operazione, vengono tralasciati tutti gli elementi con contatore a zero e negativo. Il contatore per <code>a</code> è lo stesso in <code>c1</code> e <code>c2</code>, quindi la sottrazione lo porta a zero
+</testo_normale>
+<py_output>
+$ python collections_counter_arithmetic.py
+
+C1: Counter({'b': 3, 'a': 2, 'c': 1})
+C2: Counter({'a': 2, 'b': 1, 'e': 1, 'f': 1, 'l': 1, 'o': 1, 't': 1})
+
+Contatori combinati:
+Counter({'a': 4, 'b': 4, 'c': 1, 'e': 1, 'f': 1, 'l': 1, 'o': 1, 't': 1})
+
+Sottrazione:
+Counter({'b': 2, 'c': 1})
+
+Intersezione (considerando i minimi positivi):
+Counter({'a': 2, 'b': 1})
+
+Unione (considerando i massimi):
+Counter({'b': 3, 'a': 2, 'c': 1, 'e': 1, 'f': 1, 'l': 1, 'o': 1, 't': 1})
+</py_output>
+
+<titolo_2>
+defaultdict
+</titolo_2>
+<testo_normale>
+Il dictionary standard include il metodo ${sbk}setdefault()${ebk} per recuperare un valore ed impostare un valore predefinito se detto valore non esiste. Di contro, <strong>defaultdict</strong> consente al chiamante di specificare in anticipo il valore predefinito, quando il contenitore viene inizializzato .
+</testo_normale>
+<py_code>
+import collections
+
+def default_factory():
+    return 'valore predefinito'
+
+d = collections.defaultdict(default_factory, foo='bar')
+print d
+print d['foo']
+print d['bar']
+</py_code>
+<testo_normale>
+La cosa funziona bene fintanto che è appropriato che tutte le chiavi usino lo stesso valore predefinito. Può essere particolarmente utile se il valore predefinito è un tipo usato per aggregare od accumulare valori, tipo <strong>list</strong>, <strong>set</strong>, od anche <strong>int</strong>eri. La documentazione della libreria standard comprende diversi esempi per l'uso di defaultdict in questo modo.
+</testo_normale>
+<py_output>
+$ python collections_defaultdict.py
+
+d: defaultdict(<function default_factory at 0x7fd9ce672b18>, {'foo': 'bar'})
+foo => bar
+bar => valore predefinito
+</py_output>
+
+<titolo_2>
+Deque <a name='deque'></a>
+</titolo_2>
+<testo_normale>
+Una coda ad accesso da entrambe le estremità, o <strong>deque</strong>, consente l'aggiunta e la rimozione di elementi da entrambe le estremità. I più comunemente usati <a href='http://it.wikipedia.org/wiki/Stack'>stack</a> e <a href='http://it.wikipedia.org/wiki/Coda_(informatica)'>queue</a> sono forme degeneri di <strong>deque</strong>, dove input ed output viene ristretto ad un solo estremo.
+</testo_normale>
+<py_code>
+import collections
+
+d = collections.deque('abcdefg')
+print 'Deque:', d
+print 'Lunghezza:', len(d)
+print 'Estremo sx:', d[0]
+print 'Estremo dx:', d[-1]
+
+d.remove('c')
+print 'rimuovo(c):', d
+</py_code>
+<testo_normale>
+Visto che le deque sono un tipo di contenitore di sequenze, supportano alcune delle operazioni che supportano le liste, come ad esempio  l'esaminare il contenuto con ${sbk}__getitem__()${ebk}, il determinare la lunghezza, e la rimozione di elementi all'interno confrontandone l'identità .
+</testo_normale>
+<py_output>
+$ python collections_deque.py
+Deque: deque(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+Lunghezza: 7
+Estremo sx: a
+Estremo dx: g
+rimuovo(c): deque(['a', 'b', 'd', 'e', 'f', 'g'])
+</py_output>
+<titolo_3>
+Inserimento
+</titolo_3>
+<testo_normale>
+Una deque può essere incrementata da entrambi gli estremi, detti &apos;left&apos; (sinistra) e &apos;right&apos; (destra) nell'implementazione di Python.
+</testo_normale>
+<py_code>
+import collections
+
+# Aggiungo da destra
+d = collections.deque()
+d.extend('abcdefg')
+print 'extend    :', d
+d.append('h')
+print 'append    :', d
+
+# Aggiungo da sinistra
+d = collections.deque()
+d.extendleft('abcdefg')
+print 'extendleft:', d
+d.appendleft('h')
+print 'appendleft:', d
+</py_code>
+<testo_normale>
+Si noti che <code>extendleft()</code> itera attraverso il suo input ed esegue l'equivalente di un <code>appendleft()</code> per ogni elemento. Il risultato finale è che la <strong>deque</strong> contiene la sequenza di input in ordine inverso.
+</testo_normale>
+<py_output>
+$ python collections_deque_populating.py
+extend    : deque(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+append    : deque(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+extendleft: deque(['g', 'f', 'e', 'd', 'c', 'b', 'a'])
+appendleft: deque(['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'])
+</py_output>
+<titolo_3>
+Estrazione
+</titolo_3>
+<testo_normale>
+Allo stesso modo, gli elementi della <strong>deque</strong> possono essere estratti da entrambi o da uno degli estremi, a seconda dell'algoritmo che si sta applicando.
+</testo_normale>
+<py_code>
+import collections
+
+print 'Da destra  :'
+d = collections.deque('abcdefg')
+while True:
+    try:
+        print d.pop()
+    except IndexError:
+        break
+
+print 'Da sinistra:'
+d = collections.deque('abcdefg')
+while True:
+    try:
+        print d.popleft()
+    except IndexError:
+        break
+
+</py_code>
+<testo_normale>
+Si usi <code>pop()</code> per rimuovere un elemento dall'estremità destra della <strong>deque</strong> e <code>popleft()</code> per estrarlo dall'estremità sinistra.
+</testo_normale>
+<py_output>
+$ python collections_deque_consuming.py
+Da destra  :
+g
+f
+e
+d
+c
+b
+a
+Da sinistra:
+a
+b
+c
+d
+e
+f
+g
+</py_output>
+<testo_normale>
+Visto che le deque sono <a href='http://it.wikipedia.org/wiki/Thread_safety'><em>thread-safe</em></a> se ne possono estrarre i contenuti da entrambi gli estremi allo stesso tempo in <em>thread</em> separati.
+</testo_normale>
+<py_code>
+import collections
+import threading
+import time
+
+candle = collections.deque(xrange(11))
+
+def burn(direction, nextSource):
+    while True:
+        try:
+            next = nextSource()
+        except IndexError:
+            break
+        else:
+            print '%8s: %s' % (direction, next)
+            time.sleep(0.1)
+    print '%8s fatto' % direction
+    return
+
+left = threading.Thread(target=burn, args=('Sinistra', candle.popleft))
+right = threading.Thread(target=burn, args=('Destra', candle.pop))
+
+left.start()
+right.start()
+
+left.join()
+right.join()
+</py_code>
+<testo_normale>
+I <em>thread</em> in questo esempio lavorano su di una estremità, estraendo elementi fino a che <strong>deque</strong> non si esaurisce.
+</testo_normale>
+<py_output>
+$ python collections_deque_both_ends.py
+    Sinistra: 0
+   Destra: 10
+    Sinistra: 1
+   Destra: 9
+    Sinistra: 2
+   Destra: 8
+    Sinistra: 3
+   Destra: 7
+    Sinistra: 4
+   Destra: 6
+    Sinistra: 5
+   Destra fatto
+    Sinistra fatto
+</py_output>
+<titolo_3>
+Rotazione
+</titolo_3>
+<testo_normale>
+Un'altra utile capacità di <strong>deque</strong> è di ruotare in entrambe le direzioni, per saltare qualche elemento.
+</testo_normale>
+<py_code>
+import collections
+
+d = collections.deque(xrange(10))
+print 'Normale           :', d
+d = collections.deque(xrange(10))
+d.rotate(2)
+print 'Rotazione destra  :', d
+d = collections.deque(xrange(10))
+d.rotate(-2)
+print 'Rotazione sinistra :', d
+</py_code>
+<testo_normale>
+Ruotando <strong>deque</strong> verso destra (usando una rotazione positiva) si prendono gli elementi dall'estremità destra e si spostano verso l'estremità sinistra. Ruotando verso sinistra (con un valore negativo) si prendono gli elementi dall'estremità sinistra e si spostano verso l'estremità destra. Potrebbe essere d'aiuto immaginare gli elementi nella deque come se fossero incisi lungo il margine di un disco di selezione dei numeri di un vecchio telefono.
+</testo_normale>
+<py_output>
+$ python collections_deque_rotate.py
+Normale            : deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+Rotazione destra   : deque([8, 9, 0, 1, 2, 3, 4, 5, 6, 7])
+Rotazione sinistra : deque([2, 3, 4, 5, 6, 7, 8, 9, 0, 1])
+</py_output>
+<titolo_2>
+namedtuple
+</titolo_2>
+<testo_normale>
+La <strong>tuple</strong> standard usa indici numerici per accedere ai propri membri.
+</testo_normale>
+<py_code>
+bob = ('Bob', 30, 'maschio')
+print 'Rappresentazione:', bob
+
+jane = ('Jane', 29, 'femmina')
+print '\nCampo riferito da indice:', jane[0]
+
+print '\nCampi riferiti da indice:'
+for p in [ bob, jane ]:
+    print '%s ha %d anni, %s' % p
+</py_code>
+<testo_normale>
+Il che rende le <strong>tuple</strong> efficaci contenitori per semplici utilizzi.
+</testo_normale>
+<py_output>
+$ python collections_tuple.py
+
+Rappresentazione: ('Bob', 30, 'maschio')
+
+Campo riferito da indice: Jane
+
+Campi riferiti da indice:
+Bob ha 30 anni, maschio
+Jane ha 29 anni, femmina
+</py_output>
+<testo_normale>
+D'altro canto, ricordare quale indice dovrebbe essere usato per ciascun valore potrebbe portare ad errori, specialmente se la <strong>tuple</strong> ha molti campi ed è costruita in una parte del codice molto lontana da quella in cui viene usata. <strong>namedtuple</strong> assegna nomi, assieme ad indici numerici, ad ogni membro.
+</testo_normale>
+<titolo_3>
+Definizione
+</titolo_3>
+<testo_normale>
+Le istanze di <strong>namedtuple</strong> hanno la stessa efficienza rispetto all'uso della memoria rispetto alle normali tuple visto che non hanno dizionari costruiti per ogni istanza. Ciascun tipo di <strong>namedtuple</strong> viene rappresentato dalla sua propria classe, creata dalla funzione di <a href='http://it.wikipedia.org/wiki/Factory_method'>factory</a> di <strong>namedtuple</strong>. Gli argomenti sono il nome della nuova classe ed una stringa che contiene i nomi degli element.
+</testo_normale>
+<py_code>
+import collections
+
+Persona = collections.namedtuple('Persona', 'nome anni genere')
+
+print 'Tipo di Persona:', type(Persona)
+
+bob = Persona(nome='Bob', anni=30, genere='maschio')
+print 'Rappresentazione:', bob
+
+jane = Persona(nome='Jane', anni=29, genere='femmina')
+print '\nCampo riferito da indice:', jane.nome
+
+print '\nCampi riferiti da indice:'
+for p in [ bob, jane ]:
+    print '%s ha %d anni, %s' % p
+</py_code>
+<testo_normale>
+Come illustrato dall'esempio, è possibile accedere ai campi della <strong>namedtuple</strong> sia usando la notazione con punto (<code>oggetto.attributo</code>) che utilizzando gli indici posizionali delle tuple standard.
+</testo_normale>
+<py_output>
+$ python collections_named_tuple_person.py
+Tipo di Persona: <type 'type'>
+
+Rappresentazione: Persona(nome='Bob', anni=30, genere='maschio')
+
+Campo riferito da indice: Jane
+
+Campi riferiti da indice:
+Bob ha 30 anni, maschio
+Jane ha 29 anni, femmina
+</py_output>
+<titolo_3>
+Nomi di Campo non Validi
+</titolo_3>
+<testo_normale>
+Durante l'elaborazione dei nomi, dei valori non validi causano eccezioni <a href='eccezioni.html#valueerror'><em>ValueError</em></a>.
+</testo_normale>
+<py_code>
+import collections
+
+try:
+    collections.namedtuple('Persona', 'nome class anni genere')
+except ValueError, err:
+    print err
+
+try:
+    collections.namedtuple('Person', 'nome anni genere anni')
+except ValueError, err:
+    print err
+</py_code>
+<testo_normale>
+I nomi non sono validi se sono ripetuti o sono in conflitto con parole riservate del linguaggio.
+</testo_normale>
+<py_output>
+$ python collections_namedtuple_bad_fields.py
+
+Type names and field names cannot be a keyword: 'class'
+Encountered duplicate field name: 'anni'
+</py_output>
+<testo_normale>
+In situazioni dove una <strong>namedtuple</strong> viene creata in base a valori al di fuori del controllo del programma (tipo la rappresentazione delle righe ritornate da una ricerca in un database, dove lo schema non è noto in anticipo), si imposti l'opzione <em>rename</em> a <code>True</code> in modo che i campi vengano rinominati.
+</testo_normale>
+<py_code>
+import collections
+
+with_class = collections.namedtuple('Persona', 'nome class anni genere', rename=True)
+print with_class._fields
+
+two_ages = collections.namedtuple('Persona', 'nome anni genere anni', rename=True)
+print two_ages._fields
+</py_code>
+<testo_normale>
+Il campo chiamato <code>class</code> diventa <code>_1</code> ed il campo duplicato <code>anni</code> diventa <code>_3</code>.
+</testo_normale>
+<py_output>
+$ python collections_namedtuple_rename.py
+
+('nome', '_1', 'anni', 'genere')
+('nome', 'classe', 'genere', 'anni')
+</py_output>
+<titolo_2>
+OrderedDict
+</titolo_2>
+<testo_normale>
+Un <strong>OrderedDict</strong> è una classe derivata da <em>dictionary</em> che ricorda l'ordine nel quale viene aggiunto il suo contenuto.
+</testo_normale>
+<py_code>
+import collections
+
+print 'Dizionario normale:'
+d = {}
+d['a'] = 'A'
+d['b'] = 'B'
+d['c'] = 'C'
+d['d'] = 'D'
+d['e'] = 'E'
+
+for k, v in d.items():
+    print k, v
+
+print '\nDiz. ordinato (OrderedDict):'
+d = collections.OrderedDict()
+d['a'] = 'A'
+d['b'] = 'B'
+d['c'] = 'C'
+d['d'] = 'D'
+d['e'] = 'E'
+
+for k, v in d.items():
+    print k, v
+</py_code>
+<testo_normale>
+Un dizionario normale (<strong>dict</strong>) non tiene traccia dell'ordine di inserimento, e la sua iterazione produce valori in ordine arbitrario. In un dizionario ordinato <strong>OrderedDict</strong>, al contrario, l'ordine in cui gli elementi vengono inseriti viene conservato ed usato quando viene creato un iteratore.
+</testo_normale>
+<py_output>
+$ python collections_ordereddict_iter.py
+
+Dizionario normale:
+a A
+c C
+b B
+e E
+d D
+
+Diz. ordinato (OrderedDict):
+a A
+b B
+c C
+d D
+e E
+</py_output>
+<titolo_3>
+Uguaglianza
+</titolo_3>
+<testo_normale>
+Un dizionario normale cerca all'interno del suo contenuto verificando una uguaglianza. Un dizionario ordinato <strong>OrderedDict</strong> considera anche l'ordine nel quale sono stati aggiunti gli elementi.
+</testo_normale>
+<py_code>
+import collections
+
+print 'dict       :',
+d1 = {}
+d1['a'] = 'A'
+d1['b'] = 'B'
+d1['c'] = 'C'
+d1['d'] = 'D'
+d1['e'] = 'E'
+
+d2 = {}
+d2['e'] = 'E'
+d2['d'] = 'D'
+d2['c'] = 'C'
+d2['b'] = 'B'
+d2['a'] = 'A'
+
+print d1 == d2
+
+print 'OrderedDict:',
+
+d1 = collections.OrderedDict()
+d1['a'] = 'A'
+d1['b'] = 'B'
+d1['c'] = 'C'
+d1['d'] = 'D'
+d1['e'] = 'E'
+
+d2 = collections.OrderedDict()
+d2['e'] = 'E'
+d2['d'] = 'D'
+d2['c'] = 'C'
+d2['b'] = 'B'
+d2['a'] = 'A'
+
+print d1 == d2
+</py_code>
+<testo_normale>
+In questo caso, visto che i dizionari ordinati sono stati creati da valori in diverso ordine, sono considerati diversi.
+</testo_normale>
+<py_output>
+$ python collections_ordereddict_equality.py
+
+dict       : True
+OrderedDict: False
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/collections.html|collezioni|La documentazione della libreria standard per questo modulo.
+http://en.wikipedia.org/wiki/Deque|WikiPedia: Deque|Una discussione sulla struttura dati della deque.
+http://docs.python.org/lib/deque-recipes.html|Ricette di Deque|Esempi dell'uso di deque in algoritmi dalla documentazione della libreria standard.
+http://docs.python.org/lib/defaultdict-examples.html|esempi di defaultdict|Esempi dell'uso di defaultdict dalla documentazione della libreria standard
+http://jtauber.com/blog/2008/02/27/evolution_of_default_dictionaries_in_python/|James Tauber: Evoluzione dei dizionari predefiniti in Python|Discussione su come defaultdict si confronta con altri metodi di inizializzazione di dizionari.
+http://www.doughellmann.com/PyMOTW/articles/data_structures.html#article-data-structures||
+</vedi_anche>
+</documento_tradotto>

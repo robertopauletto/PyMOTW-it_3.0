@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<titolo_2>
+Indirizzamento, Famiglie di Protocollo e Tipi di Socket
+</titolo_2>
+<testo_normale>
+Un <em>socket</em> è un punto di arrivo di un canale di comunicazione usato dai programmi per passare dati avanti e indietro localmente od attraverso Internet. I socket hanno due proprietà primarie che controllano il modo in cui essi inviano i dati: la <em>address family</em> (famiglia di indirizzo) controlla il protocollo del layer di rete OSI usato ed il <em>socket type</em> (tipo di socket) controlla il protocollo del layer di trasporto.
+</testo_normale>
+<testo_normale>
+Python supporta tre famiglie di indirizzi. La più comune, ${sev}AF_INET${eev}, viene usata per l'indirizzamento degli IPv4 Internet. Gli indirizzi IPv4 sono composti da quattro valori ottali separati da punti. (es. ${sev}10.1.1.5${eev} e ${sev}127.0.0.1${eev}). Questi valori sono più comunemente chiamati "Indirizzi IP". Al momento quasi tutte le operazioni di rete Internet sono fatte usando la versione IP 4.
+</testo_normale>
+<testo_normale>
+${sev}AF_INET6${eev} viene usato per l'indirizzamento Internet IPv6. IPv6 rappresenta la versione di "prossima generazione" del protocollo Internet, e supporta indirizzi a 128 bit, il modellamento del traffico, e caratteristiche di routing non disponibili sotto IPv4. L'adozione di IPv6 è ancora limitata, ma continua a crescere.
+</testo_normale>
+<testo_normale>
+${sev}AF_UNIX${eev} è la famiglia di indirizzo per gli Unix Domain Sockets (UDS), un protocollo di comunicazione interprocesso disponibile nei sistemi POSIX compatibili. L'implementazione di UDS tipicamente consente al sistema operativo di passare dati direttamente tra processo e processo, senza passare attraverso lo stack di rete. E' più efficiente di ${sev}AF_INET${eev}, ma poichè il filesystem viene usato come spazio dei nomi per l'indirizzamento, UDS viene confinato ai processi sullo stesso sistema. Quello che attira nell'uso di UDS rispetto ad altri meccanismi IPC tipo <em>named pipe</em> o memoria condivisa è che l'interfaccia di programmazione è la stessa del networking IP, quindi l'applicazione può trarre il vantaggio di una comunicazione efficiente quando viene eseguita su di un singolo host, ma usare lo stesso codice per spedire dati attraverso la rete.
+</testo_normale>
+<note>
+La costante ${sev}AF_UNIX${eev} viene definita solamente in sistemi dove è supportato UDS.
+</note>
+<testo_normale>
+Il tipo socket in genere è ${sev}SOCK_DIAGRAM${eev} per <em>user datagram protocol </em>(UDP) oppure ${sev}SOCK_STREAM${eev} per <em>transmission control protocol</em> (TCP). UDP non richiede l'handshaking nella trasmissione od altre impostazioni, ma offre bassa affidabilità di consegna. I messaggi UDP possono essere consegnati danneggiati, più di una volta oppure mai. TCP, di contro, assicura che ogni messaggio sia consegnato esattamente una volta e nel corretto ordine. La maggior parte dei protocollii di applicazione che consegnano vaste quantità di dati, tipo HTTP, sono costruite sopra TCP. UDP viene comunemente usato per protocolli dove l'ordine è meno importante (visto che il messaggio rientra in un singolo pacchetto, tipo DNS) oppure per il <em>multicasting</em> (l'invio degli stessi dati a diversi host).
+</testo_normale>
+<note>
+Il modulo Python <strong>socket</strong> supporta altri tipi di socket ma essi sono molto meno comunemente usati, quindi non sono qui trattati. Si faccia riferimento alla documentazione della libreria standard per maggiori dettagli.
+</note>
+<titolo_2>
+Cercare Host nella Rete
+</titolo_2>
+<testo_normale>
+<strong>socket</strong> include funzioni per interfacciarsi con i servizi di nomi di dominio nella rete, per convertire il nome host di un server nel suo indirizzo numerico di rete. Le applicazioni non devono convertire gli indirizzi esplicitamente prima di usarli per connettersi ad un server, ma può essere utile quando occorre riportare degli errori includere l'indirizzo numerico assieme al nome usato.
+</testo_normale>
+<testo_normale>
+Per usare il nome ufficiale dell'host corrente si usa ${sbk}gethostname()${ebk}.
+</testo_normale>
+<py_code>
+import socket
+
+print socket.gethostname()
+</py_code>
+<testo_normale>
+Il nome restituito dipenderà dalle impostazioni di rete del sistema corrente, e potrebbe cambiare se si trova su una rete diversa (tipo un laptop attaccato ad una LAN wireless)
+</testo_normale>
+<py_output>
+$ python socket_gethostname.py
+
+farnsworth.hellfly.net
+</py_output>
+<testo_normale>
+Si usa ${sbk}gethostbyname()${ebk} per convertire il nome di un server nel suo indirizzo numerico:
+</testo_normale>
+<py_code>
+import socket
+
+for host in [ 'homer', 'www', 'www.python.org', 'nosuchname' ]:
+    try:
+        print '%15s : %s' % (host, socket.gethostbyname(host))
+    except socket.error, msg:
+        print '%15s : ERROR: %s' % (host, msg)
+</py_code>
+<testo_normale>
+Il parametro per ${sbk}gethostbyname()${ebk} non deve essere necessariamente un nome pienamente qualificato (vale a dire non occorre includere il nome di dominio così come il nome base dell'host). Se il nome non viene trovato viene sollevata una eccezione di tipo ${sbk}socket.error${ebk}.
+</testo_normale>
+<py_output>
+$ python socket_gethostbyname.py
+
+          homer : ERROR: [Errno 8] nodename nor servname provided, or not known
+            www : 208.54.89.25
+ www.python.org : 82.94.164.162
+     nosuchname : ERROR: [Errno 8] nodename nor servname provided, or not known
+</py_output>
+<testo_normale>
+Per l'accesso ad ulteriori informazioni circa il nome di un server, si usa ${sbk}gethostbyname_ex()${ebk}, che restituisce il nome host canonico del server, gli eventuali alias, e tutti gli indirizzi IP disponibili che possono essere usati per raggiungerlo.
+</testo_normale>
+<py_code>
+import socket
+
+for host in [ 'homer', 'www', 'www.python.org', 'nosuchname' ]:
+    print host
+    try:
+        hostname, aliases, addresses = socket.gethostbyname_ex(host)
+        print '  Hostname:', hostname
+        print '  Aliases :', aliases
+        print ' Addresses:', addresses
+    except socket.error, msg:
+        print '%15s : ERROR: %s' % (host, msg)
+    print
+</py_code>
+<testo_normale>
+Se il client è a conoscenza di tutti gli indirizzi IP per un server, è in grado di implementare i suoi algoritmi di bilanciamento di carico o di <a href='http://www.pc-facile.com/glossario/failover/'>fallover</a>.
+</testo_normale>
+<py_output>
+$ python socket_gethostbyname_ex.py
+
+homer
+          homer : ERROR: [Errno 8] nodename nor servname provided, or not known
+
+www
+  Hostname: hotspot.t-mobile.com
+  Aliases : ['www.hotspot.t-mobile.com']
+ Addresses: ['208.54.89.25']
+
+www.python.org
+  Hostname: www.python.org
+  Aliases : []
+ Addresses: ['82.94.164.162']
+
+nosuchname
+     nosuchname : ERROR: [Errno 8] nodename nor servname provided, or not known
+</py_output>
+<testo_normale>
+Si usa ${sbk}getfqdn()${ebk} per convertire un nome parziale in nome di dominio pienamente qualificato.
+</testo_normale>
+<py_code>
+import socket
+
+for host in [ 'homer', 'www' ]:
+    print '%6s : %s' % (host, socket.getfqdn(host))
+</py_code>
+<testo_normale>
+Il nome restituito non corrisponde necessariamente al parametro in input se l'input è un alias, tipo ${sev}www${eev} come in questo caso.
+</testo_normale>
+<py_output>
+$ python socket_getfqdn.py
+
+ homer : homer
+   www : m195936d0.tmodns.net
+</py_output>
+<testo_normale>
+Quando l'indirizzo di un server è disponibile, si usa ${sbk}gethostbyaddr()${ebk} per effettuare una ricerca "rovesciata" del nome
+</testo_normale>
+<py_code>
+import socket
+
+hostname, aliases, addresses = socket.gethostbyaddr('192.168.254.2')
+
+print 'Hostname :', hostname
+print 'Aliases  :', aliases
+print 'Addresses:', addresses
+</py_code>
+<testo_normale>
+Il valore restituito è una tupla che contiene l'hostname completo, eventuali alias e tutti gli indirizzi IP associati al nome.
+</testo_normale>
+<py_output>
+$ python socket_gethostbyaddr.py
+Hostname : robby-PC.local
+Aliases  : []
+Addresses: ['192.168.254.2']
+</py_output>
+<titolo_2>
+Cercare Informazioni sul Servizio
+</titolo_2>
+<testo_normale>
+Oltre all'indirizzo IP, ogni indirizzo di socket comprende anche un valore intero che rappresenta il <em>numero di porta</em>. Molte applicazioni possono essere eseguite sullo stesso host, in ascolto su di un singolo indirizzo IP, ma solo un socket alla volta può usare una porta a quell'indirizzo. La combinazione di indirizzo IP, protocollo e numero di porta identifica in modo univoco un canale di comunicazione ed assicura che i messaggi inviati attraverso il socket giungano alla corretta destinazione.
+</testo_normale>
+<testo_normale>
+Alcuni numeri di porta sono pre-assegnati per uno specifico protocollo. Ad esempio le comunicazioni tra server email che usano SMTP passano attraverso la porta numero 25 usando TCP, ed i client ed i server web usano la porta 80 per HTTP. I numeri di porta per i servizi di rete con nomi standardizzati possono essere trovati con ${sbk}getservbyname()${ebk}.
+</testo_normale>
+<py_code>
+import socket
+from urlparse import urlparse
+
+for url in [ 'http://www.python.org',
+             'https://www.mybank.com',
+             'ftp://prep.ai.mit.edu',
+             'gopher://gopher.micro.umn.edu',
+             'smtp://mail.example.com',
+             'imap://mail.example.com',
+             'imaps://mail.example.com',
+             'pop3://pop.example.com',
+             'pop3s://pop.example.com',
+             ]:
+    parsed_url = urlparse(url)
+    port = socket.getservbyname(parsed_url.scheme)
+    print '%6s : %s' % (parsed_url.scheme, port)
+</py_code>
+<testo_normale>
+Sebbene sim improbabile che un servizio standardizzato cambi porta, cercare il valore con una chiamata di sistema invece che scrivere il numero direttamente nel codice è molto più flessibile qualora nuovi servizi vengano aggiunti in futuro.
+</testo_normale>
+<py_output>
+$ python socket_getservbyname.py 
+  http : 80
+ https : 443
+   ftp : 21
+gopher : 70
+  smtp : 25
+  imap : 143
+ imaps : 993
+  pop3 : 110
+ pop3s : 995
+</py_output>
+<testo_normale>
+Per eseguire la ricerca  "rovesciata" della porta di servizio, si usa ${sbk}getservbyport()${ebk}.
+</testo_normale>
+<py_code>
+import socket
+import urlparse
+
+for port in [ 80, 443, 21, 70, 25, 143, 993, 110, 995 ]:
+    print urlparse.urlunparse(
+        (socket.getservbyport(port), 'example.com', '/', '', '', '')
+        )
+</py_code>
+<testo_normale>
+La ricerca "rovesciata" è utile per costruire gli URL ai servizi da indirizzi arbitrari.
+</testo_normale>
+<py_output>
+$ python socket_getservbyport.py 
+www://example.com/
+https://example.com/
+ftp://example.com/
+gopher://example.com/
+smtp://example.com/
+imap2://example.com/
+imaps://example.com/
+pop3://example.com/
+pop3s://example.com/
+</py_output>
+<testo_normale>
+Il numero assegnato ad un protocollo di trasporto può essere recuperato tramite ${sbk}getprotobyname()${ebk}.
+</testo_normale>
+<py_code>
+import socket
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa le costanti del modulo socket ai loro nomi."""
+    return dict( (getattr(socket, n), n)
+                 for n in dir(socket)
+                 if n.startswith(prefix)
+                 )
+
+protocols = get_constants('IPPROTO_')
+
+for name in [ 'icmp', 'udp', 'tcp' ]:
+    proto_num = socket.getprotobyname(name)
+    const_name = protocols[proto_num]
+    print '%4s -> %2d (socket.%-12s = %2d)' % \
+        (name, proto_num, const_name, getattr(socket, const_name))
+</py_code>
+<testo_normale>
+I valori per i numeri di protocollo sono standardizzati, e definiti come costanti in <strong>socket</strong> con il prefisso ${sev}IPPROTO_${eev}.
+</testo_normale>
+<py_output>
+$ python socket_getprotobyname.py 
+icmp ->  1 (socket.IPPROTO_ICMP =  1)
+ udp -> 17 (socket.IPPROTO_UDP  = 17)
+ tcp ->  6 (socket.IPPROTO_TCP  =  6)
+</py_output>
+<titolo_2>
+Cercare gli Indirizzi del Server
+</titolo_2>
+<testo_normale>
+${sbk}getaddrinfor()${ebk} converte l'indirizzo base di un servizio in una lista di tuple con tutte le informazioni necessarie per eseguire una connessione. Il contenuto di ogni tupla varierà, contenendo diverse famiglie di rete o protocolli.
+</testo_normale>
+<py_code>
+import socket
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa le costanti del modulo socket ai loro nomi."""
+    return dict( (getattr(socket, n), n)
+                 for n in dir(socket)
+                 if n.startswith(prefix)
+                 )
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+for response in socket.getaddrinfo('www.python.org', 'http'):
+
+    # Spacchetta la tupla response
+    family, socktype, proto, canonname, sockaddr = response
+
+    print 'Famiglia        :', families[family]
+    print 'Tipo            :', types[socktype]
+    print 'Protocollo      :', protocols[proto]
+    print 'Nome Canonico   :', canonname
+    print 'Indirizzo Socket:', sockaddr
+    print 
+</py_code>
+<testo_normale>
+Il programma dimostra come cercare le informazioni di connessione per ${sev}www.python.org${eev}.
+</testo_normale>
+<py_output>
+$ python socket_getaddrinfo.py 
+Famiglia        : AF_INET
+Tipo            : SOCK_STREAM
+Protocollo      : IPPROTO_TCP
+Nome Canonico   : 
+Indirizzo Socket: ('82.94.164.162', 80)
+
+Famiglia        : AF_INET6
+Tipo            : SOCK_STREAM
+Protocollo      : IPPROTO_TCP
+Nome Canonico   : 
+Indirizzo Socket: ('2001:888:2000:d::a2', 80, 0, 0)
+</py_output>
+<testo_normale>
+${sbk}getaddrinfo()${ebk} riceve diversi parametri per filtrare la lista risultante. I valori <em>host</em> e <em>port</em> forniti nell'esempio sono parametri richiesti. Quelli opzionali sono <em>family</em>, <em>socktype</em>, <em>proto</em>, e <em>flags</em>. I valori di family, socktype e proto dovrebbero essere ${sev}0${eev} oppure una delle costanti definite da <strong>socket</strong>
+</testo_normale>
+<py_code>
+import socket
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa le costanti del modulo socket ai loro nomi."""
+    return dict( (getattr(socket, n), n)
+                 for n in dir(socket)
+                 if n.startswith(prefix)
+                 )
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+for response in socket.getaddrinfo('www.doughellmann.com', 'http',
+                                   socket.AF_INET,      # family
+                                   socket.SOCK_STREAM,  # socktype
+                                   socket.IPPROTO_TCP,  # protocol
+                                   socket.AI_CANONNAME, # flags
+                                   ):
+    
+    # Spacchetta la tupla response
+    family, socktype, proto, canonname, sockaddr = response
+
+    print 'Famiglia        :', families[family]
+    print 'Tipo            :', types[socktype]
+    print 'Protocollo      :', protocols[proto]
+    print 'Nome Canonico   :', canonname
+    print 'Indirizzo Socket:', sockaddr
+    print 
+</py_code>
+<testo_normale>
+Siccome <em>flags</em> comprende ${sev}AI_CANONNAME${eev}, il nome canonico del server (che è diverso dal valore usato per la ricerca) viene questa volta incluso nel risultato. Senza il flag, il valore del nome canonico viene lasciato vuoto.
+</testo_normale>
+<py_output>
+$ python socket_getaddrinfo_extra_args.py 
+Famiglia        : AF_INET
+Tipo            : SOCK_STREAM
+Protocollo      : IPPROTO_TCP
+Nome Canonico   : user-2ivf40d.dialup.mindspring.com
+Indirizzo Socket: ('165.247.144.13', 80)
+</py_output>
+<titolo_2>
+Rappresentazione dell'Indirizzo IP
+</titolo_2>
+<testo_normale>
+I programmi di rete scritti in C usano il tipo di dato <strong>struct sockaddr</strong> per rappresentare gli indirizzi IP come valori binari (invece che gli indirizzi in formato stringa che in genere si trovano nei programmi Python). La conversione degli indirizzi IPv4 tra la rappresentazione Python e quella C viene fatta con ${sbk}inet_aton()${ebk} ed ${sbk}inet_ntoa()${ebk}.
+</testo_normale>
+<py_code>
+import binascii
+import socket
+import struct
+import sys
+
+string_address = sys.argv[1]
+packed = socket.inet_aton(string_address)
+
+print 'Originale:', string_address
+print 'Packed   :', binascii.hexlify(packed)
+print 'Unpacked :', socket.inet_ntoa(packed)
+</py_code>
+<testo_normale>
+I quattro byte nel formato <i>packed</i> possono essere passati alle librerie C, trasmessi in sicurezza attraverso la rete, oppure salvati in un database in modalità compatta
+</testo_normale>
+<py_output>
+$ python socket_address_packing.py  192.168.1.1
+Originale: 192.168.1.1
+Packed   : c0a80101
+Unpacked : 192.168.1.1
+
+$ python socket_address_packing.py  127.0.0.1
+Originale: 127.0.0.1
+Packed   : 7f000001
+Unpacked : 127.0.0.1
+</py_output>
+<testo_normale>
+Le funzioni correlate ${sbk}inet_pton()${ebk} ed ${sbk}inet_ntop()${ebk} lavorano sia con gli indirizzi IPv4 che con qulli IPv6, producendo il formato appropriato in base al parametro della famiglia di indirizzo fornito.
+</testo_normale>
+<py_code>
+import binascii
+import socket
+import struct
+import sys
+
+string_address = sys.argv[1]
+packed = socket.inet_pton(socket.AF_INET6, string_address)
+
+print 'Originale:', string_address
+print 'Packed   :', binascii.hexlify(packed)
+print 'Unpacked :', socket.inet_ntop(socket.AF_INET6, packed)
+</py_code>
+<testo_normale>
+Il valore di un indirizzo IPv6 è gia in formato esadecimale, quindi la conversione della versione <i>packed</i> in una serie di cifre esadecimali produce una stringa simile a quella del valore originale.
+</testo_normale>
+<py_output>
+$ python socket_ipv6_address_packing.py 2002:ac10:10a:1234:21e:52ff:fe74:40e
+Originale: 2002:ac10:10a:1234:21e:52ff:fe74:40e
+Packed   : 2002ac10010a1234021e52fffe74040e
+Unpacked : 2002:ac10:10a:1234:21e:52ff:fe74:40e
+</py_output>
+<vedi_anche>
+http://it.wikipedia.org/wiki/IPv6|Wikipedia: IPv6|Un articolo che riguarda il Protocollo Internet Versione 6 (IPv6).
+http://it.wikipedia.org/wiki/Open_Systems_Interconnection|Wikipedia: il modello di rete OSI|Un articolo che descrive il modello a sette strati dell'implementazione di rete.
+http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml|Numeri di Protocollo Internet Assegnati|Elenco di nomi e numeri dei protocolli standard.
+</vedi_anche>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

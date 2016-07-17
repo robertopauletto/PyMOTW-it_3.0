@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internazionalizzazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+locale - API POSIX di localizzazione
+</titolo_1>
+<descrizione>
+Formatta ed elabora valori che dipendono dalla posizione geografica o lingua
+1.5 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>locale</strong> è parte della libreria per il supporto all'internazionalizzazione e la localizzazione di Python. Fornisce un modo standard per gestire operazioni che potrebbero dipendere dal linguaggio o dalla posizione geografica di un utente. Ad esempio gestisce la formattazione dei numeri come valori di valuta, il confronto di stringhe per ordinamento ed il lavorare con le date. Non si occupa di traduzioni (si veda il modulo <a href='gettext.html'>gettext</a>) o di codifica Unicode.
+</testo_normale>
+<note>
+Modificare la localizzazione può avere ramificazioni a  livello di applicazione, quindi la pratica consigliata è quella di evitare di modificare il valore in una libreria e lasciare che sia l'applicazione ad impostarlo. Negli esempi qui sotto, la localizzazione viene modificata diverse volte all'interno di un piccolo programma che evidenzia le differenze nelle impostazioni delle varie localizzazioni. E' molto più realistico che la propria applicazione imposti la localizzazione una sola volta all'inizio e non la modifichi.
+</note>
+<titolo_2>
+Verificare la Localizzazione Corrente
+</titolo_2>
+<testo_normale>
+Il metodo più comune per consentire all'utente di modificare le impostazioni di localizzazione per un'applicazione è tramite una variabile di ambiente (<code>LC_ALL</code>, <code>LC_CTYPE</code>, <code>LANG</code> o <code>LANGUAGE</code>, a seconda della piattaforma). L'applicazione quindi chiama <code>setlocale()</code> senza un valore specifico, e viene usato il valore della variabile d'ambiente.
+</testo_normale>
+<py_code>
+import locale
+import os
+import pprint
+import codecs
+import sys
+
+sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
+
+# Impostazioni predefinite in base all'ambiente dell'utente.
+locale.setlocale(locale.LC_ALL, '')
+
+print 'Impostazioni ambiente:'
+for env_name in [ 'LC_ALL', 'LC_CTYPE', 'LANG', 'LANGUAGE' ]:
+    print '\t%s = %s' % (env_name, os.environ.get(env_name, ''))
+
+# Qual'è la localizzazione?
+print
+print 'Localizzazione dall\'ambiente:', locale.getlocale()
+
+template = """
+Formattazione numerica:
+
+  Separatore decimale       : "%(decimal_point)s"
+  Posizioni raggruppamento  : %(grouping)s
+  Separatore migliaia       : "%(thousands_sep)s"
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "%(int_curr_symbol)r"
+  Simbolo valuta locale                     : %(currency_symbol)r (%(currency_symbol_u)s)
+  Simbolo che precede un valore positivo    : %(p_cs_precedes)s
+  Simbolo che precede un valore negativo    : %(n_cs_precedes)s
+  Separatore decimale                       : "%(mon_decimal_point)s"
+  Cifre in valori frazionari                : %(frac_digits)s
+  Cifre in valori frazionari, internazionale: %(int_frac_digits)s
+  Posizioni raggruppamento                  : %(mon_grouping)s
+  Separatore migliaia                       : "%(mon_thousands_sep)s"
+  Segno positivo                            : "%(positive_sign)s"
+  Posizione segno positivo                  : %(p_sign_posn)s
+  Segno negativo                            : "%(negative_sign)s"
+  Posizione segno negativo                  : %(n_sign_posn)s
+
+"""
+
+sign_positions = {
+    0 : 'Racchiuso tra parentesi',
+    1 : 'Prima di valore e simbolo',
+    2 : 'Dopo valore e simbolo',
+    3 : 'Prima del valore',
+    4 : 'Dopo il valore',
+    locale.CHAR_MAX : 'Non specificato',
+    }
+
+info = {}
+info.update(locale.localeconv())
+info['p_sign_posn'] = sign_positions[info['p_sign_posn']]
+info['n_sign_posn'] = sign_positions[info['n_sign_posn']]
+# converte il simbolo di valuta in unicode
+info['currency_symbol_u'] = info['currency_symbol'].decode('utf-8')
+
+print (template % info)
+</py_code>
+<testo_normale>
+Il metodo <code>localeconv</code> ritorna un dizionario contenente le convenzioni di localizzazione. La lista completa dei nomi dei nomi di valori e definizioni viene trattato nella documentazione della libreria standard.
+</testo_normale>
+<testo_normale>
+Un PC sul quale gira un sistema operativo Linux, kernel 4.2.0-16-generic, con le variabili non impostate fornisce i seguenti risultati:
+</testo_normale>
+<py_output>
+$ export LC_ALL=; export LANG=; export LC_CTYPE=; export LANGUAGE=; export LC_MONETARY; export LC_MEAUSREMENT=; export LC_TIME; export LC_NAME; export LC_NUMERIC=; export LC_MONETARY=; export LC_TIME=; export LC_NAME=;  python locale_env_example.py
+Impostazioni ambiente:
+  LC_ALL =
+  LC_CTYPE =
+  LANG =
+  LANGUAGE =
+
+Localizzazione dall'ambiente: (None, None)
+
+Formattazione numerica:
+
+  Separatore decimale       : "."
+  Posizioni raggruppamento  : []
+  Separatore migliaia       : ""
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "''"
+  Simbolo valuta locale                     : '' ()
+  Simbolo che precede un valore positivo    : 127
+  Simbolo che precede un valore negativo    : 127
+  Separatore decimale                       : ""
+  Cifre in valori frazionari                : 127
+  Cifre in valori frazionari, internazionale: 127
+  Posizioni raggruppamento                  : []
+  Separatore migliaia                       : ""
+  Segno positivo                            : ""
+  Posizione segno positivo                  : Non specificato
+  Segno negativo                            : ""
+  Posizione segno negativo                  : Non specificato
+</py_output>
+<testo_normale>
+Eseguendo lo stesso script con la variabile <code>LANG</code> impostata mostra come la localizzazione e la codifica predefinita cambiano:
+</testo_normale>
+<testo_normale>
+France(<code>fr_FR</code>)
+</testo_normale>
+<py_output>
+$ LANG=fr_FR LC_CTYPE=fr_FR LC_ALL=fr_FR python locale_env_example.py
+
+Impostazioni ambiente:
+	LC_ALL = fr_FR
+	LC_CTYPE = fr_FR
+	LANG = fr_FR
+	LANGUAGE =
+
+Locale dall'ambiente: ('fr_FR', 'ISO8859-1')
+
+Formattazione numerica:
+
+  Separatore decimale       : ","
+  Posizioni raggruppamento  : [127]
+  Separatore migliaia       : ""
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "'EUR '"
+  Simbolo valuta locale                     : 'Eu' (Eu)
+  Simbolo che precede un valore positivo    : 0
+  Simbolo che precede un valore negativo    : 0
+  Separatore decimale                       : ","
+  Cifre in valori frazionari                : 2
+  Cifre in valori frazionari, internazionale: 2
+  Posizioni raggruppamento                  : [3, 3, 0]
+  Separatore migliaia                       : " "
+  Segno positivo                            : ""
+  Posizione segno positivo                  : Prima di valore e simbolo
+  Segno negativo                            : "-"
+  Posizione segno negativo                  : Prima di valore e simbolo
+</py_output>
+<testo_normale>
+Spagna: (<code>es_ES</code>):
+</testo_normale>
+<py_output>
+$ LANG=es_ES LC_CTYPE=es_ES LC_ALL=es_ES python locale_env_example.py
+
+Impostazioni ambiente:
+	LC_ALL = es_ES
+	LC_CTYPE = es_ES
+	LANG = es_ES
+	LANGUAGE =
+
+Locale dall'ambiente: ('es_ES', 'ISO8859-1')
+
+Formattazione numerica:
+
+  Separatore decimale       : ","
+  Posizioni raggruppamento  : [127]
+  Separatore migliaia       : ""
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "'EUR '"
+  Simbolo valuta locale                     : 'Eu' (Eu)
+  Simbolo che precede un valore positivo    : 1
+  Simbolo che precede un valore negativo    : 1
+  Separatore decimale                       : ","
+  Cifre in valori frazionari                : 2
+  Cifre in valori frazionari, internazionale: 2
+  Posizioni raggruppamento                  : [3, 3, 0]
+  Separatore migliaia                       : "."
+  Segno positivo                            : ""
+  Posizione segno positivo                  : Prima di valore e simbolo
+  Segno negativo                            : "-"
+  Posizione segno negativo                  : Prima di valore e simbolo
+</py_output>
+<testo_normale>
+Portogallo (<code>pt_PT</code>):
+</testo_normale>
+<py_output>
+$ LANG=pt_PT LC_CTYPE=pt_PT LC_ALL=pt_PT python locale_env_example.py
+
+Impostazioni ambiente:
+	LC_ALL = pt_PT
+	LC_CTYPE = pt_PT
+	LANG = pt_PT
+	LANGUAGE =
+
+Locale dall'ambiente: ('pt_PT', 'ISO8859-1')
+
+Formattazione numerica:
+
+  Separatore decimale       : ","
+  Posizioni raggruppamento  : []
+  Separatore migliaia       : " "
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "'EUR '"
+  Simbolo valuta locale                     : 'Eu' (Eu)
+  Simbolo che precede un valore positivo    : 0
+  Simbolo che precede un valore negativo    : 0
+  Separatore decimale                       : "."
+  Cifre in valori frazionari                : 2
+  Cifre in valori frazionari, internazionale: 2
+  Posizioni raggruppamento                  : [3, 3, 0]
+  Separatore migliaia                       : "."
+  Segno positivo                            : ""
+  Posizione segno positivo                  : Prima di valore e simbolo
+  Segno negativo                            : "-"
+  Posizione segno negativo                  : Prima di valore e simbolo
+</py_output>
+<testo_normale>
+Polonia (<code>pl_PL</code>):
+</testo_normale>
+<py_output>
+$ LANG=pl_PL LC_CTYPE=pl_PL LC_ALL=pl_PL python locale_env_example.py
+
+Impostazioni ambiente:
+	LC_ALL = pl_PL
+	LC_CTYPE = pl_PL
+	LANG = pl_PL
+	LANGUAGE =
+
+Locale dall'ambiente: ('pl_PL', 'ISO8859-2')
+
+Formattazione numerica:
+
+  Separatore decimale       : ","
+  Posizioni raggruppamento  : [3 , 3, 0]
+  Separatore migliaia       : " "
+
+Formattazione di valuta:
+
+  Simbolo valuta internazionale             : "'PLN '"
+  Simbolo valuta locale                     : 'z\xc5\x82' (zł)
+  Simbolo che precede un valore positivo    : 1
+  Simbolo che precede un valore negativo    : 1
+  Separatore decimale                       : ","
+  Cifre in valori frazionari                : 2
+  Cifre in valori frazionari, internazionale: 2
+  Posizioni raggruppamento                  : [3, 3, 0]
+  Separatore migliaia                       : " "
+  Segno positivo                            : ""
+  Posizione segno positivo                  : Dopo valore
+  Segno negativo                            : "-"
+  Posizione segno negativo                  : Dopo valore
+</py_output>
+<titolo_2>
+Moneta
+</titolo_2>
+<testo_normale>
+Il risultato dell'esempio qui sotto mostra che modificando la localizzazione viene aggiornata l'impostazione del simbolo della moneta ed il carattere di separazione tra numeri interi e frazioni decimali. Questo esempio itera attraverso diverse localizzazioni per stampare un valore di moneta positivo e negativo formattato per ogni localizzazione:
+</testo_normale>
+<py_code>
+import locale
+
+sample_locales = [ ('USA',        'en_US'),
+                   ('Francia',    'fr_FR'),
+                   ('Spagna',     'es_ES'),
+                   ('Portogallo', 'pt_PT'),
+                   ('Polonia' ,   'pl_PL'),
+                   ]
+
+for name, loc in sample_locales:
+    locale.setlocale(locale.LC_ALL, loc)
+    print '%20s: %10s  %10s' % (name, locale.currency(1234.56), locale.currency(-1234.56))
+</py_code>
+<testo_normale>
+Il risultato è questa piccola tabella:
+</testo_normale>
+<py_output>
+$ python locale_currency_example.py
+
+                 USA:   $1234.56   -$1234.56
+             Francia: 1234,56 Eu  1234,56 Eu-
+              Spagna: Eu 1234,56  -Eu 1234,56
+          Portogallo: 1234.56 Eu  -1234.56 Eu
+             Polonia: zł 1234,56  zł 1234,56-
+</py_output>
+<titolo_2>
+Formattare Numeri
+</titolo_2>
+<testo_normale>
+Anche i numeri, non relazionati alla moneta, sono formattati diversamente a seconda della localizzazione. In particolare il carattere di raggruppamento (<em>grouping</em>) usato per separare grandi numeri in parti più leggibili viene cambiato:
+</testo_normale>
+<py_code>
+import locale
+
+sample_locales = [ ('USA',        'en_US'),
+                   ('Francia',    'fr_FR'),
+                   ('Spagna',     'es_ES'),
+                   ('Portogallo', 'pt_PT'),
+                   ('Polonia' ,   'pl_PL'),
+                   ]
+
+print '%20s %15s %20s' % ('Localizzazione', 'Interi', 'Virgola variabile')
+for name, loc in sample_locales:
+    locale.setlocale(locale.LC_ALL, loc)
+
+    print '%20s' % name,
+    print locale.format('%15d', 123456, grouping=True),
+    print locale.format('%20.2f', 123456.78, grouping=True)
+</py_code>
+<testo_normale>
+Per formattare numeri senza il simbolo di moneta, usare ${sbk}format()${ebk} invece che ${sbk}currency()${ebk}
+</testo_normale>
+<py_output>
+$ python locale_grouping.py
+
+      Localizzazione         Interi            Virgola variabile
+                 USA         123,456           123,456.78
+              France          123456            123456,78
+               Spain          123456            123456,78
+            Portugal          123456            123456,78
+              Poland         123 456           123 456,78
+</py_output>
+<titolo_2>
+Elaborare Numeri
+</titolo_2>
+<testo_normale>
+A parte la generazione di un output in diversi formati, il modulo <strong>locale</strong> viene in aiuto in caso di elaborazione dell'input. Esso comprende le funzioni <code>atoi()</code> ed <code>atof()</code>  per convertire stringhe in valori interi ed a virgola mobile in base alle convenzioni di formattazione numerica della localizzazione.
+</testo_normale>
+<py_code>
+import locale
+
+sample_data = [ ('USA',        'en_US', '1,234.56'),
+                ('Francia',    'fr_FR', '1234,56'),
+                ('Spagna',     'es_ES', '1234,56'),
+                ('Portogallo', 'pt_PT', '1234.56'),
+                ('Polonia',    'pl_PL', '1 234,56'),
+                ]
+
+for name, loc, a in sample_data:
+    locale.setlocale(locale.LC_ALL, loc)
+    f = locale.atof(a)
+    print '%20s: %9s => %f' % (name, a, f)
+</py_code>
+<testo_normale>
+I valori di raggruppamento e di separazione decimale
+</testo_normale>
+<py_output>
+$ python locale_atof_example.py
+
+                 USA:  1,234.56 => 1234.560000
+             Francia:   1234,56 => 1234.560000
+              Spagna:   1234,56 => 1234.560000
+          Portogallo:   1234.56 => 1234.560000
+             Polonia:  1 234,56 => 1234.560000
+</py_output>
+<titolo_2>
+Date ed Orari
+</titolo_2>
+<testo_normale>
+Un altro importante aspetto della localizzaizone è la formattazione di data ed orario:
+</testo_normale>
+<py_code>
+import locale
+import time
+
+sample_locales = [ ('USA',      'en_US'),
+                   ('Francia',   'fr_FR'),
+                   ('Spagna',    'es_ES'),
+                   ('Portogallo', 'pt_PT'),
+                   ('Polonia',   'pl_PL'),
+                   ]
+
+for name, loc in sample_locales:
+    locale.setlocale(locale.LC_ALL, loc)
+    print '%20s: %s' % (name, time.strftime(locale.nl_langinfo(locale.D_T_FMT)))
+</py_code>
+<py_output>
+$ python locale_date_example.py
+
+                 USA: Thu Feb 21 06:35:54 2013
+             Francia: Jeu 21 fév 06:35:54 2013
+              Spagna: jue 21 feb 06:35:54 2013
+          Portogallo: Qui 21 Fev 06:35:54 2013
+             Polonia: czw 21 lut 06:35:54 2013
+</py_output>
+<testo_normale>
+Questa discussione copre solamente alcune delle funzioni di alto livello nel modulo <strong>locale</strong>. Ve ne sono altre di livello più basso (<code>format_string()</code>)  oppure relative alla gestione della localizzazione per la propria applicazione (<code>resetlocale()</code>).
+
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/locale.html|locale|La documentazione della libreria standard per questo modulo (lingua inglese)
+gettext.html|gettext|Cataloghi di messaggio per traduzioni
+</vedi_anche>
+</documento_tradotto>

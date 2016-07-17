@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>protocolli internet e supporto</categoria>
+<titolo_1>
+urllib - semplice interfaccia per accedere a risorse di rete
+</titolo_1>
+<descrizione>
+Accede a risorse remote che non necessitano di autenticazione, cookie ecc.
+1.4 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>urllib</strong> fornisce semplice interfaccia per accedere a risorse di rete. Sebbene <strong>urllib</strong> possa essere usato con <a href='http://it.wikipedia.org/wiki/Gopher_(informatica)'>gopher</a> e <a href='http://it.wikipedia.org/wiki/File_Transfer_Protocol'>ftp</a> gli esempi seguenti usano tutti <a href='http://it.wikipedia.org/wiki/Hypertext_Transfer_Protocol'>http</a>
+</testo_normale>
+<titolo_2>
+HTTP GET
+</titolo_2>
+<note>
+Il server di test per questi esempi è BaseHTTPServer_GET.py, dagli esempi di <a href='basehttpserver.html'>BaseHTTPServer</a>. Lanciare il server da una finestra di terminale, quindi eseguire gli esempi da un'altra.
+</note>
+<testo_normale>
+Una operazione HTTP GET costituisce l'uso più semplice di <strong>urllib2</strong>. Si passa l'<a href='http://it.wikipedia.org/wiki/URL'>URL</a> ad <a name='da_contextlib'><code>urlopen()</code></a> per ottenere un <em>handle</em> di tipo file per i dati remoti.
+</testo_normale>
+<py_code>
+import urllib
+
+response = urllib.urlopen('http://localhost:8080/')
+print 'RISPOSTA :', response
+print 'URL      :', response.geturl()
+
+headers = response.info()
+print 'DATA     :', headers['date']
+print 'HEADERS  :'
+print '---------'
+print headers
+
+data = response.read()
+print 'LUNGHEZZA:', len(data)
+print 'DATI     :'
+print '---------'
+print data
+</py_code>
+<testo_normale>
+Il server di esempio accetta i valori in arrivo e formatta una risposta in testo semplice da restituire. Il valore di ritorno da <code>urllopen()</code> fornisce l'accesso agli <em>header</em> dal server HTTP tramite il metodo <code>info()</code>, ed i dati dalla risorsa remota tramite metodi tipo <code>read()</code> e <code>readlines()</code>.
+</testo_normale>
+<py_output>
+$ python urllib_urlopen.py
+RISPOSTA : <addinfourl at 140367625918944 whose fp = <socket._fileobject object at 0x7fa9e46b08d0>>
+URL      : http://localhost:8080/
+DATA     : Sat, 05 Jul 2014 09:11:22 GMT
+HEADERS  :
+---------
+Server: BaseHTTP/0.3 Python/2.7.6
+Date: Sat, 05 Jul 2014 09:11:22 GMT
+
+LUNGHEZZA: 321
+DATI     :
+---------
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 40969) (localhost)
+command=GET
+path=/
+real path=/
+query=
+request_version=HTTP/1.0
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+host=localhost:8080
+user-agent=Python-urllib/1.17
+</py_output>
+<testo_normale>
+L'oggetto di tipo file ritornato da <code>urlopen()</code> è iterabile:
+</testo_normale>
+<py_code>
+import urllib
+
+response = urllib.urlopen('http://localhost:8080/')
+for line in response:
+    print line.rstrip()
+</py_code>
+<testo_normale>
+Visto che le righe sono resituite con ritorni a capo ed avanti riga intatti, questo esempio li elimina prima di stampare l'output
+</testo_normale>
+<py_output>
+$ python urllib_urlopen_iterator.py
+
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 40996) (localhost)
+command=GET
+path=/
+real path=/
+query=
+request_version=HTTP/1.0
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+host=localhost:8080
+user-agent=Python-urllib/1.17
+</py_output>
+<titolo_3>
+Codificare gli Argomenti
+</titolo_3>
+<testo_normale>
+Gli argomenti possono essere passati al server codificandoli ed accodandoli all'URL
+</testo_normale>
+<py_code>
+import urllib
+
+query_args = { 'q':'query string', 'foo':'bar' }
+encoded_args = urllib.urlencode(query_args)
+print 'Codificato:', encoded_args
+
+url = 'http://localhost:8080/?' + encoded_args
+print urllib.urlopen(url).read()
+</py_code>
+<testo_normale>
+Si noti che la query, nella lista dei valori del client, contiene gli argomenti di ricerca codificati.
+</testo_normale>
+<py_output>
+$ python urllib_urlencode.py
+
+Codificato: q=stringa+di+richiesta&foo=bar
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 41208) (localhost)
+command=GET
+path=/?q=stringa+di+richiesta&foo=bar
+real path=/
+query=q=stringa+di+richiesta&foo=bar
+request_version=HTTP/1.0
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+host=localhost:8080
+user-agent=Python-urllib/1.17
+</py_output>
+<testo_normale>
+Per passare una sequenza di valori usando occorrenze distinte della variabile nella stringa di query, si imposta <em>doseq</em> a <code>True</code> nella chiamata di <code>urlencode()</code>
+</testo_normale>
+<py_code>
+import urllib
+
+query_args = { 'foo':['foo1', 'foo2'] }
+print 'Singola :', urllib.urlencode(query_args)
+print 'Sequenza:', urllib.urlencode(query_args, doseq=True  )
+</py_code>
+<py_output>
+$ python urllib_urlencode_doseq.py
+
+Singola : foo=%5B%27foo1%27%2C+%27foo2%27%5D
+Sequenza: foo=foo1&foo=foo2
+</py_output>
+<testo_normale>
+Per decodificare la stringa di query, impostare la classe <code>FieldStorage</code> dal modulo <a href='https://docs.python.org/2.7/library/cgi.html?highlight=cgi#cgi'>cgi</a>.
+</testo_normale>
+<testo_normale>
+Caratteri speciali all'interno degli argomenti di query che potrebbero causare problemi di elaborazione sono racchiusi tra virgolette quando passati ad <code>urlencode</code>. Per fare questo localmente per ottenere versioni sicure delle stringhe, si possono usare direttamente le funzioni <code>quote()</code> oppure <code>quote_plus()</code>.
+</testo_normale>
+<py_code>
+import urllib
+
+url = 'http://localhost:8080/~dhellmann/'
+print 'urlencode() :', urllib.urlencode({'url':url})
+print 'quote()     :', urllib.quote(url)
+print 'quote_plus():', urllib.quote_plus(url)
+</py_code>
+<testo_normale>
+Si noti che <code>quote_plus()</code> è più aggressivo rispetto ai caratteri che sostituisce.
+</testo_normale>
+<py_output>
+$ python urllib_quote.py
+
+urlencode() : url=http%3A%2F%2Flocalhost%3A8080%2F%7Edhellmann%2F
+quote()     : http%3A//localhost%3A8080/%7Edhellmann/
+quote_plus(): http%3A%2F%2Flocalhost%3A8080%2F%7Edhellmann%2F
+</py_output>
+<testo_normale>
+Per invertire l'operazione di inserimento virgolette si usa <code>quote()</code> oppure <code>unquote_plus()</code> a seconda delle esigenze.
+</testo_normale>
+<py_code>
+import urllib
+
+print urllib.unquote('http%3A//localhost%3A8080/%7Edhellmann/')
+print urllib.unquote_plus('http%3A%2F%2Flocalhost%3A8080%2F%7Edhellmann%2F')
+</py_code>
+<py_output>
+$ python urllib_unquote.py
+
+http://localhost:8080/~dhellmann/
+http://localhost:8080/~dhellmann/
+</py_output>
+<titolo_2>
+HTTP POST
+</titolo_2>
+<note>
+Il server di test per questi esempi è BaseHTTPServer_POST.py, dagli esempi per <a href='basehttpserver.html'>BaseHTTPServer</a>. Lanciare il server in una finestra di terminale, quindi eseguire questi esempi in un'altra.
+</note>
+<testo_normale>
+Se si usa POST per inviare dati al server remoto, invece che usare GET, si passano gli argomenti codificati della query come dati ad <code>urlopen()</code> invece di accodarli all'URL.
+</testo_normale>
+<py_code>
+import urllib
+
+query_args = { 'q':'query string', 'foo':'bar' }
+encoded_args = urllib.urlencode(query_args)
+url = 'http://localhost:8080/'
+print urllib.urlopen(url, encoded_args).read()
+</py_code>
+<py_output>
+$ python urllib_urlopen_post.py
+
+Client: ('127.0.0.1', 41520)
+User-agent: Python-urllib/1.17
+Path: /
+Dati form:
+    q=stringa di richiesta
+    foo=bar
+</py_output>
+<testo_normale>
+Si può inviare qualsiasi stringa di byte come dato, nel caso in cui il server si aspetti qualcosa di diverso da argomenti di form codificati nei dati inviati.
+</testo_normale>
+<titolo_2>
+Percorsi contro URL
+</titolo_2>
+<testo_normale>
+Alcuni sistemi operativi usano valori diversi dagli URL per separare i componenti dei percorsi  per i file locali. Per rendere il proprio codice portabile, si dovrebbero usare le funzioni <code>pathname2url()</code> e <code>url2pathname()</code> per convertire nei due sensi. Visto che sto lavorando (Doug Hellman - n.d.t.) su di un Mac, devo importare esplicitamente le versioni Windows delle funzioni. Usando le versioni delle funzioni esportate da <strong>urllib</strong> si ottengono i valori predefiniti corretti per la propria piattaforma, quindi questo non è necessario
+</testo_normale>
+<py_code>
+import os
+
+from urllib import pathname2url, url2pathname
+
+print '== Predefinito =='
+path = '/a/b/c'
+print 'Originale:', path
+print 'URL      :', pathname2url(path)
+print 'Percorso :', url2pathname('/d/e/f')
+print
+
+from nturl2path import pathname2url, url2pathname
+
+print '== Windows, senza lettere di drive =='
+path = path.replace('/', '\\')
+print 'Originale:', path
+print 'URL      :', pathname2url(path)
+print 'Percorso :', url2pathname('/d/e/f')
+print
+
+print '== Windows, con lettere di drive =='
+path = 'C:\\' + path.replace('/', '\\')
+print 'Originale:', path
+print 'URL      :', pathname2url(path)
+print 'Percorso :', url2pathname('/d/e/f')
+</py_code>
+<testo_normale>
+Ci sono due esempi per Windows, con o senza l'identificativo del drive all'inizio del percorso
+</testo_normale>
+<py_output>
+$ python urllib_pathnames.py
+
+== Predefinito ==
+Originale: /a/b/c
+URL      : /a/b/c
+Percorso : /d/e/f
+
+== Windows, senza lettere di drive ==
+Originale: \a\b\c
+URL      : /a/b/c
+Percorso : \d\e\f
+
+== Windows, con lettere di drive ==
+Originale: C:\\a\b\c
+URL      : ///C:/a/b/c
+Percorso : \d\e\f
+</py_output>
+<titolo_2>
+Semplice Recupero con Cache
+</titolo_2>
+<testo_normale>
+Recuperare dati è una operazione comune, ed <strong>urllib</strong> comprende la funzione <code>urlretrieve()</code> in modo che non serve scriversene una. <code>urlretrieve()</code> ottiene argomenti che rappresentano l'URL, un file temporaneo per contenere i dati, una funzione per registrare la progressione dello scaricamento e dati da passare se l'URL fa riferimento ad un form dove i dati devono essere inviati in formato di POST. Se non viene passato alcun nome di file, <code>urlretrieve()</code> crea un file temporaneo. Esso può essere rimosso dal programmatore oppure si può trattare il file come se fosse cache ed usare <code>urlcleanup()</code> per eliminarlo.
+</testo_normale>
+<testo_normale>
+L'esempio seguente utilizza GET per recuperare qualche dato da un server web:
+</testo_normale>
+<py_code>
+import os
+
+import urllib
+import os
+
+def reporthook(blocks_read, block_size, total_size):
+    if not blocks_read:
+        print 'Connessione aperta'
+        return
+    if total_size < 0:
+        # Dimensione sconosciuta
+        print 'Letti %d blocchi' % blocks_read
+    else:
+        amount_read = blocks_read * block_size
+        print 'Letti %d blocchi, oppure %d/%d' % (blocks_read, amount_read, total_size)
+    return
+
+try:
+    filename, msg = urllib.urlretrieve('http://blog.doughellmann.com/', reporthook=reporthook)
+    print
+    print 'File:', filename
+    print 'Headers:'
+    print msg
+    print 'Il file esiste prima della pulizia:', os.path.exists(filename)
+
+finally:
+    urllib.urlcleanup()
+
+    print 'Il file esiste ancora:', os.path.exists(filename)
+</py_code>
+<testo_normale>
+Visto che il server non ritorna un header <code>Content-length</code>, <code>urlretrieve()</code> non conosce la dimensione dei dati e passa -1 come argomento del parametro <em>total_size</em> a <code>reporthook()</code>.
+</testo_normale>
+<py_output>
+$ python urllib_urlretrieve.py
+
+Connessione aperta
+Letti 1 blocchi, oppure 8192/30877
+Letti 2 blocchi, oppure 16384/30877
+Letti 3 blocchi, oppure 24576/30877
+Letti 4 blocchi, oppure 32768/30877
+
+File: /tmp/tmp_CVth3
+Headers:
+Date: Sat, 05 Jul 2014 09:54:24 GMT
+Server: Apache
+Last-Modified: Mon, 23 Jun 2014 19:20:01 GMT
+ETag: "789d-4fc85bac27a40"
+Accept-Ranges: bytes
+Content-Length: 30877
+Vary: Accept-Encoding
+Connection: close
+Content-Type: text/html
+X-Pad: avoid browser bug
+
+Il file esiste prima della pulizia: True
+Il file esiste ancora: False
+</py_output>
+<titolo_2>
+URLopener
+</titolo_2>
+<testo_normale>
+<strong>urllib</strong> fornisce una classe base <code>URLopener</code> e <code>FancyURLopener</code> per la gestione predefinita dei protocolli supportati. Se si desidera modificare questo comportamento, è meglio utilizzare il modulo <a href='urllib2.html'>urllib2</a> incluso nella verione Python 2.1.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/urllib.html|urllib|La documentazione della libreria standard per questo modulo
+urllib2.html|urllib2|API aggiornate per lavorare con servizi basati sugli URL
+urlparse.html|urlparse|Lavora con la stringa dell'URL
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,18 @@
+#enum_create.py
+
+import enum
+
+
+class BugStatus(enum.Enum):
+
+    new = 7
+    incomplete = 6
+    invalid = 5
+    wont_fix = 4
+    in_progress = 3
+    fix_committed = 2
+    fix_released = 1
+
+
+print('\nNome membro: {}'.format(BugStatus.wont_fix.name))
+print('Nome membro: {}'.format(BugStatus.wont_fix.value))

@@ -1,0 +1,492 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione dati ed archiviazione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+zipfile - Leggere e scrivere file di archivio ZIP
+</titolo_1>
+<descrizione>
+Leggere e scrivere file di archivio ZIP.
+1.6 e successive
+</descrizione>
+<testo_normale>
+Il modulo <strong>zipfile</strong> può essere usato per manipolare file di archivio ZIP.
+</testo_normale>
+<titolo_2>
+Limitazioni
+</titolo_2>
+<testo_normale>
+Il modulo zipfile non supporta i file ZIP con commenti aggiunti, oppure file ZIP su dischi multipli. Supporta i file ZIP superiori a 4 GB che usano le estensioni ZIP64.
+</testo_normale>
+<titolo_2>
+Verificare i File ZIP    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}is_zipfile()${ebk} restituisce un valore booleano che indica se il nome del file passato come parametro faccia riferimento o meno ad un file ZIP valido.  
+</testo_normale>
+<py_code>
+import zipfile
+
+for filename in [ 'LEGGIMI.txt', 'esempio.zip', 
+                  'cattivo_esempio.zip', 'nonqui.zip' ]:
+    print '%20s  %s' % (filename, zipfile.is_zipfile(filename))
+</py_code>
+<testo_normale>
+Si noti che se il file non esiste, is_zipfile() restituisce <em>False</em>.
+</testo_normale>
+<py_output>
+$ python zipfile_is_zipfile.py 
+         LEGGIMI.txt  False
+         esempio.zip  True
+ cattivo_esempio.zip  False
+          nonqui.zip  False
+</py_output>
+<titolo_2>
+Leggere Meta-dati da un Archivio ZIP
+</titolo_2>
+<testo_normale>
+Per lavorare direttamente con un archivio ZIP si usa la classe <strong>ZipFile</strong>. Essa supporta metodi per leggere dati su archivi esistenti così come per la modifica di archivi aggiungendo ulteriori file.
+</testo_normale>
+<testo_normale>
+Per leggere i nomi dei file in un archivio esistente si usa ${sbk}namelist()${ebk}.
+</testo_normale>
+<py_code>
+import zipfile
+
+zf = zipfile.ZipFile('esempio.zip', 'r')
+print zf.namelist()
+</py_code>
+<testo_normale>
+Il valore di ritorno è una lista di stringhe con i nomi del contenuto dell'archivio.
+</testo_normale>
+<py_output>
+$ python zipfile_namelist.py 
+['LEGGIMI.txt']
+</py_output>
+<testo_normale>
+L'elenco dei nomi è solo parte delle informazioni disponibili dall'archivio. Per accedere a tutti i meta-dati riguardo al contenuto di uno ZIP is usano i metodi ${sbk}infolist()${ebk} o ${sbk}getinfo()${ebk}.
+</testo_normale>
+<py_code>
+import datetime
+import zipfile
+
+def print_info(archive_name):
+    zf = zipfile.ZipFile(archive_name)
+    for info in zf.infolist():
+        print info.filename
+        print '\tCommento:\t', info.comment
+        print '\tModificato:\t', datetime.datetime(*info.date_time)
+        print '\tSistema:\t', info.create_system, '(0 = Windows, 3 = Unix)'
+        print '\tversione ZIP:\t', info.create_version
+        print '\tCompressi:\t', info.compress_size, 'byte'
+        print '\tNon compressi:\t', info.file_size, 'byte'
+        print
+
+if __name__ == '__main__':
+    print_info('esempio.zip')
+</py_code>
+<testo_normale>
+Ci sono campi addizionali oltre a quelli stampati qui sotto, ma il decifrare i valori in qualche cosa che sia utile richiede una attenta lettura delle Note Applicative PKZIP con le specifiche del file ZIP.    
+</testo_normale>
+<py_output>
+$ python zipfile_infolist.py 
+LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	30
+	Compressi:	67 byte
+	Non compressi:	77 byte
+</py_output>
+<testo_normale>
+Se si conosce in anticipo il nome del membro dell'archivio si può ottenere il suo oggetto Zipinfo con getinfo().    
+</testo_normale>
+<py_code>
+import zipfile
+
+zf = zipfile.ZipFile('esempio.zip')
+for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
+    try:
+        info = zf.getinfo(filename)
+    except KeyError:
+        print 'ERRORE: Non trovato %s nel file zip' % filename
+    else:
+        print '%s è di %d byte' % (info.filename, info.file_size)
+</py_code>
+<testo_normale>
+Se il membro dell'archivio non è presente, getinfo() solleva un KeyError.    
+</testo_normale>
+<py_output>
+$ python zipfile_getinfo.py
+LEGGIMI.txt è di 77 byte
+ERRORE: Non trovato nonqui.txt nel file zip
+</py_output>
+<titolo_2>
+Estrarre File Archiviati da un Archivio ZIP
+</titolo_2>
+<testo_normale>
+Per accedere ai dati da un membro di un archivio, si usa il metodo ${sbk}read()${ebk}, passandogli il nome del membro.
+</testo_normale>
+<py_code>
+import zipfile
+
+zf = zipfile.ZipFile('esempio.zip')
+for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
+    try:
+        data = zf.read(filename)
+    except KeyError:
+        print 'ERRORE: Non trovato %s nel file zip' % filename
+    else:
+        print filename, ':'
+        print repr(data)
+    print
+</py_code>
+<testo_normale>
+Se necessario, i dati vengono automaticamente decompressi.    
+</testo_normale>
+<py_output>
+$ python zipfile_read.py 
+LEGGIMI.txt :
+'Gli esempi per il modulo tarfile usano questo file ed esempio.zip come dati.\n'
+
+ERRORE: Non trovato nonqui.txt nel file zip
+</py_output>
+<titolo_2>
+Creare Nuovi Archivi    
+</titolo_2>
+<testo_normale>
+Per creare un nuovo archivio, si istanzia semplicemente ZipFile in modalità ${sbk}'w'${ebk}. Un qualsiasi file esistente viene troncato e viene creato un nuovo archivio. Per aggiungere dei file si usa il metodo ${sbk}write()${ebk}.
+</testo_normale>
+<py_code>
+from zipfile_infolist import print_info
+import zipfile
+
+print 'creazione archivio'
+zf = zipfile.ZipFile('zipfile_write.zip', mode='w')
+try:
+    print 'aggiungo LEGGIMI.txt'
+    zf.write('LEGGIMI.txt')
+finally:
+    print 'chiusura'
+    zf.close()
+
+print
+print_info('zipfile_write.zip')
+</py_code>
+<testo_normale>
+Nella modalità predefinita, il contenuto dell'archivio non viene compresso.
+</testo_normale>
+<py_output>
+$ python zipfile_write.py 
+creazione archivio
+aggiungo LEGGIMI.txt
+chiusura
+
+LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compressi:	77 byte
+	Non compressi:	77 byte
+</py_output>
+<testo_normale>
+Per aggiungere la compressione, è richiesto il modulo <strong>zlib</strong>. Se zlib è disponibile, si può impostare la modalità di compressione per singolo file o per l'intero archivio usando <em>zipfile.ZIP_DEFLATED</em>. La modalità di compressione predefinita è <em>zipfile.ZIP_STORED</em>
+</testo_normale>
+<py_code>
+from zipfile_infolist import print_info
+import zipfile
+try:
+    import zlib
+    compression = zipfile.ZIP_DEFLATED
+except:
+    compression = zipfile.ZIP_STORED
+
+modes = { zipfile.ZIP_DEFLATED: 'compresso',
+          zipfile.ZIP_STORED:   'archiviato',
+          }
+
+print 'creazione archivio'
+zf = zipfile.ZipFile('zipfile_write_compression.zip', mode='w')
+try:
+    print 'aggiunta di LEGGIMI.txt con modalità di compressione', modes[compression]
+    zf.write('LEGGIMI.txt', compress_type=compression)
+finally:
+    print 'chiusura'
+    zf.close()
+
+print
+print_info('zipfile_write_compression.zip')
+</py_code>
+<testo_normale>
+Questa volta l'archivio viene compresso    
+</testo_normale>
+<py_output>
+$ python zipfile_write_compression.py 
+creazione archivio
+aggiunta di LEGGIMI.txt con modalità di compressione compresso
+chiusura
+
+LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compressi:	67 byte
+	Non compressi:	77 byte
+</py_output>
+<titolo_2>
+Usare Nomi Alternativi per i Membri di un Archivio
+</titolo_2>
+<testo_normale>
+E' facile aggiungere un file ad un archivio usando un nome diverso da quello del file originale, passando il parametro <em>arcname</em> a ${sbk}write()${ebk}.
+</testo_normale>
+<py_code>
+from zipfile_infolist import print_info
+import zipfile
+
+zf = zipfile.ZipFile('zipfile_write_arcname.zip', mode='w')
+try:
+    zf.write('LEGGIMI.txt', arcname='NON_LEGGIMI.txt')
+finally:
+    zf.close()
+print_info('zipfile_write_arcname.zip')
+</py_code>
+<testo_normale>
+Non c'è traccia del nome originale del file nell'archivio.
+</testo_normale>
+<py_output>
+$ python zipfile_write_arcname.py 
+NON_LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compresso:	77 byte
+	Non compressi:	77 byte
+</py_output>
+<titolo_2>
+Scrivere Dati da Sorgenti Diverse Dai File    
+</titolo_2>
+<testo_normale>
+Talvolta è necessario scrivere in un archivio ZIP, usando dati che non sono provenienti da un file esistente. Invece che scrivere i dati in un file, quindi aggiungere quel file all'archivio ZIP, si può usare il metodo ${sbk}writestr()${ebk} per aggiungere una stringa di byte ad un archivio direttamente.
+</testo_normale>
+<py_code>
+from zipfile_infolist import print_info
+import zipfile
+
+msg = 'Questi dati non esistevano in un file prima di essere aggiunti al file ZIP'
+zf = zipfile.ZipFile('zipfile_writestr.zip', 
+                     mode='w',
+                     compression=zipfile.ZIP_DEFLATED, 
+                     )
+try:
+    zf.writestr('da_una_stringa.txt', msg)
+finally:
+    zf.close()
+
+print_info('zipfile_writestr.zip')
+
+zf = zipfile.ZipFile('zipfile_writestr.zip', 'r')
+print zf.read('da_una_stringa.txt')
+</py_code>
+<testo_normale>
+In questo caso si è usato il parametro <em>compression</em> di ZipFIle per comprimere i dati, visto che writestr() non usa <em>compression</em> come parametro.
+</testo_normale>
+<py_output>
+$ python zipfile_writestr.py 
+da_una_stringa.txt
+	Commento:	
+	Modificato:	2010-03-26 20:07:32
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compresso:	65 byte
+	Non compressi:	74 byte
+</py_output>
+<testo_normale>
+Questi dati non esistevano in un file prima di essere aggiunti al file ZIP.
+</testo_normale>
+<titolo_2>
+Scrivere con una Istanza di ZipInfo    
+</titolo_2>
+<testo_normale>
+Nella modalità predefinita, la data di modifica viene calcolata quendo si aggiunge un file od una stringa all'archivio. Quando si usa writestr(), è anche possibile passare una istanza di ZipFile per definirla, assieme ad altri meta-dati, attraverso il proprio codice.    
+</testo_normale>
+<py_code>
+import time
+import zipfile
+from zipfile_infolist import print_info
+
+msg = 'Questi dati non esistevano in un file prima di essere aggiunti al file ZIP'
+zf = zipfile.ZipFile('zipfile_writestr_zipinfo.zip', 
+                     mode='w',
+                     )
+try:
+    info = zipfile.ZipInfo('da_una_stringa.txt', 
+                           date_time=time.localtime(time.time()),
+                           )
+    info.compress_type=zipfile.ZIP_DEFLATED
+    info.comment='I commenti vanno qui'
+    info.create_system=0
+    zf.writestr(info, msg)
+finally:
+    zf.close()
+
+print_info('zipfile_writestr_zipinfo.zip')
+</py_code>
+<testo_normale>
+In questo esempio, l'ora di modifica è stata impostata all'ora corrente, i dati sono stati compressi, è stato passato un valore <em>False</em> per <em>create_system</em> ed è stato aggiunto un commento.
+</testo_normale>
+<py_output>
+$ python zipfile_writestr_zipinfo.py 
+da_una_stringa.txt
+	Commento:	I commenti vanno qui
+	Modificato:	2010-04-03 10:01:36
+	Sistema:	0 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compressi:	65 byte
+	Non compressi:	74 byte
+</py_output>
+<titolo_2>
+Accodare ai File    
+</titolo_2>
+<testo_normale>
+Oltre alla creazione di nuovi archivi, è possibile accodare ad un archivio esistente, oppure aggiungere un archivio alla fine di un file esistente (come ad esempio un file .exe per un archivio auto-estraente). Per aprire un file in accodamento si usa la modalità ${sbk}'a'${ebk}
+</testo_normale>
+<py_code>
+from zipfile_infolist import print_info
+import zipfile
+
+print 'creazione archivio'
+zf = zipfile.ZipFile('zipfile_append.zip', mode='w')
+try:
+    zf.write('LEGGIMI.txt')
+finally:
+    zf.close()
+
+print
+print_info('zipfile_append.zip')
+
+print "accoda all'archivio"
+zf = zipfile.ZipFile('zipfile_append.zip', mode='a')
+try:
+    zf.write('LEGGIMI.txt', arcname='LEGGIMI2.txt')
+finally:
+    zf.close()
+
+print
+print_info('zipfile_append.zip')
+</py_code>
+<testo_normale>
+L'archivio che ne deriva conterrà due membri.    
+</testo_normale>
+<py_output>
+$ python zipfile_append.py 
+creazione archivio
+
+LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+            Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compresso:	77 byte
+	Non compressi:	77 byte
+
+accoda all'archivio
+
+LEGGIMI.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compresso:	77 byte
+	Non compressi:	77 byte
+
+LEGGIMI2.txt
+	Commento:	
+	Modificato:	2010-03-16 21:15:58
+	Sistema:	3 (0 = Windows, 3 = Unix)
+	versione ZIP:	20
+	Compresso:	77 byte
+	Non compressi:	77 byte
+</py_output>
+<titolo_2>
+Archivi ZIP Python
+</titolo_2>
+<testo_normale>
+Dalla versione 2.3 Python ha la capacità di importare moduli contenuti in archivi ZIP, se detti archivi sono compresi in <em>sys.path</em>. La classe <strong>PyZipFile</strong> può essere usata per costruire un modulo che può essere usato in questo modo. Quando si usa il metodo supplementare ${sbk}writepy()${ebk}, PyZipFile cerca i file .py  in una directory ed aggiunge il corrispondente file .pyo o .pyc all'archivio. Se non esiste alcuno dei due file compilati un file pyc viene creato ed aggiunto.
+</testo_normale>
+<py_code>
+import sys
+import zipfile
+
+if __name__ == '__main__':
+    zf = zipfile.PyZipFile('zipfile_pyzipfile.zip', mode='w')
+    try:
+        zf.debug = 3
+        print 'Aggiunge file python'
+        zf.writepy('.')
+    finally:
+        zf.close()
+    for name in zf.namelist():
+        print name
+
+    print
+    sys.path.insert(0, 'zipfile_pyzipfile.zip')
+    import zipfile_pyzipfile
+    print 'Importato da:', zipfile_pyzipfile.__file__
+</py_code>
+<testo_normale>
+Quando viene impostato l'attributo di debug di PyZipFile a 3, viene abilitato un debugging dettagliato, in modo da osservare come PyZipFile compili ogni file .py che trova.
+</testo_normale>
+<py_output>
+$ python zipfile_pyzipfile.py Aggiunge file python
+Adding files from directory .
+Compiling ./zipfile_write_arcname.py
+Adding zipfile_write_arcname.pyc
+Compiling ./zipfile_getinfo.py
+Adding zipfile_getinfo.pyc
+Compiling ./zipfile_read.py
+Adding zipfile_read.pyc
+Compiling ./zipfile_write_compression.py
+Adding zipfile_write_compression.pyc
+Compiling ./zipfile_infolist.py
+Adding zipfile_infolist.pyc
+Compiling ./zipfile_pyzipfile.py
+Adding zipfile_pyzipfile.pyc
+Compiling ./zipfile_append.py
+Adding zipfile_append.pyc
+Compiling ./zipfile_write.py
+Adding zipfile_write.pyc
+Compiling ./zipfile_namelist.py
+Adding zipfile_namelist.pyc
+Compiling ./zipfile_writestr.py
+Adding zipfile_writestr.pyc
+Compiling ./zipfile_is_zipfile.py
+Adding zipfile_is_zipfile.pyc
+zipfile_write_arcname.pyc
+zipfile_getinfo.pyc
+zipfile_read.pyc
+zipfile_write_compression.pyc
+zipfile_infolist.pyc
+zipfile_pyzipfile.pyc
+zipfile_append.pyc
+zipfile_write.pyc
+zipfile_namelist.pyc
+zipfile_writestr.pyc
+zipfile_is_zipfile.pyc
+
+Importato da: zipfile_pyzipfile.zip/zipfile_pyzipfile.pyc
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/zipfile.html|zipfile|La documentazione della libreria standard per questo modulo.
+zlib.html|zlib|La libreria di compressione ZIP.
+tarfile.html|tarfile|Legge e scrive archivi tar
+</vedi_anche>
+</documento_tradotto>

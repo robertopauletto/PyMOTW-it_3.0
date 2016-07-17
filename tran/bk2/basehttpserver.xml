@@ -1,0 +1,299 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>protocolli internet e supporto </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+BaseHTTPServer - classi base per l'implementazione di server web
+</titolo_1>
+<descrizione>
+BaseHTTPServer include le classi che possono formare le basi per un server web.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>BaseHTTPServer</strong> usa classi da <a href='socketserver.html'>SocketServer</a> per creare le classi base per costruire dei server HTTP. <strong>HTTPServer</strong> pu&ograve; essere usato direttamente, mentre <strong>BaseHTTPRequestHandler</strong> &egrave; concepito per essere esteso per la gestione di ciascun metodo di protocollo (GET, POST, ecc.).
+</testo_normale>
+<titolo_2>
+HTTP GET
+</titolo_2>
+<testo_normale>
+Per aggiungere supporto ad un metodo HTTP nella propria classe per la gestione della richiesta, si implementa il metodo ${sbk}do_METHOD()${ebk}, rimpiazzando <i>METHOD</i> con il nome del metodo HTTP. Ad esempio ${sbk}do_GET()${ebk}, ${sbk}do_POST()${ebk}, ecc. Per consistenza, il metodo non riceve parametri. Tutti i parametri per le richieste sono analizzati da <strong>BaseHTTPRequestHandler</strong> e conservati come attributi di istanza dell'istanza di richiesta.
+</testo_normale>
+<testo_normale>
+Questo esempio di gestore di richiesta illustra come restituire una risposta al client ed alcuni degli attributi locali che possono essere utili nella costruzione della risposta:
+</testo_normale>
+<py_code>
+from BaseHTTPServer import BaseHTTPRequestHandler
+import urlparse
+
+class GetHandler(BaseHTTPRequestHandler):
+    
+    def do_GET(self):
+        parsed_path = urlparse.urlparse(self.path)
+        message_parts = [
+                'VALORI DEL CLIENT:',
+                'client_address=%s (%s)' % (self.client_address,
+                                            self.address_string()),
+                'command=%s' % self.command,
+                'path=%s' % self.path,
+                'real path=%s' % parsed_path.path,
+                'query=%s' % parsed_path.query,
+                'request_version=%s' % self.request_version,
+                '',
+                'VALORI DEL SERVER:',
+                'server_version=%s' % self.server_version,
+                'sys_version=%s' % self.sys_version,
+                'protocol_version=%s' % self.protocol_version,
+                '',                '',
+                'INTESTAZIONI RICEVUTE:',
+                ]
+        for name, value in sorted(self.headers.items()):
+            message_parts.append('%s=%s' % (name, value.rstrip()))
+        message_parts.append('')
+        message = '\r\n'.join(message_parts)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(message)
+        return
+
+if __name__ == '__main__':
+    from BaseHTTPServer import HTTPServer
+    server = HTTPServer(('localhost', 8080), GetHandler)
+    print 'Server in esecuzione, usare <Ctrl-C> per interrompere'
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Il testo del messaggio viene assemblato e scritto in ${sev}wfile${eev}, l'<i>handle</i> del file che incapsula la risposta del socket. Ogni risposta necessita di un codice di risposta, impostato tramite ${sbk}send_response()${ebk}. Se viene usato un codice di errore (404, 501 ecc.), nell'intestazione viene incluso l'appropriato messaggio di errore predefinito. oppure pu&ograve; essere passato un messaggio con il codice di errore.
+</testo_normale>
+<testo_normale>
+Per eseguire il gestore di richiesta in un server, lo si passa al costruttore di HTTPServer, come si vede nella porzione ${sev}__main__${eev} dello script di esempio.
+</testo_normale>
+<testo_normale>
+Quindi si fa partire il server:
+</testo_normale>
+<py_output>
+$ python BaseHTTPServer_GET.py 
+Server in esecuzione, usare <Ctrl-C> per interrompere
+</py_output>
+<testo_normale>
+In un terminale separato si usa <strong>curl</strong> per accedervi:
+</testo_normale>
+<py_output>
+$ curl -i http://localhost:8080/?foo=barHTTP/1.0 
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.3 Python/2.6.6
+Date: Tue, 07 Dec 2010 20:52:01 GMT
+
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 37029) (localhost.localdomain)
+command=GET
+path=/?foo=barHTTP/1.0
+real path=/
+query=foo=barHTTP/1.0
+request_version=HTTP/1.1
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.6.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+accept=*/*
+host=localhost:8080
+user-agent=curl/7.21.0 (i686-pc-linux-gnu) libcurl/7.21.0 OpenSSL/0.9.8o zlib/1.2.3.4 libidn/1.18
+</py_output>
+<titolo_2>
+HTTP POST
+</titolo_2>
+<testo_normale>
+Il supporto per POST richiede un poco pi&ugrave; di lavoro visto che la classe base non analizza i dati form. Il modulo <strong>cgi</strong> fornisce la classe <strong>FieldStorage</strong> che sa come analizzare il form, se viene fornita del corretto input.
+</testo_normale>
+<py_code>
+from BaseHTTPServer import BaseHTTPRequestHandler
+import cgi
+
+class PostHandler(BaseHTTPRequestHandler):
+    
+    def do_POST(self):
+        # Elabora i dati ricevuti nel form
+        form = cgi.FieldStorage(
+            fp=self.rfile, 
+            headers=self.headers,
+            environ={'REQUEST_METHOD':'POST',
+                     'CONTENT_TYPE':self.headers['Content-Type'],
+                     })
+
+        # Begin the response
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write('Client: %s\n' % str(self.client_address))
+        self.wfile.write('User-agent: %s\n' % str(self.headers['user-agent']))
+        self.wfile.write('Path: %s\n' % self.path)
+        self.wfile.write('Dati form:\n')
+
+        # Rimanda le informazioni su ci&ograve; che era stato passato nel form
+        for field in form.keys():
+            field_item = form[field]
+            if field_item.filename:
+                # Il campo contiene un file che &egrave; stato inviato
+                file_data = field_item.file.read()
+                file_len = len(file_data)
+                del file_data
+                self.wfile.write('\tInviato %s as "%s" (%d bytes)\n' % \
+                        (field, field_item.filename, file_len))
+            else:
+                # Valori normali nel form
+                self.wfile.write('\t%s=%s\n' % (field, form[field].value))
+        return
+
+if __name__ == '__main__':
+    from BaseHTTPServer import HTTPServer
+    server = HTTPServer(('localhost', 8080), PostHandler)
+    print 'Server in esecuzione, usare <Ctrl-C> per interrompere'
+    server.serve_forever()
+</py_code>
+<testo_normale>
+<strong>curl</strong> pu&ograve; includere i dati form nel messaggio che invia al server. L'ultimo parametro, ${sev}-F datafile@BaseHTTPServer_POST.py${eev} invia il contenuto del file ${sev}BaseHTTPServer_POST.py${eev} per illustrare la lettura dei dati del file dal form.
+</testo_normale>
+<py_output>
+$ curl http://localhost:8080/ -F name=robbpy -F foo=bar -F  datafile=@BaseHTTPServer_POST.py
+Client: ('127.0.0.1', 50904)
+User-agent: curl/7.21.0 (i686-pc-linux-gnu) libcurl/7.21.0 OpenSSL/0.9.8o zlib/1.2.3.4 libidn/1.18
+Path: /
+Dati form:
+	Inviato datafile as "BaseHTTPServer_POST.py" (1667 bytes)
+	foo=bar
+	name=robbpy
+</py_output>
+<titolo_2>
+Threading e Forking
+</titolo_2>
+<testo_normale>
+<strong>HTTPServer</strong> &egrave; una semplice classe derivata da <strong>SocketServer.TCPServer</strong>, e non usa thread o processi per gestire le richieste. Per aggiungere il threading od il forking, si crea una nuova classe che utilizza l'appropriato mix-in da <a href='socketserver.html'>SocketServer</a>.
+</testo_normale>
+<py_code>
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from SocketServer import ThreadingMixIn
+import threading
+
+class Handler(BaseHTTPRequestHandler):
+    
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        message =  threading.currentThread().getName()
+        self.wfile.write(message)
+        self.wfile.write('\n')
+        return
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Gestisce le richieste in un thread separato."""
+
+if __name__ == '__main__':
+    server = ThreadedHTTPServer(('localhost', 8080), Handler)
+    print 'Server in esecuzione, usare <Ctrl-C> per interrompere'
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Ogni volta che perviene una richiesta, viene creato un nuovo thread o processo per gestirla.
+</testo_normale>
+<py_output>
+$ curl http://localhost:8080/
+Thread-1
+$ curl http://localhost:8080/
+Thread-2
+$ curl http://localhost:8080/
+Thread-3
+</py_output>
+<titolo_2>
+Gestione Errori
+</titolo_2>
+<testo_normale>
+La gestione degli errori &egrave; facilitata da ${sbk}send_error()${ebk}. Basta passare l'appropriato codice di errore ed un messaggio di errore (opzionale), e l'intera risposta (compresi intestazioni, codici di stato e corpo) viene generata automaticamente.
+</testo_normale>
+<py_code>
+from BaseHTTPServer import BaseHTTPRequestHandler
+
+class ErrorHandler(BaseHTTPRequestHandler):
+    
+    def do_GET(self):
+        self.send_error(404)
+        return
+
+if __name__ == '__main__':
+    from BaseHTTPServer import HTTPServer
+    server = HTTPServer(('localhost', 8080), ErrorHandler)
+    print 'Server in esecuzione, usare <Ctrl-C> per interrompere'
+    server.serve_forever()
+</py_code>
+<testo_normale>
+In questo caso viene sempre ritornato un errore 404.
+</testo_normale>
+<py_output>
+$ curl -i http://localhost:8080/
+HTTP/1.0 404 Not Found
+Server: BaseHTTP/0.3 Python/2.6.6
+Date: Tue, 07 Dec 2010 20:12:42 GMT
+Content-Type: text/html
+Connection: close
+
+&lt;head&gt;
+&lt;title>Error response&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Error response&lt;/h1&gt;
+&lt;p&gt;Error code 404.
+&lt;p&gt;Message: Not Found.
+&lt;p>Error code explanation: 404 = Nothing matches the given URI.&lt;/p&gt;
+&lt;/body&gt;
+</py_output>
+<titolo_2>
+Impostazione delle Intestazioni
+</titolo_2>
+<testo_normale>
+Il metodo ${sbk}send_header()${ebk} aggiunge dati di intestazione alla risposta HTTP. Riceve due parametri, il nome dell'intestazione ed il valore.
+</testo_normale>
+<py_code>
+from BaseHTTPServer import BaseHTTPRequestHandler
+import urlparse
+import time
+
+class GetHandler(BaseHTTPRequestHandler):
+    
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Last-Modified', self.date_time_string(time.time()))
+        self.end_headers()
+        self.wfile.write('Corpo della risposta\n')
+        return
+
+if __name__ == '__main__':
+    from BaseHTTPServer import HTTPServer
+    server = HTTPServer(('localhost', 8080), GetHandler)
+    print 'Server in esecuzione, usare <Ctrl-C> per interrompere'
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Questo esempio imposta l'intestazione ${sev}Last-modified${eev} alla data/ora corrente formattata secondo le specifiche <a href='http://tools.ietf.org/html/rfc2822.html'>RFC 2822</a>.
+</testo_normale>
+<py_output>
+$ curl -i http://localhost:8080/
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.3 Python/2.6.6
+Date: Tue, 07 Dec 2010 20:19:32 GMT
+Last-Modified: Tue, 07 Dec 2010 20:19:32 GMT
+
+Corpo della risposta
+</py_output>
+
+<vedi_anche>
+http://docs.python.org/library/basehttpserver.html|BaseHTTPServer|La documentazione della libreria standard per questo 
+${baseurl}/pymotw-it/socketserver.html|SocketServer|Il modulo SocketServer fornisce la classe base che gestisce le connessioni raw socket.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti di sviluppo </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+unittest - Ambiente per l'automazione dei test
+</titolo_1>
+<descrizione>
+Ambiente per l'automazione dei test
+2.1
+</descrizione>
+<testo_normale>
+Il modulo <strong>unittest</strong>, a cui talvolta ci si riferisce come PyUnit, è basato sul progetto dell'ambiente XUnit, di  Kent Beck ed Erich Gamma. Lo stesso modello viene ripetuto in molti altri linguaggi, incluso C, perl, Java e Smalltalk. L'ambiente  implementato da <strong>unittest</strong> supporta <i>fixtures</i> (impianti di test), <i>test suites</i> (raccolte di test) ed un <i>test runner</i> (esecutore di test) per consentire l'automazione del test per il proprio codice. 
+</testo_normale>
+<titolo_2>
+Struttura di Test Base    
+</titolo_2>
+<testo_normale>
+I test, così come definiti da <strong>unittest</strong>, sono composti da due parti: il codice per gestire "l'impianto" di test, ed il test stesso. Test individuali sono creati subclassando ${sbk}TestCase${ebk} e riscrivendo od aggiungendo i metodi appropriati. Ad esempio:    
+</testo_normale>
+<py_code>
+import unittest
+
+class SimplisticTest(unittest.TestCase):
+
+    def test(self):
+        self.failUnless(True)
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+In questo caso, SimplisticTest ha un singolo metodo ${sbk}test()${ebk}, che fallirebbe se True fosse mai False.
+</testo_normale>
+<titolo_2>
+Eseguire i Test    
+</titolo_2>
+<testo_normale>
+Il modo più semplice per eseguire i test di <strong>unittest</strong> è di includere:    
+</testo_normale>
+<py_code>
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+alla fine di ogni file di test, poi semplicemente eseguire lo script direttamente da riga di comando:    
+</testo_normale>
+<py_output>
+$ python unittest_simple.py
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK    
+</py_output>
+<testo_normale>
+L'output abbreviato comprende il tempo impiegato per il test, assieme ad un indicatore di stato per ogni test (il puntino  nella prima riga dell'output significa che un test è stato superato). Per maggiori dettagli nel risultato del test si include l'opzione ${sev}-v${eev}:
+</testo_normale>
+<py_output>
+$ python unittest_simple.py -v
+test (__main__.SimplisticTest) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK    
+</py_output>
+<titolo_2>
+Esiti del Test    
+</titolo_2>
+<testo_normale>
+I test hanno 3 risultati possibili:    
+</testo_normale>
+<deflist>
+ok|il test viene superato
+FAIL|il test non viene superato e viene sollevata una eccezione <I>AssertionError</I>.
+ERROR|il test solleva una eccezione diversa da <I>AssertionError</I>.
+</deflist>
+<testo_normale>
+Non esiste un modo esplicito per &quot;far superare&quot; un test, quindi lo stato del test dipende dalla presenza (od assenza) di una eccezione.    
+</testo_normale>
+<py_code>
+import unittest
+
+class OutcomesTest(unittest.TestCase):
+
+    def testPass(self):
+        return
+
+    def testFail(self):
+        self.failIf(True)
+
+    def testError(self):
+        raise RuntimeError('Errore nel test!')
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+Quando un test fallisce o genera un errore, nell'ouput viene incluso anche il traceback.
+</testo_normale>
+<py_output>
+$ python unittest_outcomes.py 
+EF.
+======================================================================
+ERROR: testError (__main__.OutcomesTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_outcomes.py", line 15, in testError
+    raise RuntimeError('Errore nel test!')
+RuntimeError: Errore nel test!
+
+======================================================================
+FAIL: testFail (__main__.OutcomesTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_outcomes.py", line 12, in testFail
+    self.failIf(True)
+AssertionError
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (failures=1, errors=1)
+</py_output>
+<testo_normale>
+Nell'esempio di cui sopra, ${sbk}testFail()${ebk}  fallisce, ed il traceback mostra la riga che comprende il codice che ha fallito. E' comunque compito di colui che legge il risultato del test di verificare il codice per desumere il significato semantico del fallimento del test. Per facilitare la comprensione della natura del fallimento del test, i metodi ${sbk}fail*()${ebk} ed ${sbk}assert*()${ebk} accettano tutti un parametro <i>msg</i>, che può essere usato per produrre un messaggio di errore più dettagliato.
+</testo_normale>
+<py_code>
+import unittest
+
+class FailureMessageTest(unittest.TestCase):
+
+    def testFail(self):
+        self.failIf(True, 'Il messaggio di fallimento va qui')
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<py_output>
+$ python unittest_failwithmessage.py -v
+testFail (__main__.FailureMessageTest) ... FAIL
+
+======================================================================
+FAIL: testFail (__main__.FailureMessageTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_failwithmessage.py", line 9, in testFail
+    self.failIf(True, 'Il messaggio di fallimento va qui')
+AssertionError: Il messaggio di fallimento va qui
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+</py_output>
+<titolo_2>
+Affermare la Verità
+</titolo_2>
+<testo_normale>
+La maggior parte dei test affermano la verità di una qualche condizione. Ci sono alcuni diversi modi di scrivere dei test che verifichino una verità, a seconda della prospettiva dell'autore del test ed del risultato voluto del codice che si sta verificando. Se il codice produce un valore che può essere valutato come vero, dovrebbero essere usati i metodi ${sbk}failUnless()${ebk} ed ${sbk}assertTrue()${ebk}. Se il codice produce un valore falso, ha più senso usare i metodi ${sbk}failIf()${ebk} ed ${sbk}assertFalse()${ebk}.
+</testo_normale>
+<py_code>
+import unittest
+
+class TruthTest(unittest.TestCase):
+
+    def testFailUnless(self):
+        self.failUnless(True)
+
+    def testAssertTrue(self):
+        self.assertTrue(True)
+
+    def testFailIf(self):
+        self.failIf(False)
+
+    def testAssertFalse(self):
+        self.assertFalse(False)
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<py_output>
+$ python unittest_failwithmessage.py -v
+testFail (__main__.FailureMessageTest) ... FAIL
+
+======================================================================
+FAIL: testFail (__main__.FailureMessageTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_failwithmessage.py", line 9, in testFail
+    self.failIf(True, 'Il messaggio di fallimento va qui')
+AssertionError: Il messaggio di fallimento va qui
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python unittest_truth.py -v
+testAssertFalse (__main__.TruthTest) ... ok
+testAssertTrue (__main__.TruthTest) ... ok
+testFailIf (__main__.TruthTest) ... ok
+testFailUnless (__main__.TruthTest) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
+</py_output>
+<titolo_2>
+Verificare una Eguaglianza
+</titolo_2>
+<testo_normale>
+Come caso speciale, <strong>unittest</strong> comprende metodi per verificare l'eguaglianza di due valori.
+</testo_normale>
+<py_code>
+import unittest
+
+class EqualityTest(unittest.TestCase):
+
+    def testEqual(self):
+        self.failUnlessEqual(1, 3-2)
+
+    def testNotEqual(self):
+        self.failIfEqual(2, 3-2)
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<py_output>
+$ python unittest_failwithmessage.py -v
+testFail (__main__.FailureMessageTest) ... FAIL
+
+======================================================================
+FAIL: testFail (__main__.FailureMessageTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_failwithmessage.py", line 9, in testFail
+    self.failIf(True, 'Il messaggio di fallimento va qui')
+AssertionError: Il messaggio di fallimento va qui
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python unittest_truth.py -v
+testAssertFalse (__main__.TruthTest) ... ok
+testAssertTrue (__main__.TruthTest) ... ok
+testFailIf (__main__.TruthTest) ... ok
+testFailUnless (__main__.TruthTest) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python unittest_equality.py -v
+testEqual (__main__.EqualityTest) ... ok
+testNotEqual (__main__.EqualityTest) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</py_output>
+<testo_normale>
+Questi test speciali fanno comodo, visto che i valori confrontati appaiono nel messaggio di fallimento, quando un test fallisce.
+</testo_normale>
+<py_code>
+import unittest
+
+class InequalityTest(unittest.TestCase):
+
+    def testEqual(self):
+        self.failIfEqual(1, 3-2)
+
+    def testNotEqual(self):
+        self.failUnlessEqual(2, 3-2)
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+E quando questi test vengono eseguiti:
+</testo_normale>
+<py_output>
+$ python unittest_notequal.py -v
+testEqual (__main__.InequalityTest) ... FAIL
+testNotEqual (__main__.InequalityTest) ... FAIL
+
+======================================================================
+FAIL: testEqual (__main__.InequalityTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_notequal.py", line 9, in testEqual
+    self.failIfEqual(1, 3-2)
+AssertionError: 1 == 1
+
+======================================================================
+FAIL: testNotEqual (__main__.InequalityTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "unittest_notequal.py", line 12, in testNotEqual
+    self.failUnlessEqual(2, 3-2)
+AssertionError: 2 != 1
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+FAILED (failures=2)
+</py_output>
+<titolo_2>
+Quasi Uguali?
+</titolo_2>
+<testo_normale>
+Oltre alla stretta eguaglianza, è possibile verificare una &quot;quasi&quot; eguaglianza di numeri a virgola mobile usando ${sbk}failIfAlmostEqual()${ebk} e ${sbk}failUnlessAlmostEqual()${ebk}.
+</testo_normale>
+<py_code>
+import unittest
+
+class AlmostEqualTest(unittest.TestCase):
+
+    def testNotAlmostEqual(self):
+        self.failIfAlmostEqual(1.1, 3.3-2.0, places=1)
+
+    def testAlmostEqual(self):
+        self.failUnlessAlmostEqual(1.1, 3.3-2.0, places=0)
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+I parametri sono i valori da confrontare, ed il numero di posizioni decimali da utilizzare per il test.
+</testo_normale>
+<py_output>
+$ python unittest_almostequal.py 
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</py_output>
+<titolo_2>
+Verificare le Eccezioni
+</titolo_2>
+<testo_normale>
+Come detto precedentemente, se un test solleva una eccezione diversa da <a href='eccezioni.html#asserr'>AssertionError</a>, viene trattata come un errore. Questo è molto utile per scoprire errori che si compiono mentre si sta modificando del codice per il quale già esiste un test abbinato. Ci sono circostanze, comunque, nelle quali si vuole eseguire il test per verificare che un certo codice effettivamente produca una eccezione. Ad esempio se un valore non valido viene passato come attributo di un oggetto. In tali casi, ${sbk}failUnlessRaises()${ebk} rende il codice più chiaro che catturare l'eccezione nel proprio codice. Si confrontino questi due test:
+</testo_normale>
+<py_code>
+import unittest
+
+def raises_error(*args, **kwds):
+    print args, kwds
+    raise ValueError('Valore non valido: ' + str(args) + str(kwds))
+
+class ExceptionTest(unittest.TestCase):
+
+    def testTrapLocally(self):
+        try:
+            raises_error('a', b='c')
+        except ValueError:
+            pass
+        else:
+            self.fail('Non si vede ValueError')
+
+    def testFailUnlessRaises(self):
+        self.failUnlessRaises(ValueError, raises_error, 'a', b='c')
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+I risultati per entrambi sono gli stessi, tuttavia il secondo test, che usa ${sbk}failUnlessRaises()${ebk} è più succinto.
+</testo_normale>
+<py_output>
+$ python unittest_exception.py -v
+testFailUnlessRaises (__main__.ExceptionTest) ... ('a',) {'b': 'c'}
+ok
+testTrapLocally (__main__.ExceptionTest) ... ('a',) {'b': 'c'}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</py_output>
+<titolo_2>
+Test Fixtures (Impianti di Test)
+</titolo_2>
+<testo_normale>
+Fixtures sono risorse necessarie per un test. Ad esempio, se si stanno scrivendo parecchi test per la stessa classe, questi test necessitano tutti una istanza di quella classe da usere per il test. Altri impianti includono connessioni a database e file temporanei (molta gente potrebbe argomentare che usando risorse esterne i test non sono più considerabili a livello di unità, ma sono comunque test, e sono comunque utili). ${sbk}TestCase${ebk} include uno speciale aggancio per configurare e ripulire un qualsivoglia impianto che sia necessario per i propri test. Per configurare gli impianti, si riscrive ${sbk}setup()${ebk}. Per ripulire, si riscrive ${sbk}tearDown()${ebk}.
+</testo_normale>
+<py_code>
+import unittest
+
+class FixturesTest(unittest.TestCase):
+
+    def setUp(self):
+        print 'In setUp()'
+        self.fixture = range(1, 10)
+
+    def tearDown(self):
+        print 'In tearDown()'
+        del self.fixture
+
+    def test(self):
+        print 'in test()'
+        self.failUnlessEqual(self.fixture, range(1, 10))
+
+if __name__ == '__main__':
+    unittest.main()
+</py_code>
+<testo_normale>
+Quando il test di esempio viene eseguito, si può vedere l'ordine di esecuzione dell'impianto e dei metodi di test:
+</testo_normale>
+<py_output>
+$ python unittest_fixtures.py 
+In setUp()
+in test()
+In tearDown()
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+</py_output>
+<titolo_2>
+Test Suite (Raccolte di Test)
+</titolo_2>
+<testo_normale>
+La documentazione della libreria standard descrive come organizzare manualmente le raccolte di test. Io (Doug Hellmann - n.d.t.) generalmente non uso raccolte di test direttamente, poichè preferisco costruire le raccolte automaticamente (si tratta dopo tutto di test automatizzati). Automatizzare la costruzione di raccolte di test è specialmente utile per vaste basi di codice, nelle quali i test collegati non sono tutti nello stesso posto. Strumenti tipo <strong>nose</strong> facilitano la gestione dei test quando essi sono sparsi attraverso file e directory multiple.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/lib/module-unittest.html|unittest|La documentazione della libreria standard per questo modulo.
+doctest.html|doctest|Un modo alternativo di eseguire test incorporati in <i>docstring</i> e file di documentazione esterni
+http://somethingaboutorange.com/mrl/projects/nose/|nose|Un gestore di test più sofisticato
+http://pypi.python.org/pypi/unittest2|unittest2|Miglioramenti in corso di elaborazione per <strong>unittest</strong>
+</vedi_anche>
+</documento_tradotto>

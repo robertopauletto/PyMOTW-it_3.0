@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>servizi python in fase di esecuzione </categoria>
+<inserito_il>
+    2013-08-15
+</inserito_il>
+<titolo_1>
+abc - Classi Base Astratte
+</titolo_1>
+<descrizione>
+Definisce ed usa classi base per verifiche<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a>nel proprio codice
+2.6
+</descrizione>
+<titolo_2>
+Perchè usare le Classi Base Astratte?
+</titolo_2>
+<testo_normale>
+Le classi base astratte sono una forma di verifica di interfaccia più stretta dei controlli individuali per particolari metodi come <a href='https://docs.python.org/2/library/functions.html#hasattr'>hasattr()</a>.
+Definendo una classe base astratta si può definire una<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a>comune per un insieme di sottoclassi.
+</testo_normale>
+<testo_normale>
+Le classi base astratte sono una forma di verifica di interfaccia più stretta dei controlli individuali per particolari metodi come ${sbk}hasattr()${ebk}. Definendo una classe base astratta si può definire una <a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a> comune per un insieme di sottoclassi. Questa capacità è specialmente utile in situazioni dove un terzo andrà a fornire una implementazione, ad esempio con plugin ad una applicazione, ma può anche essere d'aiuto quando si lavora in squadra con un grande numero di componenti oppure con una base di codice molto vasta, dove mantenere tutte le classi nella propria testa è allo stesso tempo difficile o non possibile.
+</testo_normale>
+<titolo_2>
+Come funziona abc
+</titolo_2>
+<testo_normale>
+<strong>abc</strong> funziona marcando i metodi della classe base come astratti, quindi registra le classi concrete come implementazioni della base astratta. Se il proprio codice richiede una<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a>particolare, si può usare ${sbk}issubclass()${ebk} oppure ${sbk}isinstance()${ebk} per verificare un oggetto rispetto alla classe base.
+</testo_normale>
+<testo_normale>
+Iniziamo con il definire una classe base astratta per rappresentare l'API di un insieme di plugin per salvare e caricare dati.
+</testo_normale>
+<py_code>
+import abc
+
+class PluginBase(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def load(self, input):
+        """Recupera dati dalla sorgente in input e ritorna un oggetto"""
+        return
+
+    @abc.abstractmethod
+    def save(self, output, data):
+        """Salva l'oggetto dati in output."""
+        return
+</py_code>
+<titolo_2>
+Registrare una Classe Concreta
+</titolo_2>
+<testo_normale>
+Ci sono due modi per indicare che una classe concreta ne implementa una astratta: registrare la classe con <strong>abc</strong> o derivare direttamente da <strong>abc</strong>
+</testo_normale>
+<py_code>
+import abc
+from abc_base import PluginBase
+
+class RegisteredImplementation(object):
+
+    def load(self, input):
+        return input.read()
+
+    def save(self, output, data):
+        return output.write(data)
+
+PluginBase.register(RegisteredImplementation)
+
+if __name__ == '__main__':
+    print 'Sottoclasse:', issubclass(RegisteredImplementation, PluginBase)
+    print 'Istanza    :', isinstance(RegisteredImplementation(), PluginBase)
+</py_code>
+<testo_normale>
+In questo esempio ${sbk}PluginImplentation${ebk} non è derivata da ${sbk}PluginBase${ebk} ma è registrata come implementazione dell'API ${sbk}PluginBase${ebk}
+</testo_normale>
+<py_output>
+$ python abc_register.py
+
+Sottoclasse: True
+Istanza    : True
+</py_output>
+<titolo_2>
+Implementazione Attraverso la Derivazione
+</titolo_2>
+<testo_normale>
+Derivando direttamente dalla base, si può evitare la necessità di registare la classe esplicitamente
+</testo_normale>
+<py_code>
+import abc
+from abc_base import PluginBase
+
+class SubclassImplementation(PluginBase):
+
+    def load(self, input):
+        return input.read()
+
+    def save(self, output, data):
+        return output.write(data)
+
+if __name__ == '__main__':
+    print 'Sottoclasse:', issubclass(SubclassImplementation, PluginBase)
+    print 'Istanza    :', isinstance(SubclassImplementation(), PluginBase)
+</py_code>
+<testo_normale>
+In questo caso la normale gestione delle classi di Python viene usata per riconoscere ${sbk}PluginImplementation${ebk} come implementazione della classe astratta ${sbk}PluginBase${ebk}
+</testo_normale>
+<py_output>
+$ python abc_subclass.py
+
+Sottoclasse: True
+Istanza    : True
+</py_output>
+<testo_normale>
+Un effetto collaterale nell'uso della derivazione diretta è che è possibile trovare tutte le implementazioni del proprio plugin interrogando la classe base per ottenere  la lista delle classi derivate conosciute derivate da essa (non si tratta di una caratteristica di <strong>abc</strong>, tutte le classi lo possono fare).
+</testo_normale>
+<py_code>
+import abc
+from abc_base import PluginBase
+import abc_subclass
+import abc_register
+
+for sc in PluginBase.__subclasses__():
+    print sc.__name__
+</py_code>
+<testo_normale>
+Si noti che, sebbene ${sbk}abc_register${ebk} sia importato, ${sbk}RegisteredImplementation${ebk} non è tra la lista di sottoclassi visto che non è in realtà derivata dalla classe base.
+</testo_normale>
+<py_output>
+$ python abc_find_subclasses.py
+
+SubclassImplementation
+</py_output>
+<testo_normale>
+Il Dr. André Roberge <a href='https://www.google.it/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC4QtwIwAA&url=http%3A%2F%2Fblip.tv%2Fpycon-us-videos-2009-2010-2011%2Fplugins-and-monkeypatching-increasing-flexibility-dealing-with-inflexibility-1958972&ei=CyMNUp3DGazd7Qa65oHIDQ&usg=AFQjCNE8JTy_dwauZPTrlME7OxU2FVbsYw&sig2=c06hHqhEVLBqP2OmAFfKsQ&bvm=bv.50768961,d.ZGU'>ha descritto</a> l'uso di questa capacità per scoprire i plugin importando tutti i moduli in una directory dinamicamente, quindi cercando nell'elenco di tutte le sottoclassi per trovare
+le classi di implementazione.
+</testo_normale>
+<titolo_2>
+Implementazioni Incomplete
+</titolo_2>
+<testo_normale>
+Un altro beneficio del derivare direttamente dalla propria classe base astratta è che la sottoclasse non può essere istanziata a meno che essa  implementi pienamente la porzione astratta dell'API. Questo preserva implementazioni parziali dallo scatenare errori inaspettati in fase di esecuzione.
+</testo_normale>
+<py_code>
+import abc
+from abc_base import PluginBase
+
+class IncompleteImplementation(PluginBase):
+
+    def save(self, output, data):
+        return output.write(data)
+
+PluginBase.register(IncompleteImplementation)
+
+if __name__ == '__main__':
+    print 'Sottoclasse:', issubclass(IncompleteImplementation, PluginBase)
+    print 'Istanza    :', isinstance(IncompleteImplementation(), PluginBase)
+</py_code>
+<py_output>
+$ python abc_incomplete.py
+
+Sottoclasse: True
+Istanza    :
+Traceback (most recent call last):
+  File "abc_incomplete.py", line 16, in <module>
+    print 'Istanza    :', isinstance(IncompleteImplementation(), PluginBase)
+TypeError: Can't instantiate abstract class IncompleteImplementation with abstract methods load
+</py_output>
+<titolo_2>
+Metodi Concreti in abc
+</titolo_2>
+<testo_normale>
+Sebbene una classe concreta debba provvedere una implementazione di metodi astratti, la classe base astratta può anche fornire una implementazione che può essere chiamata attraverso ${sbk}super()${ebk}. Ciò consente di riutilizzare della logica comune piazzandola nella classe base, ma forzando le derivate a riscrivere il metodo se ha (potenzialmente) della logica proprietaria.
+</testo_normale>
+<py_code>
+import abc
+from cStringIO import StringIO
+
+class ABCWithConcreteImplementation(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def retrieve_values(self, input):
+        print 'classe base che legge dati'
+        return input.read()
+
+class ConcreteOverride(ABCWithConcreteImplementation):
+
+    def retrieve_values(self, input):
+        base_data = super(ConcreteOverride, self).retrieve_values(input)
+        print 'sottoclasse che ordina dati'
+        response = sorted(base_data.splitlines())
+        return response
+
+input = StringIO("""riga uno
+riga due
+riga tre
+""")
+</py_code>
+<testo_normale>
+Visto che ${sbk}ABCWithConcreteImplementation${ebk} è una classe base astratta, non è possibile istanziarla per usarla direttamente. La classe derivata <em>deve</em> fornire una riscrittura per ${sbk}retrieve_values${ebk}, ed in questo caso la classe concreta riordina i dati prima di ritornarli
+</testo_normale>
+<py_output>
+$ python abc_concrete_method.py
+
+classe base che legge dati
+sottoclasse che ordina dati
+['riga due', 'riga tre', 'riga uno']
+</py_output>
+<titolo_2>
+Proprietà Astratte
+</titolo_2>
+<testo_normale>
+Se la propria specifica<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a>comprende attributi, oltre a metodi, si possono richiedere gli attributi nelle classi concrete definendoli tramite ${sbk}@abstractproperty${ebk}.
+</testo_normale>
+<py_code>
+import abc
+
+class Base(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def value(self):
+        return 'Non si dovrebbe mai arrivare qui'
+
+
+class Implementation(Base):
+
+    @property
+    def value(self):
+        return 'proprietà concreta'
+
+
+try:
+    b = Base()
+    print 'Base.value:', b.value
+except Exception, err:
+    print 'ERROR:', str(err)
+
+i = Implementation()
+print 'Implementation.value:', i.value
+</py_code>
+<testo_normale>
+La classe ${sbk}Base${ebk} nell'esempio non può essere istanziata visto che ha solo una versione astratta della proprietà <em>value</em>
+</testo_normale>
+<py_output>
+$ python abc_abstract_property.py
+
+ERRORE: Can't instantiate abstract class Base with abstract methods value
+Implementation.value: proprietà concreta
+</py_output>
+<testo_normale>
+Si possono anche definire proprietà astratte per lettura e scrittura
+</testo_normale>
+<py_code>
+import abc
+
+class Base(object):
+    __metaclass__ = abc.ABCMeta
+
+    def value_getter(self):
+        return 'Questo non si dovrebbe mai vedere'
+
+    def value_setter(self, newvalue):
+        return
+
+    value = abc.abstractproperty(value_getter, value_setter)
+
+
+class PartialImplementation(Base):
+
+    @abc.abstractproperty
+    def value(self):
+        return 'Sola lettura'
+
+
+class Implementation(Base):
+
+    _value = 'Valore predefinito'
+
+    def value_getter(self):
+        return self._value
+
+    def value_setter(self, newvalue):
+        self._value = newvalue
+
+    value = property(value_getter, value_setter)
+
+
+try:
+    b = Base()
+    print 'Base.value:', b.value
+except Exception, err:
+    print 'ERRORE:', str(err)
+
+try:
+    p = PartialImplementation()
+    print 'PartialImplementation.value:', p.value
+except Exception, err:
+    print 'ERRORE:', str(err)
+
+i = Implementation()
+print 'Implementation.value:', i.value
+
+i.value = 'Nuovo valore'
+print 'Valore modificato:', i.value#if __name__ == '__main__':
+</py_code>
+<testo_normale>
+Si noti che la proprietà concreta deve essere definita allo stesso modo di quella astratta. Cercando di sovrascrivere una proprietà in lettura/scrittura in ${sbk}PartialImplementation${ebk} con una a sola lettura non funzionerà.
+</testo_normale>
+<py_output>
+$ python abc_abstract_property_rw.py
+
+ERRORE: Can't instantiate abstract class Base with abstract methods value
+ERRORE: Can't instantiate abstract class PartialImplementation with abstract methods value
+Implementation.value: Valore predefinito
+Valore modificato: Nuovo valore
+</py_output>
+<testo_normale>
+Per usare la sintassi del decoratore con le proprietà di lettura/scrittura astratte, i metodi per ottenere ed impostare il valore dovrebbero essere chiamati allo stesso modo
+</testo_normale>
+<py_code>
+import abc
+
+class Base(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def value(self):
+        return 'Questo non si dovrebbe mai vedere'
+
+    @value.setter
+    def value(self, newvalue):
+        return
+
+
+class Implementation(Base):
+
+    _value = 'Valore predefinito'
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, newvalue):
+        self._value = newvalue
+
+
+i = Implementation()
+print 'Implementation.value:', i.value
+
+i.value = 'Nuovo valore'
+print 'Valore modificato:', i.value
+</py_code>
+<testo_normale>
+Si noti che entrambi i metodi nelle classi ${sbk}Base${ebk} ed ${sbk}Implementation${ebk} sono chiamati ${sbk}value()${ebk}, sebbene abbiano diverse impronte.
+</testo_normale>
+<py_output>
+s$ python abc_abstract_property_rw_deco.py
+
+Implementation.value: Valore predefinito
+Valore modificato: Nuovo valore
+</py_output>
+<titolo_2>
+Tipi Collection
+</titolo_2>
+<testo_normale>
+Il modulo <a href='collections.html'> collection</a> definisce parecchie classi base astratte in relazione ai tipi contenitore.
+</testo_normale>
+<testo_normale>
+Classi contenitore generiche:
+</testo_normale>
+<lista>
+Container
+Sized
+</lista>
+<testo_normale>
+Classi di Iteratori e Sequenze:
+</testo_normale>
+<lista>
+Iterable
+Iterator
+Sequence
+MutableSequence
+</lista>
+<testo_normale>
+Valori Univoci
+</testo_normale>
+<lista>
+Hashable
+Set
+MutableSet
+</lista>
+<testo_normale>
+Mappature:
+</testo_normale>
+<lista>
+Mapping
+MutableMapping
+MappingView
+KeysView
+ItemsView
+ValuesView
+</lista>
+<testo_normale>
+Miscellanea:
+</testo_normale>
+<lista>
+Callable
+</lista>
+<testo_normale>
+Oltre a servire come esempi dettagliati ed applicabili di classi base astratte, i tipi builtin di Python sono registrati automaticamente a quelle classi quando si importa <a href='collections.html'> collection</a>. Il che vuol dire che si può usare ${sbk}isinstance()${ebk} in sicurezza per verificare parametri nel proprio codice per assicurarsi che essi supportino l'API che serve. Le classi base possono anche essere usate per definire i propri tipi di collezione, visto che molti di essi forniscono concrete implementazioni della logica interna e necessitano solo di qualche sovrascrittura di metodi. Fare riferimento alla documentazione della libreria standard per quanto riguarda le collezioni per maggiori dettagli
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/abc.html|abc|La documentazione della libreria standard per questo modulo
+http://www.python.org/dev/peps/pep-3119|PEP 3119|Introduzione alle classi base astratte
+http://docs.python.org/library/collections.html|collections|La documentazione della libreria standard per le collezioni
+http://www.python.org/dev/peps/pep-3141|PEP 3141|Una gerarchia di tipo per i numeri
+http://it.wikipedia.org/wiki/Strategy_pattern|Wikipedia: Strategy Pattern|Descrizione ed esempi per lo strategy pattern
+https://www.google.it/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CC4QtwIwAA&url=http%3A%2F%2Fblip.tv%2Fpycon-us-videos-2009-2010-2011%2Fplugins-and-monkeypatching-increasing-flexibility-dealing-with-inflexibility-1958972&ei=CyMNUp3DGazd7Qa65oHIDQ&usg=AFQjCNE8JTy_dwauZPTrlME7OxU2FVbsYw&sig2=c06hHqhEVLBqP2OmAFfKsQ&bvm=bv.50768961,d.ZGU|Plugins and monkeypatching|Presentazione a PyCon 2009 del Dr. André Roberge (Video)
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+            <p class="pull-right visible-xs">
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+            </p>
+            <div class="jumbotron" >
+                <h3>Indice Alfabetico dei Moduli</h3>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                <div class='table-responsive'>
+                <table class='table'>
+                    {% for m in modulo.elenco_moduli %}
+                        <tr>
+                            <td><a href='{{ m.url }}'>{{ m.nome }}</a></td>
+                            <td>{{ m.titolo }}</td>
+                            <td>{{ m.agg }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                </div>
+                </div>
+            </div>
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+        </div><!--/span-->
+    </div><!--/row-->
+    <hr>
+        <div id="footer">
+        <div class="container">
+            <p class="text-muted">{{ modulo.footer.nome_sito }} 
+            {{ modulo.footer.periodo }} / 
+            Documento aggiornato il: {{ modulo.footer.data_agg }}
+            - Contatto: pymotw-it(at)robyp.x10host.com</p>
+        </div>
+    </div
+
+{% endblock %}
+

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<indicizza>no</indicizza>
+<categoria>riferimenti</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_4>
+Moduli Deprecati in Python 3
+</titolo_4>
+<testo_normale>
+Questi moduli sono ancora presenti nella libreria standard, ma sono deprecati e non dovrebbero essere usati nei nuovi programmi Python 3
+</testo_normale>
+<titolo_2>
+asyncore e asynchat
+</titolo_2>
+<testo_normale>
+Gestori di I/O asincrono e protocolli - utilizzare <strong>asyncio</strong>
+</testo_normale>
+<titolo_2>
+formatter
+</titolo_2>
+<testo_normale>
+Interfaccia di dispositivo e formattazione generica dell'output
+</testo_normale>
+<titolo_2>
+imp
+</titolo_2>
+<testo_normale>
+Accesso all'implementazione dell'istruzione <code>import</code>
+</testo_normale>
+<titolo_2>
+optparse
+</titolo_2>
+<testo_normale>
+Libreria per l'elaborazione delle opzioni da riga di comando. L'<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> per argparse è simile a quella fornita da <code>optparse</code> ed in molti casi può essere utilizzata come rimpiazzo diretto aggiornando i nomi delle classi e dei metodi usati.
+</testo_normale>

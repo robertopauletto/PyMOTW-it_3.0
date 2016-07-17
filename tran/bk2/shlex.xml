@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strutture di programma </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+shlex - Analisi lessicale delle sintassi tipo shell
+</titolo_1>
+<descrizione>
+Analisi lessicale delle sintassi tipo shell.
+1.5.2, con aggiunte nelle successive versioni.
+</descrizione>
+<testo_normale>
+Il modulo <strong>shlex</strong> implementa una classe per analizzare semplici sintassi tipo shell. Può essere usato per scrivere un proprio <a href='http://it.wikipedia.org/wiki/Programmazione_dichiarativa'>linguaggio di programmazione domain specific</a>, o per analizzare stringhe racchiuse tra virgolette (un compito più complesso di quello che può sembrare a prima vista).
+</testo_normale>
+<titolo_2>
+Stringhe Racchiuse tra Virgolette
+</titolo_2>
+<testo_normale>
+Un problema comune quando si lavora con un testo in input è quello di identificare una sequenza di parole virgolettate come singola entità. Dividere la stringa in base alle virgolette non sempre fornisce il risultato sperato, specialmente se si sono livelli di virgolette annidati. Si prenda ad esempio il testo seguente:
+</testo_normale>
+<py_output>
+Questa stringa ha delle "virgolette" e degli 'apici singoli' incorporati in essa, ed anche "un esempio 'annidato'".
+</py_output>
+<testo_normale>
+Un approccio ingenuo potrebbe essere quello di tentare di costruire una espressione regolare per trovare le parti di testo al di fuori delle virgolette per separarle da quelle all'interno delle medesime, o viceversa. Detto approccio sarebbe inutilmente complesso e prono ad errori risultanti da casi limite come gli apostrofi od anche errori di sintassi. Una soluzione migliore è quella di usare un vero e proprio analizzatore, tipo quello fornito dal modulo  <strong>shlex</strong>. Di seguito un semplice esempio che stampa i token identificati nel file di input:
+</testo_normale>
+<py_code>
+import readline
+import logging
+
+import shlex
+import sys
+
+if len(sys.argv) != 2:
+    print 'Per favore specificare un nome di file nella riga di comando.'
+    sys.exit(1)
+
+filename = sys.argv[1]
+body = file(filename, 'rt').read()
+print 'ORIGINALE:', repr(body)
+print
+
+print 'TOKEN:'
+lexer = shlex.shlex(body)
+for token in lexer:
+    print repr(token)
+</py_code>
+
+<testo_normale>
+Quando si esegue su dati che contengono virgolette annidate, l'analizzatore produce l'elenco di token che ci si aspetta:
+</testo_normale>
+<py_output>
+$ python shlex_example.py quotes.txt
+ORIGINALE: 'Questa stringa ha delle "virgolette" e degli \'apici singoli\' incorporati in essa, ed anche "un esempio \'annidato\'".'
+
+TOKEN:
+'Questa'
+'stringa'
+'ha'
+'delle'
+'"virgolette"'
+'e'
+'degli'
+"'apici singoli'"
+'incorporati'
+'in'
+'essa'
+','
+'ed'
+'anche'
+'"un esempio \'annidato\'"'
+'.'
+</py_output>
+<testo_normale>
+Vengono gestiti anche gli apici singoli, tipo gli apostrofi. Se si passa questo file in input:
+</testo_normale>
+<py_output>
+Questa stringa contiene l'apostrofo incorporato vero?
+</py_output>
+<testo_normale>
+Il token con l'apostrofo incorporato non costituisce un problema:
+</testo_normale>
+<py_output>
+$ python shlex_example.py apostrophe.txt 
+ORIGINALE: "Questa stringa contiene l'apostrofo incorporato vero?"
+
+TOKEN:
+'Questa'
+'stringa'
+'contiene'
+"l'apostrofo"
+'incorporato'
+'vero'
+'?'
+</py_output>
+<titolo_2>
+Commenti Annidati
+</titolo_2>
+<testo_normale>
+Visto che l'analizzatore è inteso per l'uso con linguaggi di comando, deve gestire i commenti. Nella modalità predefinita qualsiasi testo che segua un ${sev}#${eev} è considerato parte di un commento, quindi ignorato. A causa della natura dell'analizzatore, solo i prefissi di commento a singolo carattere sono supportati. L'insieme dei caratteri di commento usati possono essere configurati attraverso la proprietà <i>commenters</i>
+</testo_normale>
+<py_output>
+$ python shlex_example.py comments.txt 
+ORIGINALE: "Questa riga viene riconosciuta\n# Ma quest'altra viene ignorata.\nQuesta linea viene elaborata."
+
+TOKEN:
+'Questa'
+'riga'
+'viene'
+'riconosciuta'
+'Questa'
+'linea'
+'viene'
+'elaborata'
+'.'
+</py_output>
+<titolo_2>
+Divisione
+</titolo_2>
+<testo_normale>
+Se occorre semplicemente dividere una stringa esistente nei token che la compongono, la funzione ${sbk}split()${ebk} è un semplice wrapper attorno all'analizzatore.
+</testo_normale>
+<py_code>
+import shlex
+
+text = """Questo testo ha "parti virgolettate" al suo interno."""
+print 'ORIGINALE:', repr(text)
+print
+
+print 'TOKEN:'
+print shlex.split(text)
+</py_code>
+<testo_normale>
+Il risultato è una lista:
+</testo_normale>
+<py_output>
+$ python shlex_split.py 
+ORIGINALE: 'Questo testo ha "parti virgolettate" al suo interno.'
+
+TOKEN:
+['Questo', 'testo', 'ha', 'parti virgolettate', 'al', 'suo', 'interno.']
+</py_output>
+<titolo_2>
+Includere altre Sorgenti di Token
+</titolo_2>
+<testo_normale>
+La classe <strong>shlex</strong> comprende parecchie proprietà di configurazione le quali consentono al programmatore di controllarne il comportamento. La proprietà <i>source</i> abilita la funzionalità di riutilizzo del codice (o della configurazione) consentendo ad un flusso di token di includerne un altro. E' un comportamento simile a quella dell'operatore della shell Bourne ${sev}source${eev}, da qui il nome.
+</testo_normale>
+<py_code>
+import shlex
+
+text = """Questo testo dice di includere source quotes.txt prima di continuare."""
+print 'ORIGINALE:', repr(text)
+print
+
+lexer = shlex.shlex(text)
+lexer.wordchars += '.'
+lexer.source = 'source'
+
+print 'TOKEN:'
+for token in lexer:
+    print repr(token)
+</py_code>
+<testo_normale>
+Si noti la stringa ${sev}source quotes.txt${eev} incorporata nel testo originale. Visto che la proprietà <i>source</i> di lexer viene impostata a "source", quando la parola chiave viene rilevata il nome del file che segue viene incluso automaticamente. Per fare sì che il nome del file appaia come singolo token, occorre aggiungere il carattere ${sev}.${eev} all'interno dell'elenco dei caratteri che sono inclusi nelle parole (altrimenti "${sev}quotes.txt${eev}" avrebbe prodotto tre token: "${sev}quotes${eev}", "${sev}.${eev}" e "${sev}txt${eev}". Il risultato è:
+</testo_normale>
+<py_output>
+$ python shlex_source.py 
+ORIGINALE: 'Questo testo dice di includere source quotes.txt prima di continuare.'
+
+TOKEN:
+'Questo'
+'testo'
+'dice'
+'di'
+'includere'
+'Questa'
+'stringa'
+'ha'
+'delle'
+'"virgolette"'
+'e'
+'degli'
+"'apici singoli'"
+'incorporati'
+'in'
+'essa'
+','
+'ed'
+'anche'
+'"un esempio \'annidato\'"'
+'.'
+'prima'
+'di'
+'continuare.'
+</py_output>
+<testo_normale>
+La funzionalità "source" usa un metodo chiamato ${sbk}sourcehook()${ebk} per caricare la sorgente addizionale in input, in questo modo si può derivare <strong>shlex</strong> per fornire la propria implementazione per caricare dati da qualsiasi parte.
+</testo_normale>
+<py_code>
+import shlex
+
+text = """|Col 1||Col 2||Col 3|"""
+print 'ORIGINALE:', repr(text)
+print
+
+lexer = shlex.shlex(text)
+lexer.quotes = '|'
+
+print 'TOKEN:'
+for token in lexer:
+    print repr(token)
+</py_code>
+<testo_normale>
+In questo esempio ogni cella della tabella viene racchiusa tra barre verticali:
+</testo_normale>
+<py_output>
+$ python shlex_table.py 
+ORIGINALE: '|Col 1||Col 2||Col 3|'
+
+TOKEN:
+'|Col 1|'
+'|Col 2|'
+'|Col 3|'
+</py_output>
+<testo_normale>
+E' anche possibile controllare i caratteri <i>whitespace</i> usati per la divisione delle parole. Se si modifica l'esempio shlex_example.py per includere punti e virgole, come segue:
+</testo_normale>
+<py_code>
+import shlex
+import sys
+
+if len(sys.argv) != 2:
+    print 'Per favore specificare un nome di file nella riga di comando.'
+    sys.exit(1)
+
+filename = sys.argv[1]
+body = file(filename, 'rt').read()
+print 'ORIGINALE:', repr(body)
+print
+
+print 'TOKEN:'
+lexer = shlex.shlex(body)
+lexer.whitespace += '.,'
+for token in lexer:
+    print repr(token)
+</py_code>
+<testo_normale>
+Il risultato cambia in:
+</testo_normale>
+<py_output>
+$ python shlex_whitespace.py quotes.txt 
+ORIGINALE: 'Questa stringa ha delle "virgolette" e degli \'apici singoli\' incorporati in essa, ed anche "un esempio \'annidato\'".'
+
+TOKEN:
+'Questa'
+'stringa'
+'ha'
+'delle'
+'"virgolette"'
+'e'
+'degli'
+"'apici singoli'"
+'incorporati'
+'in'
+'essa'
+'ed'
+'anche'
+'"un esempio \'annidato\'"'
+</py_output>
+<titolo_2>
+Gestione Errori
+</titolo_2>
+<testo_normale>
+Quando l'analizzatore giunge alla fine del suo input prima che tutte le stringhe tra virgolette siano chiuse, solleva <a href='eccezioni.html#valueerror'>ValueError</a>. Quando questo succede, è utile esaminare alcune delle proprietà dell'analizzatore mantenute mentre viene elaborato l'input. Ad esempio <i>infile</i> fa riferimento al nome del file che si sta elaborando (che potrebbe essere diverso dal file originale, se un file chiama "source" verso un altro). Quando l'errore viene scoperto <i>lineno</i> riporta la riga. Tipicamente <i>lineno</i> è la fine del file, che potrebbe essere ben lontano dalla prima virgoletta. L'attributo <i>token</i> contiene il buffer di testo che non è stato ancora incluso in un token valido. Il metodo ${sbk}error_leader()${ebk} produrre un prefisso di messaggio in uno stile simile a quello dei compilatori Unix, che consente ad editor tipo emacs di analizzare l'errore e portare l'utente direttamente a quella riga non valida.
+</testo_normale>
+<py_code>
+import shlex
+
+text = """Questa riga è a posto.
+Questa riga ha un "virgolettato non completato.
+Anche questa riga è a posto.
+"""
+
+print 'ORIGINALE:', repr(text)
+print
+
+lexer = shlex.shlex(text)
+
+print 'TOKEN:'
+try:
+    for token in lexer:
+        print repr(token)
+except ValueError, err:
+    first_line_of_error = lexer.token.splitlines()[0]
+    print 'ERRORE:', lexer.error_leader(), str(err), 'dopo "' + first_line_of_error + '"'
+</py_code>
+<testo_normale>
+L'esempio di cui sopra produce questo risultato:
+</testo_normale>
+<py_output>
+$ python shlex_errors.py 
+ORIGINALE: 'Questa riga \xc3\xa8 a posto.\nQuesta riga ha un "virgolettato non completato.\nAnche questa riga \xc3\xa8 a posto.\n'
+
+TOKEN:
+'Questa'
+'riga'
+'va'
+'bene'
+'.'
+'Questa'
+'riga'
+'ha'
+'un'
+ERRORE: "None", line 4:  No closing quotation dopo ""virgolettato non completato."
+</py_output>
+<titolo_2>
+Analisi POSIX contro Non-POSIX
+</titolo_2>
+<testo_normale>
+Il comportamento predefinito per l'analizzatore è quello di usare uno stile retro compatibile che non è conforme alle specifiche POSIX. Per ottenere un comportamento POSIX si imposta il parametro <i>posix</i> quando si costruisce l'analizzatore.
+</testo_normale>
+<py_code>
+import shlex
+
+for s in [ 'Da"Non"Separare',
+           '"Da"Separare',
+           'Escape \e Carattere non tra virgolette',
+           'Escape "\e" Carattere tra virgolette',
+           "Escape '\e' Carattere tra apici singoli",
+           r"Escape '\'' \"\'\" singolo apice",
+           r'Escape "\"" \'\"\' virgolette',
+           "\"'Elimina uno strato extra di virgolette'\"",
+           ]:
+    print 'ORIGINALE :', repr(s)
+    print 'non-POSIX:',
+
+    non_posix_lexer = shlex.shlex(s, posix=False)
+    try:
+        print repr(list(non_posix_lexer))
+    except ValueError, err:
+        print 'errore(%s)' % err
+
+    
+    print 'POSIX    :',
+    posix_lexer = shlex.shlex(s, posix=True)
+    try:
+        print repr(list(posix_lexer))
+    except ValueError, err:
+        print 'errore(%s)' % err
+
+    print
+</py_code>
+<testo_normale>
+Ecco qualche esempio delle differenze nel comportamento dell'analizzatore
+</testo_normale>
+<py_output>
+$ python shlex_posix.py 
+ORIGINALE : 'Da"Non"Separare'
+non-POSIX: ['Da"Non"Separare']
+POSIX    : ['DaNonSeparare']
+
+ORIGINALE : '"Da"Separare'
+non-POSIX: ['"Da"', 'Separare']
+POSIX    : ['DaSeparare']
+
+ORIGINALE : 'Escape \\e Carattere non tra virgolette'
+non-POSIX: ['Escape', '\\', 'e', 'Carattere', 'non', 'tra', 'virgolette']
+POSIX    : ['Escape', 'e', 'Carattere', 'non', 'tra', 'virgolette']
+
+ORIGINALE : 'Escape "\\e" Carattere tra virgolette'
+non-POSIX: ['Escape', '"\\e"', 'Carattere', 'tra', 'virgolette']
+POSIX    : ['Escape', '\\e', 'Carattere', 'tra', 'virgolette']
+
+ORIGINALE : "Escape '\\e' Carattere tra apici singoli"
+non-POSIX: ['Escape', "'\\e'", 'Carattere', 'tra', 'apici', 'singoli']
+POSIX    : ['Escape', '\\e', 'Carattere', 'tra', 'apici', 'singoli']
+
+ORIGINALE : 'Escape \'\\\'\' \\"\\\'\\" singolo apice'
+non-POSIX: errore(No closing quotation)
+POSIX    : ['Escape', '\\ \\"\\"', 'singolo', 'apice']
+
+ORIGINALE : 'Escape "\\"" \\\'\\"\\\' virgolette'
+non-POSIX: errore(No closing quotation)
+POSIX    : ['Escape', '"', '\'"\'', 'virgolette']
+
+ORIGINALE : '"\'Elimina uno strato extra di virgolette\'"'
+non-POSIX: ['"\'Elimina uno strato extra di virgolette\'"']
+POSIX    : ["'Elimina uno strato extra di virgolette'"]
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-shlex.html|shlex|La documentazione della libreria standard per questo 
+cmd.html|cmd|Strumenti per costruire interpreti interattivi di comando
+optparse.html|optparse|Analisi delle opzioni della riga di comando.
+getopt.html|getopt|Analisi delle opzioni della riga di comando.
+</vedi_anche>
+</documento_tradotto>

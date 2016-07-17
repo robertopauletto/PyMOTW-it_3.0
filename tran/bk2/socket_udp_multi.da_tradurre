@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<titolo_2>
+User Datagram Client e Server
+</titolo_2>
+<testo_normale>
+Il protocollo <a href='http://it.wikipedia.org/wiki/User_Datagram_Protocol'>user datagram (UDP)</a> funziona in modo diverso rispetto a quello TCP/IP. Laddove TCP è un protocollo orientato al flusso, assicurandosi che tutti i dati vengano trasmessi nel corretto ordine, UDP è un protocols orientato al messaggio. UDP non richiede una connessione che stia in piedi a lungo, quindi l'impostazione di un socket UDP è leggermente più semplice. D'altro canto, i messaggi UDP devono entrare all'interno di un singolo pacchetto (per IPv4 significa che possono contenere fino a 65.507 byte, visto che il pacchetto di 65.535 byte deve contenere anche le informazioni di intestazione) e la consegna non è garantita come con TCP.
+</testo_normale>
+<<titolo_2>
+Eco Server
+</titolo_2>
+<testo_normale>
+Visto che non esiste una connessione a se stante, il server non deve mettersi in ascolto ed accettare connessioni. Gli serve solamente ${sbk}bind()${ebk} per associare il socket ad una porta, quindi attendere singoli messaggi.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket UDP
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Attacca il socket alla porta
+server_address = ('localhost', 10000)
+print >>sys.stderr, 'in avvio su %s porta %s' % server_address
+sock.bind(server_address)
+</py_code>
+<testo_normale>
+I messaggi sono letti dal socket usando ${sbk}recvfrom()${ebk}, che restituisce i dati e l'indirizzo del client dal quale i dati provengono.
+</testo_normale>
+<py_code>
+while True:
+    print >>sys.stderr, '\nin attesa di ricevere un messaggio'
+    data, address = sock.recvfrom(4096)
+    
+    print >>sys.stderr, 'recevuti %s byte da %s' % (len(data), address)
+    print >>sys.stderr, data
+    
+    if data:
+        sent = sock.sendto(data, address)
+        print >>sys.stderr, 'ritornati %s byte a %s' % (sent, address)
+</py_code>
+<titolo_2>
+Client Eco
+</titolo_2>
+<testo_normale>
+Il client UDP per l'applicazione di eco è simile al server, ma non usa ${sbk}bind()${ebk} per attaccare il suo socket ad un indirizzo. Usa ${sbk}sendto()${ebk} per consegnare il proprio messaggio direttamente al server, e ${sbk}recvfrom()${ebk} per ricevere la risposta.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket UDP
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+server_address = ('localhost', 10000)
+message = 'Questo è il messaggio. Verrà ripetuto'
+
+try:
+
+    # Invio dati
+    print >>sys.stderr, 'in invio "%s"' % message
+    sent = sock.sendto(message, server_address)
+
+    # Recezione risposta
+    print >>sys.stderr, 'in attesa di ricezione'
+    data, server = sock.recvfrom(4096)
+    print >>sys.stderr, 'ricevuto "%s"' % data
+
+finally:
+    print >>sys.stderr, 'chiusura del socket'
+    sock.close()
+</py_code>
+<titolo_2>
+Client e Server Insieme
+</titolo_2>
+<testo_normale>
+L'esecuzione del programma server produce:
+</testo_normale>
+<py_output>
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python socket_echo_server_dgram.py 
+in avvio su localhost porta 10000
+
+in attesa di ricevere un messaggio
+recevuti 39 byte da ('127.0.0.1', 36429)
+Questo è il messaggio. Verrà ripetuto
+ritornati 39 byte a ('127.0.0.1', 36429)
+
+in attesa di ricevere un messaggio
+</py_output>
+<testo_normale>
+Mentre l'output del client è:
+</testo_normale>
+<py_output>
+pydev/pymotw-it/dumpscripts/
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python socket_echo_client_dgram.py 
+in invio "Questo è il messaggio. Verrà ripetuto"
+in attesa di ricezione
+ricevuto "Questo è il messaggio. Verrà ripetuto"
+chiusura del socket
+
+$
+</py_output>
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

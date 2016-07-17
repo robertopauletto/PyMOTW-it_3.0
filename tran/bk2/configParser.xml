@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>formati di file </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+ConfigParser - Lavora con i File di Configurazione
+</titolo_1>
+<descrizione>
+Leggere/scrivere file di configurazione simili ai file INI di Windows
+1.5
+</descrizione>
+<testo_normale>
+Il modulo <strong>ConfigParser</strong> si usa per gestire dei file di configurazione per un'applicazione che siano modificabii dall'utente. I file di configurazione sono organizzati in sezioni, ed ogni sezione può contenere coppie di nomi-valori per la configurazione di dati. L'interpolazione del valore tramite l'uso di stringhe di formattazione Python è supportata, per costruire valori che dipendono l'uno dall'altro (questo è particolarmente comdo per stringhe di messaggio ed URL).
+</testo_normale>
+<titolo_2>
+Formato del File di Configurazione
+</titolo_2>
+<testo_normale>
+Il formato di file usato da <strong>ConfigParser</strong> è simile a quello usato dalle vecchie versioni di Microsoft Windows. Consiste in una o più <em>sezioni</em> nominate, ognuna delle quali può contenere <em>opzioni</em> individuali con nomi e valori.
+</testo_normale>
+<testo_normale>
+Le sezioni del file di configurazione sono identificate cercando delle righe che iniziano con ${sev}[${eev} e finiscono con ${sev}]${eev}. Il valore racchiuso tra le parentesi quadre è il nome della sezione, e può contenere qualsiasi carattere ad eccezione delle parentesi quadre.
+</testo_normale>
+<testo_normale>
+Le opzioni sono elencate una per riga all'interno di una sezione. La riga inizia con il nome dell'opzione, la quale è separata dal valore dai due punti (${sev}:${eev}) oppure dall'uguale (${sev}=${eev}). I caratteri whitespace attorno al separatore vengono ignorati metre il file viene elaborato.
+</testo_normale>
+<testo_normale>
+Un semplice file di configurazione con la sezione "bug_tracker", con tre opzioni dovrebbe avere il seguente aspetto:
+</testo_normale>
+<py_output>
+[bug_tracker]
+url = http://localhost:8080/bugs/
+username = dhellmann
+password = SECRET
+</py_output>
+<titolo_2>
+Leggere i File di Configurazione
+</titolo_2>
+<testo_normale>
+L'uso più comune per un file di configurazione è quello di avere un utente od un amministratore di sistema che lo modifichi con un normale editor di file per impostare i comportamenti predefiniti dell'applicazione, quindi il file vien fatto leggere dall'applicazione, che lo elabora ed agisce in base al suo contenuto. Per leggere il file di configurazione si usa il metodo ${sbk}read()${ebk} di ${sbk}SafeConfigParser${ebk}.
+</testo_normale>
+<py_code>
+from ConfigParser import SafeConfigParser
+
+parser = SafeConfigParser()
+parser.read('simple.ini')
+
+print parser.get('bug_tracker', 'url')
+</py_code>
+<testo_normale>
+Il programma legge il file ${sev}simple.ini${eev} visto qui sopra e stampa il valore dell'opzione ${sev}url${eev} dalla sezione ${sev}bug_tracker${eev}.
+</testo_normale>
+<py_output>
+$ python ConfigParser_read.py 
+http://localhost:8080/bugs/
+</py_output>
+<testo_normale>
+Il metodo ${sbk}read()${ebk} accetta anche un elenco di nomi di file. Ciascun nome viene scorso a turno, e se il file esiste viene aperto e letto.
+</testo_normale>
+<py_code>
+from ConfigParser import SafeConfigParser
+import glob
+
+parser = SafeConfigParser()
+
+candidates = ['non_esiste.ini', 'anche-questo-non-esiste.ini',
+              'simple.ini', 'multisezione.ini',
+              ]
+
+found = parser.read(candidates)
+
+missing = set(candidates) - set(found)
+
+print 'File di configurazione trovati :', sorted(found)
+print 'File di configurazione mancanti:', sorted(missing)
+</py_code>
+<testo_normale>
+${sbk}read()${ebk} restituisce un elenco che contiene i nomi dei file caricati con successo, in modo che il programma possa scoprire quali file di configurazione sono mancanti e decidere se ignorarli.
+</testo_normale>
+<py_output>
+$ python ConfigParser_read_many.py 
+
+File di configurazione trovati : ['simple.ini']
+File di configurazione mancanti: ['anche-questo-non-esiste.ini', 'multisezione.ini', 'non_esiste.ini']
+</py_output>
+<titolo_2>
+Dati di Configurazioni Unicode
+</titolo_2>
+<testo_normale>
+I file di configurazione che contengono dati Unicode dovrebbero essere aperti con il modulo <a href='codecs.html'>codecs</a> per impostare il valore di codifica appropriato.
+</testo_normale>
+<testo_normale>
+Modificare il valore di <em>password</em> originale in modo che contengo caratteri Unicode e salvare i risultati nella codifica UTF-8 genera:
+</testo_normale>
+<py_output>
+[bug_tracker]
+url = http://localhost:8080/bugs/
+username = dhellmann
+password = ßéç®é†
+</py_output>
+<testo_normale>
+Il file handle di <a href='codecs.html'>codecs</a> può essere passato a ${sbk}readfp()${ebk}, il quale usa il metodo <a href='readline.html'>readline()</a> dei suoi parametri per ottenere le righe dal file ed analizzarle.
+</testo_normale>
+<py_code>
+from ConfigParser import SafeConfigParser
+import codecs
+
+parser = SafeConfigParser()
+
+# Apre il file con la codifica corretta
+with codecs.open('unicode.ini', 'r', encoding='utf-8') as f:
+    parser.readfp(f)
+
+password = parser.get('bug_tracker', 'password')
+
+print 'Password:', password.encode('utf-8')
+print 'Type    :', type(password)
+print 'repr()  :', repr(password)
+</py_code>
+<testo_normale>
+Il valore restituito da ${sbk}get()${ebk} è un oggetto ${sbk}unicode${ebk}, quindi per stamparlo in sicurezza deve essere ricodificato come UTF-8.
+</testo_normale>
+<py_output>
+$ python ConfigParser_unicode.py 
+Password: ßéç®é†
+Type    : <type 'unicode'>
+repr()  : u'\xdf\xe9\xe7\xae\xe9\u2020'
+</py_output>
+<titolo_2>
+Accedere le Impostazioni di Configurazione
+</titolo_2>
+<testo_normale>
+
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/configparser.html|ConfigParser|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

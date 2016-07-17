@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+xml.etree.ElementTree - Api per la Manipolazione XML
+</titolo_1>
+<descrizione>
+Genera ed analizza documenti XML
+2.5 e successive
+</descrizione>
+<testo_normale>
+La libreria <strong>ElementTree</strong> è un contributo alla libreria standard di Fredrick Lundh. Comprende gli strumenti per analizzare XML usando API basate su eventi e documenti, per cercare nei documenti analizzati tramite espressioni XPath e per creare o modificare documenti.
+</testo_normale>
+<testo_normale>
+Tutti gli esempi in questa sezione usano l'implementazione Python di ElementTree per semplicità, ma esiste anche una implementazione C in ${sbk}xml.etree.cElementTree${ebk}.
+</testo_normale>
+<testo_normale>
+I documenti XML elaborati sono rappresentati in memoria da ElementTree e da oggetti connessi ad una struttura ad albero basata sul modo nel quale sono annidati i nodi del documento XML
+</testo_normale>
+<titolo_2>
+Analizzare un Intero Documento    
+</titolo_2>
+<testo_normale>
+Quando si analizza un intero documento con ${sbk}parse()${ebk} viene restituita una istanza di ElementTree. La struttura ad albero si riferisce a tutti i dati del documento di input ed i nodi dell'albero possono essere cercati o manipolati sul posto. Sebbene questa flessibilità possa facilitare il lavoro con il documento elaborato, in genere richiede più memoria rispetto ad un approccio basato sugli eventi, visto che l'intero documento deve essere caricato in una volta.
+</testo_normale>
+<testo_normale>
+L'ammontare di memoria richiesto per piccoli, semplici documenti tipo questo elenco di podcast rappresentati come uno schema <a href='http://www.opml.org/'>OPML</a> non è significativo.
+</testo_normale>
+<mk_xml_code>
+ <?xml version="1.0" encoding="UTF-8"?>
+ <opml version="1.0">
+ <head>
+	<title>My Podcasts</title>
+	<dateCreated>Sun, 07 Mar 2010 15:53:26 GMT</dateCreated>
+	<dateModified>Sun, 07 Mar 2010 15:53:26 GMT</dateModified>
+ </head>
+ <body>
+  <outline text="Science and Tech">
+    <outline text="APM: Future Tense" type="rss" 
+             xmlUrl="http://www.publicradio.org/columns/futuretense/podcast.xml" 
+             htmlUrl="http://www.publicradio.org/columns/futuretense/" />
+	<outline text="Engines Of Our Ingenuity Podcast" type="rss" 
+             xmlUrl="http://www.npr.org/rss/podcast.php?id=510030" 
+             htmlUrl="http://www.uh.edu/engines/engines.htm" />
+	<outline text="Science &#38; the City" type="rss" 
+             xmlUrl="http://www.nyas.org/Podcasts/Atom.axd" 
+             htmlUrl="http://www.nyas.org/WhatWeDo/SciencetheCity.aspx" />
+  </outline>
+  <outline text="Books and Fiction">
+	<outline text="Podiobooker" type="rss" 
+             xmlUrl="http://feeds.feedburner.com/podiobooks" 
+             htmlUrl="http://www.podiobooks.com/blog" />
+	<outline text="The Drabblecast" type="rss" 
+             xmlUrl="http://web.me.com/normsherman/Site/Podcast/rss.xml" 
+             htmlUrl="http://web.me.com/normsherman/Site/Podcast/Podcast.html" />
+	<outline text="tor.com / category / tordotstories" type="rss" 
+             xmlUrl="http://www.tor.com/rss/category/TorDotStories" 
+             htmlUrl="http://www.tor.com/" />
+  </outline>
+  <outline text="Computers and Programming">
+	<outline text="MacBreak Weekly" type="rss" 
+             xmlUrl="http://leo.am/podcasts/mbw" 
+             htmlUrl="http://twit.tv/mbw" />
+	<outline text="FLOSS Weekly" type="rss" 
+             xmlUrl="http://leo.am/podcasts/floss" 
+             htmlUrl="http://twit.tv" />
+	<outline text="Core Intuition" type="rss" 
+             xmlUrl="http://www.coreint.org/podcast.xml" 
+             htmlUrl="http://www.coreint.org/" />
+  </outline>
+  <outline text="Python">
+    <outline text="PyCon Podcast" type="rss" 
+             xmlUrl="http://advocacy.python.org/podcasts/pycon.rss" 
+             htmlUrl="http://advocacy.python.org/podcasts/" />
+	<outline text="A Little Bit of Python" type="rss" 
+             xmlUrl="http://advocacy.python.org/podcasts/littlebit.rss" 
+             htmlUrl="http://advocacy.python.org/podcasts/" />
+	<outline text="Django Dose Everything Feed" type="rss" 
+             xmlUrl="http://djangodose.com/everything/feed/" />
+  </outline>
+  <outline text="Miscelaneous">
+	<outline text="dhellmann's CastSampler Feed" type="rss" 
+             xmlUrl="http://www.castsampler.com/cast/feed/rss/dhellmann/" 
+             htmlUrl="http://www.castsampler.com/users/dhellmann/" />
+  </outline>
+ </body>
+ </opml>
+</mk_xml_code>
+<testo_normale>
+Per analizzare il file si passa un handle di file aperto a ${sbk}parse()${ebk}, che legge i dati, elabora l'XML, e restituisce l'oggetti ElementTree.
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('podcasts.opml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+print tree
+</py_code>
+<py_output>
+$ python ElementTree_parse_opml.py
+&lt;xml.etree.ElementTree.ElementTree instance at 0xb76dc24c>    
+</py_output>
+<titolo_2>
+Attraversare l'albero elaborato    
+</titolo_2>
+<testo_normale>
+Ora che si è ottenuto un albero XML elaborato, si possono eseguire iterazioni su di esso, visitando tutti i figli per esaminare i loro attributi e contenuto.
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('podcasts.opml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+for node in tree.getiterator():
+    print node.tag, node.attrib
+</py_code>
+<testo_normale>
+In questo caso viene stampato l'intero albero, un tag alla volta	
+</testo_normale>
+<py_output>
+$ python ElementTree_dump_opml.py 
+opml {'version': '1.0'}
+head {}
+title {}
+dateCreated {}
+dateModified {}
+body {}
+outline {'text': 'Science and Tech'}
+outline {'xmlUrl': 'http://www.publicradio.org/columns/futuretense/podcast.xml', 'text': 'APM: Future Tense', 'type': 'rss', 'htmlUrl': 'http://www.publicradio.org/columns/futuretense/'}
+outline {'xmlUrl': 'http://www.npr.org/rss/podcast.php?id=510030', 'text': 'Engines Of Our Ingenuity Podcast', 'type': 'rss', 'htmlUrl': 'http://www.uh.edu/engines/engines.htm'}
+outline {'xmlUrl': 'http://www.nyas.org/Podcasts/Atom.axd', 'text': 'Science & the City', 'type': 'rss', 'htmlUrl': 'http://www.nyas.org/WhatWeDo/SciencetheCity.aspx'}
+outline {'text': 'Books and Fiction'}
+outline {'xmlUrl': 'http://feeds.feedburner.com/podiobooks', 'text': 'Podiobooker', 'type': 'rss', 'htmlUrl': 'http://www.podiobooks.com/blog'}
+outline {'xmlUrl': 'http://web.me.com/normsherman/Site/Podcast/rss.xml', 'text': 'The Drabblecast', 'type': 'rss', 'htmlUrl': 'http://web.me.com/normsherman/Site/Podcast/Podcast.html'}
+outline {'xmlUrl': 'http://www.tor.com/rss/category/TorDotStories', 'text': 'tor.com / category / tordotstories', 'type': 'rss', 'htmlUrl': 'http://www.tor.com/'}
+outline {'text': 'Computers and Programming'}
+outline {'xmlUrl': 'http://leo.am/podcasts/mbw', 'text': 'MacBreak Weekly', 'type': 'rss', 'htmlUrl': 'http://twit.tv/mbw'}
+outline {'xmlUrl': 'http://leo.am/podcasts/floss', 'text': 'FLOSS Weekly', 'type': 'rss', 'htmlUrl': 'http://twit.tv'}
+outline {'xmlUrl': 'http://www.coreint.org/podcast.xml', 'text': 'Core Intuition', 'type': 'rss', 'htmlUrl': 'http://www.coreint.org/'}
+outline {'text': 'Python'}
+outline {'xmlUrl': 'http://advocacy.python.org/podcasts/pycon.rss', 'text': 'PyCon Podcast', 'type': 'rss', 'htmlUrl': 'http://advocacy.python.org/podcasts/'}
+outline {'xmlUrl': 'http://advocacy.python.org/podcasts/littlebit.rss', 'text': 'A Little Bit of Python', 'type': 'rss', 'htmlUrl': 'http://advocacy.python.org/podcasts/'}
+outline {'xmlUrl': 'http://djangodose.com/everything/feed/', 'text': 'Django Dose Everything Feed', 'type': 'rss'}
+outline {'text': 'Miscelaneous'}
+outline {'xmlUrl': 'http://www.castsampler.com/cast/feed/rss/dhellmann/', 'text': "dhellmann's CastSampler Feed", 'type': 'rss', 'htmlUrl': 'http://www.castsampler.com/users/dhellmann/'}
+</py_output>
+<testo_normale>
+Se si vuole stampare solo i gruppi di nomi e gli URL dei feed per i podcast, escludendo tutti i dati nella sezione di intestazione, si può iterare solo attraverso i nodi ${sbk}outline${ebk} e stampare gli attributi ${sbk}text${ebk} e ${sbk}xmlUrl${ebk}.
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('podcasts.opml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+for node in tree.getiterator('outline'):
+    name = node.attrib.get('text')
+    url = node.attrib.get('xmlUrl')
+    if name and url:
+        print '  %s :: %s' % (name, url)
+    else:
+        print name
+</py_code>
+<testo_normale>
+Visto che viene passato ${sbk}'outline'${ebk} a ${sbk}tree.getiterator()${ebk} l'elaborazione viene limitata ai soli nodi con il tag ${sbk}'outline'${ebk}
+</testo_normale>
+<py_output>
+$ python ElementTree_show_feed_urls.py Science and Tech
+  APM: Future Tense :: http://www.publicradio.org/columns/futuretense/podcast.xml
+  Engines Of Our Ingenuity Podcast :: http://www.npr.org/rss/podcast.php?id=510030
+  Science & the City :: http://www.nyas.org/Podcasts/Atom.axd
+Books and Fiction
+  Podiobooker :: http://feeds.feedburner.com/podiobooks
+  The Drabblecast :: http://web.me.com/normsherman/Site/Podcast/rss.xml
+  tor.com / category / tordotstories :: http://www.tor.com/rss/category/TorDotStories
+Computers and Programming
+  MacBreak Weekly :: http://leo.am/podcasts/mbw
+  FLOSS Weekly :: http://leo.am/podcasts/floss
+  Core Intuition :: http://www.coreint.org/podcast.xml
+Python
+  PyCon Podcast :: http://advocacy.python.org/podcasts/pycon.rss
+  A Little Bit of Python :: http://advocacy.python.org/podcasts/littlebit.rss
+  Django Dose Everything Feed :: http://djangodose.com/everything/feed/
+Miscelaneous
+  dhellmann's CastSampler Feed :: http://www.castsampler.com/cast/feed/rss/dhellmann/
+    
+</py_output>
+<titolo_2>
+Trovare Nodi in un Documento    
+</titolo_2>
+<testo_normale>
+Il metodo di attraversare l'intero albero in questo modo per cercare i nodi che interessano può essre incline ad errori. Nell'esempio di cui sopra, si è dovuto cercare in ogni nodo 'outline' per determinare se si trattava di un gruppo (nodi che hanno solo un attributo "text") o di un podcast (che ha sia "text" che "xmlUrl"). Se si volesse scrivere un programma che esegue il download di podcast ed occorre produrre un semplice elanco di URl dei feed dei podcast, senza nomi o gruppi, si potrebbe semplificare la logica usando ${sbk}findall()${ebk} per trovare i nodi con caratteristiche di ricerca più descrittiva.
+</testo_normale>
+<testo_normale>
+UN primo passo per convertire l'esempio di cui sopra potrebbe essere la costruzione di un parametro XPath per trovare tutti i nodi 'outline'    
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('podcasts.opml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+for node in tree.findall('.//outline'):
+    url = node.attrib.get('xmlUrl')
+    if url:
+        print url
+</py_code>
+<testo_normale>
+La logica in questa versione non è sostanzialmente diversa da quella che usa ${sbk}getiterator()${ebk}. Occorre ancora verificare la presenta dell'URL, ad eccezione del fatto che non viene stampato il nome del gruppo quando l'URL non viene trovato.
+</testo_normale>
+<py_output>
+$ python ElementTree_find_feeds_by_tag.py 
+http://www.publicradio.org/columns/futuretense/podcast.xml
+http://www.npr.org/rss/podcast.php?id=510030
+http://www.nyas.org/Podcasts/Atom.axd
+http://feeds.feedburner.com/podiobooks
+http://web.me.com/normsherman/Site/Podcast/rss.xml
+http://www.tor.com/rss/category/TorDotStories
+http://leo.am/podcasts/mbw
+http://leo.am/podcasts/floss
+http://www.coreint.org/podcast.xml
+http://advocacy.python.org/podcasts/pycon.rss
+http://advocacy.python.org/podcasts/littlebit.rss
+http://djangodose.com/everything/feed/
+http://www.castsampler.com/cast/feed/rss/dhellmann/
+</py_output>
+<testo_normale>
+Un'altra versione potrebbe trarre vantaggio dal fatto che si è a conoscenza che i nodi 'outline' hanno solo due livelli di nidificazione. Se si modifica il percorso di ricerca in ${sbk}.//outline/outline${ebk} verrà esaminato solo il secondo livello dei nodi 'outline'.
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('podcasts.opml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+for node in tree.findall('.//outline/outline'):
+    url = node.attrib.get('xmlUrl')
+    print url
+</py_code>
+<testo_normale>
+Ci si aspetta che tutti i nodi 'outline' nidificati due livelli in profondità nell'input abbiano l'attributo xmlURL che si riferisce al feed del podcast,  così, se si è sufficientemente coraggiosi si può evitare di verificare la presenza dell'attributo prima dell'uso.
+</testo_normale>
+<py_output>
+$ python ElementTree_find_feeds_by_structure.py 
+http://www.publicradio.org/columns/futuretense/podcast.xml
+http://www.npr.org/rss/podcast.php?id=510030
+http://www.nyas.org/Podcasts/Atom.axd
+http://feeds.feedburner.com/podiobooks
+http://web.me.com/normsherman/Site/Podcast/rss.xml
+http://www.tor.com/rss/category/TorDotStories
+http://leo.am/podcasts/mbw
+http://leo.am/podcasts/floss
+http://www.coreint.org/podcast.xml
+http://advocacy.python.org/podcasts/pycon.rss
+http://advocacy.python.org/podcasts/littlebit.rss
+http://djangodose.com/everything/feed/
+http://www.castsampler.com/cast/feed/rss/dhellmann/
+</py_output>
+<testo_normale>
+Questa versione è limitata alla struttura esistente per questo esempio, quindi se i nodi 'outline' sono in un qualche modo riorganizzati in una struttura ad albero più profonda, lo script non funzionerà più.    
+</testo_normale>
+<titolo_2>
+Elaborare gli Attributi dei Nodi    
+</titolo_2>
+<testo_normale>
+Gli elementi restituiti da ${sbk}findall()${ebk} e ${sbk}getiterator()${ebk} sono oggetti <em>Element</em>, ognuno dei quali rappresenta un nodo nell'albero XML elaborato. Ogni <em>Element</em> possiede attributi per accedere ai dati estratti dall'XML. La cosa può essere illustrata da un file di input di esempio in qualche modo più stringato: ${sbk}data.xml${ebk}:
+</testo_normale>
+<mk_xml_code_lineno>
+ <?xml version="1.0" encoding="UTF-8"?>
+ <top>
+   <child>Questo figlio contiene testo.</child>
+   <child_with_tail>Questo figlio contiene testo normale</child_with_tail>e testo in "coda".
+   <with_attributes name="value" foo="bar" />
+   <entity_expansion attribute="Questo &#38; Quello">Quello &#38; Questo</entity_expansion>
+ </top>
+</mk_xml_code_lineno>
+<testo_normale>
+Gli 'attributi' di un nodo sono disponibili tramite la proprietà ${sbk}attrib${ebk}, che si comporta come un dizionario.
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('data.xml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+node = tree.find('./with_attributes')
+print node.tag
+for name, value in sorted(node.attrib.items()):
+    print '  %-4s = "%s"' % (name, value)
+</py_code>
+<testo_normale>
+Il nodo nella riga 5 del file in input ha due attributi, ${sbk}name${ebk} e ${sbk}foo${ebk}.
+</testo_normale>
+<py_output>
+$ python ElementTree_node_attributes.py 
+with_attributes
+  foo  = "bar"
+  name = "value"
+</py_output>
+<testo_normale>
+Il testo contenuto nei nodi è disponibile, assieme al testo "coda" che segue la fine del tag di chiusura.    
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('data.xml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+for path in [ './child', './child_with_tail' ]:
+    node = tree.find(path)
+    print node.tag
+    print '  testo del nodo figlio:', node.text
+    print '  e testo di coda      :', node.tail
+</py_code>
+<testo_normale>
+Il nodo ${sbk}child${ebk} della riga 3 contiene testo incorporato, ed il nodo nella riga 4 contiene testo in coda (inclusi spazi).
+</testo_normale>
+<py_output>
+$ python ElementTree_node_text.py 
+child
+  testo del nodo figlio: Questo figlio contiene testo.
+  e testo di coda      : 
+  
+child_with_tail
+  testo del nodo figlio: Questo figlio contiene testo normale
+  e testo di coda      : e testo in "coda".
+</py_output>
+<testo_normale>
+Convenientemente, i riferimenti alle entità XML incorporati nel documenti sono convertiti nei caratteri appropriati prima che i valori vengano restituiti.    
+</testo_normale>
+<py_code>
+from xml.etree import ElementTree
+
+with open('data.xml', 'rt') as f:
+    tree = ElementTree.parse(f)
+
+node = tree.find('entity_expansion')
+print node.tag
+print "  nell'attributo:", node.attrib['attribute']
+print '  nel testo     :', node.text
+</py_code>
+<testo_normale>
+La conversione risparmia al programmatore la preoccupazione di dovere implementare la rappresentazione di alcuni caratteri in un documento XML.    
+</testo_normale>
+<py_output>
+$ python ElementTree_entity_references.py 
+entity_expansion
+  nell'attributo: Questo & Quello
+  nel testo     : Quello & Questo
+</py_output>
+<titolo_2>
+Osservare gli Eventi durante l'Elaborazione    
+</titolo_2>
+<testo_normale>
+L'altra API utile per l'elaborazione dei documenti XML è basata sugli eventi. Il parser genera eventi ${sbk}start${ebk} per i tag di apertura ed eventi ${sbk}end${ebk} per quelli di chiusura. Iterare attraverso il flusso di eventi consente di estrarre i dati dal documento mentre lo si elabora, che è conveniente se non si deve manipolare l'intero documento successivamente e si vuole evitare di mantenere l'intero documento elaborato in memoria.
+</testo_normale>
+<testo_normale>
+${sbk}iterparse()${ebk} restituisce un iterabile che produce delle tuple che contengono il nome dell'evento ed il nodo che ha scatenato l'evento. Gli eventi possono essere uno tra:
+</testo_normale>
+<deflist>
+${sbk}start${ebk}|E' stato rilevato un nuovo tag. E' stata elaborata la parentesi angolare di chiusura del tag ma non il contenuto.
+${sbk}end${ebk}|La parentesi angolare di chiusura di un tag di chiusura è stata elaborata. Tutti i figli sono già stati processati.
+${sbk}start-ns${ebk}|Inizia una dichiarazione di spazio dei nomi.
+${sbk}end-ns${ebk}|Fine di una dichiarazione di spazio dei nomi.
+</deflist>
+<py_code>
+from xml.etree.ElementTree import iterparse
+
+depth = 0
+prefix_width = 8
+prefix_dots = '.' * prefix_width
+line_template = '{prefix:<0.{prefix_len}}{event:<8}{suffix:<{suffix_len}} {node.tag:<12} {node_id}'
+
+for (event, node) in iterparse('podcasts.opml', ['start', 'end', 'start-ns', 'end-ns']):
+    if event == 'end':
+        depth -= 1
+
+    prefix_len = depth * 2
+    
+    print line_template.format(prefix=prefix_dots,
+                               prefix_len=prefix_len,
+                               suffix='',
+                               suffix_len=(prefix_width - prefix_len),
+                               node=node,
+                               node_id=id(node),
+                               event=event,
+                               )
+    
+    if event == 'start':
+        depth += 1
+</py_code>
+<testo_normale>
+Nella modalità predefinita, vengono generati solo gli eventi ${sbk}end${ebk}. Per vedere altri eventi, si passa la lista dei nomi di evento che si vuole ricevere ad ${sbk}iterparse${ebk}, come in questo esempio.
+</testo_normale>
+<py_output>
+$ python ElementTree_show_all_events.py 
+start            opml         3077771180
+..start          head         3077788012
+....start        title        3077788044
+....end          title        3077788044
+....start        dateCreated  3077788332
+....end          dateCreated  3077788332
+....start        dateModified 3077788396
+....end          dateModified 3077788396
+..end            head         3077788012
+..start          body         3077788492
+....start        outline      3077788620
+......start      outline      3077788844
+......end        outline      3077788844
+......start      outline      3077788908
+......end        outline      3077788908
+......start      outline      3077789100
+......end        outline      3077789100
+....end          outline      3077788620
+....start        outline      3077789292
+......start      outline      3077789356
+......end        outline      3077789356
+......start      outline      3077789196
+......end        outline      3077789196
+......start      outline      3077789484
+......end        outline      3077789484
+....end          outline      3077789292
+....start        outline      3077789676
+......start      outline      3077789740
+......end        outline      3077789740
+......start      outline      3077789580
+......end        outline      3077789580
+......start      outline      3077789868
+......end        outline      3077789868
+....end          outline      3077789676
+....start        outline      3077790092
+......start      outline      3077790188
+......end        outline      3077790188
+......start      outline      3077790252
+......end        outline      3077790252
+......start      outline      3077790444
+......end        outline      3077790444
+....end          outline      3077790092
+....start        outline      3077790636
+......start      outline      3077790700
+......end        outline      3077790700
+....end          outline      3077790636
+..end            body         3077788492
+end              opml         3077771180
+</py_output>
+<testo_normale>
+Lo stile di elaborazione ad eventi potrebbe essere più naturale per alcune operazioni, tipo convertire un input XML in qualche altro formato. Ad esempio si supponga di volere convertire l'elenco di podcast sul quale si sta lavorando da un file XML ad un file di dati, che si possa caricare in un foglio elettronico o database. Non occorre mantenere tutto l'insieme di dati in memoria, visto che si sta semplicemente cambiando il formato.
+</testo_normale>
+<py_code>
+import csv
+from xml.etree.ElementTree import iterparse
+import sys
+
+writer = csv.writer(sys.stdout, quoting=csv.QUOTE_NONNUMERIC)
+
+group_name = ''
+
+for (event, node) in iterparse('podcasts.opml', events=['start']):
+    if node.tag != 'outline':
+        # Ignora qualsiasi parte al di fuori di outline
+        continue
+    if not node.attrib.get('xmlUrl'):
+        # Ricorda il gruppo corrente
+        group_name = node.attrib['text']
+    else:
+        # Scrive una voce di podcast
+        writer.writerow( (group_name, node.attrib['text'],
+                          node.attrib['xmlUrl'],
+                          node.attrib.get('htmlUrl', ''),
+                          )
+                         )
+</py_code>
+<testo_normale>
+Questo programma di esempio converte l'elenco di podcast in un file CSV, pronto per essere importato da un'altra applicazione.    
+</testo_normale>
+<py_output>
+xml.etree.ElementTree - Api per la Manipolazione XML
+$ python ElementTree_write_podcast_csv.py 
+"Science and Tech","APM: Future Tense","http://www.publicradio.org/columns/futuretense/podcast.xml","http://www.publicradio.org/columns/futuretense/"
+"Science and Tech","Engines Of Our Ingenuity Podcast","http://www.npr.org/rss/podcast.php?id=510030","http://www.uh.edu/engines/engines.htm"
+"Science and Tech","Science & the City","http://www.nyas.org/Podcasts/Atom.axd","http://www.nyas.org/WhatWeDo/SciencetheCity.aspx"
+"Books and Fiction","Podiobooker","http://feeds.feedburner.com/podiobooks","http://www.podiobooks.com/blog"
+"Books and Fiction","The Drabblecast","http://web.me.com/normsherman/Site/Podcast/rss.xml","http://web.me.com/normsherman/Site/Podcast/Podcast.html"
+"Books and Fiction","tor.com / category / tordotstories","http://www.tor.com/rss/category/TorDotStories","http://www.tor.com/"
+"Computers and Programming","MacBreak Weekly","http://leo.am/podcasts/mbw","http://twit.tv/mbw"
+"Computers and Programming","FLOSS Weekly","http://leo.am/podcasts/floss","http://twit.tv"
+"Computers and Programming","Core Intuition","http://www.coreint.org/podcast.xml","http://www.coreint.org/"
+"Python","PyCon Podcast","http://advocacy.python.org/podcasts/pycon.rss","http://advocacy.python.org/podcasts/"
+"Python","A Little Bit of Python","http://advocacy.python.org/podcasts/littlebit.rss","http://advocacy.python.org/podcasts/"
+"Python","Django Dose Everything Feed","http://djangodose.com/everything/feed/",""
+"Miscelaneous","dhellmann's CastSampler Feed","http://www.castsampler.com/cast/feed/rss/dhellmann/","http://www.castsampler.com/users/dhellmann/"
+</py_output>
+<titolo_2>
+Creare il Proprio Costruttore di Albero    
+</titolo_2>
+<testo_normale>
+Un metodo potenzialmente più efficiente per gestire gli eventi di elaborazione è rimpiazzare il comportamento del costruttore di albero standard con il proprio. Il parser di ElementTree usa uno XML TreeBuilder per elaborare l'XML e chiamare i metodi su una classe destinazione per salvare i risultati. Il risultato usuale è una istanza di ElementTree creata in modo predefinito dalla classe TreeBuilder. Rimpiazzando TreeBuilder con la propria classe, si possono ricevere gli eventi prima che i nodi Element vengano istanziati, risparmiano quella porzione di sovraccarico.
+</testo_normale>
+<testo_normale>
+L'applicazione Da-XML-a-CSV di cui sopra può essere trasposta verso un tree builder.
+</testo_normale>
+<py_code>
+import csv
+from xml.etree.ElementTree import XMLTreeBuilder
+import sys
+
+class PodcastListToCSV(object):
+
+    def __init__(self, outputFile):
+        self.writer = csv.writer(outputFile, quoting=csv.QUOTE_NONNUMERIC)
+        self.group_name = ''
+        return
+
+    def start(self, tag, attrib):
+        if tag != 'outline':
+            # Ignora qualsiasi cosa al di fuori di outline
+            return
+        if not attrib.get('xmlUrl'):
+            # Ricorda il gruppo corrente
+            self.group_name = attrib['text']
+        else:
+            # Scrive una voce di podcast
+            self.writer.writerow( (self.group_name, attrib['text'],
+                                   attrib['xmlUrl'],
+                                   attrib.get('htmlUrl', ''),
+                                   )
+                                  )
+
+    def end(self, tag):
+        # Ignora i tag di chiusura
+        pass
+    def data(self, data):
+        # Ignora i dati all'interno dei nodi
+        pass
+    def close(self):
+        # Nulla di speciale da fare qui
+        return
+
+
+target = PodcastListToCSV(sys.stdout)
+parser = XMLTreeBuilder(target=target)
+with open('podcasts.opml', 'rt') as f:
+    for line in f:
+        parser.feed(line)
+parser.close()
+</py_code>
+<testo_normale>
+${sbk}PodcastListToCSV${ebk} implementa il protocollo TreeBuilder. Ogni volta che si incontra un nuovo tag XML, viene chiamato ${sbk}start()${ebk} con il nome del tag e gli attributi. Quando viene visto un tag di chiusura viene chiamato ${sbk}end()${ebk} con il nome. In mezzo viene chiamato ${sbk}data()${ebk} quando un nodo ha un contenuto (il costruttore dell'albero tiene traccia del nodo 'corrente'). Quando tutto l'input è stato processato viene chiamato ${sbk}close()${ebk}. E' possibile la restituzione di un valore, il quale può essere ritornato all'utilizzatore di XMLTreeBuilder.
+</testo_normale>
+<py_output>
+$ python ElementTree_podcast_csv_treebuilder.py 
+"Science and Tech","APM: Future Tense","http://www.publicradio.org/columns/futuretense/podcast.xml","http://www.publicradio.org/columns/futuretense/"
+"Science and Tech","Engines Of Our Ingenuity Podcast","http://www.npr.org/rss/podcast.php?id=510030","http://www.uh.edu/engines/engines.htm"
+"Science and Tech","Science & the City","http://www.nyas.org/Podcasts/Atom.axd","http://www.nyas.org/WhatWeDo/SciencetheCity.aspx"
+"Books and Fiction","Podiobooker","http://feeds.feedburner.com/podiobooks","http://www.podiobooks.com/blog"
+"Books and Fiction","The Drabblecast","http://web.me.com/normsherman/Site/Podcast/rss.xml","http://web.me.com/normsherman/Site/Podcast/Podcast.html"
+"Books and Fiction","tor.com / category / tordotstories","http://www.tor.com/rss/category/TorDotStories","http://www.tor.com/"
+"Computers and Programming","MacBreak Weekly","http://leo.am/podcasts/mbw","http://twit.tv/mbw"
+"Computers and Programming","FLOSS Weekly","http://leo.am/podcasts/floss","http://twit.tv"
+"Computers and Programming","Core Intuition","http://www.coreint.org/podcast.xml","http://www.coreint.org/"
+"Python","PyCon Podcast","http://advocacy.python.org/podcasts/pycon.rss","http://advocacy.python.org/podcasts/"
+"Python","A Little Bit of Python","http://advocacy.python.org/podcasts/littlebit.rss","http://advocacy.python.org/podcasts/"
+"Python","Django Dose Everything Feed","http://djangodose.com/everything/feed/",""
+"Miscelaneous","dhellmann's CastSampler Feed","http://www.castsampler.com/cast/feed/rss/dhellmann/","http://www.castsampler.com/users/dhellmann/"
+</py_output>
+<titolo_2>
+Analizzare Stringhe    
+</titolo_2>
+<testo_normale>
+Per lavorare con porzioni più piccole di testo XML, specialmente stringhe letterali come potrebbero essere incorporate nel sorgente di un programma, si usa xml.etree.ElementTree.XML e si passa un singolo parametro, la stringa che contiene l'XML che deve essere analizzato.    
+</testo_normale>
+<py_code>
+from xml.etree.ElementTree import XML
+
+parsed = XML('''
+.<root>
+  <group>
+    <child id="a">Questo è il figlio "a".</child>
+    <child id="b">Questo è il figlio "b".</child>
+  </group>
+  <group>
+    <child id="c">Questo è il figlio "c".</child>
+  </group>
+.</root>
+''')
+
+print 'parsed =', parsed
+
+for elem in parsed.getiterator():
+    print elem.tagxml.etree.ElementTree - Api per la Manipolazione XML
+    if elem.text is not None and elem.text.strip():
+        print '  text: "%s"' % elem.text
+    if elem.tail is not None and elem.tail.strip():
+        print '  tail: "%s"' % elem.tail
+    for name, value in sorted(elem.attrib.items()):
+        print '  %-4s = "%s"' % (name, value)
+    print
+</py_code>
+<testo_normale>
+Si noti che al contrario di ${sbk}parse()${ebk}, il valore restituito è una istanza di Element invece che di ElementTree.
+</testo_normale>
+<py_output>
+$ python ElementTree_XML.py 
+parsed = <Element root at b76b2e2c>
+root
+
+group
+
+child
+  text: "Questo è il figlio "a"."
+  id   = "a"
+
+child
+  text: "Questo è il figlio "b"."
+  id   = "b"
+
+group
+
+child
+  text: "Questo è il figlio "c"."
+  id   = "c"
+</py_output>
+<testo_normale>
+In caso di XML strutturato che usi l'attributo "id" per identificare in modo univoco i nodi di interesse, ${sbk}XMLID()${ebk} rappresenta un modo conveniente di accedere ai risultati analizzati.
+</testo_normale>
+<py_code>
+from xml.etree.ElementTree import XMLID
+tree, id_map = XMLID('''
+<root>
+  <group>
+    <child id="a">Questo è il figlio "a".</child>
+    <child id="b">Questo è il figlio "b".</child>
+  </group>
+  <group>
+    <child id="c">Questo è il figlio "c".</child>
+  </group>
+</root>
+''')
+
+for key, value in sorted(id_map.items()):
+    print '%s = %s' % (key, value)
+</py_code>
+<testo_normale>
+${sbk}XMLID/(${ebk} restituisce l'albero analizzato come un oggetto Element, assieme ad un dizionario che mapppa le stringhe dell'attributo id ai singoli nodi nell'albero
+</testo_normale>
+<py_output>
+$ python ElementTree_XMLID.py 
+a = <Element child at b7615f6c>
+b = <Element child at b761a0ec>
+c = <Element child at b761a1ac>
+</py_output>
+<vedi_anche>
+http://www.opml.org/|Outline Processor Markup Language (OPML)|Le specifiche dell'OPML di Dave Winer e la documentazione.
+http://effbot.org/zone/element-xpath.htm|Supporto XPath in ElementTree|Parte della documentazione originale per ElementTree di Fredrick Lundh
+http://robyp.freesitespace.net/pymotw-it/csv.html|csv|Leggere e scrivere file con valori separati da virgola
+</vedi_anche>
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+<lista></lista>
+
+-->
+</documento_tradotto>

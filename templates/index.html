@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+            <p class="pull-right visible-xs">
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+            </p>
+            <div class="jumbotron">
+                <h2>Il Modulo Python della Settimana</h2>
+
+                <p>Questo sito contiene la traduzione italiana dell'apprezzata serie
+                    <a href="http://pymotw.com/3/index.html" title="Python 3 Module of the Week">Python 3 Module of the Week</a> (PyMOTW-3), curata da
+                    <a href="http://doughellmann.com/">Doug Hellmann</a>.</p>
+
+                <p>Questa serie di articoli offre una analisi della libreria standard Python 3 attraverso vari esempi e spiegazioni</p>
+                <p>Se cercate esempi per la serie originale <a href='http://pymotw.com/2/index.html'>PyMOTW Module of the Week (PyMOTW)</a>, riferita alla versione di Python 2, trovate la traduzione <a href='../index.html'>qui</a></p>
+
+                <!-- <p>Come neofita del linguaggio Python ho molto apprezzato gli articoli di Doug. che si sono rivelati, almeno per me, una ottima fonte di apprendimento.</p>
+
+                <p>Spero che questa traduzione possa aiutare coloro che programmano in Python e non hanno molta dimestichezza con la lingua inglese.</p> -->
+            </div>
+            {% for m_tre in indice.modulo_tre %}
+                <div class="row">
+                {% for modulo in m_tre %}
+                    <div class="col-6 col-sm-6 col-lg-4">
+                        <h2>{{ modulo.nome_per_teaser }}</h2>
+                        <p><strong>{{ modulo.titolo }}</strong></p>
+                        <p>{{ modulo.descrizione|safe }}</p>
+                        <p><a class="btn btn-primary btn-xs" href="{{ modulo.url|safe }}">Leggi &raquo;</a></p>
+                    </div><!--/span-->
+                {% endfor %}
+                </div><!--/row-->
+            {% endfor %}
+            <p>
+                <hr />
+            {% if indice.prev_url %}
+                <a href="{{ indice.prev_url|safe }}"
+                   class="btn btn-primary btn-sm" >
+                    <span class="glyphicon glyphicon-chevron-left"></span> Altri moduli
+                </a>
+            {% endif %}
+            {% if indice.next_url %}
+                <a href="{{ indice.next_url|safe }}"
+                   class="btn btn-primary btn-sm" >
+                    <span class="glyphicon glyphicon-chevron-right"></span> Altri moduli
+                </a>
+            {% endif %}
+            </p>
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="well sidebar-nav">
+                    <h4>Ultimi moduli aggiunti/aggiornati</h4>
+                            <ul>
+                                <li>16.07.2016: <a style='display: block;' title='random - Generatori Pseudocasuali di Numeri' href='random.html'>random</a></li>
+                                <li>16.07.2016: <a style='display: block;' title='fractions - Numeri Razionali' href='fractions.html'>fractions</a></li>
+                                <li>02.07.2016: <a style='display: block;' title="Duplica oggetti" href='copy.html'>copy</a></li>
+                                <li>19.06.2016: <a style='display: block;' title='calendar - Lavorare con le Date' href='calendar.html'>calendar</a></li>
+                                <li>19.06.2016: <a style='display: block;' title='datetime - Manipolazione dei Valori di Data ed Orario' href='datetime.html'>datetime</a></li>
+                                <li>05.06.2016: <a style='display: block;' title="contextlib - Utilità per la Gestione di Contesto" href='contextlib.html'>contextlib</a></li>
+                                <li>16.05.2016: <a style='display: block;' title="pprint - Stampa Pretty-print di Strutture Dati" href='pprint.html'>pprint</a></li>
+                            </ul>
+            </div><!--/.well -->
+
+            <div class="well sidebar-nav">
+                    <h3>Categorie</h3>
+                        {% for categoria, moduli in indice.elenco_categorie %}
+                            <div class='dropdown'>
+                            <a data-toggle='dropdown' href='#'>{{categoria|safe}}</a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            {% for modulo in moduli %}
+                                <li><a style='display: block;' href='{{modulo.1|safe}}'>{{modulo.0|safe}}</a></li>
+                            {% endfor %}
+                            </ul>
+                            </div>
+                        {% endfor %}
+            </div><!--/.well -->
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+        <div id="footer">
+        <div class="container">
+            <p class="text-muted">{{ indice.footer.nome_sito }}
+            {{ indice.footer.periodo }} /
+            Documento aggiornato il: {{ indice.footer.data_agg }}
+            - Contatto: pymotw-it(at)robyp.x10host.com</p>
+        </div>
+    </div
+
+{% endblock %}
+
+

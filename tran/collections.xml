@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+collections - Tipi di Dato Contenitore
+</titolo_1>
+<descrizione>
+Il modulo <strong>collections</strong> include tipi di dato contenitore oltre a quelli <em>built-in</em>: <code>list</code>, <code>dict</code> e <code>tuple</code>.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>collections</strong> include tipi di dato contenitore oltre a quelli <em>built-in</em>: <code>list</code>, <code>dict</code> e <code>tuple</code>.
+</testo_normale>
+<lista>
+<a href="ChainMap.html">ChainMap - cerca molteplici dizionari</a>
+<a href="Counter.html">Counter - conta oggetti <em>hashable</em></a>
+<a href="defaultdict.html">defaultdict - chiavi mancanti ritornano un valore predefinito</a>
+<a href="Deque.html">Deque - code ad entrate opposte</a>
+<a href="namedtuple.html">namedtuple - sottoclasse di tuple con campi nominativi</a>
+<a href="OrderedDict.html">OrderedDict - ricorda l'ordine nel quale le chiavi sono inserite nel dizionario</a>
+<a href="collections_abc.html">collections.abc - classi base astratte per contenitori</a>
+</lista>
+<vedi_anche>
+http://docs.python.org/3.5/library/collections.html|collections|La documentazione standard della libreria per questo modulo
+riferimenti_moduli_modificati.htm#pn_collections|Note di Portabilità|Note di portabilità per collections.
+</vedi_anche>
+</documento_tradotto>

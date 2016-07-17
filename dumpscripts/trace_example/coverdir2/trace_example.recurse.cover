@@ -1,0 +1,11 @@
+       #!/usr/bin/env python
+       # -*- coding: UTF-8 -*-
+       
+>>>>>> def recurse(level):
+    3:     print 'ricorsione(%s)' % level
+    3:     if level:
+    2:         recurse(level-1)
+    3:     return
+       
+>>>>>> def not_called():
+>>>>>>     print 'Questa funzione non è mai chiamata.'

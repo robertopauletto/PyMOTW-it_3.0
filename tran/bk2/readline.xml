@@ -1,0 +1,583 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di sistema operativo opzionali </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+readline - Interfaccia alla libreria GNU readline
+</titolo_1>
+<descrizione>
+Fornisce una interfaccia alla libreria GNU readline per l'interazione con l'utente al prompt di comando.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>readline</strong> può essere usato per migliorare i programmi interattivi di riga di comando per facilitarne l'utilizzo. E' principalmente usato per fornire un completamento del testo della riga di comando, altrimenti noto come &quot;tab completion&quot; (in quanto premendo il tasto di tabulazione si ha la possibilità di completare una porzione di testo digitata tramite un elenco di opzioni - n.d.t.).
+</testo_normale>
+<note>
+Visto che <strong>readline</strong> interagisce con il contenuto della console, la stampa di messaggi di debug rende difficoltoso vedere cosa sta succedendo nel codice di esempio rispetto a quello che <strong>readline</strong> fa di sua iniziativa. Gli esempi sottostanti usano il modulo <a href='${baseurl}/pymotw-it/logging.html'>logging</a> per scrivere le informazioni di debug in un file separato. Le informazioni contenute in detto file vengono mostrate con ciascun esempio.
+</note>
+<<titolo_2>
+Configurazione
+</titolo_2>
+<testo_normale>
+Ci sono due modi per configurare la libreria readline sottostante, usando un file di configurazione oppure la funzione ${sbk}parse_and_bind()${ebk}. Le opzioni di configurazione comprendono il keybinding per la chiamata del completamento, le modalità di modifica (vi oppure emacs), e molti altri valori. Si faccia riferimento alla <a href='http://tiswww.case.edu/php/chet/readline/readline.html#SEC10'>documentazione della libreria readline GNU</a> per i dettagli.
+</testo_normale>
+<testo_normale>
+Il modo più facile per abilitare il completamento tramite il tasto di tabulazione è tramite la chiamata a ${sbk}parse_and_bind()${ebk}. Altre opzioni possono essere impostate allo stesso tempo. Questo esempio modifica i controlli per la modifica per usare la modalità &quot;vi&quot; invece che la predefinita &quot;emacs&quot;. Per modificare la riga in input corrente, si preme ${sev}ESC${eev}, quindi si usano i normali tasti di spostamento impostati in "vi" come ${sev}j${eev}, ${sev}k${eev}, ${sev}l${eev} ed ${sev}h${eev}.
+</testo_normale>
+<py_code>
+import readline
+
+readline.parse_and_bind('tab: complete')
+readline.parse_and_bind('set editing-mode vi')
+
+while True:
+    line = raw_input('Prompt ("stop" per uscire): ')
+    if line == 'stop':
+        break
+    print 'DIGITATO: "%s"' % line
+</py_code>
+<testo_normale>
+La stessa configurazione può essere conservata sotto forma di istruzioni in un file letto dalla libreria con una singola chiamata. Se ${sev}myreadline.rc${eev} contiene:
+</testo_normale>
+<py_output>
+# Attiva il completamento con il tasto tab
+tab: complete
+
+# Usa la modalità di modifica vi invece che emacs
+set editing-mode vi
+</py_output>
+<testo_normale>
+il file può poi essere letto con ${sev}read_init_file()${eev}:
+</testo_normale>
+<py_code>
+import readline
+
+readline.read_init_file('myreadline.rc')
+
+while True:
+    line = raw_input('Prompt ("stop" per uscire): ')
+    if line == 'stop':
+        break
+    print 'DIGITATO: "%s"' % line
+</py_code>
+<titolo_2>
+Completamento del Testo
+</titolo_2>
+<testo_normale>
+Come esempio di come si costruisca il completamento di una riga di comando, si può vedere un programma che ha al suo interno un insieme di possibili comandi ed usa il completamento con il tasto tab quando l'utente digita le istruzioni.
+</testo_normale>
+<py_code>
+
+import readline
+import logging
+
+LOG_FILENAME = '/tmp/completer.log'
+logging.basicConfig(filename=LOG_FILENAME,
+                    level=logging.DEBUG,
+                    )
+
+class SimpleCompleter(object):
+    
+    def __init__(self, options):
+        self.options = sorted(options)
+        return
+
+    def complete(self, text, state):
+        response = None
+        if state == 0:
+            # Questa è la prima volta per questo testo, quindi si costruisce un elenco di corrispondenze
+            if text:
+                self.matches = [s 
+                                for s in self.options
+                                if s and s.startswith(text)]
+                logging.debug('%s corrisponde a: %s', repr(text), self.matches)
+            else:
+                self.matches = self.options[:]
+                logging.debug('(input vuoto) corrisponde a: %s', self.matches)
+        
+        # Restituisce l'elemento che corrisponde a state dalla lista di completamento
+        # se ce ne sono a sufficienza
+        try:
+            response = self.matches[state]
+        except IndexError:
+            response = None
+        logging.debug('completato(%s, %s) => %s', 
+                      repr(text), state, repr(response))
+        return response
+
+def input_loop():
+    line = ''
+    while line != 'stop':
+        line = raw_input('Prompt ("stop" per uscire): ')
+        print 'Inviato %s' % line
+
+# Registra la funzione di completamento
+readline.set_completer(SimpleCompleter(['start', 'stop', 'list', 'print']).complete)
+
+# Usa il tasto tab per il completamento
+readline.parse_and_bind('tab: complete')
+
+# Prompt all'utente per il testo
+input_loop()
+</py_code>
+<testo_normale>
+La funzione ${sbk}input_loop()${ebk} legge semplicemente una riga dopo l'altra fino a che il valore imputato è ${sev}&quot;stop&quot;${eev}. Un programma più sofisticato potrebbe elaborare realmente la riga di input ed eseguire il comando.
+</testo_normale>
+<testo_normale>
+La classe <strong>SimpleCompleter</strong> mantiene un elenco di &quot;opzioni&quot; che sono suscettibili di auto-completamento. Il metodo ${sbk}complete()${ebk} per una istanza è concepito per essere registrato con <strong>readline</strong> come sorgente per i completamenti. I parametri sono una stringa &quot;text&quot; da completare ed un valore &quot;state&quot;, che indica quante volte la funzione è stata chiamata con lo stesso testo. Questa funzione viene chiamata ripetutamente con <i>state</i> incrementato ogni volta. Dovrebbe restituire una stringa se c'è un candidato per quel valore di <i>state</i>, oppure <i>None</i> se non ci sono ulteriori candidati. Qui l'implementazione di ${sbk}complete()${ebk} cerca un insieme di corrispondenze quando <i>state</i> è ${sev}0${eev}, quindi ritorna tutte le corrispondenze, una alla volta, su chiamate successive.
+</testo_normale>
+<testo_normale>
+Quando eseguito lo script, l'output iniziale assomiglia a questo:
+</testo_normale>
+<py_output>
+$ python readline_completer.py 
+Prompt ("stop" per uscire): 
+</py_output>
+<testo_normale>
+Se si preme due volte il tasto ${sev}TAB${eev}, viene stampato un elenco di opzioni.
+</testo_normale>
+<py_output>
+$ python readline_completer.py 
+Prompt ("stop" per uscire): 
+list   print  start  stop   
+Prompt ("stop" per uscire): 
+</py_output>
+<testo_normale>
+Il file di registro mostra che ${sbk}complete()${ebk} è stato chiamato con due sequenze separate di valori di <i>state</i>.
+</testo_normale>
+<py_output>
+$ tail -f /tmp/completer.log 
+DEBUG:root:(input vuoto) corrisponde a: ['list', 'print', 'start', 'stop']
+DEBUG:root:completato('', 1) => 'print'
+DEBUG:root:completato('', 2) => 'start'
+DEBUG:root:completato('', 3) => 'stop'
+DEBUG:root:completato('', 4) => None
+DEBUG:root:(input vuoto) corrisponde a: ['list', 'print', 'start', 'stop']
+DEBUG:root:completato('', 0) => 'list'
+DEBUG:root:completato('', 1) => 'print'
+DEBUG:root:completato('', 2) => 'start'
+DEBUG:root:completato('', 3) => 'stop'
+DEBUG:root:completato('', 4) => None
+</py_output>
+<testo_normale>
+La prima sequenza proviene dalla prima pressione del tasto TAB. L'algoritmo di completamento richiede tutti i candidati ma non espande la riga di input vuota. Poi, al secondo TAB, l'elenco di candidati viene ricalcolato in modo da potere essere stampato all'utente.
+</testo_normale>
+<testo_normale>
+Se successivamente si digita &quot;${sev}l${eev}&quot; quindi ancora TAB, la videata mostra:
+</testo_normale>
+<py_output>
+Prompt ("stop" per uscire): list
+</py_output>
+<testo_normale>
+Ed il registro rispecchia i parametri diversi per ${sbk}complete()${ebk}:
+</testo_normale>
+<py_output>
+DEBUG:root:'l' corrisponde a: ['list']
+DEBUG:root:completato('l', 0) => 'list'
+DEBUG:root:completato('l', 1) => None
+</py_output>
+<testo_normale>
+La pressione di INVIO ora fa sì che ${sbk}raw_input()${ebk} restituisca il valore, ed il ciclo in ${sbk}while${ebk} riprende.
+</testo_normale>
+<py_output>
+Inviato list
+Prompt ("stop" per uscire):
+</py_output>
+<testo_normale>
+Ci sono due possibili completamenti per il comando che inizia per &quot;${sev}s${eev}&quot;. Digitando &quot;${sev}s${eev}&quot;, quindi premendo TAB si trovano &quot;${sev}start${eev}&quot; e &quot;${sev}stop${eev} &quot; come candidati, ma il testo viene completato solo parzialmente sullo schermo aggiungendo una &quot;${sev}t${eev}&quot;.
+</testo_normale>
+<testo_normale>
+Il file di log mostra:
+</testo_normale>
+<py_output>
+DEBUG:root:'s' corrisponde a: ['start', 'stop']
+DEBUG:root:completato('s', 0) => 'start'
+DEBUG:root:completato('s', 1) => 'stop'
+DEBUG:root:completato('s', 2) => None
+</py_output>
+<testo_normale>
+La prima sequenza proviene dalla prima pressione di TAB. L'algoritmo di completamento richiede tutti i coandidati ma non espande la riga vuota. Quindi, alla seconda pressione di TAB, l'elenco dei candidati viene ricalcolato in modo da potere essere stampato per l'utente.
+</testo_normale>
+<testo_normale>
+Se successivamente si digita &quot;${sev}l${eev}&quot;, quindi si preme TAB nuovamente, lo schermo mostra:
+</testo_normale>
+<py_output>
+Prompt ("stop" per uscire): list
+</py_output>
+<testo_normale>
+Ed il registro riflette i diversi parametri per ${sbk}complete()${ebk}:
+</testo_normale>
+<py_output>
+DEBUG:root:'l' corrisponde a: ['list']
+DEBUG:root:completato('l', 0) => 'list'
+DEBUG:root:completato('l', 1) => None
+</py_output>
+<testo_normale>
+La pressione di INVIO fa sì che ${sbk}raw_input${ebk} ritorni il valore, quindi riprendo il ciclo di ${sev}while${eev}.
+</testo_normale>
+<py_output>
+Inviato list
+Prompt ("stop" per uscire): 
+</py_output>
+<testo_normale>
+Ci sono due possibili completamenti per un comando che inizia per &quot;${sev}s${eev}&quot;. Digitando &quot;${sev}s${eev}&quot; quindi premendo TAB si trovano &quot;${sev}start${eev}&quot; e &quot;${sev}stop${eev}&quot; come candidati, ma il completamento del testo è solo parziale aggiungendo una &quot;${sev}t${eev}&quot;.
+</testo_normale>
+<testo_normale>
+Il file di registro mostra:
+</testo_normale>
+<py_output>
+DEBUG:root:'s' corrisponde a: ['start', 'stop']
+DEBUG:root:completato('s', 0) => 'start'
+DEBUG:root:completato('s', 1) => 'stop'
+DEBUG:root:completato('s', 2) => None
+</py_output>
+<testo_normale>
+e lo schermo:
+</testo_normale>
+<py_output>
+Prompt ("stop" per uscire): st
+</py_output>
+<avvertimento>
+Se il proprio computer solleva una eccezione, essa viene silenziosamente ignorata e <strong>readline</strong> assume che non ci siano completamenti corrispondenti.
+</avvertimento>
+<titolo_2>
+Accedere al Buffer di Completamento
+</titolo_2>
+<testo_normale>
+L'algoritmo di completamento di cui sopra è semplicistico in quanto viene cercato solo il parametro <i>text</i> passato alla funzione, ma non usa null'altro dello stato interno di readline. E' anche possibilie usare le funzioni di <strong>readline</strong> per manipolare il testo nel buffer di input.
+</testo_normale>
+<py_code>
+import readline
+import logging
+
+LOG_FILENAME = '/tmp/completer.log'
+logging.basicConfig(filename=LOG_FILENAME,
+                    level=logging.DEBUG,
+                    )
+
+class BufferAwareCompleter(object):
+    
+    def __init__(self, options):
+        self.options = options
+        self.current_candidates = []
+        return
+
+    def complete(self, text, state):
+        response = None
+        if state == 0:
+            # Questa è la prima volta per questo testo, quindi si costruisce un elenco di corrispondenze
+            
+            origline = readline.get_line_buffer()
+            begin = readline.get_begidx()
+            end = readline.get_endidx()
+            being_completed = origline[begin:end]
+            words = origline.split()
+
+            logging.debug('riga originale=%s', repr(origline))
+            logging.debug('inizio=%s', begin)
+            logging.debug('fine=%s', end)
+            logging.debug('in completamento=%s', being_completed)
+            logging.debug('parole=%s', words)
+            
+            if not words:
+                self.current_candidates = sorted(self.options.keys())
+            else:
+                try:
+                    if begin == 0:
+                        # prima parola
+                        candidates = self.options.keys()
+                    else:
+                        # parola ulteriore
+                        first = words[0]
+                        candidates = self.options[first]
+                    
+                    if being_completed:
+                        # cerca corrispondenza di opzioni con la 
+                        # porzione di input che si sta completando
+                        self.current_candidates = [ w for w in candidates
+                                                    if w.startswith(being_completed) ]
+                    else:
+                        # corrispondenza con una stringa vuota, quindi si usano tutti i candidati
+                        self.current_candidates = candidates
+
+                    logging.debug('candidati=%s', self.current_candidates)
+                    
+                except (KeyError, IndexError), err:
+                    logging.error('errore di completamento: %s', err)
+                    self.current_candidates = []
+        
+        try:
+            response = self.current_candidates[state]
+        except IndexError:
+            response = None
+        logging.debug('completato(%s, %s) => %s', repr(text), state, response)
+        return response
+            
+
+def input_loop():
+    line = ''
+    while line != 'stop':
+        line = raw_input('Prompt ("stop" per uscire): ')
+        print 'Inviato %s' % line
+
+# Registrazione della propria funzione di completamento
+readline.set_completer(BufferAwareCompleter(
+    {'list':['files', 'directories'],
+     'print':['byname', 'bysize'],
+     'stop':[],
+    }).complete)
+
+# Uso del tasto tab per il completamento
+readline.parse_and_bind('tab: complete')
+
+# Prompt all'utente per il testo 
+input_loop()
+</py_code>
+<testo_normale>
+In questo esempio, i comandi con sotto opzioni sono completati. Il metodo ${sbk}complete()${ebk} deve cercare alla posizione del completamento all'interno del buffer di input per determinare se parte della prima parola o di una parola ulteriore. Se l'obiettivo è la prima parola, le chiavi dei dizionario di opzioni vengono usate come candidati. Se non si tratta della prima parola, allore viene usata la prima parola per cercare candidati nel dizionario delle opzioni.
+</testo_normale>
+<testo_normale>
+Ci sono tre comandi di primo livello, due dei quali hanno sotto comandi:
+</testo_normale>
+<lista>
+elenca
+    file
+    directory
+stampa
+    pernome
+    perdimensione
+stop
+</lista>
+<testo_normale>
+Seguendo la stessa sequenza di azioni di prima, premendo TAB per due volte si ottengono i tre comandi del livello superiore:
+</testo_normale>
+<py_output>
+$ python readline_buffer.py 
+Prompt ("stop" per uscire): 
+elenca  stampa  stop    
+Prompt ("stop" per uscire): 
+</py_output>
+<testo_normale>
+Ed il registro riporta:
+</testo_normale>
+<py_output>
+DEBUG:root:riga originale=''
+DEBUG:root:inizio=0
+DEBUG:root:fine=0
+DEBUG:root:in completamento=
+DEBUG:root:parole=[]
+DEBUG:root:completato('', 0) => elenca
+DEBUG:root:completato('', 1) => stampa
+DEBUG:root:completato('', 2) => stop
+DEBUG:root:completato('', 3) => None
+DEBUG:root:riga originale=''
+DEBUG:root:inizio=0
+DEBUG:root:fine=0
+DEBUG:root:in completamento=
+DEBUG:root:parole=[]
+DEBUG:root:completato('', 0) => elenca
+DEBUG:root:completato('', 1) => stampa
+DEBUG:root:completato('', 2) => stop
+DEBUG:root:completato('', 3) => None
+</py_output>
+<testo_normale>
+Se la prima parola è &quot;${sev}elenca ${eev}&quot; (con uno spazio dopo la parola), i candidati per il completamento sono diversi:
+</testo_normale>
+<py_output>
+Prompt ("stop" per uscire): elenca 
+directory  file       
+</py_output>
+<testo_normale>
+Il registro mostra che il testo che è stato completato <i>non</i> è l'intera riga, ma la porzione successiva
+</testo_normale>
+<py_output>
+DEBUG:root:riga originale='elenca '
+DEBUG:root:inizio=7
+DEBUG:root:fine=7
+DEBUG:root:in completamento=
+DEBUG:root:parole=['elenca']
+DEBUG:root:candidati=['file', 'directory']
+DEBUG:root:completato('', 0) => file
+DEBUG:root:completato('', 1) => directory
+DEBUG:root:completato('', 2) => None
+DEBUG:root:riga originale='elenca '
+DEBUG:root:inizio=7
+DEBUG:root:fine=7
+DEBUG:root:in completamento=
+DEBUG:root:parole=['elenca']
+DEBUG:root:candidati=['file', 'directory']
+DEBUG:root:completato('', 0) => file
+DEBUG:root:completato('', 1) => directory
+DEBUG:root:completato('', 2) => None
+</py_output>
+<titolo_2>
+Input Storico
+</titolo_2>
+<testo_normale>
+<strong>readline</strong> tiene traccia dello storico di input automaticamente. Si sono due diversi insiemi di funzioni che lavorano con lo storico. Lo storico per la sessione corrente può esseere indirizzato attraverso ${sbk}get_current_history_length()${ebk} e ${sbk}get_history_item()${ebk}. Lo stesso storico può essere salvato in un file per un recupero successivo usando ${sbk}write_history_file()${ebk} e ${sbk}read_history_file${ebk}. Nella modalità predefinita l'intero storico viene salvato ma la dimensione massima del file può essere impostata con ${sbk}set_history_length()${ebk}. Una dimensione di ${sev}-1${eev} significa che non c'è limite.
+</testo_normale>
+<py_code>
+import readline
+import logging
+import os
+
+LOG_FILENAME = '/tmp/completer.log'
+HISTORY_FILENAME = '/tmp/completer.hist'
+
+logging.basicConfig(filename=LOG_FILENAME,
+                    level=logging.DEBUG,
+                    )
+
+def get_history_items():
+    return [ readline.get_history_item(i)
+             for i in xrange(1, readline.get_current_history_length() + 1)
+             ]
+
+class HistoryCompleter(object):
+    
+    def __init__(self):
+        self.matches = []
+        return
+
+    def complete(self, text, state):
+        response = None
+        if state == 0:
+            history_values = get_history_items()
+            logging.debug('storico: %s', history_values)
+            if text:
+                self.matches = sorted(h 
+                                      for h in history_values 
+                                      if h and h.startswith(text))
+            else:
+                self.matches = []
+            logging.debug('corrispondenze: %s', self.matches)
+        try:
+            response = self.matches[state]
+        except IndexError:
+            response = None
+        logging.debug('completato(%s, %s) => %s', 
+                      repr(text), state, repr(response))
+        return response
+
+def input_loop():
+    if os.path.exists(HISTORY_FILENAME):
+        readline.read_history_file(HISTORY_FILENAME)
+    print 'Lunghezza max file storico:', readline.get_history_length()
+    print 'Storico di partenza:', get_history_items()
+    try:
+        while True:
+            line = raw_input('Prompt ("stop" per uscire): ')
+            if line == 'stop':
+                break
+            if line:
+                print 'Aggiunta di "%s" nello storico' % line
+    finally:
+        print 'Storico finale:', get_history_items()
+        readline.write_history_file(HISTORY_FILENAME)
+
+# Registra la funzione di completamento
+readline.set_completer(HistoryCompleter().complete)
+
+# Uso del tasto tab per il completamento
+readline.parse_and_bind('tab: complete')
+
+# Prompt all'utente per il testo
+input_loop()
+</py_code>
+<testo_normale>
+La classe <strong>HistoryCompleter</strong> ricorda qualsiasi cosa venga digitata ed usa quei valori per il completamento dell'input successivo.
+</testo_normale>
+<py_output>
+$ python readline_history.py 
+Lunghezza max file storico: -1
+Storico di partenza: []
+Prompt ("stop" per uscire): foo
+Aggiunta di "foo" nello storico
+Prompt ("stop" per uscire): bar
+Aggiunta di "bar" nello storico
+Prompt ("stop" per uscire): blah
+Aggiunta di "blah" nello storico
+Prompt ("stop" per uscire): b
+bar   blah  
+Prompt ("stop" per uscire): stop
+Storico finale: ['foo', 'bar', 'blah', 'stop']
+</py_output>
+<testo_normale>
+Il registro mostra questo output quando &quot;b&quot; viene seguito da due TAB.
+</testo_normale>
+<py_output>
+DEBUG:root:storico: ['foo', 'bar', 'blah']
+DEBUG:root:corrispondenze: ['bar', 'blah']
+DEBUG:root:completato('b', 0) => 'bar'
+DEBUG:root:completato('b', 1) => 'blah'
+DEBUG:root:completato('b', 2) => None
+DEBUG:root:storico: ['foo', 'bar', 'blah']
+DEBUG:root:corrispondenze: ['bar', 'blah']
+DEBUG:root:completato('b', 0) => 'bar'
+DEBUG:root:completato('b', 1) => 'blah'
+DEBUG:root:completato('b', 2) => None
+</py_output>
+<testo_normale>
+Quando lo script viene eseguito per la seconda volta, tutto lo storico viene letto dal file.
+</testo_normale>
+<py_output>
+$ python readline_history.py 
+Lunghezza max file storico: -1
+Storico di partenza: ['foo', 'bar', 'blah', 'stop']
+Prompt ("stop" per uscire): 
+</py_output>
+<testo_normale>
+Ci sono funzioni sia per rimuovere elementi singoli nello storico che per eliminare interamente lo storico.
+</testo_normale>
+<titolo_2>
+Agganci
+</titolo_2>
+<testo_normale>
+Ci sono parecchi agganci disponibili per far scattare dele azioni come parte della sequenza di interazione. L'aggancio <i>startup</i> viene chiamato immediatamente prima della stampa del prompt, e l'aggancio <i>pre-input</i> viene eseguito dopo il prompt, ma prima di leggere il testo dall'utente.
+</testo_normale>
+<py_code>
+import readline
+
+def startup_hook():
+    readline.insert_text('da startup_hook')
+
+def pre_input_hook():
+    readline.insert_text(' da pre_input_hook')
+    readline.redisplay()
+
+readline.set_startup_hook(startup_hook)
+readline.set_pre_input_hook(pre_input_hook)
+readline.parse_and_bind('tab: complete')
+
+while True:
+    line = raw_input('Prompt ("stop" per uscire): ')
+    if line == 'stop':
+        break
+    print 'DIGITATO: "%s"' % line
+</py_code>
+<testo_normale>
+Entrambi gli agganci sono potenzialmente un buon punto per usare ${sbk}insert_test()${ebk} per modificare il buffer di input.
+</testo_normale>
+<py_output>
+python readline_hooks.py 
+Prompt ("stop" per uscire): da startup_hook da pre_input_hook
+</py_output>
+<testo_normale>
+Se il buffer viene modificato all'interno dell'aggancio <i>pre-input</i>, occorre chiamare ${sbk}redisplay()${ebk} per aggiornare lo schermo.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/readline.html|readline|La documentazione della libreria standard per questo modulo.
+http://tiswww.case.edu/php/chet/readline/readline.html|GNU readline|La documentazione per la libreria GNU readline.
+http://tiswww.case.edu/php/chet/readline/readline.html#SEC10|readline init file format|Il formato del file di inizializzazione e configurazione.
+http://sandbox.effbot.org/librarybook/readline.htm|effbot: The readline module|La guida di Effbot al modulo readline.
+https://launchpad.net/pyreadline|pyreadline|pyreadline, sviluppato come rimpiazzo basato su Python per readline da usare con <a href='http://ipython.scipy.org/'>iPython</a>.
+cmd.html|cmd|Il modulo <strong>cmd</strong> usa <strong>readline</strong> in modo estensivo per implementare il completamento con tab nell'interfaccia del comando. Alcuni esempi qui sopra sono stati adattati sulla base del codice in <strong>cmd</strong>.
+http://www.doughellmann.com/PyMOTW/rlcompleter/index.html#module-rlcompleter|ricompleter|<strong>rlcompleter</strong> usa <strong>readline</strong> per aggiungere il completamento con tab all'interprete Python interattivo.
+</vedi_anche>
+</documento_tradotto>

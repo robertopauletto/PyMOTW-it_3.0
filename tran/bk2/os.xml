@@ -1,0 +1,928 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi generici di sistema operativo </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+os - Accesso portabile alle funzionalit&agrave; specifiche di un sistema operativo
+</titolo_1>
+<descrizione>
+Accesso portabile alle funzionalit&agrave; specifiche di un sistema operativo
+1.4 (o prececedente)
+</descrizione>
+<testo_normale>
+Il modulo <strong>os</strong> fornisce un incapsulamento per moduli specifici per una piattaforma tipo <strong>posix</strong>, <strong>nt</strong> e <strong>mac</strong>. L'API per le funzioni disponibile su tutte le piattaforme dovrebbe essere la stessa, quindi l'uso del modulo os offre una qualche garanzia di portabilità. Non tutte le funzioni sono disponibili in tutte le piattaforme, comunque. Molte delle funzioni di gestione dei processi qui descritte non sono disponibil in Windows.
+</testo_normale>
+<testo_normale>
+La documentazione Python per il modulo os è sottotitolata "Interfacce varie per sistemi operativi". Il modulo comprende per lo più funzioni per creare e gestire processi in esecuzione oppure contenuto di filesystem (file e direcotry), con poche altre funzionalità qui e là.
+</testo_normale>
+<note>
+Alcuni esempi di codice qui sotto funzioneranno solo su sistemi operativi tipo Unix.
+</note>
+<titolo_2>
+Proprietario del processo
+</titolo_2>
+<testo_normale>
+Il primo gruppo di funzioni da trattare sono usate per determinare e modificare gli identificativi del proprietario di un processo. Esse sono prevalentemente utitili per chi deve programmare demoni o programmi speciali di sistema i quali necessitano la modifica del livello di permessi invece che l'esecuzione come root. Non si tenta qui di spiegare gli intricati dettagli della sicurezza su Unix, proprietari di processi, ecc. in questo breve esposto. Vedere la lista di Riferimenti qui sotto per maggiori dettagli.
+</testo_normale>
+<testo_normale>
+Si inizia con uno script che mostra per un processo le vere ed effettive informazioni circa il gruppo e l'utente, quindi ne cambia i valori effettivi. E' simile a quello che un demone  dovrebbe fare quando parte come root durante l'inizializzazione del sistema, e deve abbassare il livello di privilegi ed essere eseguito come diverso utente. Se si provano gli esempi si dovrebbero modificare i valodi di <em>TEST_GID</em> e <em>TEST_UID</em> per farli corrispondere a quelli del proprio utente.
+</testo_normale>
+<py_code>
+import os
+
+TEST_GID=501
+TEST_UID=527
+
+def show_user_info():
+    print 'Utente effettivo :', os.geteuid()
+    print 'Gruppo effettivo :', os.getegid()
+    print 'Utente reale     :', os.getuid(), os.getlogin()
+    print 'Gruppo reale     :', os.getgid()
+    print 'Gruppi reali     :', os.getgroups()
+    return
+
+print 'PRIMA DELLA MODIFICA:'
+show_user_info()
+print
+
+try:
+    os.setegid(TEST_GID)
+except OSError:
+    print 'ERRORE: Impossibile cambiare il gruppo effettivo. Rieseguire come root.'
+else:
+    print 'GRUPPO MODIFICATO:'
+    show_user_info()
+    print
+
+try:
+    os.seteuid(TEST_UID)
+except OSError:
+    print "ERRORE: Impossibile cambiare l'utente effettivo. Rieseguire come root."
+else:
+    print 'MODIFICA UTENTE:'
+    show_user_info()
+    print
+</py_code>
+<testo_normale>
+Quando eseguito come utente/gruppo 527/501 su sistemi OS X, si vede questo risultato
+</testo_normale>
+<py_output>
+$ python os_process_user_example.py
+PRIMA DELLA MODIFICA:
+Utente effettivo : 527
+Gruppo effettivo : 501
+Utente reale     : 527 dhellmann
+Gruppo reale     : 501
+Gruppi reali     : [501, 101, 500, 102, 98, 80]
+
+GRUPPO MODIFICATO:
+Utente effettivo : 527
+Gruppo effettivo : 501
+Utente reale     : 527 dhellmann
+Gruppo reale     : 501
+Gruppi reali     : [501, 101, 500, 102, 98, 80]
+
+MODIFICA UTENTE:
+Utente effettivo : 527
+Gruppo effettivo : 501
+Utente reale     : 527 dhellmann
+Gruppo reale     : 501
+Gruppi reali     : [501, 101, 500, 102, 98, 80]
+</py_output>
+<testo_normale>
+Si nota che i valori non vengono modificati. Visto che non si sta eseguendo come root, i processi che vengono lanciati non possono modificare i valori di proprietario effettivo. Se si tenta di impostare l'utente od il gruppo effettivo a qualsiasi altra cosa diversa da se stessi viene sollevato un errore OSError.
+</testo_normale>
+<testo_normale>
+Si veda ora cosa accade se si esegue lo stesso script usando ${sbk}sudo${ebk} per partire con i privilegi di root:
+</testo_normale>
+<py_output>
+$ sudo python os_process_user_example.py
+PRIMA DELLA MODIFICA:
+Utente effettivo : 0
+Gruppo effettivo : 0
+Utente reale     : 0 dhellmann
+Gruppo reale     : 0
+Gruppi reali     : [0, 1, 2, 8, 29, 3, 9, 4, 5, 80, 20]
+
+GRUPPO MODIFICATO:
+Utente effettivo : 0
+Gruppo effettivo : 501
+Utente reale     : 0 dhellmann
+Gruppo reale     : 0
+Gruppi reali     : [501, 1, 2, 8, 29, 3, 9, 4, 5, 80, 20]
+
+MODIFICA UTENTE:
+Utente effettivo : 527
+Gruppo effettivo : 501
+Utente reale     : 0 dhellmann
+Gruppo reale     : 0
+Gruppi reali     : [501, 1, 2, 8, 29, 3, 9, 4, 5, 80, 20]
+</py_output>
+<testo_normale>
+In questo caso, visto che si è partiti come root, si possono modificare utente e gruppo effettivi per il processo. Una volta che l'UID effettivo è stato cambiato, il processo è limitato ai permessi per quell'utente. Visto che utenti non root non possono modificare i loro gruppi effettivi, occorre modificare prima il gruppo, poi l'utente.
+</testo_normale>
+<testo_normale>
+Oltre al trovare e modificare il proprietario del processo, ci sono funzioni per determinare l'identificativo del processo corrente ed il suo genitore, per trovare e modificare gli identificativi di sessione e di gruppo del processo, così come trovare l'identificativo del terminale in controllo. Esse possono essere uteli per inviare segnali tra i processi o per applicazioni complesse tipo scrivere la propria shell di riga comandi.    
+</testo_normale>
+<titolo_2>
+Ambiente del processo
+</titolo_2>
+<testo_normale>
+Un'altra caratteristica del sistema operativo a disposizione per i propri programmi attraverso il modulo os è l'ambiente. La variabili impostate nell'ambiente sono visibili come stringhe che possono essere lette tramite ${sbk}os.environ${ebk} oppure ${sbk}os.getenv()${ebk}. Le variabili d'ambiente sono in genere usate per valori di configurazione tipo percorsi di ricerca, locazioni di file, e flag di debug. Ecco un esempio per recuperare una variabile d'ambiente, e per passare un valore attraverso un processo figlio.
+</testo_normale>
+<py_code>
+import os
+
+print 'Valore iniziale:', os.environ.get('TESTVAR', None)
+print 'Processo figlio:'
+os.system('echo $TESTVAR')
+
+os.environ['TESTVAR'] = "QUESTO VALORE E' STATO CAMBIATO"
+
+print
+print 'Valore cambiato:', os.environ['TESTVAR']
+print 'Processo figlio:'
+os.system('echo $TESTVAR')
+
+del os.environ['TESTVAR']
+
+print
+print 'Valore rimosso :', os.environ.get('TESTVAR', None)
+print 'Processo figlio:'
+os.system('echo $TESTVAR')    
+</py_code>
+<testo_normale>
+L'oggetto ${sbk}os.environ${ebk} segue la mappatura standard API di Python per recuperare ed impostare i valori. Le modifiche ad ${sbk}os.environ${ebk} sono esportate per i processi figli.
+</testo_normale>
+<py_output>
+$ python -u os_environ_example.py 
+Valore iniziale: None
+Processo figlio:
+
+
+Valore cambiato: QUESTO VALORE E' STATO CAMBIATO
+Processo figlio:
+QUESTO VALORE E' STATO CAMBIATO
+
+Valore rimosso : None
+Processo figlio:
+</py_output>
+<titolo_2>
+Elaborare la Directory di Lavoro    
+</titolo_2>
+<testo_normale>
+La nozione di "directory di lavoro corrente"  per un processo è un concetto che deriva da sistemi operativi con filesystem gerarchici. Questa è la directory nel filesystem che il processo usa come posizione iniziale quando i file sono indirizzati tramite percorsi relativi.  
+</testo_normale>
+<py_code>
+import os
+
+print 'Partenza:', os.getcwd()
+print os.listdir(os.curdir)
+
+print 'Risalita di uno:', os.pardir
+os.chdir(os.pardir)
+
+print 'Dopo lo spostamento:', os.getcwd()
+print os.listdir(os.curdir)
+</py_code>
+<testo_normale>
+Si noti l'uso di ${sbk}os.curdir${ebk} ed ${sbk}os.pardir${ebk} per riferirsi alle directory attuale e genitore in maniera portabile. Il risultato non dovrebbe sorprendere:
+</testo_normale>
+<py_output>
+$ python os_cwd_example.py
+Partenza: /Users/dhellmann/Documents/PyMOTW/src/PyMOTW/os
+['__init__.py', 'index.rst', 'os_access.py', 'os_cwd_example.py', 'os_directories.py', 'os_environ_example.py', 'os_exec_example.py', 'os_fork_example.py', 'os_kill_example.py', 'os_popen.py', 'os_popen2.py', 'os_popen2_seq.py', 'os_popen3.py', 'os_popen4.py', 'os_process_id_example.py', 'os_process_user_example.py', 'os_spawn_example.py', 'os_stat.py', 'os_stat_chmod.py', 'os_stat_chmod_example.txt', 'os_symlinks.py', 'os_system_background.py', 'os_system_example.py', 'os_system_shell.py', 'os_wait_example.py', 'os_waitpid_example.py', 'os_walk.py']
+Risalita di un livello: ..
+Dopo lo spostamento: /Users/dhellmann/Documents/PyMOTW/src/PyMOTW
+['__init__.py', 'abc', 'about.rst', 'anydbm', 'array', 'articles', 'asynchat', 'asyncore', 'atexit', 'base64', 'BaseHTTPServer', 'bisect', 'builtins.rst', 'bz2', 'calendar', 'cc-by-nc-sa.png', 'cgitb', 'cmd', 'collections', 'commands', 'compileall', 'compression.rst', 'ConfigParser', 'contents.rst', 'contextlib', 'Cookie', 'copy', 'copyright.rst', 'cryptographic.rst', 'csv', 'data_types.rst', 'datetime', 'dbhash', 'dbm', 'decimal', 'dev_tools.rst', 'difflib', 'dircache', 'dis', 'docs', 'dumbdbm', 'EasyDialogs', 'exceptions', 'feed.png', 'file_access.rst', 'file_formats.rst', 'filecmp', 'fileinput', 'fnmatch', 'fractions', 'frameworks.rst', 'functools', 'gdbm', 'generic_os.rst', 'getopt', 'getpass', 'gettext', 'glob', 'grp', 'gzip', 'hashlib', 'heapq', 'history.rst', 'hmac', 'i18n.rst', 'imaplib', 'imp', 'importing.rst', 'inspect', 'internet_data.rst', 'internet_protocols.rst', 'ipc.rst', 'itertools', 'json', 'language.rst', 'linecache', 'locale', 'logging', 'mail.png', 'mailbox', 'markup.rst', 'mhlib', 'miscelaneous.rst', 'mmap', 'multiprocessing', 'numeric.rst', 'operator', 'optional_os.rst', 'optparse', 'os', 'ospath', 'pdf_contents.rst', 'persistence.rst', 'pickle', 'pipes', 'pkgutil', 'platform', 'plistlib', 'pprint', 'profile', 'profilers.rst', 'pwd', 'pyclbr', 'pydoc', 'Queue', 'readline', 'resource', 'rlcompleter', 'robotparser', 'runtime_services.rst', 'sched', 'shelve', 'shlex', 'shutil', 'signal', 'SimpleXMLRPCServer', 'smtpd', 'smtplib', 'SocketServer', 'string', 'string_services.rst', 'StringIO', 'struct', 'subprocess', 'sys', 'tabnanny', 'tarfile', 'tempfile', 'textwrap', 'threading', 'time', 'timeit', 'trace', 'traceback', 'unittest', 'unix.rst', 'urllib', 'urllib2', 'urlparse', 'uuid', 'warnings', 'weakref', 'webbrowser', 'whichdb', 'xml', 'xmlrpclib', 'zipfile', 'zipimport', 'zlib']
+</py_output>
+<titolo_2>
+Pipe
+</titolo_2>
+<testo_normale>
+Il modulo <strong>os</strong>  fornisce diverse funzioni per gestire l'I/O di processi figli usando le <em>pipe</em>. Tutte le funzioni lavorano essenzialmente allo stesso modo, ma restituiscono diversi file handler a seconda del tipo di input od output desiderato. Per la maggior parte queste funzioni sono rese obsolete dal modulo subprocess (aggiunto in Python 2.4), ma ci sono buone probabilità di imbattersi in esse se si lavora al mantenimento di <a href='http://it.wikipedia.org/wiki/Legacy_code'>legacy code</a>.
+</testo_normale>
+<testo_normale>
+La funzione per pipe più comunemente usata è ${sbk}popen()${ebk}. Essa crea un nuovo processo eseguendo il comando fornito ed attacca un singolo flusso all'input od all'output di quel processo, a seconda del parametro <em>mode</em>. Mentre le funzioni ${sbk}popen()${ebk} funzionano su Windows, alcuni di questi esempi presuppongono l'uso di un qualche tipo di shell Unix. Anche le descrizioni dei flussi presuppongono una terminologia tipo Unix:
+</testo_normale>
+<lista>
+stdin - Il flusso "standard di input" per un processo (descrittore file 0) è leggibile dal processo. In genere è dove va l'input del terminale
+stdout - Il flusso "standard di output" per un processo (descrittore file 1) è scrivibile dal processo, ed è usato per visualizzare il normale output all'utente.
+stderr - Il flusso "standard di errore" per un processo (descrittore file 2) è scrivibile dal processo, e viene usato per convogliare messaggi di errore.
+</lista>
+<py_code>
+import os
+
+print 'popen, lettura:'
+pipe_stdout = os.popen('echo "allo stdout"', 'r')
+try:
+    stdout_value = pipe_stdout.read()
+finally:
+    pipe_stdout.close()
+print '\tstdout:', repr(stdout_value)
+
+print '\npopen, scrittura:'
+pipe_stdin = os.popen('cat -', 'w')
+try:
+    pipe_stdin.write('\tstdin: allo stdin\n')
+finally:
+    pipe_stdin.close()
+</py_code>
+<py_output>
+$ python -u os_popen.py 
+popen, lettura:
+	stdout: 'allo stdout\n'
+
+popen, scrittura:
+	stdin: allo stdin
+</py_output>
+<testo_normale>
+Il chiamante può solo leggere dal o scrivere sul flusso associato con il processo figlio, il che ne limita l'utilità. Le altre varianti di ${sbk}popen()${ebk} forniscono flussi addizionali in modo che sia possibilie lavorare con stdin, stdout ed stderr secondo necessità.
+</testo_normale>
+<testo_normale>
+Ad esempio, ${sbk}popen2()${ebk} restituisce un flusso a sola lettura attaccato allo stdin del processo figlio, ed un flusso a sola lettura attaccato al suo stdout.
+</testo_normale>
+<py_code>
+import os
+
+print 'popen2:'
+pipe_stdin, pipe_stdout = os.popen2('cat -')
+try:
+    pipe_stdin.write('dallo stdin allo stdout')
+finally:
+    pipe_stdin.close()
+try:
+    stdout_value = pipe_stdout.read()
+finally:
+    pipe_stdout.close()
+print '\tpassa attraverso:', repr(stdout_value)
+</py_code>
+<testo_normale>
+Il semplicistico esempio illustra la comunicazione bidirezionale. Il valore scritto allo stdin viene letto da ${sbk}cat${ebk} (grazie al parametro ${sbk}'-'${ebk}), quindi viene riscritto allo stdout. Ovviemente un processo più complicato potrebbe passare altri tipi di messaggio avanti e indietro attraverso la pipe; anche oggetti serializzati.
+</testo_normale>
+<py_output>
+$ python -u os_popen2.py
+popen2:
+        passa attraverso: 'dallo stdin allo stdout'
+</py_output>
+<testo_normale>
+Nella maggior parte dei casì si vorrebbe avere accesso ad entrambi stdout e stderr. Il flusso stdout viene usato per passare messaggi mentre stderr viene usato per gli errori, in modo che la lettura separata riduce la complessità dell'analisi di ogni messaggio di errore. La funzione <py_code>popen3()</py_code> restituisce 3 flussi aperti legati agli stdin, stdout ed stderr del nuovo processo.
+</testo_normale>
+<py_code>
+import os
+
+print 'popen3:'
+pipe_stdin, pipe_stdout, pipe_stderr = os.popen3('cat -; echo ";allo stderr" 1>&2')
+try:
+    pipe_stdin.write('attraverso stdin a stdout')
+finally:
+    pipe_stdin.close()
+try:
+    stdout_value = pipe_stdout.read()
+finally:
+    pipe_stdout.close()
+print '\tpassa attraverso:', repr(stdout_value)
+try:
+    stderr_value = pipe_stderr.read()
+finally:
+    pipe_stderr.close()
+print '\tstderr:', repr(stderr_value)
+</py_code>
+<testo_normale>
+Si noti che occorre leggere da, quindi chiudere entrambi stdout e stderr <em>separatamente</em>. Ci sono da tenere presente alcune cose riguardo al controllo del flusso ed alla sequenzialità quando si ha a che fare con l'I/O di processi multipli. L'I/O viene tenuto in una memoria tampone, e se il chiamante si aspetta di riuscire a leggere tutti i dati da un flusso, allora il processo figlio deve chiudere quel flusso per indicare la fine del file. Per ulteriori informazioni circa queste problematiche fare riferimento alla sezione <a href='http://docs.python.org/library/popen2.html#popen2-flow-control'>Flow Control Issues</a> della documentazione della libreria Python.
+</testo_normale>
+<py_output>
+$ python -u os_popen3.py
+popen3:
+        passa attraverso: 'attraverso stdin a stdout'
+	stderr: ';allo stderr\n'
+</py_output>
+<testo_normale>
+Infine ${sbk}popen4()${ebk}  restituisce 2 flussi, stdin ed un stdout/stderr combinato. Utile quando i  risultati del comando devono essere registrati ma non analizzati direttamente.
+</testo_normale>
+<py_code>
+import os
+
+print 'popen4:'
+pipe_stdin, pipe_stdout_and_stderr = os.popen4('cat -; echo ";allo stderr" 1>&2')
+try:
+    pipe_stdin.write('attraverso stdin allo stdout')
+finally:
+    pipe_stdin.close()
+try:
+    stdout_value = pipe_stdout_and_stderr.read()
+finally:
+    pipe_stdout_and_stderr.close()
+print '\toutput combinato:', repr(stdout_value)
+</py_code>
+<py_output>
+$ python -u os_popen4.py
+popen4:
+        output combinato: 'attraverso stdin allo stdout;allo stderr\n'
+</py_output>
+<testo_normale>
+Oltre ad accettare una singola stringa di comando da passare alla shell per l'elaborazione, ${sbk}popen2()${ebk}, ${sbk}popen3()${ebk} e ${sbk}popen4()${ebk} accettano anche una sequenza di stringhe (comandi, seguiti da parametri). In questo caso, i parametri non sono elaborati dalla shell.
+</testo_normale>
+<py_code>
+import os
+
+print 'popen2, comandi in sequenza:'
+pipe_stdin, pipe_stdout = os.popen2(['cat', '-'])
+try:
+    pipe_stdin.write('attraverso stdin allo stdout')
+finally:
+    pipe_stdin.close()
+try:
+    stdout_value = pipe_stdout.read()
+finally:
+    pipe_stdout.close()
+print '\tpassa attraverso:', repr(stdout_value)
+</py_code>
+<py_output>
+$ python -u os_popen2_seq.py
+popen2, comandi in sequenza:
+        passa attraverso: 'attraverso stdin allo stdout'
+</py_output>
+<titolo_2>
+Descrittori di File
+</titolo_2>
+<testo_normale>
+Il modulo <strong>os</strong> include un'insieme standard di funzioni per lavorare con i <em>descrittori di file</em> a basso livello (interi che rappresentano file aperti che appartengono al processo corrente). Si tratta di una API a basso livello fornita dagli oggetti <strong>file</strong>. Si sorvola sulla descrizione, qui, visto che in genere è più facile lavorare direttamente con gli oggetti <strong>file</strong>. Fare riferimento alla documentazione della libreria per dettagli se si vogliono usare i descrittori di file.
+</testo_normale>
+<titolo_2>
+Permessi del Filesystem    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}os.access()${ebk}  può essere usata per verificare i diritti di accesso che un processo detiene per un file.
+</testo_normale>
+<py_code>
+import os
+
+print 'Verifica:', __file__
+print 'Esiste:', os.access(__file__, os.F_OK)
+print 'Leggibile:', os.access(__file__, os.R_OK)
+print 'Scrivibile:', os.access(__file__, os.W_OK)
+print 'Eseguibile:', os.access(__file__, os.X_OK)
+</py_code>
+<testo_normale>
+I risultati dipendono da come viene installato il codice di esempio ma dovrebbe essere qualcosa come questo:
+</testo_normale>
+<py_output>
+$ python -u os_access.py 
+Verifica: os_access.py
+Esiste: True
+Leggibile: True
+Scrivibile: True
+Eseguibile: False
+</py_output>
+<testo_normale>
+La documentazione della libreria per ${sbk}os.access()${ebk} include due avvertimenti speciali. Primo, non ha molto senso chiamare ${sbk}os.access()${ebk} per verificare se un file può essere aperto prima di aprirlo effettivamente chiamando ${sbk}open()${ebk} su di esso. C'è una piccola ma effettiva finestra temporale tra le due chiamate durante la quale i permessi per il file potrebbero mutare. L'altro avvertimento riguarda per la maggior parte i filesystem di rete che estendono le semantiche dei permessi POSIX. Alcuni tipi di filesystem potrebbero rispondere alla chiamata POSIX che un processo ha il permesso di accedere ad un file, quindi riportare un fallimento quando il tentativi viene fatto usando ${sbk}open()${ebk} per una qualche ragione non verificato attraverso la chiamata POSIX. Tutto sommato è meglio chiamare ${sbk}open()${ebk} con la modalità richiesta e catturare l'<em>IOError</em> sollevato se ci fosse un problema.
+</testo_normale>
+<testo_normale>
+Informazioni pià dettagliate circa un file possono essere ottenute tramite ${sbk}os.stat()${ebk} oppure ${sbk}os.lstat()${ebk} (Se si vuole lo status di qualcosa che potrebbe essere un link simbolico)
+</testo_normale>
+<py_code>
+import os
+import sys
+import time
+
+if len(sys.argv) == 1:
+    filename = __file__
+else:
+    filename = sys.argv[1]
+
+stat_info = os.stat(filename)
+
+print 'os.stat(%s):' % filename
+print '\tDimensione:', stat_info.st_size
+print '\tPermessi:', oct(stat_info.st_mode)
+print '\tProprietario:', stat_info.st_uid
+print '\tDispositivo:', stat_info.st_dev
+print '\tUltima modifica:', time.ctime(stat_info.st_mtime)
+</py_code>
+<testo_normale>
+Ancora una volta, i risultati potrebbero variare in base a come è stato installato il codice di esempio. Si provi a passare nomi di file diversi da riga comandi a ${sbk}os_stat.py${ebk}.
+</testo_normale>
+<py_output>
+$ python os_stat.py 
+os.stat(os_stat.py):
+	Dimensione: 453
+	Permessi: 0100644
+	Proprietario: 1000
+	Dispositivo: 2054
+	Ultima modifica: Sat Jul  3 14:59:27 2010
+</py_output>
+<testo_normale>
+Su sistemi tipo Unix i permessi per i file possono esssere cambiati usando ${sbk}os.chmod()${ebk}, passando la modalità come intero. I valori delle modalità possono essere costruiti usando le costanti definite nel modulo <strong>stat</strong>. Ecco un esempio che modifica il bit del permesso di esecuzione per l'utente.
+</testo_normale>
+<py_code>
+import os
+import stat
+
+filename = 'os_stat_chmod_example.txt'
+if os.path.exists(filename):
+    os.unlink(filename)
+f = open(filename, 'wt')
+f.write('contenuto')
+f.close()
+
+# Determina quali permessi sono già impostati usando  stat
+existing_permissions = stat.S_IMODE(os.stat(filename).st_mode)
+
+if not os.access(filename, os.X_OK):
+    print 'Aggiunta dei permessi di esecuzione'
+    new_permissions = existing_permissions | stat.S_IXUSR
+else:
+    print 'Rimozione  dei permessi di esecuzione'
+    # usa xor per rimuovere il permesso di esecuzione per l'utente
+    new_permissions = existing_permissions ^ stat.S_IXUSR
+
+os.chmod(filename, new_permissions)
+</py_code>
+<testo_normale>
+Lo script assume in prima battuta che si abbiano i permessi necessari per modificare la modalità.
+</testo_normale>
+<py_output>
+$ python os_stat_chmod.py
+Aggiunta dei permessi di esecuzione
+</py_output>
+<titolo_2>
+Directory    
+</titolo_2>
+<testo_normale>
+Ci sono parecchie funzioni per lavorare con le directory nel filesystem, incluse quelle per crearle, elencarne il contenuto e rimuoverle.
+</testo_normale>
+<py_code>
+import os
+
+dir_name = 'os_directories_example'
+
+print 'Creazione', dir_name
+os.makedirs(dir_name)
+
+file_name = os.path.join(dir_name, 'esempio.txt')
+print 'Creazione', file_name
+f = open(file_name, 'wt')
+try:
+    f.write('file di esempio')
+finally:
+    f.close()
+
+print 'Elenco di', dir_name
+print os.listdir(dir_name)
+
+print 'Pulizia'
+os.unlink(file_name)
+os.rmdir(dir_name)
+</py_code>
+<py_output>
+$ python os_directories.py 
+Creazione os_directories_example
+Creazione os_directories_example/esempio.txt
+Elenco di os_directories_example
+['esempio.txt']
+Pulizia
+</py_output>
+<testo_normale>
+Ci sono due insiemi di funzioni per creare ed elimiare directory. Quando si creano nuove directory con ${sbk}os.mkdir()${ebk}, tutte le directory genitrici devono già esistere. Quando si elimina una directory con ${sbk}os.rmdir()${ebk}, solo la directory rappresentata dall'ultima parte del percorso viene in realtà rimossa. Al contrario ${sbk}os.makedirs()${ebk} ed ${sbk}os.removedirs()${ebk} operano su tutti i nodi del percorso. ${sbk}os.makedirs()${ebk} creerà qualsiasi parte del percorso che non esista, ed ${sbk}os.removedirs()${ebk} eliminerà tutte le directory genitrici (a patto che possa).
+</testo_normale>
+<titolo_2>
+Link Simbolici    
+</titolo_2>
+<testo_normale>
+Su piattaforme e filesystem che li supportano, ci sono anche funzioni che operano sui link simbolici.    
+</testo_normale>
+<py_code>
+import os, tempfile
+
+link_name = tempfile.mktemp()
+
+print 'Creazione del link %s -> %s' % (link_name, __file__)
+os.symlink(__file__, link_name)
+
+stat_info = os.lstat(link_name)
+print 'Permissi:', oct(stat_info.st_mode)
+
+print 'Punta a:', os.readlink(link_name)
+
+# Pulizia
+os.unlink(link_name)
+</py_code>
+<testo_normale>
+Sebbene <strong>os</strong> includa ${sbk}os.tempnam()${ebk} per la creazione di nomi di file temporanei, esso non è così sicuro come il modulo <a href='tempfile.html'>tempfile</a> e produce un messaggio <em>RuntimeWarning</em> quando viene usato. In generale è meglio usare <a href='tempfile.html'>tempfile</a> come in questo esempio:
+</testo_normale>
+<py_output>
+$ python os_symlinks.py 
+Creazione del link /tmp/tmp2yrV5_ -> os_symlinks.py
+Permissi: 0120777
+Punta a: os_symlinks.py
+</py_output>
+<titolo_2>
+Attraversare un Albero di Directory    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}os.walk()${ebk} attraversa una directory ricorsivamente e per ogni directory genera una tuple contenente il percorso della directory, qualasiasi immediata sotto directory di quel percorso ed i nomi di tutti i file in quella directory. Questo esempio mostra un elenco ricorsivo semplificato di directory.
+</testo_normale>
+<py_code>
+import os, sys
+
+# Se non viene passato un percorso da elencare, si usa /tmp
+if len(sys.argv) == 1:
+    root = '/tmp'
+else:
+    root = sys.argv[1]
+
+for dir_name, sub_dirs, files in os.walk(root):
+    print '\n', dir_name
+    # Aggiunge ai nomi delle sotto direcotry una /
+    sub_dirs = [ '%s/' % n for n in sub_dirs ]
+    # Combina i contenuti delle directory assieme
+    contents = sub_dirs + files
+    contents.sort()
+    # Mostra il contenuto
+    for c in contents:
+        print '\t%s' % c
+</py_code>
+<py_output>
+/tmp
+        .ICE-unix/
+        .X0-lock
+        .X11-unix/
+        .font-unix/
+        .s.PGSQL.5432
+        .s.PGSQL.5432.lock
+        apr37JbgJ
+        ccc_exclude.vHRzyU
+        com.hp.launchport
+        emacs527/
+        example.db
+        launch-LwLyiB/
+        launch-QoWYy9/
+        launch-Y1GkS5/
+        launchd-173.E4bnIY/
+        pymotw_import_example.shelve
+        ssh-2hdhfsgBgC/
+        trace_example.recurse.cover
+        var_backups/
+
+/tmp/.font-unix
+
+/tmp/.ICE-unix
+
+/tmp/.X11-unix
+        X0
+
+/tmp/emacs527
+        server
+
+/tmp/launch-LwLyiB
+        Listeners
+
+/tmp/launch-QoWYy9
+        Render
+
+/tmp/launch-Y1GkS5
+        :0
+
+/tmp/launchd-173.E4bnIY
+        sock
+
+/tmp/ssh-2hdhfsgBgC
+
+/tmp/var_backups
+</py_output>
+<titolo_2>
+Eseguire Comandi Esterni
+</titolo_2>
+<avvertimento>
+Molte di queste funzioni per lavorare con i processi hanno una portabilità limitata. Per un modo più consistente di lavorare con i processi con soluzioni indipendenti dalla piattoforma, fare invece riferimento al modulo subprocess.    
+</avvertimento>
+<testo_normale>
+Il mezzo più semplice per eseguire un comando separatamente, senza interagire con esso in alcun modo, è ${sbk}os.system()${ebk}. Esso riceve una singola stringa che corrisponde alla riga di comando da eseguire da parte di un sub processo eseguendo una shell.
+</testo_normale>
+<py_code>
+import os
+
+# Semplice comando
+os.system('ls -l')
+</py_code>
+<py_output>
+$ python -u os_system_example.py
+total 248
+-rw-r--r--  1 dhellmann  dhellmann      0 Mar 22 17:03 __init__.py
+-rw-r--r--  1 dhellmann  dhellmann  22122 Jun 27 11:34 index.rst
+-rw-r--r--  1 dhellmann  dhellmann   1360 Mar 22 17:03 os_access.py
+-rw-r--r--  1 dhellmann  dhellmann   1347 Mar 22 17:03 os_cwd_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1499 Mar 22 17:03 os_directories.py
+-rw-r--r--  1 dhellmann  dhellmann   1573 Mar 22 17:03 os_environ_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1241 Mar 22 17:03 os_exec_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1267 Mar 22 17:03 os_fork_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1703 Mar 22 17:03 os_kill_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1476 Mar 22 17:03 os_popen.py
+-rw-r--r--  1 dhellmann  dhellmann   1506 May  4 08:57 os_popen2.py
+-rw-r--r--  1 dhellmann  dhellmann   1528 May  4 08:56 os_popen2_seq.py
+-rw-r--r--  1 dhellmann  dhellmann   1658 May  4 08:57 os_popen3.py
+-rw-r--r--  1 dhellmann  dhellmann   1567 May  4 08:57 os_popen4.py
+-rw-r--r--  1 dhellmann  dhellmann   1395 Mar 22 17:03 os_process_id_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1896 May  4 08:28 os_process_user_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1206 Mar 22 17:03 os_spawn_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1516 Mar 22 17:03 os_stat.py
+-rw-r--r--  1 dhellmann  dhellmann   1751 Mar 22 17:03 os_stat_chmod.py
+-rwxr--r--  1 dhellmann  dhellmann      8 Jun 27 11:41 os_stat_chmod_example.txt
+-rw-r--r--  1 dhellmann  dhellmann   1421 May  4 09:25 os_symlinks.py
+-rw-r--r--  1 dhellmann  dhellmann   1250 Mar 22 17:03 os_system_background.py
+-rw-r--r--  1 dhellmann  dhellmann   1191 Mar 22 17:03 os_system_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1214 Mar 22 17:03 os_system_shell.py
+-rw-r--r--  1 dhellmann  dhellmann   1499 Mar 22 17:03 os_wait_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1555 Mar 22 17:03 os_waitpid_example.py
+-rw-r--r--  1 dhellmann  dhellmann   1643 Mar 22 17:03 os_walk.py
+</py_output>
+<testo_normale>
+Visto che il comando viene passato direttamente alla shell per essere elaborato, può anche comprendere sintassi di shell tipo <a href='http://it.wikipedia.org/wiki/Glob_pattern'>globbing</a>  o variabili di ambiente.
+</testo_normale>
+<py_code>
+import os
+
+# Commndo con espansione della shell 
+os.system('ls -ld $TMPDIR')
+</py_code>
+<py_output>
+$ python -u os_system_shell.py
+drwx------  8 dhellmann  dhellmann  272 Jun 27 11:41 /var/folders/9R/9R1t+tR02Raxzk+F71Q50U+++Uw/-Tmp-/
+</py_output>
+<testo_normale>
+A meno che non si esegua esplicitamente il comando in background, la chiamata ad ${sbk}os.system()${ebk} è bloccante fino a quando non è completata. Gli standard input, output ed error dal processo figlio sono abbinati ai flussi appropriati che appartengono in modo predefinito al chiamante, ma possono essere rediretti usando sintassi di shell.
+</testo_normale>
+<py_code>
+import os
+import time
+
+print 'Chiamata...'
+os.system('date; (sleep 3; date) &')
+
+print 'In pausa...'
+time.sleep(5)
+</py_code>
+<testo_normale>
+Qui si entra nol campo dei trucchi della shell e ci sono metodi migliori per ottenere la stessa cosa.
+</testo_normale>
+<py_output>
+$ python os_system_background.py 
+Chiamata...
+dom  4 lug 2010, 16.45.32, CEST
+In pausa...
+dom  4 lug 2010, 16.45.35, CEST
+</py_output>
+<titolo_2>
+Creare Processi con os.fork()    
+</titolo_2>
+<testo_normale>
+Le funzioni POSIX ${sbk}fork()${ebk} ed ${sbk}exec*()${ebk} (disponibili sotto Mac OS X, Linux, ed altre varianti UNIX) sono esposte tramite il modulo <strong>os</strong>. Interi libri sono stati scritti circa l'affidabilità dell'uso di queste funzioni, quindi controllare la propria collezione o la libreria per maggiori dettagli rispetto a quelli qui esposti.
+</testo_normale>
+<testo_normale>
+Per creare un nuovo processo come clone di quello corrente si usa ${sbk}os.fork()${ebk}.
+</testo_normale>
+<py_code>
+import os
+
+pid = os.fork()
+
+if pid:
+    print 'Id del processo:', pid
+else:
+    print 'Sono il figlio'
+</py_code>
+<testo_normale>
+Il proprio output varierà in base allo stato del proprio sistema ogniqualvolta viene eseguito l'esempio, ma dovrebbe assomigliare a questo:
+</testo_normale>
+<py_output>
+$ python -u os_fork_example.py 
+Id del processo: 2556
+Sono il figlio
+</py_output>
+<testo_normale>
+Dopo il fork, si ottengono due processi che eseguono lo stesso codice. Per sapere in quale ci si trova, si verifica il valore di ritorno di ${sbk}fork()${ebk}. Se è ${sbk}0${ebk} ci si trova all'interno del processo figlio. Altrimenti ci si trova nel processo genitore ed il valore restituito + l'identificativo del processo figlio.
+</testo_normale>
+<testo_normale>
+Dai processi genitori, è possibile inviare segnali ai figli. La cosa è un poco più complicata da impostare, e si usa il modulo signal. Per prima cosa si definisce un gestore di segnale da chiamare quando viene ricevuto il segnale.
+</testo_normale>
+<py_code>
+import os
+import signal
+import time
+
+def signal_usr1(signum, frame):
+    "Callback chiamata quando si riceve un segnale"
+    pid = os.getpid()
+    print 'Ricevuto USR1 nel processo %s' % pid
+</py_code>
+<testo_normale>
+Quindi si esegue il fork, ed il genitore si mette in pausa per un breve periodo di tempo prima di inviare un segnare ${sbk}USR1${ebk} usando ${sbk}os.kill()${ebk}. La breve pausa consente al processo figlio di avere tempo sufficiente per impostare il gestore di segnale.
+</testo_normale>
+<py_code>
+    print 'Si esegue il forking...'
+    child_pid = os.fork()
+    if child_pid:
+        print 'GENITORE: In pausa prima di inviare il segnale...'
+        time.sleep(1)
+        print 'GENITORE: Segnalazione %s' % child_pid
+        os.kill(child_pid, signal.SIGUSR1)
+</py_code>
+<testo_normale>
+Nel figlio, si imposta il gestore di segnale e si mette in pausa per un poco per dare al genitore tempo per inviare al figlio il segnale:    
+</testo_normale>
+<py_code>
+    else:
+        print 'FIGLIO: Impostazione del gestore di segnale'
+        signal.signal(signal.SIGUSR1, signal_usr1)
+        print 'FIGLIO: In pausa in attesa del segnale'
+        time.sleep(5)
+</py_code>
+<testo_normale>
+In una applicazione reale, probabilmente non sarebbe necessario (o non si vorrebbe) chiamare ${sbk}sleep()${ebk}.
+</testo_normale>
+<py_output>
+$ python os_kill_example.py
+Si esegue il forking...
+FIGLIO: Impostazione del gestore di segnale
+FIGLIO: In pausa in attesa del segnale
+Ricevuto USR1 nel processo 13759
+Si esegue il forking...
+GENITORE: In pausa prima di inviare il segnale...
+GENITORE: Segnalazione 13759    
+</py_output>
+<testo_normale>
+Come si vede, un semplice modo di gestire comportamenti separati nel processo figlio è verificare il valore di ritorno di ${sbk}fork()${ebk} e ramificare. Per un comportamento più complesso, si cerca una maggiore separazione del codice rispetto ad una semplice ramificazione. Negli altri casi, si potrebbe avere un programma esistente da incapsulare. Per entrambe le situazioni, si può usare la serie di funzioni ${sbk}os.exec*()${ebk} per eseguire un altro programma. Quando si esegue un programma con os.exec*() il codice da quel programma sostituisce il codice del processo esistente.
+</testo_normale>
+<py_code>
+import os
+
+child_pid = os.fork()
+if child_pid:
+    os.waitpid(child_pid, 0)
+else:
+    os.execlp('ls', 'ls', '-l', '/tmp/')
+</py_code>
+<py_output>
+$ python os_exec_example.py
+total 64
+-rw-------  1 _www       wheel          0 Jun 26 07:31 apr37JbgJ
+-rw-------  1 root       wheel       1507 Jun 27 03:00 ccc_exclude.vHRzyU
+srwxrwxrwx  1 dhellmann  wheel          0 Jun 26 07:32 com.hp.launchport
+drwx------  3 dhellmann  wheel        102 Jun 26 08:54 emacs527
+-rw-r--r--  1 dhellmann  wheel      12288 Jun 27 11:40 example.db
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-LwLyiB
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-QoWYy9
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-Y1GkS5
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launchd-173.E4bnIY
+-rw-r--r--  1 dhellmann  wheel      12288 Jun 27 11:22 pymotw_import_example.shelve
+drwx------  2 dhellmann  wheel         68 Jun 26 08:02 ssh-2hdhfsgBgC
+-rw-r--r--  1 dhellmann  wheel        448 Jun 27 11:23 trace_example.recurse.cover
+drwxr-xr-x  2 dhellmann  dhellmann     68 Jun 27 03:15 var_backups
+</py_output>
+<testo_normale>
+Ci sono molte varianti di ${sbk}exec*()${ebk}, in dipendenza della forma nella quale si possono avere i parametri, del fatto che si voglia che il percorso e l'ambiente del processo genitore debba essere copiato nel figlio ecc. Dare un'occhiata alla documentazione della libreria per i dettagli completi.
+</testo_normale>
+<testo_normale>
+Per tutte le variazioni, il primo parametro è un percorso o nome di file ed i restanti parametri controllano come quel programma venga eseguito. Essi possono essere passati sia tramite parametri di riga comandi o tramite override del processo "environment" (vedere os.environ ed os.getenv).
+</testo_normale>
+<titolo_2>
+Aspettare un Figlio    
+</titolo_2>
+<testo_normale>
+Si supponga che si stiano usando processi multipli per superare i limiti del threading di Python e del Global Interpreter Lock. Se si fanno partire diversi processi per eseguire compiti separati, si vorrà attendere quando uno o più di essi finisca prima di farne partire di nuovi, per evitare il sovraccarico del server. Si sono alcuni modi diversi per fare questo usando ${sbk}wait()${ebk} e le funzioni collegate.
+</testo_normale>
+<testo_normale>
+Se non ci deve preoccupare, o non si conosce, quale processo figlio possa uscire per primo ${sbk}os.wait()${ebk} ritornerà non appena uno qualsiasi esce:
+</testo_normale>
+<py_code>
+import os
+import sys
+import time
+
+for i in range(3):
+    print 'GENITORE: Forking %s' % i
+    worker_pid = os.fork()
+    if not worker_pid:
+        print 'WORKER %s: In partenza' % i
+        time.sleep(2 + i)
+        print 'WORKER %s: Sta finendo' % i
+        sys.exit(i)
+
+for i in range(3):
+    print 'GENITORE: In attesa di %s' % i
+    done = os.wait()
+    print 'GENITORE:', done
+</py_code>
+<testo_normale>
+Si noti che il valore di ritorno da ${sbk}os.wait()${ebk} è una tuple che contiene l'identificativo del processo e lo stato di uscita (un numero a 16 bit, i cui byte bassi rappresentano il numero di segnale che ha ucciso il processo, e quelli alit rappresentano lo stato di uscita).
+</testo_normale>
+<py_output>
+$ python os_wait_example.py 
+GENITORE: Forking 0
+GENITORE: Forking 1
+WORKER 0: In partenza
+WORKER 1: In partenza
+GENITORE: Forking 2
+GENITORE: In attesa di 0
+WORKER 2: In partenza
+WORKER 0: Sta finendo
+GENITORE: (4135, 0)
+GENITORE: In attesa di 1
+WORKER 1: Sta finendo
+GENITORE: (4136, 256)
+GENITORE: In attesa di 2
+WORKER 2: Sta finendo
+GENITORE: (4137, 512)
+</py_output>
+<testo_normale>
+Se si vuole attendere uno specifico processo, si usa ${sbk}os.waitpid()${ebk}.
+</testo_normale>
+<py_code>
+import os
+import sys
+import time
+
+workers = []
+for i in range(3):
+    print 'GENITORE: Forking %s' % i
+    worker_pid = os.fork()
+    if not worker_pid:
+        print 'WORKER %s: In partenza' % i
+        time.sleep(2 + i)
+        print 'WORKER %s: Sta finendo' % i
+        sys.exit(i)
+    workers.append(worker_pid)
+
+for pid in workers:
+    print 'GENITORE: In attesa di  %s' % pid
+    done = os.waitpid(pid, 0)
+    print 'GENITORE:', done
+</py_code>
+<py_output>
+$ python os_waitpid_example.py 
+GENITORE: Forking 0
+GENITORE: Forking 1
+WORKER 0: In partenza
+GENITORE: Forking 2
+WORKER 1: In partenza
+GENITORE: In attesa di  4176
+WORKER 2: In partenza
+WORKER 0: Sta finendo
+GENITORE: (4176, 0)
+GENITORE: In attesa di  4177
+WORKER 1: Sta finendo
+GENITORE: (4177, 256)
+GENITORE: In attesa di  4178
+WORKER 2: Sta finendo
+GENITORE: (4178, 512)
+</py_output>
+<testo_normale>
+${sbk}wait3()${ebk} e ${sbk}wait4()${ebk} funzionano in  modo simile, ma restituiscono informazioni più dettagliate circa il processo figlio con il pid, lo stato di uscita e l'utilizzo della risorsa.
+</testo_normale>
+<titolo_2>
+Spawn    
+</titolo_2>
+<testo_normale>
+Per comodità la famiglia di funzioni ${sbk}spawn*()${ebk} gestisce le chiamate a ${sbk}fork()${ebk} ed ${sbk}exec()${ebk} in una singola istruzione:
+</testo_normale>
+<py_code>
+import os
+
+os.spawnlp(os.P_WAIT, 'ls', 'ls', '-l', '/tmp/')
+</py_code>
+<py_output>
+$ python os_spawn_example.py
+total 64
+-rw-------  1 _www       wheel          0 Jun 26 07:31 apr37JbgJ
+-rw-------  1 root       wheel       1507 Jun 27 03:00 ccc_exclude.vHRzyU
+srwxrwxrwx  1 dhellmann  wheel          0 Jun 26 07:32 com.hp.launchport
+drwx------  3 dhellmann  wheel        102 Jun 26 08:54 emacs527
+-rw-r--r--  1 dhellmann  wheel      12288 Jun 27 11:40 example.db
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-LwLyiB
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-QoWYy9
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launch-Y1GkS5
+drwx------  3 dhellmann  wheel        102 Jun 26 07:32 launchd-173.E4bnIY
+-rw-r--r--  1 dhellmann  wheel      12288 Jun 27 11:22 pymotw_import_example.shelve
+drwx------  2 dhellmann  wheel         68 Jun 26 08:02 ssh-2hdhfsgBgC
+-rw-r--r--  1 dhellmann  wheel        448 Jun 27 11:23 trace_example.recurse.cover
+drwxr-xr-x  2 dhellmann  dhellmann     68 Jun 27 03:15 var_backups
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-os.html|os|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/subprocess/index.html#module-subprocess|subprocess|Il modulo subprocess sostituisce os.popen().
+http://www.doughellmann.com/PyMOTW/multiprocessing/index.html#module-multiprocessing|multiprocessing|Il modulo multiprocessing facilita il lavorare con processi extra rispetto al dovere fare tutto il lavoro da soli.
+http://robyp.x10hosting.com/pymotw-it/tempfile.html|tempfile|Il modulo tempfile per lavorare con file temporanei
+http://www.scit.wlv.ac.uk/cgi-bin/mansec?2+intro|Unix Manual Page Introduction|Comprende definizioni per id reali ed effettivi, ecc.
+http://www.ibm.com/developerworks/aix/library/au-speakingunix8/index.html|Speaking UNIX, Part 8|Imparare come UNIX esegue il multitask
+http://www.linuxhq.com/guides/LUG/node67.html|Unix Concepts|Per saperne di più circa stdin, stdout e stderr.
+http://www.ibm.com/developerworks/aix/library/au-unixprocess.html|Delve into Unix Process Creation|Spiega il ciclo di vita di un processo UNIX.
+http://www.amazon.com/Programming-Environment-Addison-Wesley-Professional-Computing/dp/0201433079/ref=pd_bbs_3/002-2842372-4768037?ie=UTF8&s=books&amp;qid=1182098757&sr=8-3|Advanced Programming in the UNIX(R) Environment|Tratta il lavorare con processi multipli, tipo la gestione di segnali, la chiusura di descrittori di file duplicati, ecc.
+</vedi_anche>
+</documento_tradotto>

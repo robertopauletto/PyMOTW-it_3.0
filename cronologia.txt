@@ -1,0 +1,24 @@
+29.03.2016  textwrap - Formatta paragrafi di testo
+29.03.2016  functools - Strumenti per generare decoratori ed altri wrapper di funzione
+29.03.2016  difflib - Calcolare differenze tra sequenze
+29.03.2016  csv - File con Valori Separati da Virgola
+29.03.2016  abc - Classi Base Astratte
+29.03.2016  enum - Tipo Enumerazione
+11.04.2016  collections - Tipi di Dato Contenitore
+11.04.2016  ChainMap - ricerca su molteplici dizionari
+11.04.2016  Counter - Conta oggetti hashable
+11.04.2016  defaultdict - le chiavi mancanti ritornano un valore predefinito
+11.04.2016  Deque - coda a doppia entrata
+11.04.2016  namedtuple - Sottoclasse di tuple con campi nominativi
+11.04.2016  OrderedDict - ricorda l'ordine con il quale si aggiungono chiavi ad un dizionario
+11.04.2016  collections.abc - Classi base astratte per contenitori
+22.04.2016  array - Sequenza di dati di tipo fisso
+22.04.2016  bisect - Mantiene le liste in ordinamento
+05.05.2016  queue - Una implementazione FIFO thread-safe
+16.05.2016  pprint - Stampa Pretty-print di Strutture Dati
+05.06.2016  contextlib - Utilità per la Gestione di Contesto
+19.06.2016  datetime - Manipolazione dei Valori di Data ed Orario
+19.06.2016  calendar - Lavorare con le Date
+02.07.2016  copy - Duplica oggetti
+16.07.2016  random - Generatori Pseudocasuali di Numeri
+16.07.2016  fractions - Numeri Razionali

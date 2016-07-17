@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+namedtuple - Sottoclasse di tuple con campi nominativi
+</titolo_1>
+<descrizione>
+<code>namedtuple</code> assegna nomi, assieme ad indici numerici, ad ogni membro.
+
+</descrizione>
+<testo_normale>
+La <code>tuple</code> standard usa indici numerici per accedere ai propri membri.
+</testo_normale>
+<py_code>
+# collections_tuple.py
+
+import collections
+
+Person = collections.namedtuple('Persona', 'name age')
+
+bob = ('Bob', 30, 'maschio')
+print('Rappresentazione:', bob)
+
+jane = ('Jane', 29, 'femmina')
+print('\nCampo per indice:', jane[0])
+
+print('\nCampi per indice:')
+for p in [bob, jane]:
+    print('{} ha {} anni, {}'.format(*p))
+</py_code>
+<testo_normale>
+Il che rende le <code>tuple</code> efficaci contenitori per semplici utilizzi.
+</testo_normale>
+<py_output>
+$ python3 collections_tuple.py
+
+Rappresentazione: ('Bob', 30, 'maschio')
+
+Campo per indice: Jane
+
+Campi per indice:
+Bob ha 30 anni, maschio
+Jane ha 29 anni, femmina
+</py_output>
+<testo_normale>
+D'altro canto, ricordare quale indice dovrebbe essere usato per ciascun valore può portare ad errori, specialmente se la <code>tuple</code> ha molti campi ed è costruita in una parte del codice molto lontana da quella in cui viene usata. Una <code>namedtuple</code> assegna nomi, assieme ad indici numerici, ad ogni membro.
+</testo_normale>
+<titolo_3>
+Definizione
+</titolo_3>
+<testo_normale>
+Le istanze di <code>namedtuple</code> hanno la stessa efficienza per quanto riguarda l'uso della memoria rispetto alle normali tuple visto che non hanno dizionari costruiti per ogni istanza. Ciascun tipo di <code>namedtuple</code> viene rappresentato dalla sua propria classe, creata dalla funzione di <a href='http://it.wikipedia.org/wiki/Factory_method'>factory</a> <code>namedtuple()</code>. Gli argomenti sono il nome della nuova classe ed una stringa che contiene i nomi degli elementi.
+</testo_normale>
+<py_code>
+# collections_namedtuple_person.py
+
+import collections
+
+Person = collections.namedtuple('Persona', 'nome anni')
+
+bob = Person(nome='Bob', anni=30)
+print('\nRappresentazione:', bob)
+
+jane = Person(nome='Jane', anni=29)
+print('\nCampo per indice:', jane.nome)
+
+print('\nCampi per indice:')
+for p in [bob, jane]:
+    print('{} ha {} anni'.format(*p))
+</py_code>
+<testo_normale>
+Come illustrato dall'esempio, è possibile accedere ai campi della <code>namedtuple</code> sia usando la notazione con punto (<code>oggetto.attributo</code>) che utilizzando gli indici posizionali delle tuple standard.
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_person.py
+
+Rappresentazione: Persona(nome='Bob', anni=30)
+
+Campo per indice: Jane
+
+Campi per indice:
+Bob ha 30 anni
+Jane ha 29 anni
+</py_output>
+<testo_normale>
+Proprio come una <code>tuple</code> normale, una <code>namedtuple</code> è immutabile. Questa restrizione consente alle istanze di <code>tuple</code> di avere un valore di <a href="https://it.wikipedia.org/wiki/Hash_table">hash</a> consistente, il che ne rende possibile l'utilizzo come chiavi in dizionari e l'inclusione in insiemi.
+</testo_normale>
+<py_code>
+# collections_namedtuple_immutable.py
+
+import collections
+
+Person = collections.namedtuple('Persona', 'nome anni')
+
+pat = Person(nome='Pat', anni=12)
+print('\nRappresentazione:', pat)
+
+pat.anni = 21
+</py_code>
+<testo_normale>
+Il tentativo di modificare un valore attraverso l'attributo nomnativo solleva una eccezione <code>AttributeError</code>
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_immutable.py
+
+Rappresentazione: Persona(nome='Pat', anni=12)
+Traceback (most recent call last):
+  File "collections_namedtuple_immutable.py", line 10, in <module>
+    pat.anni = 21
+AttributeError: can't set attribute
+</py_output>
+<titolo_2>
+Nomi di Campo non Validi
+</titolo_2>
+<testo_normale>
+I nomi di campo non sono validi se sono ripetuti o sono in conflitto con parole riservate del linguaggio.
+</testo_normale>
+<py_code>
+# collections_namedtuple_bad_fields.py
+
+import collections
+
+try:
+    collections.namedtuple('Persona', 'name class anni')
+except ValueError as err:
+    print(err)
+
+try:
+    collections.namedtuple('Persona', 'nome anni anni')
+except ValueError as err:
+    print(err)
+</py_code>
+<testo_normale>
+Mentre i nomi dei campi vengono elaborati, valori non validi causano eccezioni <code>ValueError</code>
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_bad_fields.py
+
+Type names and field names cannot be a keyword: 'class'
+Encountered duplicate field name: 'anni'
+</py_output>
+<testo_normale>
+In situazioni dove una <code>namedtuple</code> viene creata in base a valori al di fuori del controllo del programma (tipo la rappresentazione delle righe ritornate da una ricerca in un database, dove lo schema non è noto in anticipo), si imposti l'opzione <em>rename</em> a <code>True</code> in modo che i campi non validi vengano rinominati.
+</testo_normale>
+<py_code>
+# collections_namedtuple_rename.py
+
+import collections
+
+with_class = collections.namedtuple(
+    'Persona', 'nome class anni',
+    rename=True)
+print(with_class._fields)
+
+two_ages = collections.namedtuple(
+    'Persona', 'nome anni anni',
+    rename=True)
+print(two_ages._fields)
+
+</py_code>
+<testo_normale>
+I nuovi nomi per i campi rinominati dipendono dal loro indice nella tupla, quindi il campo chiamato <code>class</code> diventa <code>_1</code> ed il campo duplicato anni viene modificato in <code>_2</code>
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_rename.py
+
+('nome', '_1', 'anni')
+('nome', 'anni', '_2')
+</py_output>
+<titolo_2>
+Attributi Speciali
+</titolo_2>
+<testo_normale>
+<code>namedtuple</code> fornisce parecchi metodi ed attributi utili per lavorare con sottoclassi ed istanze. Tutte queste proprietà <em>built-in</em> hanno nomi prefissati da un carattere di sottolineatura (<code>_</code>) che per convenzione nella maggior parte dei programmi Python indica un attributo privato. Tudttavia per <code>namedtuple</code> il prefisso è concepito per la protezione del nome da collisioni con nomi di attributi forniti dall'utente.
+</testo_normale>
+<testo_normale>
+I nomi dei campi passati a <code>namedtuple</code> per definire la nuova classe sono salvati nell'attributo <code>_fields</code>.
+</testo_normale>
+<py_code>
+# collections_namedtuple_fields.py
+
+import collections
+
+Person = collections.namedtuple('Persona', 'nome anni')
+
+bob = Person(nome='Bob', anni=30)
+print('\nRappresentazione:', bob)
+print('Campi:', bob._fields)
+</py_code>
+<testo_normale>
+Sebbene l'argomento sia costituito da una stringa con spazi singoli come separatore, il valore conservato è la sequenza dei singoli nomi.
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_fields.py
+
+Rappresentazione: Persona(nome='Bob', anni=30)
+Campi: ('nome', 'anni')
+</py_output>
+<testo_normale>
+Istanze di <code>namedtuple</code> possono essere convertite in istanze di <a href="ordereddict.html"><code>OrderedDict</code></a> utilizzando <code>_asdict()</code>.
+</testo_normale>
+<py_code>
+# collections_namedtuple_asdict.py
+import collections
+
+Person = collections.namedtuple('Persona', 'nome anni')
+
+bob = Person(nome='Bob', anni=30)
+print('\nRappresentazione:', bob)
+print('Come Dizionario:', bob._asdict())
+</py_code>
+<testo_normale>
+Le chiavi di <a href="ordereddict.html"><code>OrderedDict</code></a> sono nello stesso ordine dei campi della <code>namedtuple</code>.
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_asdict.py
+
+Rappresentazione: Persona(nome='Bob', anni=30)
+Come Dizionario: OrderedDict([('nome', 'Bob'), ('anni', 30)])
+</py_output>
+<testo_normale>
+Il metodo <code>_replace()</code> costruisce una nuova istanza, sostituendo i valori di alcuni campi durante l'operazione
+</testo_normale>
+<py_code>
+# collections_namedtuple_replace.py
+
+import collections
+
+Person = collections.namedtuple('Persona', 'nome anni')
+
+bob = Person(nome='Bob', anni=30)
+print('\nPrima:', bob)
+bob2 = bob._replace(nome='Robert')
+print('Dopo:', bob2)
+print('Uguali?:', bob is bob2)
+</py_code>
+<testo_normale>
+Nonostante il nome implichi la modifica dell'oggetto esistente, visto che le istanze di <code>namedtuple</code> sono immutabili, il metodo in realtà ritorna un nuovo oggetto.
+</testo_normale>
+<py_output>
+$ python3 collections_namedtuple_replace.py
+
+Prima: Persona(nome='Bob', anni=30)
+Dopo: Persona(nome='Robert', anni=30)
+Uguali?: False
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.namedtuple|namedtuple|La documentazione standard della libreria per questo modulo
+</vedi_anche>
+</documento_tradotto>

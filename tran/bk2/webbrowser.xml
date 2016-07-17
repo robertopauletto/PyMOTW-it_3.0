@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>protocolli internet e supporto </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+webbrowser - Visualizza pagine web
+</titolo_1>
+<descrizione>
+Il modulo webbrowser si usa per visualizzare pagine web ai propri utenti.
+2.1.3 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>webbrowser</strong> contiene funzioni per aprire URL in un browser. Il modulo contiene un registro dei browser disponibili, nel caso siano disponibili diverse opzioni nel sistema. La scelta può anche essere controllata tramite la variabile di ambiente ${sev}BROWSER${eev}.
+</testo_normale>
+<titolo_2>
+Un Semplice Esempio
+</titolo_2>
+<testo_normale>
+Per aprire una pagina nel browser, si usa la funzione ${sbk}open()${ebk}
+</testo_normale>
+<py_code>
+import webbrowser
+
+webbrowser.open('http://docs.python.org/lib/module-webbrowser.html')
+</py_code>
+<testo_normale>
+L'indirizzo viene aperto in una finestra del browser, quindi quella finestra viene portata in primo piano. La documentazione dice che verrà riusata una finestra esistente, se possibile, ma il reale comportamente potrebbe dipendere dalle impostazioni del browser. Usando Firefox nel mio (Doug Hellmann - n.d.t.) Mac, veniva sempre creata una nuova finestra.
+</testo_normale>
+<titolo_2>
+Finestre contro Schede
+</titolo_2>
+<testo_normale>
+Se si desidera che venga sempre usata una nuova finestra, si usa ${sbk}open_new()${ebk}.
+</testo_normale>
+<py_code>
+import webbrowser
+
+webbrowser.open_new('http://docs.python.org/lib/module-webbrowser.html')
+</py_code>
+<testo_normale>
+Se si vuole invece creare una nuova scheda, si usa ${sbk}open_new_tab()${ebk}
+</testo_normale>
+<titolo_2>
+Usare un Browser Specifico
+</titolo_2>
+<testo_normale>
+Se per una qualche ragione la propria applicazione deve usare uno specifico browser, si può raggiungere l'insieme dei controller per i browser registrati usando la funzione ${sbk}get()${ebk}. Il controller del browser contiene i metodi ${sbk}open()${ebk},  ${sbk}open_new()${ebk} ed  ${sbk}open_new_tab()${ebk}. Questo esempio forza l'uso del browser lynx.
+</testo_normale>
+<py_code>
+import webbrowser
+
+b = webbrowser.get('lynx')
+b.open('http://docs.python.org/lib/module-webbrowser.html')
+</py_code>
+<testo_normale>
+Si faccia riferimento alla documentazione del modulo per un elenco dei tipi di browser disponibili.
+</testo_normale>
+<titolo_2>
+La Variabile BROWSER
+</titolo_2>
+<testo_normale>
+Gli utenti possono controllare il modulo all'esterno della propria applicazione impostando la variabile d'ambiente ${sev}BROWSER${eev} con i nomi dei browser o dei comandi da provare. Il valore dovrebbe consistere in una seria di nomi di browser separati da ${sev}os.pathsep${eev}. Se il nome comprende ${sev}%s${eev}, il nome viene intepretato come un comando letterale ed eseguito direttamente rimpiazzando ${sev}%s${eev} con l'indirizzo. Altrimenti il nome viene passato a ${sbk}get()${ebk} per ottenere un oggetto controller dal registro.
+</testo_normale>
+<testo_normale>
+Ad esempio, il seguente comando apre la pagina web in lynx, presupponendo che sia disponibile, a prescindere dal fatto che altri browser siano registrati.
+</testo_normale>
+<py_output>
+$ BROWSER=lynx 
+$ python webbrowser_open.py
+</py_output>
+<testo_normale>
+Se nessuno dei nomi in ${sev}BROWSER${eev} funziona, <strong>webbrowser</strong> ritorna al suo comportamento predefinito.
+</testo_normale>
+<titolo_3>
+Interfaccia da Riga di Comando
+</titolo_3>
+<testo_normale>
+Tutte le funzionalità del modulo <strong>webbrowser</strong> sono disponibili tramite la riga di comando così come all'interno del proprio programma Python.
+</testo_normale>
+<py_output>
+$ python -m webbrowser
+Usage: /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/webbrowser.py [-n | -t] url
+    -n: open new window
+    -t: open new tab
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-webbrowser.html|webbrowser|La documenazione della libreria standard per questo modulo
+</vedi_anche>
+</documento_tradotto>

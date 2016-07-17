@@ -1,0 +1,865 @@
+﻿<?xml version="1.0" encoding="Utf-8"?>
+<categoria>protocolli internet e supporto </categoria><documento_tradotto>
+<titolo_1>
+imaplib - Libreria per client IMAP4
+</titolo_1>
+<descrizione>
+Libreria client per il protocollo di comunicazione IMAP4
+1.5.2 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>imaplib</strong> implementa un client per la comunicazione con server attraverso Internet Message Access Protocol (IMAP), versione 4. Il protocollo IMAP definisce un insieme di <em>comandi</em> inviati al server e le risposte restituite dal client. La maggior parte dei comandi è disponibile sotto forma di metodi dell'oggetto <em class='code'>IMAP4</em> usato per comunicare con il server.
+</testo_normale>
+<testo_normale>
+Questi esempi trattano parti del protocollo IMAP, ma non sono in alcun modo completi. Si faccia riferimento a <a href='http://tools.ietf.org/html/rfc3501.html'>RFC 3501</a> per un completo dettaglio.
+</testo_normale>
+<titolo_2>
+Varianti
+</titolo_2>
+<testo_normale>
+Ci sono 3 classi client per comunicare con i server usando vari meccanismi. Il primo, <em class='code'>IMAP4</em>, usa socket con testo in chiaro; <em class='code'>IMAP4_SSL</em> usa una comunicazione criptata attraverso socket SSL, ed <em class='code'>IMAP_stream</em> usa gli standard input ed output di un comando esterno. Tutti gli esempi che seguono useranno <em class='code'>IMAP4_SSL</em>.
+</testo_normale>
+<titolo_2>
+Connessione ad un Server
+</titolo_2>
+<testo_normale>
+Ci sono due passi da compiere per stabilire una connessione con un server IMAP, Per prima cosa si imposta la connessione al socket, quindi si esegue l'autenticazione come utente che possiede un account sul server. Il codice di esempio che segue leggerà le informazioni circa il server e l'utente da un file di configurazione.
+</testo_normale>
+<avvertimento>
+Non si dovrebbero conservare password di email in testo in chiaro, ma la gestione della crittografia avrebbe impedito di focalizzare l'attenzione sul resto degli esempi.
+</avvertimento>
+<py_code>
+import imaplib
+import ConfigParser
+import os
+
+def open_connection(verbose=False):
+    # Lettura del file di configurazione
+    config = ConfigParser.ConfigParser()
+    config.read([os.path.expanduser('~/.pymotw')])
+
+    # Connessione al server
+    hostname = config.get('server', 'hostname')
+    
+    if verbose: print 'Connessione a', hostname
+    connection = imaplib.IMAP4_SSL(hostname)
+
+    # Connessione al proprio account
+    username = config.get('account', 'username')
+    password = config.get('account', 'password')
+    if verbose: print 'Collegamento come', username
+    connection.login(username, password)
+    return connection
+
+if __name__ == '__main__':
+    c = open_connection(verbose=True)
+    try:
+        print c
+    finally:
+        c.logout()
+</py_code>
+<testo_normale>
+Quando viene eseguito lo script, ${sbk}open_connection()${ebk} legge le informazioni di configurazione da un file nella propria directory home, poi apre una connessione <em class='code'>IMAP4_SSL</em> ed esegue l'autenticazione
+</testo_normale>
+<py_output>
+$ python imaplib_connect.py 
+
+Connessione a imap.gmail.com
+Collegamento come pymotw.it@gmail.com
+<imaplib.IMAP4_SSL instance at 0xb77ce76c>
+</py_output>
+<titolo_3>
+Autenticazione Fallita
+</titolo_3>
+<testo_normale>
+Se le connessione viene stabilita ma l'autenticazione fallisce, viene sollevata una eccezione.
+</testo_normale>
+<py_code>
+import imaplib
+import ConfigParser
+import os
+
+# Legge il file di configurazione
+config = ConfigParser.ConfigParser()
+config.read([os.path.expanduser('~/.pymotw')])
+
+# Connessione al server
+hostname = config.get('server', 'hostname')
+print 'Connessione a', hostname
+connection = imaplib.IMAP4_SSL(hostname, port)
+
+# Login al proprio account
+username = config.get('account', 'username')
+password = 'questa-è-la-password-sbagliata'
+print 'Connesso come', username
+connection.login(username, password)
+</py_code>
+<py_output>
+$ python imaplib_connect_fail.py 
+
+Connecting to imap.gmail.com
+Logging in as pymotw.it@gmail.com
+Traceback (most recent call last):
+  File "imaplib_connect_fail.py", line 25, in <module>
+    connection.login(username, password)
+  File "/usr/lib/python2.7/imaplib.py", line 507, in login
+    raise self.error(dat[-1])
+imaplib.error: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+</py_output>
+<titolo_2>
+Configurazione di Esempio
+</titolo_2>
+<testo_normale>
+L'account di esempio ha 4 <em>mailbox</em>, ${sev}INBOX${eev}, ${sev}Apple Mail To Do${eev}, ${sev}Archive${eev} e ${sev}2008${eev} (una sottocartella di ${sev}Archive${eev}). La gerarchia delle <em>mailbox</em> è questa:
+</testo_normale>
+<lista_ricorsiva>
+INBOX
+Apple Mail To Do
+Archive<ul><li>2008</li></ul>
+</lista_ricorsiva>
+<testo_normale>
+C'è un messaggio non letto nella <em>casella</em> ${sev}INBOX${eev} ed un messaggio letto in ${sev}Archive/2008${eev}
+</testo_normale>
+<titolo_2>
+Elencare le <em>Mailbox</em>
+</titolo_2>
+<testo_normale>
+Per recuperare le <em>mailbox</em> disponibili per un account si usa il metodo ${sbk}list()${ebk}.
+</testo_normale>
+<py_code>
+import imaplib
+from pprint import pprint
+from imaplib_connect import open_connection
+
+c = open_connection()
+try:
+    typ, data = c.list()
+    print 'Codice risposta:', typ
+    print 'Risposta:'
+    pprint(data)
+finally:
+    c.logout()
+</py_code>
+<testo_normale>
+Il valore restituito è una tupla con un codice di risposta ed i dati ritornati dal server. Il codice di risposta è ${sev}OK${eev}, a meno che non vi sia un errore. I dati per ${sbk}list()${ebk} sono una sequenza di stringhe che contengono <em>flag</em>, il <em>delimitatore gerarchico</em>, il <em>nome della mailbox</em> per ciascuna <em>mailbox</em>.
+</testo_normale>
+<py_output>
+ $ python imaplib_list.py 
+ 
+Codice risposta: OK
+Risposta:
+['(\\HasNoChildren) "/" "Apple Mail To Do"',
+ '(\\HasNoChildren) "/" "INBOX"',
+ '(\\HasChildren) "/" "Archive"',
+ '(\\HasNoChildren) "/" "Archive/2008"']
+</py_output>
+<testo_normale>
+Ogni stringa di risposta può essere scomposta in 3 parti usando <a href='http://www.doughellmann.com/PyMOTW/re/index.html#module-re'>re</a> oppure <a href='${baseurl}/pymotw-it/csv.html'>csv</a> (si veda lo script <a href='http://snipplr.com/view/7955/imap-backup-script/'>IMAP Backup</a> per un esempio che utilizza <a href='${baseurl}/pymotw-it/csv.html'>csv</a>).
+</testo_normale>
+<py_code>
+import imaplib
+import re
+
+from imaplib_connect import open_connection
+
+list_response_pattern = re.compile(r'\((?P<flags>.*?)\) "(?P<delimiter>.*)" (?P<name>.*)')
+
+def parse_list_response(line):
+    flags, delimiter, mailbox_name = list_response_pattern.match(line).groups()
+    mailbox_name = mailbox_name.strip('"')
+    return (flags, delimiter, mailbox_name)
+
+if __name__ == '__main__':
+    c = open_connection()
+    try:
+        typ, data = c.list()
+    finally:
+        c.logout()
+    print 'Codice di risposta:', typ
+
+    for line in data:
+        print 'Risposta del server:', line
+        flags, delimiter, mailbox_name = parse_list_response(line)
+        print 'Risposta analizzata:', (flags, delimiter, mailbox_name)
+</py_code>
+<testo_normale>
+Si noti che il server racchiude il nome delle <em>mailbox</em> tra apici se lo stesso contiene degli spazi, tuttavia detti apici devono essere eliminati per utilizzare il nome della <em>mailbox</em> in altre chiamate al server successivamente.
+</testo_normale>
+<py_output>
+$ python imaplib_list_parse.py 
+
+Codice di risposta: OK
+Risposta del server: (\HasNoChildren) "/" "Apple Mail To Do"
+Risposta analizzata: ('\\HasNoChildren', '/', 'Apple Mail To Do')
+Risposta del server: (\HasNoChildren) "/" "INBOX"
+Risposta analizzata: ('\\HasNoChildren', '/', 'INBOX')
+Risposta del server: (\HasChildren) "/" "Archive"
+Risposta analizzata: ('\\HasChildren', '/', 'Archive')
+Risposta del server: (\HasNoChildren) "/" "Archive/2008"
+Risposta analizzata: ('\\HasNoChildren', '/', 'Archive/2008')
+</py_output>
+<testo_normale>
+${sbk}list()${ebk} ottiene due parametri per consentire di richiedere solo le <em>mailbox</em> facenti parte di una certa gerarchia. Ad esempio per elencare tutte le sotto-cartelle di ${sev}Archive${eev}, si passa un valore per il parametro <em>directory</em>:
+</testo_normale>
+<py_code>
+import imaplib
+
+from imaplib_connect import open_connection
+
+if __name__ == '__main__':
+    c = open_connection()
+    try:
+        typ, data = c.list(directory='Archive')
+    finally:
+        c.logout()
+    print 'Codice di risposta:', typ
+
+    for line in data:
+        print 'Risposta del server:', line
+</py_code>
+<testo_normale>
+Viene restituito solo la singola sotto-cartella
+</testo_normale>
+<py_output>
+$ python imaplib_list_subfolders.py 
+
+Codice di risposta: OK
+Risposta del server: (\HasNoChildren) "/" "Archive/2008"
+</py_output>
+<testo_normale>
+Oppure, per elencare cartelle che corrispondono ad un modello si può passare il parametro <em>pattern</em>:
+</testo_normale>
+<py_code>
+import imaplib
+
+from imaplib_connect import open_connection
+
+if __name__ == '__main__':
+    c = open_connection()
+    try:
+        typ, data = c.list(pattern='*Archive*')
+    finally:
+        c.logout()
+    print 'Codice risposta:', typ
+
+    for line in data:
+        print 'Risposta del server:', line
+</py_code>
+<testo_normale>
+In questo caso sia ${sev}Archive${eev} che ${sev}Archive/2008${eev} sono inclusi nella risposta.
+</testo_normale>
+<py_output>
+$ python imaplib_list_pattern.py 
+
+Codice risposta: OK
+Risposta del server: (\HasChildren) "/" "Archive"
+Risposta del server: (\HasNoChildren) "/" "Archive/2008"
+</py_output>
+<titolo_2>
+Stato della <em>Mailbox</em>
+</titolo_2>
+<testo_normale>
+Si usa ${sbk}status()${ebk} per richiedere informazioni aggregate circa il contenuto. Lo standard definisce le seguenti <em>condizioni di stato</em>
+</testo_normale>
+<deflist>
+MESSAGES|Il numero di messaggi nella <em>mailbox</em>
+RECENT|Il numero di messaggi con il flag Recent impostato
+UIDNEXT|Il valore del prossimo identificatore univoco della <em>mailbox</em>
+UIDVALIDITY|Il valore dell'identificativo univoco della <em>mailbox</em>
+UNSEEN|Il numero di messaggi che non hanno impostato il flag <em>Seen</em>
+</deflist>
+<testo_normale>
+Le condizioni di stato devono essere formattate come stringhe separate da spazio, racchiuse in parentesi; la codifica per "list" nella specifica IMAP4.
+</testo_normale>
+<py_code>
+import imaplib
+import re
+
+from imaplib_connect import open_connection
+from imaplib_list_parse import parse_list_response
+
+if __name__ == '__main__':
+    c = open_connection()
+    try:
+        typ, data = c.list()
+        for line in data:
+            flags, delimiter, mailbox_name = parse_list_response(line)
+            print c.status(mailbox_name, '(MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)')
+    finally:
+        c.logout()
+</py_code>
+<testo_normale>
+Il valore di ritorno è la solita tupla che contiene un codice di risposta ed una lista di informazioni dal server. In questo caso, la lista contiene una singola stringa formattata con il nome della <em>mailbox</em> racchiuso tra apici, poi le condizioni di stato ed i valori tra parentesi.
+</testo_normale>
+<py_output>
+$ python imaplib_status.py 
+
+('OK', ['"Apple Mail To Do" (MESSAGES 0 RECENT 0 UIDNEXT 1 UIDVALIDITY 662496775 UNSEEN 0)'])
+('OK', ['"INBOX" (MESSAGES 1 RECENT 0 UIDNEXT 7 UIDVALIDITY 662496756 UNSEEN 1)'])
+('OK', ['"Archive" (MESSAGES 0 RECENT 0 UIDNEXT 1 UIDVALIDITY 662496776 UNSEEN 0)'])
+('OK', ['"Archive/2008" (MESSAGES 1 RECENT 0 UIDNEXT 4 UIDVALIDITY 662496777 UNSEEN 0)'])
+</py_output>
+<titolo_2>
+Selezionare una <em>Mailbox</em>
+</titolo_2>
+<testo_normale>
+Il metodo operativo base, una volta che il client è autenticato, è quello di selezionare una <em>mailbox</em> quindi interrogare il server riguardo ai messaggi nella <em>mailbox</em>. La connessione è <em>stateful</em>, quindi, una volta che viene selezionata una <em>mailbox</em> tutti i comandi operano su messaggi in quella <em>mailbox</em> fino a quando non ne viene selezionata una nuova.
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+
+c = imaplib_connect.open_connection()
+try:
+    typ, data = c.select('INBOX')
+    print typ, data
+    num_msgs = int(data[0])
+    print 'Ci sono %d messagggi in INBOX' % num_msgs
+finally:
+    c.close()
+    c.logout()
+</py_code>
+<testo_normale>
+I dati in risposta contengono il numero totale di messaggi nella <em>mailbox</em>
+</testo_normale>
+<py_output>
+$ python imaplib_select.py 
+
+OK ['1']
+Ci sono 1 messaggi in INBOX
+</py_output>
+<testo_normale>
+Se viene indicata una <em>mailbox</em> non valida, il codice di risposta è ${sev}NO${eev}.
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+
+c = imaplib_connect.open_connection()
+try:
+    typ, data = c.select('Non Esiste')
+    print typ, data
+finally:
+    c.logout()
+</py_code>
+<testo_normale>
+I dati contengono un messaggio di errore che descrive il problema.
+</testo_normale>
+<py_output>
+$ python imaplib_select_invalid.py 
+
+NO ['[NONEXISTENT] Unknown Mailbox: Non Esiste (Failure)']
+</py_output>
+<titolo_2>
+Cercare Messaggi
+</titolo_2>
+<testo_normale>
+Una volta che la <em>mailbox</em> è selezionata, si usa ${sbk}search()${ebk} per recuperare gli identificativi dei messaggi nella <em>mailbox</em>
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+from imaplib_list_parse import parse_list_response
+
+c = imaplib_connect.open_connection()
+try:
+    typ, mailbox_data = c.list()
+    for line in mailbox_data:
+        flags, delimiter, mailbox_name = parse_list_response(line)
+        c.select(mailbox_name, readonly=True)
+        typ, msg_ids = c.search(None, 'ALL')
+        print mailbox_name, typ, msg_ids        
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+Gli identificativi dei messaggi sono assegnati dal server, e dipendono dall'implementazione. Il protocollo IMAP4 distingue tra identificativi sequenziali per messaggi ad un determinato punto nel tempo durante una transazione ed identificativi UID per i messaggi, ma non tutti i server sembrano tenerne conto.
+</testo_normale>
+<py_output>
+$ python imaplib_search_all.py 
+
+Apple Mail To Do OK ['']
+INBOX OK ['1']
+Archive OK ['']
+Archive/2008 OK ['1']
+</py_output>
+<testo_normale>
+In questo caso ${sev}INBOX${eev} ed ${sev}Archive/2008${eev} hanno ciascuno un messaggio diverso con identificativo 1. Le altre <em>mailbox</em> sono vuote.
+</testo_normale>
+<titolo_2>
+Criteri di Ricerca
+</titolo_2>
+<testo_normale>
+Si possono usare vari criteri di ricerca, compreso la ricerca di date per i messaggi, flag ed altre intestazioni. Si faccia riferimento alla sezione 6.4.4 di <a href='http://tools.ietf.org/html/rfc3501.html'>RFC 3501</a> per i completi dettagli.
+</testo_normale>
+<testo_normale>
+Come esempio, per trovare i messaggi con '${sev}test message 2${eev}' come oggetto il criterio di ricerca potrebbe essere costruito in questo modo:
+</testo_normale>
+<py_output>
+(SUBJECT "test message 2")
+</py_output>
+<testo_normale>
+Questo esempio trova tutti i messaggi con oggetto che contiene '${sev}test message 2${eev}' in tutte le <em>mailbox</em>.
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+from imaplib_list_parse import parse_list_response
+
+c = imaplib_connect.open_connection()
+try:
+    typ, mailbox_data = c.list()
+    for line in mailbox_data:
+        flags, delimiter, mailbox_name = parse_list_response(line)
+        c.select(mailbox_name, readonly=True)
+        typ, msg_ids = c.search(None, '(SUBJECT "test message 2")')
+        print mailbox_name, typ, msg_ids        
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+Si trova solo un messaggio che corrisponde nell'account, e si trova in ${sev}INBOX${eev}
+</testo_normale>
+<py_output>
+$ python imaplib_search_subject.py 
+
+Apple Mail To Do OK ['']
+INBOX OK ['1']
+Archive OK ['']
+Archive/2008 OK ['']
+</py_output>
+<testo_normale>
+I criteri di ricerca si possono anche combinare
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+from imaplib_list_parse import parse_list_response
+
+c = imaplib_connect.open_connection()
+try:
+    typ, mailbox_data = c.list()
+    for line in mailbox_data:
+        flags, delimiter, mailbox_name = parse_list_response(line)
+        c.select(mailbox_name, readonly=True)
+        typ, msg_ids = c.search(None, '(FROM "Doug" SUBJECT "test message 2")')
+        print mailbox_name, typ, msg_ids        
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+La combinazione viene trattata come una operazione di <em>and</em> logico.
+</testo_normale>
+<py_output>
+$ python imaplib_search_from.py
+
+INBOX OK ['1']
+Apple Mail To Do OK ['']
+Archive OK ['']
+Archive.2008 OK ['']
+</py_output>
+<titolo_2>
+Recuperare Messaggi
+</titolo_2>
+<testo_normale>
+Gli identificativi dei messaggi restituiti da ${sbk}search()${ebk} vengono usati per recuperarne il contenuto, anche parziale, per una successiva elaborazione tramite ${sbk}fetch()${ebk}, che riceve due parametri, l'identificativo del messaggio da prendere e la(e) porzione(i) da recuperare.
+</testo_normale>
+<testo_normale>
+Il parametro <em>message_ids</em> è una lista di identificativi separati da virgola (${sev}"1", "1,2"${eev}), oppure da una gamma di identificativi (${sev}1:2${eev}). Il parametro <em>message_parts</em> è una lista di nomi di segmenti di messaggi IMAP. Assieme ai criteri di ricerca per ${sbk}search()${ebk}, il protocollo IMAP attribuisce nomi ai segmenti di messaggi in modo che i client possano con efficacia recuperare solo le parti di messaggio delle quali necessitano. Ad esempio per stampare tutte le intestazioni dei messaggi in una <em>mailbox</em>, si potrebbe usare ${sbk}fetch()${ebk} per recuperare le intestazioni usando ${sev}BODY.PEEK[HEADER]${eev}.
+</testo_normale>
+<note>
+Un altro modo per recuperare le intestazioni sarebbe semplicemente ${sev}BODY[HEADERS]${eev}, ma quella forma contrassegna implicitamente i messaggi come <em>letti</em>, la qual cosa, in molti casi non è desiderabile.
+</note>
+<py_code>
+import imaplib
+import pprint
+import imaplib_connect
+
+imaplib.Debug = 4
+c = imaplib_connect.open_connection()
+try:
+    c.select('INBOX', readonly=True)
+    typ, msg_data = c.fetch('1', '(BODY.PEEK[HEADER] FLAGS)')
+    pprint.pprint(msg_data)
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+Il valore di ritorno di ${sbk}fetch()${ebk} è stato parzialmente elaborato così da essere in qualche modo più difficoltoso da lavorare rispetto al valore restituito da ${sbk}list()${ebk}. Se si attiva il debugger, si può vedere l'interazione completa tra il client ed il server per comprendere perchè succede questo.
+</testo_normale>
+<py_output>
+$ python imaplib_fetch_raw.py
+  13:12.54 imaplib version 2.58
+  13:12.54 new IMAP4 connection, tag=CFKH
+  13:12.54 < * OK dovecot ready.
+  13:12.54 > CFKH0 CAPABILITY
+  13:12.54 < * CAPABILITY IMAP4rev1 SORT THREAD=REFERENCES MULTIAPPEND UNSELECT IDLE CHILDREN LISTEXT LIST-SUBSCRIBED NAMESPACE AUTH=PLAIN
+  13:12.54 < CFKH0 OK Capability completed.
+  13:12.54 CAPABILITIES: ('IMAP4REV1', 'SORT', 'THREAD=REFERENCES', 'MULTIAPPEND', 'UNSELECT', 'IDLE', 'CHILDREN', 'LISTEXT', 'LIST-SUBSCRIBED', 'NAMESPACE', 'AUTH=PLAIN')
+  13:12.54 > CFKH1 LOGIN example "password"
+  13:13.18 < CFKH1 OK Logged in.
+  13:13.18 > CFKH2 EXAMINE INBOX
+  13:13.20 < * FLAGS (\Answered \Flagged \Deleted \Seen \Draft $NotJunk $Junk)
+  13:13.20 < * OK [PERMANENTFLAGS ()] Read-only mailbox.
+  13:13.20 < * 2 EXISTS
+  13:13.20 < * 1 RECENT
+  13:13.20 < * OK [UNSEEN 1] First unseen.
+  13:13.20 < * OK [UIDVALIDITY 1222003700] UIDs valid
+  13:13.20 < * OK [UIDNEXT 4] Predicted next UID
+  13:13.20 < CFKH2 OK [READ-ONLY] Select completed.
+  13:13.20 > CFKH3 FETCH 1 (BODY.PEEK[HEADER] FLAGS)
+  13:13.20 < * 1 FETCH (FLAGS ($NotJunk) BODY[HEADER] {595}
+  13:13.20 read literal size 595
+  13:13.20 < )
+  13:13.20 < CFKH3 OK Fetch completed.
+  13:13.20 > CFKH4 CLOSE
+  13:13.21 < CFKH4 OK Close completed.
+  13:13.21 > CFKH5 LOGOUT
+  13:13.21 < * BYE Logging out
+  13:13.21 BYE response: Logging out
+  13:13.21 < CFKH5 OK Logout completed.
+[('1 (FLAGS ($NotJunk) BODY[HEADER] {595}',
+  'Return-Path: <dhellmann@example.com>\r\nReceived: from example.com (localhost [127.0.0.1])\r\n\tby example.com (8.13.4/8.13.4) with ESMTP id m8LDTGW4018260\r\n\tfor <example@example.com>; Sun, 21 Sep 2008 09:29:16 -0400\r\nReceived: (from dhellmann@localhost)\r\n\tby example.com (8.13.4/8.13.4/Submit) id m8LDTGZ5018259\r\n\tfor example@example.com; Sun, 21 Sep 2008 09:29:16 -0400\r\nDate: Sun, 21 Sep 2008 09:29:16 -0400\r\nFrom: Doug Hellmann <dhellmann@example.com>\r\nMessage-Id: <200809211329.m8LDTGZ5018259@example.com>\r\nTo: example@example.com\r\nSubject: test message 2\r\n\r\n'),
+ ')']
+</py_output>
+<testo_normale>
+La rsposta del comando ${sev}FETCH${eev} inizia con i flag, quindi indica che ci sono 595 byte di dati di intestazione. Il client costruisce una tupla con la risposta per il messaggio, quindi chiude la sequenza con una singola stringa che contiene ${sev})${eev} che il server invia alla fine della risposta a fetch. A causa di questa formattazione, potrebbe essere più facile recuperare diversi pezzi di informazione separatamente, oppure ricombinare la risposta ed elaborarla personalmente.
+</testo_normale>
+<py_code>
+mport imaplib
+import pprint
+import imaplib_connect
+
+c = imaplib_connect.open_connection()
+try:
+    c.select('INBOX', readonly=True)
+    
+    print 'HEADER:'
+    typ, msg_data = c.fetch('1', '(BODY.PEEK[HEADER])')
+    for response_part in msg_data:
+        if isinstance(response_part, tuple):
+            print response_part[1]
+    
+    print 'BODY TEXT:'
+    typ, msg_data = c.fetch('1', '(BODY.PEEK[TEXT])')
+    for response_part in msg_data:
+        if isinstance(response_part, tuple):
+            print response_part[1]
+
+    print '\nFLAGS:'
+    typ, msg_data = c.fetch('1', '(FLAGS)')
+    for response_part in msg_data:
+        print response_part
+        print imaplib.ParseFlags(response_part)
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+Recuperando i valori separatamente si ha il vantaggio addizionale di rendere facile l'uso di ${sbk}ParseFlags${ebk} per elaborare i flag dalla risposta.
+</testo_normale>
+<py_output>
+$ python imaplib_fetch_separately.py
+HEADER:
+Return-Path: <dhellmann@example.com>
+Received: from example.com (localhost [127.0.0.1])
+    by example.com (8.13.4/8.13.4) with ESMTP id m8LDTGW4018260
+    for <example@example.com>; Sun, 21 Sep 2008 09:29:16 -0400
+Received: (from dhellmann@localhost)
+    by example.com (8.13.4/8.13.4/Submit) id m8LDTGZ5018259
+    for example@example.com; Sun, 21 Sep 2008 09:29:16 -0400
+Date: Sun, 21 Sep 2008 09:29:16 -0400
+From: Doug Hellmann <dhellmann@example.com>
+Message-Id: <200809211329.m8LDTGZ5018259@example.com>
+To: example@example.com
+Subject: test message 2
+
+
+BODY TEXT:
+second message
+
+
+FLAGS:
+1 (FLAGS ($NotJunk))
+('$NotJunk',)
+</py_output>
+<titolo_2>
+Interi Messaggi
+</titolo_2>
+<testo_normale>
+Come qui sopra illustrato, il client può chiedere al server parti individuali del messaggio separatamente. E' anche possibile recuperare l'intero messaggio come messaggio di posta formattato secondo le specifiche di <a href='http://tools.ietf.org/html/rfc2822.html'>RFC 2822</a> ed elaborarlo con le classi del modulo <strong>email</strong>.
+</testo_normale>
+<py_code>
+import imaplib
+import email
+import imaplib_connect
+
+c = imaplib_connect.open_connection()
+try:
+    c.select('INBOX', readonly=True)
+    
+    typ, msg_data = c.fetch('1', '(RFC822)')
+    for response_part in msg_data:
+        if isinstance(response_part, tuple):
+            msg = email.message_from_string(response_part[1])
+            for header in [ 'subject', 'to', 'from' ]:
+                print '%-8s: %s' % (header.upper(), msg[header])
+
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+Il parser nel modulo <strong>email</strong> rende molto facile l'accesso e la manipolazione dei messaggi. Questo esempio stampa solo qualcuna delle intestazioni per ogni messaggio.
+</testo_normale>
+<py_output>
+$ python imaplib_fetch_rfc822.py
+SUBJECT : test message 2
+TO      : example@example.com
+FROM    : Doug Hellmann <dhellmann@example.com>
+</py_output>
+<titolo_2>
+Caricare Messaggi
+</titolo_2>
+<testo_normale>
+Per aggiungere un nuovo messaggio alla <em>mailbox</em> passarlo al metodo ${sbk}append()${ebk}.
+</testo_normale>
+<py_code>
+import imaplib
+import time
+import email.message
+import imaplib_connect
+
+new_message = email.message.Message()
+new_message.set_unixfrom('pymotw')
+new_message['Subject'] = "L'oggetto va qui"
+new_message['From'] = 'pymotw@example.com'
+new_message['To'] = 'example@example.com'
+new_message.set_payload('Questo è il corpo del messaggio.\n')
+
+print new_message
+
+c = imaplib_connect.open_connection()
+try:
+    c.append('INBOX', '', imaplib.Time2Internaldate(time.time()), str(new_message))
+    
+    c.select('INBOX')
+    typ, [msg_ids] = c.search(None, 'ALL')
+    for num in msg_ids.split():
+        typ, msg_data = c.fetch(num, '(BODY.PEEK[HEADER])')
+        for response_part in msg_data:
+            if isinstance(response_part, tuple):
+                print '\n%s:' % num
+                print response_part[1]
+        
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<py_output>
+pymotw
+Subject: L'oggetto va qui
+From: pymotw@example.com
+To: example@example.com
+
+Questo è il corpo del messaggio.
+
+
+1:
+Return-Path: <dhellmann@example.com>
+Received: from example.com (localhost [127.0.0.1])
+    by example.com (8.13.4/8.13.4) with ESMTP id m8LDTGW4018260
+    for <example@example.com>; Sun, 21 Sep 2008 09:29:16 -0400
+Received: (from dhellmann@localhost)
+    by example.com (8.13.4/8.13.4/Submit) id m8LDTGZ5018259
+    for example@example.com; Sun, 21 Sep 2008 09:29:16 -0400
+Date: Sun, 21 Sep 2008 09:29:16 -0400
+From: Doug Hellmann <dhellmann@example.com>
+Message-Id: <200809211329.m8LDTGZ5018259@example.com>
+To: example@example.com
+Subject: test message 2
+
+
+
+2:
+Return-Path: <doug.hellmann@example.com>
+Message-Id: <0D9C3C50-462A-4FD7-9E5A-11EE222D721D@example.com>
+From: Doug Hellmann <doug.hellmann@example.com>
+To: example@example.com
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Subject: lorem ipsum
+Date: Sun, 21 Sep 2008 12:53:16 -0400
+X-Mailer: Apple Mail (2.929.2)
+
+
+
+3:
+pymotw
+Subject: L'oggetto va qui
+From: pymotw@example.com
+To: example@example.com
+</py_output>
+<titolo_2>
+Spostare e Copiare Messaggi
+</titolo_2>
+<testo_normale>
+Una volta che il messaggio è sul server, può essere spostato o copiato senza scaricarlo usando ${sbk}move()${ebk} oppure ${sbk}copy${ebk}. Questi metodi operano su gamme di identificativi di messaggio, proprio come ${sbk}fetch()${ebk}.
+</testo_normale>
+<testo_normale>
+Lo script di esempio crea una nuova <em>mailbox</em> sotto ${sev}Archive${eev} e copia in essa i messaggi letti in ${sev}INBOX${eev}.
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+
+c = imaplib_connect.open_connection()
+try:
+    # Cerca i messaggi  "SEEN"  in INBOX
+    c.select('INBOX')
+    typ, [response] = c.search(None, 'SEEN')
+    if typ != 'OK':
+        raise RuntimeError(response)
+    
+    # Crea una nuova mailbox, "Archive.Today"
+    msg_ids = ','.join(response.split(' '))
+    typ, create_response = c.create('Archive.Today')
+    print 'CREATA Archive.Today:', create_response
+    
+    # Copia i messaggi
+    print 'IN COPIA:', msg_ids
+    c.copy(msg_ids, 'Archive.Today')
+    
+    # Cerca quello che ne risulta
+    c.select('Archive.Today')
+    typ, [response] = c.search(None, 'ALL')
+    print 'COPIATI:', response
+    
+finally:
+    c.close()
+    c.logout()
+    
+</py_code>
+<py_output>
+$ python imaplib_archive_read.py
+CREATA Archive.Today: ['Create completed.']
+IN COPIA: 1,2
+COPIATI: 1 2
+</py_output>
+<testo_normale>
+Se si esegue nuovamente lo stesso script si dimostra l'importanza di verificare i codici di ritorno. Invece di sollevare una eccezione, la chiamata a ${sbk}create()${ebk} per creare una nuova cartella rivela che la <em>mailbox</em> esiste già
+</testo_normale>
+<py_output>
+$ python imaplib_archive_read.py
+CREATA Archive.Today: ['Mailbox exists.']
+IN COPIA: 1,2
+COPIATI: 1 2 3 4
+</py_output>
+<titolo_2>
+Cancellare Messaggi
+</titolo_2>
+<testo_normale>
+Sebbene la maggior parte dei client mail moderni usino un modello "Cartella Trash" (Cestino) per lavorare con i messaggi cancellati, i messaggi in genere non sono spostati in una effettiva cartella. Invece i loro flag sono aggiornati per aggiungere ${sev}\Deleted${eev}. <em>Lo svuotamento del cestino</em> viene implementato attraverso un comando ${sev}EXPUNGE${eev}. Qusto script di esempio trova i messaggi archiviati che contengono "Lorem ipsum" nell'oggetto, imposta il flag di cancellazione, quindi dimostra che i messaggi sono ancora presenti nella cartella interrogando nuovamente il server.
+</testo_normale>
+<py_code>
+import imaplib
+import imaplib_connect
+from imaplib_list_parse import parse_list_response
+
+c = imaplib_connect.open_connection()
+try:
+    c.select('Archive.Today')
+
+    # Che identificativi ci sono nella mailbox=
+    typ, [msg_ids] = c.search(None, 'ALL')
+    print 'Messaggi di partenza:', msg_ids
+    
+    # Trova i messaggi
+    typ, [msg_ids] = c.search(None, '(SUBJECT "Lorem ipsum")')
+    msg_ids = ','.join(msg_ids.split(' '))
+    print 'Messaggi corrispondenti:', msg_ids
+    
+    # Quali sono i flag attuali?
+    typ, response = c.fetch(msg_ids, '(FLAGS)')
+    print 'Flags prima:', response
+    
+    # Cambio il flag Deleted
+    typ, response = c.store(msg_ids, '+FLAGS', r'(\Deleted)')
+    
+    # Quali sono i flag adesso?
+    typ, response = c.fetch(msg_ids, '(FLAGS)')
+    print 'Flags dopo:', response
+    
+    # Cancello veramente i messaggi
+    typ, response = c.expunge()
+    print 'Cancellati:', response
+    
+    # Quali identificativi sono rimasti nella mailbox?
+    typ, [msg_ids] = c.search(None, 'ALL')
+    print 'Messaggi rimasti:', msg_ids
+    
+finally:
+    try:
+        c.close()
+    except:
+        pass
+    c.logout()
+
+</py_code>
+<testo_normale>
+Questo esempio chiama esplicitamente ${sbk}expunge()${ebk} per rimuovere i messaggi, ma la chiamata a ${sbk}close()${ebk} ottiene lo stesso effetto. La differenza è che il client non è notificato circa le cancellazioni quando si chiama ${sbk}close()${ebk}
+</testo_normale>
+<py_output>
+$ python imaplib_delete_messages.py
+Messaggi di partenza: 1 2 3 4
+Messaggi corrispondenti: 1,3
+Flags prima: ['1 (FLAGS (\\Seen $NotJunk))', '3 (FLAGS (\\Seen \\Recent $NotJunk))']
+Flags dopo: ['1 (FLAGS (\\Deleted \\Seen $NotJunk))',
+'3 (FLAGS (\\Deleted \\Seen \\Recent $NotJunk))']
+Cancellati: ['1', '2']
+Messaggi rimasti: 1 2
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/imaplib.html|imaplib|La documentazione della libreria standard per questo modulo.
+http://www.imap.org/about/whatisIMAP.html|What is IMAP?|Descrizione del protocollo IMAP in imap.org.
+http://www.washington.edu/imap|University of Washington IMAP Information Center|Buona risorsa per informazioni su IMAP, con anche del codice sorgente.
+http://tools.ietf.org/html/rfc3501.html|RFC 3501|Protocollo Internet di Accesso ai Messaggi
+http://tools.ietf.org/html/rfc2822.html|RFC 2822|Formato Internet dei Messaggi
+http://snipplr.com/view/7955/imap-backup-script/|IMAP Backup Script|Uno script per la copia di email da un server IMAP
+|rfc822|Il modulo rfc822 include un parser per <a href='http://tools.ietf.org/html/rfc822'>RFC 822</a> / <a href='http://tools.ietf.org/html/rfc2822'>RFC 2822</a>.
+http://docs.python.org/library/email.html|email|Il modulo <strong>email</strong> per elaborare messaggi email.
+mailbox.html|mailbox|Parser per <em>mailbox</em> locale.
+configParser.html|ConfigParser|Legge e scrive file di configurazione
+http://imapclient.freshfoo.com/|IMAPClient|Un client ad alto livello per comunicare con server IMAP, scritto da Menno Smits.
+</vedi_anche>
+</documento_tradotto>
+    

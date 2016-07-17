@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+dbhash - API in stile DBM per la libreria database BSD
+</titolo_1>
+<descrizione>
+Fornisce una API tipo dizionario per accedere ai file  BSD.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>dbhash</strong> è il <a href='http://it.wikipedia.org/wiki/Front-end_e_back-end'>back-end</a> primario per <a href='anydbm.html'>anydbm</a>. Usa la libreria <strong>bsddb</strong> per gestire i file database. Le semantiche sono le stesse di <a href='anydbm.html'>anydbm</a>, quindi si faccia riferimento agli esempi di quella pagina per i dettagli.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/dbhash.html|dbhash|La documentazione della libreria standard per questo modulo.
+anydbm.html|anydbm|Il modulo anydbm
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+Deque - coda a doppia entrata
+</titolo_1>
+<descrizione>
+Una coda a doppia entrata (<a href="https://it.wikipedia.org/wiki/Deque"><strong>deque</strong></a>) supporta l'inserimento e la rimozione di elementi da ambo le estremità.
+
+</descrizione>
+<testo_normale>
+Una coda a doppia entrata (<a href="https://it.wikipedia.org/wiki/Deque"><strong>deque</strong></a>) supporta l'inserimento e la rimozione di elementi da ambo le estremità. I più comuni <a href="https://it.wikipedia.org/wiki/Pila_(informatica)">stack</a> e <a href="https://it.wikipedia.org/wiki/Coda_(informatica)">code</a> sono forme degenerate di <a href="https://it.wikipedia.org/wiki/Deque"><strong>deque</strong></a>, laddove le entrate e le uscite sono limitate ad un singolo estremo.
+</testo_normale>
+<py_code>
+# collections_deque.py
+
+import collections
+
+d = collections.deque('abcdefg')
+print ('Deque:', d)
+print ('Lunghezza:', len(d))
+print ('Estremo sx:', d[0])
+print ('Estremo dx:', d[-1])
+
+d.remove('c')
+print ('rimuovo(c):', d)
+</py_code>
+<testo_normale>
+Visto che le deque sono un tipo di contenitore di sequenze, supportano alcune delle operazioni che supportano le liste, come ad esempio  l'esaminare i contenuti con <code>__getitem__()</code>, il determinare la lunghezza, e la rimozione di elementi all'interno confrontandone l'identità .
+</testo_normale>
+<py_output>
+$ python3 collections_deque.py
+
+Deque: deque(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+Lunghezza: 7
+Estremo sx: a
+Estremo dx: g
+rimuovo(c): deque(['a', 'b', 'd', 'e', 'f', 'g'])
+</py_output>
+<titolo_2>
+Inserire Elementi
+</titolo_2>
+<testo_normale>
+Una deque può essere popolare da entrambi gli estremi, chiamati "left" e "right" rispettivamente per sinistra e destra nell'implementazione Python.
+</testo_normale>
+<py_code>
+# collections_deque_populating.py
+
+import collections
+
+# Si aggiunge da destra
+d1 = collections.deque()
+d1.extend('abcdefg')
+print('extend    :', d1)
+d1.append('h')
+print('append    :', d1)
+
+# Si aggiunge da sinistra
+d2 = collections.deque()
+d2.extendleft(range(6))
+print('extendleft:', d2)
+d2.appendleft(6)
+print('appendleft:', d2)
+</py_code>
+<testo_normale>
+La funzione <code>extendleft()</code> itera attraverso gli elementi in entrata ed esegue l'equivalente di <code>appendleft()</code> per ogni elemento. Ne risulta che la deque contiene la sequenza di input in ordine inverso.
+</testo_normale>
+<py_output>
+$ python3 collections_deque_populating.py
+
+extend    : deque(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+append    : deque(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+extendleft: deque([5, 4, 3, 2, 1, 0])
+appendleft: deque([6, 5, 4, 3, 2, 1, 0])
+</py_output>
+<titolo_2>
+Consumare gli Elementi
+</titolo_2>
+<testo_normale>
+Gli elementi della deque possono essere consumati da entrambi i lati, a seconda dell'algoritmo che viene applicato.
+</testo_normale>
+<py_code>
+# collections_deque_consuming.py
+
+import collections
+
+print('Da destra:')
+d = collections.deque('abcdefg')
+while True:
+    try:
+        print(d.pop(), end='')
+    except IndexError:
+        break
+print
+
+print('\nDa sinistra:')
+d = collections.deque(range(6))
+while True:
+    try:
+        print(d.popleft(), end='')
+    except IndexError:
+        break
+print
+</py_code>
+<testo_normale>
+Si utilizza <code>pop()</code> per rimuovere un elemento dall'estremità destra della coda, <code>popleft()</code> per toglierlo dall'estremità sinistra.
+</testo_normale>
+<py_output>
+$ python3 collections_deque_consuming.py
+
+Da destra:
+gfedcba
+Da sinistra:
+012345
+</py_output>
+<testo_normale>
+Visto che le deque sono <a href="https://it.wikipedia.org/wiki/Thread_safety">thread-safe</a> gli elementi possono essere consumati da entrambi gli estremi allo stesso tempo da <a href="https://it.wikipedia.org/wiki/Processo_(informatica)#Processi_e_thread">thread</a> separati.
+</testo_normale>
+<py_code>
+# collections_deque_both_ends.py
+
+import collections
+import threading
+import time
+
+candle = collections.deque(range(5))
+
+
+def burn(direction, nextSource):
+    while True:
+        try:
+            next = nextSource()
+        except IndexError:
+            break
+        else:
+            print('{:>8}: {}'.format(direction, next))
+            time.sleep(0.1)
+    print('{:>8} finito'.format(direction))
+    return
+
+left = threading.Thread(target=burn,
+                        args=('Sinistra', candle.popleft))
+right = threading.Thread(target=burn,
+                         args=('Destra', candle.pop))
+
+left.start()
+right.start()
+
+left.join()
+right.join()
+</py_code>
+<testo_normale>
+I <a href="https://it.wikipedia.org/wiki/Processo_(informatica)#Processi_e_thread">thread</a> in questo esempio si alternano tra gli estremi, eliminando elementi fino allo svuotamento della deque.
+</testo_normale>
+<py_output>
+$ python3 collections_deque_both_ends.py
+
+Sinistra: 0
+  Destra: 4
+Sinistra: 1
+  Destra: 3
+Sinistra: 2
+  Destra finito
+Sinistra finito
+</py_output>
+<titolo_2>
+Rotazione
+</titolo_2>
+<testo_normale>
+Un'altra utile capacità della deque è quella di ruotare in ciascuna direzione, per saltare alcuni elementi.
+</testo_normale>
+<py_code>
+# collections_deque_rotate.py
+
+import collections
+
+d = collections.deque(range(10))
+print('Normale       :', d)
+
+d = collections.deque(range(10))
+d.rotate(2)
+print('Rotazione destra:', d)
+
+d = collections.deque(range(10))
+d.rotate(-2)
+print('Rotazione sinistra:', d)
+</py_code>
+<testo_normale>
+La rotazione verso destra della deque (rotazione con valore positivo) prende gli elementi dall'estremità destra e li sposta verso quella sinistra. La rotazione verso sinistra (rotazione con valore negativo) prende gli elementi dall'estremità sinistra e li sposta verso quella destra. Può essere di aiuto visualizzare gli elementi in una deque come la disposizione dei numeri nel disco rotatorio di un vecchio telefono.
+</testo_normale>
+<py_output>
+$ python3 collections_deque_rotate.py
+
+Normale       : deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+Rotazione destra: deque([8, 9, 0, 1, 2, 3, 4, 5, 6, 7])
+Rotazione sinistra: deque([2, 3, 4, 5, 6, 7, 8, 9, 0, 1])
+</py_output>
+<titolo_2>
+Limitare la Dimensione della Coda
+</titolo_2>
+<testo_normale>
+Una istanza di <code>deque</code> può essere configurata con una lunghezza massima, in modo che non cresca mai oltre il limite prestabilito. Quando detto limite viene raggiunto, gli elementi esistenti vengono scaricati ed i nuovi aggiunti. Questo comportamento è utile per trova gli ultimi <em>n</em> elementi in un flusso di lunghezza non determinata.
+</testo_normale>
+<py_code>
+# collections_deque_maxlen.py
+
+import collections
+import random
+
+# Imposta il parametro di random seed in modo da vedere lo stesso
+# risultato ogni volta che viene eseguito lo script
+random.seed(1)
+
+d1 = collections.deque(maxlen=3)
+d2 = collections.deque(maxlen=3)
+
+for i in range(5):
+    n = random.randint(0, 100)
+    print('n =', n)
+    d1.append(n)
+    d2.appendleft(n)
+    print('D1:', d1)
+    print('D2:', d2)
+</py_code>
+<testo_normale>
+La lunghezza della deque viene mantenuta a prescindere da quale estremità vengono aggiunti gli elementi.
+</testo_normale>
+<py_output>
+$ python3 collections_deque_maxlen.py
+
+n = 17
+D1: deque([17], maxlen=3)
+D2: deque([17], maxlen=3)
+n = 72
+D1: deque([17, 72], maxlen=3)
+D2: deque([72, 17], maxlen=3)
+n = 97
+D1: deque([17, 72, 97], maxlen=3)
+D2: deque([97, 72, 17], maxlen=3)
+n = 8
+D1: deque([72, 97, 8], maxlen=3)
+D2: deque([8, 97, 72], maxlen=3)
+n = 32
+D1: deque([97, 8, 32], maxlen=3)
+D2: deque([32, 8, 97], maxlen=3)
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.deque|deque|La documentazione standard della libreria per questo modulo
+http://en.wikipedia.org/wiki/Deque|WikiPedia: Deque|Una discussione sulla struttura dati della deque.
+</vedi_anche>
+</documento_tradotto>

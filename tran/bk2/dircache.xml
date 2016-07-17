@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+dircache - Listati di directory memorizzati in cache
+</titolo_1>
+<descrizione>
+Memorizza listati di directory nella cache, aggiornandoli quando cambia data/ora di modifica di una directory.
+1.4 e successive
+</descrizione>
+<titolo_2>
+Elencare i Contenuti di una Directory
+</titolo_2>
+<testo_normale>
+La funzione principale nell'API <strong>dircache</strong> è ${sbk}listdir()${ebk}, un wrapper attorno alla funzione ${sbk}os.listdir()${ebk} che memorizza i risultati in cache e restituisce lo stesso elenco ogni volta che viene chiamata con un percorso a meno che la data/ora di modifica della directory in questione risulti cambiata.
+</testo_normale>
+<py_code>
+import dircache
+
+path = '.'
+first = dircache.listdir(path)
+second = dircache.listdir(path)
+
+print 'Contenuto :', first
+print 'Identica  :', first is second
+print 'Uguale    :', first == second
+</py_code>
+<testo_normale>
+E' importante realizzare che la stessa esatta lista viene restituita ogni volta, quindi non dovrebbe essere modificata sul posto.    
+</testo_normale>
+<py_output>
+$ python dircache_listdir.py
+Contenuto : ['dircache_listdir.py']
+Identica  : True
+Uguale    : True
+</py_output>
+<testo_normale>
+Naturalmente se il contenuto della directory cambia esso viene rielaborato.
+</testo_normale>
+<py_code>
+
+import dircache
+import os
+
+path = '/tmp'
+file_to_create = os.path.join(path, 'pymotw_tmp.txt')
+
+# Ottiene il contenuto della directory
+first = dircache.listdir(path)
+
+# Crea un nuovo file
+open(file_to_create, 'wt').close()
+
+# Rielabora il contenuto della directory
+second = dircache.listdir(path)
+
+# Elimina il file appena creato
+os.unlink(file_to_create)
+
+print 'Identica  :', first is second
+print 'Uguale    :', first == second
+print 'Differenze:', list(set(second) - set(first))
+</py_code>
+<testo_normale>
+In questo caso il nuovo file provoca la ricostruzione della lista.
+</testo_normale>
+<py_output>
+$ python dircache_listdir_file_added.py 
+Identica  : False
+Uguale    : False
+Differenze: ['pymotw_tmp.txt']
+</py_output>
+<testo_normale>
+E' anche possibile reimpostare l'intera cache, scaricandone il contenuto in modo che ogni percorso venga rielaborato.
+</testo_normale>
+<py_code>
+import dircache
+
+path = '/tmp'
+first = dircache.listdir(path)
+dircache.reset()
+second = dircache.listdir(path)
+
+print 'Identica  :', first is second
+print 'Uguale    :', first == second
+print 'Differenza:', list(set(second) - set(first))
+</py_code>
+<py_output>
+$ python dircache_reset.py 
+Identica  : False
+Uguale    : True
+Differenza: []
+</py_output>
+<titolo_2>
+Elenchi annotati    
+</titolo_2>
+<testo_normale>
+L'altra interessante funzione fornita dal modulo <strong>dircache</strong> è ${sbk}annotate()${ebk}. Quando chiamata, annotate() modifica un elenco restituito da listdir() aggiungendo un '/' alla fine dei nomi che rappresentano delle directory. (Purtroppo per gli utenti Windows, sebbene il modulo usi os.path.join() per costruire i nomi, viene sempre aggiunto '/', non os.sep. )
+</testo_normale>
+<py_code>
+import dircache
+from pprint import pprint
+import os
+
+path = '../..'
+
+contents = dircache.listdir(path)
+
+annotated = contents[:]
+dircache.annotate(path, annotated)
+
+fmt = '%20s\t%20s'
+
+print fmt % ('ORIGINALI', 'ANNOTATI')
+print fmt % (('-' * 20,)*2)
+
+for o, a in zip(contents, annotated):
+    print fmt % (o, a)
+</py_code>
+<py_output>
+$ python dircache_annotate.py 
+           ORIGINALI	            ANNOTATI
+--------------------	--------------------
+                c.py	                c.py
+                d.py	                d.py
+               fr.py	               fr.py
+                misc	               misc/
+                mybk	               mybk/
+           pymotw-it	          pymotw-it/
+            robbylib	           robbylib/
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/dircache.html|dircache|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

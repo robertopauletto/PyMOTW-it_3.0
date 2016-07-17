@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di stringa </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+textwrap - Formatta paragrafi di testo
+</titolo_1>
+<descrizione>
+Formatta il testo sistemando le interruzioni di riga in un paragrafo
+2.5
+</descrizione>
+<testo_normale>
+Il modulo <strong>textwrap</strong> può essere usto per formattare il testo in uscita dove necessiti una stampa pretty-printing. Fornisce funzionalità programmatiche simili a quelle di wrap o distribuzione testo del paragrafo, comuni a molti editor di testo.
+</testo_normale>
+<titolo_2>
+Dati di Esempio
+</titolo_2>
+<testo_normale>
+Gli esempi di seguito usano ${sbk}textwrap_exmaple.py${ebk}, che contiene una stringa ${sbk}sample_text${ebk}:    
+</testo_normale>
+<py_code>
+sample_text = '''
+	The textwrap module can be used to format text for output in situations
+	where pretty-printing is desired.  It offers programmatic functionality similar
+	to the paragraph wrapping or filling features found in many text editors.
+	'''
+</py_code>
+<titolo_2>
+Riempire Paragrafi    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}fill()${ebk} prende in testo in input e produce testo formattato in uscita. Ecco cosa fa con il testo fornito da   sample_text   
+</testo_normale>
+<py_code>
+import textwrap
+from textwrap_example import sample_text
+
+print 'Nessuna deindentazione:\n'
+print textwrap.fill(sample_text)
+</py_code>
+<testo_normale>
+I risultati non sono quelli che avremmo voluto:    
+</testo_normale>
+<py_output>
+$ python textwrap_fill.py
+Nessuna deindentazione:
+
+         The textwrap module can be used to format text for output in
+situations         where pretty-printing is desired.  It offers
+programmatic functionality similar         to the paragraph wrapping
+or filling features found in many text editors.    
+</py_output>
+<titolo_2>
+Rimuovere Indentazione Esistente
+</titolo_2>
+<testo_normale>
+Si notino i caratteri di tabulazione all'interno delle righe e gli spazi aggiuntivi iniziali mescolati nel mezzo dell'ouput. Sembra piuttosto rozzo. Naturalmente si può fare di meglio. Si potrebbe iniziare eliminando tutti gli spazi che precedono ogni riga nel testo di esempio. Questo consente di usare le docstring oppure le stringhe multiriga incorporate direttamente dal proprio codice Python senza eliminare la formattazione del codice stesso. La stringa di esempio ha un livello di indentazione artificiale introdotto per illustrare questa caratteristica.
+</testo_normale>
+<py_code>
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text).strip()
+print 'Deindentato:\n'
+print dedented_text
+</py_code>
+<testo_normale>
+Il risultato inizia ad avere un aspetto migliore
+</testo_normale>
+<py_output>
+$ python textwrap_dedent.py
+Deindentato:
+
+The textwrap module can be used to format text for output in situations
+where pretty-printing is desired.  It offers programmatic functionality similar
+to the paragraph wrapping or filling features found in many text editors.
+</py_output>
+<testo_normale>
+Visto che la "deindentazione" è il contrario dell'indentazione, il risultato è un blocco di testo con gli spazi iniziali di ogni riga rimossi. Se una riga ha già una indentazione superiore alle altre alcuni degli spazi non saranno eliminati.
+</testo_normale>
+<py_output>
+ One tab.
+ Two tabs.
+One tab.
+</py_output>
+<testo_normale>
+diventa
+</testo_normale>
+<py_output>
+One tab.
+Two tabs.
+One tab.
+</py_output>
+<titolo_2>
+Combinare Dedent e Fill
+</titolo_2>
+<testo_normale>
+Proseguendo, ecco cosa accade se si prende il testo deindentato e lo si passa attraverso fill() con diversi valori di larghezza.
+</testo_normale>
+<py_code>
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text).strip()
+for width in [ 20, 60, 80 ]:
+	print
+	print '%d Colonne:\n' % width
+	print textwrap.fill(dedented_text, width=width)
+</py_code>
+<testo_normale>
+Si otterranno diversi tipi di ouput della larghezza specificata
+</testo_normale>
+<py_output>
+$ python textwrap_fill_width.py
+
+20 Colonne:
+
+The textwrap module
+can be used to
+format text for
+output in situations
+where pretty-
+printing is desired.
+It offers
+programmatic
+functionality
+similar to the
+paragraph wrapping
+or filling features
+found in many text
+editors.
+
+60 Colonne:
+
+The textwrap module can be used to format text for output in
+situations where pretty-printing is desired.  It offers
+programmatic functionality similar to the paragraph wrapping
+or filling features found in many text editors.
+
+80 Colonne:
+
+The textwrap module can be used to format text for output in situations where
+pretty-printing is desired.  It offers programmatic functionality similar to the
+paragraph wrapping or filling features found in many text editors.
+</py_output>
+<titolo_2>
+Indentazioni Sospese
+</titolo_2>
+<testo_normale>
+A parte la larghezza dell'output, si può controllare l'indentazione della prima riga indipendentemente da quelle successive.
+</testo_normale>
+<py_code>
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text).strip()
+print textwrap.fill(dedented_text, initial_indent='', subsequent_indent='    ')
+</py_code>
+<testo_normale>
+Questo rende relativamente semplice produrre una indentazione sospesa, dove la prima riga è indentata meno che le altre righe 
+</testo_normale>
+<py_output>
+$ python textwrap_hanging_indent.py
+The textwrap module can be used to format text for output in
+    situations where pretty-printing is desired.  It offers
+    programmatic functionality similar to the paragraph wrapping or
+    filling features found in many text editors.
+</py_output>
+<testo_normale>
+I valori di indentazione possono anche includere caratteri diversi dallo spazio, così che l'indentazione sospesa possa essere prefissata da un ${sbk}*${ebk} per ottenere elementi puntati, etc. Questo mi tornò comodo quando dovetti convertire il contenuto del mio vecchio zwiki per importarlo in trac. Ho usato il pacchetto StructuredText da Zope per analizzare i dati da zwiki, quindi ho creato un formattatore per produrre il marcatore del trac di wiki come risultato. Usando <strong>textwrap</strong>, sono poi stato capace di formattare le pagine di output senza che quasi nessun intervento manuale sia stato necessario dopo la conversione.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/lib/module-textwrap.html|textwrap|La documentazione della libreria standard per questo modulo.
+text_processing.html|Strumenti di Elaborazione del Testo|
+</vedi_anche>
+</documento_tradotto>

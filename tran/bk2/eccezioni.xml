@@ -1,0 +1,711 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>oggetti builtin </categoria><!-- Riepilogo dei tag disponibili -->
+<!-- tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <titolo_1> titolo principale -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <sottotitolo> <sottotitolo> contiene il testo per la sottointestazione di un paragrafo -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <mk_xml_code> contiene il testo che rappresenta l'output di un file xml -->
+<!-- tag <mk_xml_code_lineno> contiene il testo che rappresenta l'output di un file xml con righe numerate -->
+<!-- tag <lista> contiene il testo che rappresenta una lista -->
+<!-- tag <lista_ricorsiva> contiene il testo che rappresenta una lista annidata -->
+<!-- tag <note> contiene il testo che rappresenta un riquadro con una annotazione -->
+<!-- tag <avvertimento> contiene il testo che rappresenta un riquadro con un avvertimento -->
+<!-- tag <def_list> contiene il testo che rappresenta una definition list -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti bibliografici esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+
+<documento_tradotto>
+<titolo_1>
+eccezioni - Classi di errore built-in
+</titolo_1>
+<descrizione>
+il modulo delle eccezioni definisce gli errori built-in usati attraverso tutta la libreria standard e dall'interprete.
+1.5 e successive
+</descrizione>
+<titolo_2>
+Descrizione
+</titolo_2>
+<testo_normale>
+Nel passato, Ptyhon supportava come eccezioni sia semplici stringhe di messaggi che classi. Dalla versione 1.5, tutti i moduli della libreria standard usano le classi per le eccezioni. A partire da Python 2.5, le stringhe di eccezione generano un DeprecationWarning, ed il supporto per le stringhe di eccezione verrà rimosso in futuro.
+</testo_normale>
+<titolo_2>
+Classi base
+</titolo_2>
+<testo_normale>
+Le classi delle eccezioni sono definite in una gerarchia, descritta nella documentazione della libreria standard. Oltre agli ovvi vantaggi di organizzazione, l'ereditarietà nelle eccezioni è utile perchè le eccezioni correlate possono essere intercettate tramite la loro classe base. Nella maggior parte dei casi, queste classi base non sono concepite per essere sollevate direttamente
+</testo_normale>
+<sottotitolo>
+BaseException
+</sottotitolo>
+<testo_normale>
+E' la classe base per tutte le eccezioni. Implementa la logica per creare una rappresentazione sotto forma di stringa dell'eccezione usando str() dai parametri passati al costruttore
+</testo_normale>
+<sottotitolo>
+Exception
+</sottotitolo>
+<testo_normale>
+La classe base per le eccezioni che non risultano nella chiusura dell'applicazione in esecuzione. Tutte le eccezioni definite dall'utente dovrebbero usare Exception come classe base.
+</testo_normale>
+<sottotitolo>
+StandardError
+</sottotitolo>
+<testo_normale>
+Classe base per le eccezioni built-in usate nella libreria standard
+</testo_normale>
+<sottotitolo>
+ArithmeticError
+</sottotitolo>
+<testo_normale>
+Classe base per errori relativi ad operazioni matematiche
+</testo_normale>
+<sottotitolo>
+LookupError
+</sottotitolo>
+<testo_normale>
+Classe base per errori sollevati quando qualcosa non può essere trovato.
+</testo_normale>
+<sottotitolo>
+EnvironmentError
+</sottotitolo>
+<testo_normale>
+Classe base per errori che provengono al di fuori di Python (il sistema operativo, il filesystem ecc.).
+</testo_normale>
+<titolo_2>
+Eccezioni Sollevate
+</titolo_2>
+<sottotitolo>
+<a name='asserr'></a>AssertionError
+</sottotitolo>
+<testo_normale>
+AssertionError viene sollevata quando fallisce una istruzione di ${sbk}assert${ebk}.
+</testo_normale>
+<py_code>
+assert False, 'Asserzione fallita'
+</py_code>
+<py_output>
+$ python exceptions_AssertionError_assert.py
+Traceback (most recent call last):
+  File "exceptions_AssertionError_assert.py", line 1, in <module>
+    assert False, 'Asserzione fallita'
+AssertionError: Asserzione fallita<>
+</py_output>
+<testo_normale>
+Viene anche usata nel modulo <a href='unittest.html'>unittest</a> in metodi tipo ${sbk}failIf()${ebk}
+</testo_normale>
+<py_code>
+class AssertionExample(unittest.TestCase):
+
+    def test(self):
+        self.failUnless(False)
+
+unittest.main()
+</py_code>
+<py_output>
+$ python exceptions_AssertionError_unittest.py
+F
+======================================================================
+FAIL: test (__main__.AssertionExample)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "exceptions_AssertionError_unittest.py", line 6, in test
+    self.failUnless(False)
+AssertionError
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+</py_output>
+<sottotitolo>
+<a name='attrerr'></a>AttributeError
+</sottotitolo>
+<testo_normale>
+Quando fallisce un riferimento od una assegnazione ad un attributo, viene sollevata AttributeError.
+</testo_normale>
+<testo_normale>
+Ad esempio, quando si tenta di referenziare un attributo che non esiste:
+</testo_normale>
+<py_code>
+class NoAttributes(object):
+    pass
+
+o = NoAttributes()
+print o.attribute
+</py_code>
+<py_output>
+$ python exceptions_AttributeError.py
+Traceback (most recent call last):
+  File "exceptions_AttributeError.py", line 7, in <module>
+    print o.attribute
+AttributeError: 'NoAttributes' object has no attribute 'attribute'
+</py_output>
+<testo_normale>
+O quando si tenta di modificare un attributo a sola lettura:
+</testo_normale>
+<py_code>
+class MyClass(object):
+
+    @property
+    def attribute(self):
+        return "Questo è il valore dell'attributo"
+
+o = MyClass()
+print o.attribute
+o.attribute = 'Nuovo valore'
+</py_code>
+<py_output>
+$ python exceptions_AttributeError_assignment.py
+Questo è il valore dell'attributo
+Traceback (most recent call last):
+  File "exceptions_AttributeError_assignment.py", line 13, in <module>
+    o.attribute = 'Nuovo valore'
+AttributeError: can't set attribute
+</py_output>
+<sottotitolo>
+EOFError
+</sottotitolo>
+<testo_normale>
+EOFError viene sollevata quando una funzione built-in tipo ${sbk}input()${ebk} o ${sbk}raw_input()${ebk} non leggono alcun dato prima
+di trovare la fine del flusso di input. I metodi di file come ${sbk}read()${ebk} restituiscono una stringa vuota alla fine del file.
+</testo_normale>
+<py_code>
+while True:
+    data = raw_input('prompt:')
+    print 'LEGGO:', data
+</py_code>
+<py_output>
+$ echo Ciao | python exceptions_EOFError.py
+prompt:LEGGO: Ciao
+prompt:Traceback (most recent call last):
+  File "exceptions_EOFError.py", line 6, in <module>
+    data = raw_input('prompt:')
+EOFError: EOF when reading a line
+</py_output>
+<sottotitolo>
+FloatingPointError
+</sottotitolo>
+<testo_normale>
+Viene sollevata dalle operazioni con virgola mobile che risultano in errori, quando il controllo degli errori in
+virgola mobile (fpectl) è attivo. Per abilitare <strong>fpectl</strong> occorre che l'interprete sia  compilato con il flag ${sbk}..with-fpectl${ebk}. L'uso di fpectl è sconsigliato nella <a href='http://docs.python.org/lib/module-fpectl.html'>documentazione della libreria standard </a>
+</testo_normale>
+<py_code>
+import math
+import fpectl
+
+print 'Controllo disattivato:', math.exp(1000)
+fpectl.turnon_sigfpe()
+print 'Control attivato:', math.exp(1000)
+</py_code>
+<sottotitolo>
+GeneratorExit
+</sottotitolo>
+<testo_normale>
+Sollevata all'interno di un generatore, quando viene chiamato il metodo ${sbk}close()${ebk} del generatore.
+</testo_normale>
+<py_code>
+def my_generator():
+    try:
+        for i in range(5):
+            print 'Trattengo', i
+            yield i
+    except GeneratorExit:
+        print 'Uscita prematura'
+
+g = my_generator()
+print g.next()
+g.close()
+</py_code>
+<py_output>
+$ python exceptions_GeneratorExit.py
+Trattengo 0
+0
+Uscita prematura
+</py_output>
+<sottotitolo>
+IOError<a name='ioerr'></a>
+</sottotitolo>
+<testo_normale>
+Sollevata quando fallisce una operazione di input od output, ad esempio se il disco è pieno, od un file di input non esiste.
+</testo_normale>
+<py_code>
+f = open('/non/esiste', 'r')
+</py_code>
+<py_output>
+$ python exceptions_IOError.py
+Traceback (most recent call last):
+  File "exceptions_IOError.py", line 5, in <module>
+    f = open('/non/esiste', 'r')
+IOError: [Errno 2] No such file or directory: '/non/esiste'
+</py_output>
+<sottotitolo>
+ImportError
+</sottotitolo>
+<testo_normale>
+Sollevata quando un modulo, od un membro di un modulo, non può essere importato. Sono poche le condizioni laddove
+ImportError possa essere sollevata:
+</testo_normale>
+<testo_normale>
+1. Se un modulo non esiste.
+</testo_normale>
+<py_code>
+import modulo_non_esiste
+</py_code>
+<py_output>
+$ python exceptions_ImportError_nomodule.py
+Traceback (most recent call last):
+  File "exceptions_ImportError_nomodule.py", line 4, in <module>
+    import modulo_non_esiste
+ImportError: No module named modulo_non_esiste
+</py_output>
+<testo_normale>
+2. Se si usa ${sbk}from X import Y${ebk} e Y non si trova all'interno del modulo X
+</testo_normale>
+<py_code>
+from exceptions import NomeFasullo
+</py_code>
+<py_output>
+$ python exceptions_ImportError_missingname.py
+Traceback (most recent call last):
+  File "exceptions_ImportError_missingname.py", line 4, in <module>
+    from exceptions import NomeFasullo
+ImportError: cannot import name NomeFasullo
+</py_output>
+<sottotitolo>
+IndexError
+</sottotitolo>
+<testo_normale>
+Sollevata quando il riferimento di una sequenza è fuori dai limiti
+</testo_normale>
+<py_code>
+my_seq = [ 0, 1, 2 ]
+print my_seq[3]
+</py_code>
+<py_output>
+$ python exceptions_IndexError.py
+Traceback (most recent call last):
+  File "exceptions_IndexError.py", line 5, in <module>
+    print my_seq[3]
+IndexError: list index out of range
+</py_output>
+<sottotitolo>
+KeyError <a name='keyerror'></a>
+</sottotitolo>
+<testo_normale>
+Viene sollevata quando un valore non viene trovato come chiave di un dizionario.
+</testo_normale>
+<py_code>
+d = { 'a':1, 'b':2 }
+print d['c']
+</py_code>
+<py_output>
+$ python exceptions_KeyError.py
+Traceback (most recent call last):
+  File "exceptions_KeyError.py", line 5, in <module>
+    print d['c']
+KeyError: 'c'
+</py_output>
+<sottotitolo>
+KeyboardInterrupt
+</sottotitolo>
+<testo_normale>
+Viene sollevata ogniqualvolta l'utente preme Ctrl-C (o Canc) per interrompere un programma in esecuzione.
+Al contrario della maggior parte delle altre eccezioni, KeyboardInterrupt eredita direttamente da BaseException per evitare di
+venire intercettata da gestori delle eccezioni globali che catturano Exception.
+</testo_normale>
+<py_code>
+try:
+    print 'Premere Invio o Ctrl-C:',
+    ignored = raw_input()
+except Exception, err:
+    print 'Eccepezione catturata:', err
+except KeyboardInterrupt, err:
+    print 'Catturato KeyboardInterrupt'
+else:
+    print 'Nessuna eccezione'
+</py_code>
+<py_output>
+$ python exceptions_KeyboardInterrupt.py
+Premere Invio o Ctrl-C: ^CCatturato KeyboardInterrupt
+</py_output>
+<sottotitolo>
+MemoryError
+</sottotitolo>
+<testo_normale>
+Se il programma esaurisce la memoria ed è possibile recuperarne (ad esempio eliminando alcuni oggetti), viene
+sollevata MemoryError.
+</testo_normale>
+<py_code>
+import itertools
+
+# Tentativo di creare un MemoryError allocando molta memoria
+l = []
+for i in range(3):
+    try:
+        for j in itertools.count(1):
+            print i, j
+            l.append('*' * (2**30))
+    except MemoryError:
+        print '(errore, si svuota la lista esistente)'
+        l = []
+</py_code>
+<py_output>
+$ python exceptions_MemoryError.py
+0 1
+0 2
+(errore, si svuota la lista esistente)
+1 1
+1 2
+(errore, si svuota la lista esistente)
+2 1
+2 2
+(errore, si svuota la lista esistente)
+</py_output>
+<sottotitolo>
+NameError
+</sottotitolo>
+<testo_normale>
+Viene sollevata quando nel proprio codice ci sono riferimenti ad un nome che non esiste nel contesto corrente.
+Ad esempio un nome di variabile non definita.
+</testo_normale>
+<py_code>
+def func():
+    print nome_sconosciuto
+
+func()
+</py_code>
+<py_output>
+$ python exceptions_NameError.py
+Traceback (most recent call last):
+  File "exceptions_NameError.py", line 7, in <module>
+    func()
+  File "exceptions_NameError.py", line 5, in func
+    print nome_sconosciuto
+NameError: global name 'nome_sconosciuto' is not defined
+</py_output>
+<sottotitolo>
+NotImplementedError
+</sottotitolo>
+<testo_normale>
+Le classi base definite dall'utente possono sollevare NotImplementedError per indicare che un metodo od un comportamento
+deve essere definito nella sottoclasse, simulando una <i>interfaccia</i>
+</testo_normale>
+<py_code>
+class BaseClass(object):
+    """Definisce l'interfaccia"""
+    def __init__(self):
+        super(BaseClass, self).__init__()
+    def do_something(self):
+        """L'interfaccua, non implementata"""
+        raise NotImplementedError(self.__class__.__name__ + '.fa_qualcosa')
+
+class SubClass(BaseClass):
+    """Implementa  interfaccia"""
+    def do_something(self):
+        """fa davvero qualcosa"""
+        print self.__class__.__name__ + ' facendo qualcosa!'
+
+SubClass().do_something()
+BaseClass().do_something()
+</py_code>
+<py_output>
+$ python exceptions_NotImplementedError.py
+SubClass facendo qualcosa!
+Traceback (most recent call last):
+  File "exceptions_NotImplementedError.py", line 19, in <module>
+    BaseClass().do_something()
+  File "exceptions_NotImplementedError.py", line 10, in do_something
+    raise NotImplementedError(self.__class__.__name__ + '.fa_qualcosa')
+NotImplementedError: BaseClass.fa_qualcosa
+</py_output>
+<sottotitolo>
+OSError
+</sottotitolo>
+<testo_normale>
+Funge da classe di errore per il modulo <a href='http://www.doughellmann.com/PyMOTW/os/index.html#module-os'>os</a>, e viene sollevato quando l'errore ritorna da una funzione specifica di os
+</testo_normale>
+<py_code>
+import os
+
+for i in range(10):
+    print i, os.ttyname(i)
+</py_code>
+<py_output>
+$ python exceptions_OSError.py 0 /dev/pts/2
+1 /dev/pts/2
+2 /dev/pts/2
+3
+Traceback (most recent call last):
+  File "exceptions_OSError.py", line 7, in <module>
+    print i, os.ttyname(i)
+OSError: [Errno 9] Bad file descriptor
+</py_output>
+<sottotitolo>
+OverflowError
+</sottotitolo>
+<testo_normale>
+Quando una operazione matematica eccede i limiti del tipo di variabile, viene sollevata OverflowError. Gli interi long
+allocano tanto più spazio quanto più crescono i loro valori, quindi finiscono per sollevare MemoryError. La gestione degli
+errori in virgola mobile non è standardizzata, quindi i valori a virgola mobile non sono verificati.
+Gli interi normali sono convertiti nei corrispondenti valori long quando necessario.
+</testo_normale>
+<py_code>
+import sys
+
+print 'Intero normale: (maxint=%s)' % sys.maxint
+try:
+    i = sys.maxint * 3
+    print 'Nessun overflow per ', type(i), 'i =', i
+except OverflowError, err:
+    print 'Overflow a ', i, err
+
+print
+print 'Intero lungo:'
+for i in range(0, 100, 10):
+    print '%2d' % i, 2L ** i
+
+print
+print 'Valori a virgola mobile:'
+try:
+    f = 2.0**i
+    for i in range(100):
+        print i, f
+        f = f ** 2
+except OverflowError, err:
+    print 'Overflow dopo ', f, err
+</py_code>
+<py_output>
+$ python exceptions_OverflowError.py
+Intero normale: (maxint=2147483647)
+Nessun overflow per  <type 'long'> i = 6442450941
+
+Intero lungo:
+ 0 1
+10 1024
+20 1048576
+30 1073741824
+40 1099511627776
+50 1125899906842624
+60 1152921504606846976
+70 1180591620717411303424
+80 1208925819614629174706176
+90 1237940039285380274899124224
+
+Valori a virgola mobile:
+0 1.23794003929e+27
+1 1.53249554087e+54
+2 2.34854258277e+108
+3 5.5156522631e+216
+Overflow dopo  5.5156522631e+216 (34, 'Numerical result out of range')
+</py_output>
+<sottotitolo>
+ReferenceError<a name='referenceerror'></a>
+</sottotitolo>
+<testo_normale>
+Quando si usa un proxy <a href='http://www.doughellmann.com/PyMOTW/weakref/index.html#module-weakref'>weakref</a> per accedere ad un oggetto che è già stato recuperato dalla garbage collection, si genera un errore ReferenceError.
+</testo_normale>
+<py_code>
+import gc
+import weakref
+
+class ExpensiveObject(object):
+    def __init__(self, name):
+        self.name = name
+    def __del__(self):
+        print '(Elimino %s)' % self
+
+obj = ExpensiveObject('obj')
+p = weakref.proxy(obj)
+
+print 'PRIMA:', p.name
+obj = None
+print 'DOPO :', p.name
+</py_code>
+<py_output>
+$ python exceptions_ReferenceError.py
+PRIMA: obj
+(Elimino <__main__.ExpensiveObject object at 0xb7855c8c>)
+DOPO :
+Traceback (most recent call last):
+  File "exceptions_ReferenceError.py", line 18, in <module>
+    print 'DOPO :', p.name
+ReferenceError: weakly-referenced object no longer exists
+</py_output>
+<sottotitolo>
+RuntimeError
+</sottotitolo>
+<testo_normale>
+Una eccezione RuntimeError si usa quando non si può applicare nessun'altra eccezione più specifica. L'interprete
+solleva questa eccezione raramente, ma qualche porzione di codice utente lo può fare.
+</testo_normale>
+<sottotitolo>
+StopIteration
+</sottotitolo>
+<testo_normale>
+Quando un iterator ha concluso il ciclo, il suo metodo ${sbk}next()${ebk} solleva StopIteration. Questa eccezione non è considerata un errore.
+</testo_normale>
+<py_code>
+l=[0,1,2]
+i=iter(l)
+
+print i
+print i.next()
+print i.next()
+print i.next()
+print i.next()
+</py_code>
+<py_output>
+$ python exceptions_StopIteration.py
+<listiterator object at 0xb788918c>
+0
+1
+2
+Traceback (most recent call last):
+  File "exceptions_StopIteration.py", line 11, in <module>
+    print i.next()
+StopIteration
+</py_output>
+<sottotitolo>
+SyntaxError
+</sottotitolo>
+<testo_normale>
+Ogni volta che l'analizzatore sintattico del linguaggio (<em>parser</em>) trova codice sorgente che non riesce a comprendere viene sollevata SyntaxError. Può succedere
+quando si importa un modulo, si chiama exec() od eval(). Gli attributi dell'eccezione possono essere usati per trovare
+esattamente quale parte del testo in input ha causato l'eccezione.
+</testo_normale>
+<py_code>
+try:
+    print eval('cinque volte tre')
+except SyntaxError, err:
+    print 'Errore di sintassi %s (%s-%s): %s' % \
+        (err.filename, err.lineno, err.offset, err.text)
+    print err
+</py_code>
+<py_output>
+$ python exceptions_SyntaxError.py
+Errore di sintassi <string> (1-12): cinque volte tre
+invalid syntax (<string>, line 1)
+</py_output>
+<sottotitolo>
+SystemError
+</sottotitolo>
+<testo_normale>
+Quando l'errore capita nell'interprete stesso ed esiste qualche possibilità di continuare l'esecuzione con successo, si
+solleva un SystemError. SystemError in genere indica un baco nell'interprete e dovrebbe essere notificato al curatore.
+</testo_normale>
+<sottotitolo>
+SystemExit
+</sottotitolo>
+<testo_normale>
+Quando si chiama ${sbk}sys.exit()${ebk}, invece di uscire immediatamente viene sollevata SystemExit. Questo consente alla parte di codice
+di "pulizia" che si strova nel blocco ${sbk}try:finally${ebk} di essere eseguita, ed ai chiamanti (come i debugger ed i framework di test)
+di catturare l'eccezione ed evitare di uscire.
+</testo_normale>
+<sottotitolo>
+TypeError<a name='typeerr'></a>
+</sottotitolo>
+<testo_normale>
+Le eccezioni TypeError sono causate combinando tipi di oggetti sbagliati, o chiamando una funzione con il tipo di oggetto sbagliato.
+</testo_normale>
+<py_code>
+result = ('tuple',) + 'string'
+</py_code>
+<py_output>
+$ python exceptions_TypeError.py
+Traceback (most recent call last):
+  File "exceptions_TypeError.py", line 4, in <module>
+    result = ('tuple',) + 'string'
+TypeError: can only concatenate tuple (not "str") to tuple
+</py_output>
+<sottotitolo>
+UnboundLocalError
+</sottotitolo>
+<testo_normale>
+E' un tipo di NameError specifico per i nomi di variabili locali.
+</testo_normale>
+<py_code>
+def throws_global_name_error():
+    print unknown_global_name
+
+def throws_unbound_local():
+    local_val = local_val + 1
+    print local_val
+
+try:
+    throws_global_name_error()
+except NameError, err:
+    print 'Errore di nome globale:', err
+
+try:
+    throws_unbound_local()
+except UnboundLocalError, err:
+    print 'Errore di nome locale:', err
+</py_code>
+<testo_normale>
+La differenza tra NameError globale e UnboundLocal è il modo nel quale viene usato il nome. Visto che il nome
+"local_val" si trova nella parte sinistra di una espressione, viene interpretato come nome di variabile locale.
+</testo_normale>
+<py_output>
+$ python exceptions_UnboundLocalError.py
+Errore di nome globale: global name 'unknown_global_name' is not defined
+Errore di nome locale: local variable 'local_val' referenced before assignment
+</py_output>
+<sottotitolo>
+UnicodeError
+</sottotitolo>
+<testo_normale>
+UnicodeError è una sottoclasse di ValueError e viene sollevata quando si verifica un problema di Unicode. Ci sono
+sottoclassi separate per UnicodeEncodeError, UnicodeDecodeError, e UnicodeTranslateError.
+</testo_normale>
+<sottotitolo>
+ValueError<a name='valueerror'></a>
+</sottotitolo>
+<testo_normale>
+ValueError viene usata quando una funzione riceve un dato del tipo giusto ma del valore non valido.
+</testo_normale>
+<py_code>
+print chr(1024)
+</py_code>
+<py_output>
+$ python exceptions_ValueError.py
+Traceback (most recent call last):
+  File "exceptions_ValueError.py", line 4, in <module>
+    print chr(1024)
+ValueError: chr() arg not in range(256)
+</py_output>
+<sottotitolo>
+ZeroDivisionError
+</sottotitolo>
+<testo_normale>
+Quando zero è il denominatore di una operazione di divisione, viene sollevata ZeroDivisionError.
+</testo_normale>
+<py_code>
+print 1/0
+</py_code>
+<py_output>
+exceptions_ZeroDivisionError.py
+</py_output>
+<titolo_2>
+Categorie di avvertimento
+</titolo_2>
+<testo_normale>
+Si sono anche parecchie eccezioni definite per l'uso con il modulo <a href='warnings.html'>warnings</a>
+</testo_normale>
+<deflist>
+<a name='warning'></a>Warning|La classe base per tutti gli avvertimenti.
+UserWarning|La class base per gli avvertimenti provenienti dal codice utente
+DeprecationWarning|Usata per caratteristiche non più mantenute.
+PendingDeprecationWarning|Usata per caratteristiche che presto saranno deprecate.
+SyntaxWarning|Usata per sintassi discutibile.
+RuntimeWarning|Usati per eventi che accadono in fase di esecuzione che potrebbero causare problemi.
+FutureWarning|Avverte circa le modifiche al linguaggio od alla libreria che saranno attive in futuro
+ImportWarning|Avverte circa problemi nell'importazione di un modulo.
+UnicodeWarning|Avverte di problemi riguardanti testo unicode.
+</deflist>
+<vedi_anche>
+http://docs.python.org/library/exceptions.html|exceptions|La documentazione della libreria standard per questo modulo.
+warnings.html|warnings|Messaggi di avvertimento
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>formati di file </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+csv - File con valori separati da virgole
+</titolo_1>
+<descrizione>
+Legge e scrive file con valori separati da virgole
+2.3 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>csv</strong> è molto utile per lavorare con dati esportati in file di testo da fogli elettronici e database. Non esiste uno standard ben definito, quindi il modulo csv usa dei "dialetti" per supportare l'analisi usando parametri diversi. Assieme ad un lettore e scrittore generico, il modulo include un dialetto per lavorare con Microsoft Excel.
+</testo_normale>
+<titolo_2>
+Limitazioni    
+</titolo_2>
+<testo_normale>
+La versione di csv in Python 2.5 non supporta i dati Unicode. Ci sono anche "problemi con i caratteri ASCII NUL". L'uso di UTF-8 o di un ASCII stampabile è raccomandato.
+</testo_normale>
+<titolo_2>
+Lettura
+</titolo_2>
+<testo_normale>
+Per leggere dati da un file csv si usa la funzione  ${sbk}reader()${ebk} per creare un oggetto reader. Esso può essere usato come un iteratore per elaborare le righe del file in ordine. Ad esempio:
+</testo_normale>
+<py_code>
+import csv
+import sys
+
+f = open(sys.argv[1], 'rt')
+try:
+    reader = csv.reader(f)
+    for row in reader:
+        print row
+finally:
+    f.close()
+</py_code>
+<testo_normale>
+Il primo parametro di reader() è la sorgente delle righe di testo. In questo caso si tratta di un file, ma è accettato un qualsiasi iterabile (Istanze di StringIO, liste, ecc.). Altri parametri opzionali possono essere passati per controllare come vengono analizzati i dati in input.
+</testo_normale>
+<testo_normale>
+Il file di esempio "testdata.csv" è stato esportato da NeoOffice.    
+</testo_normale>
+<py_output>
+"Title 1","Title 2","Title 3"
+1,"a",08/18/07
+2,"b",08/19/07
+3,"c",08/20/07
+4,"d",08/21/07
+5,"e",08/22/07
+6,"f",08/23/07
+7,"g",08/24/07
+8,"h",08/25/07
+9,"i",08/26/07
+</py_output>
+<testo_normale>
+Mentre viene letta, ogni riga di dati in input viene convertita in una lista di stringhe.    
+</testo_normale>
+<py_output>
+$ python csv_reader.py testdata.csv
+['Title 1', 'Title 2', 'Title 3']
+['1', 'a', '08/18/07']
+['2', 'b', '08/19/07']
+['3', 'c', '08/20/07']
+['4', 'd', '08/21/07']
+['5', 'e', '08/22/07']
+['6', 'f', '08/23/07']
+['7', 'g', '08/24/07']
+['8', 'h', '08/25/07']
+['9', 'i', '08/26/07']
+</py_output>
+<testo_normale>
+Se si sa che determinate colonne sono di un tipo specifico, si possono convertire le stringhe nell'ambito del proprio codice, ma csv non converte automaticamente l'input. Esso gestisce le interruzioni di linea incorporate nelle stringhe in una riga (ecco perchè¨ una "riga" analizzata non è sempre la stessa "riga" di input dal file).
+</testo_normale>
+<py_output>
+"Title 1","Title 2","Title 3"
+1,"prima riga
+seconda riga",08/18/07
+</py_output>
+<py_output>
+$ python csv_reader.py testlinebreak.csv
+['Title 1', 'Title 2', 'Title 3']
+['1', 'prima riga\nseconda riga', '08/18/07']    
+</py_output>
+<titolo_2>
+Scrittura
+</titolo_2>
+<testo_normale>
+Quando si hanno dei dati da importare in una qualche altra applicazione, scrivere file CSV è altrettanto facile quanto leggerli. Si usa la funzione ${sbk}writer()${ebk} per creare un oggetto writer per la scrittura. Per ogni riga si usa ${sbk}writerow()${ebk} per scriverla nel file.
+</testo_normale>
+<py_code>
+import csv
+import sys
+
+f = open(sys.argv[1], 'wt')
+try:
+    writer = csv.writer(f)
+    writer.writerow( ('Title 1', 'Title 2', 'Title 3') )
+    for i in range(10):
+        writer.writerow( (i+1, chr(ord('a') + i), '08/%02d/07' % (i+1)) )
+finally:
+    f.close()
+
+print open(sys.argv[1], 'rt').read()
+</py_code>
+<testo_normale>
+L'output non sembra esattamente uguale ai dati esportati usati nell'esempio di lettura    
+</testo_normale>
+<py_output>
+$ python csv_writer.py testout.csv
+Title 1,Title 2,Title 3
+1,a,08/01/07
+2,b,08/02/07
+3,c,08/03/07
+4,d,08/04/07
+5,e,08/05/07
+6,f,08/06/07
+7,g,08/07/07
+8,h,08/08/07
+9,i,08/09/07
+10,j,08/10/07
+</py_output>
+<testo_normale>
+Il comportamento predefinito per racchiudere i dati tra virgolette (<strong>quoting</strong>) è diverso per la scrittura, quindi le colonne stringa non sono racchiuse tra virgolette. E' facile modificarlo aggiungendo un parametro di quoting per racchiudere tra virgolette i valori non numerici:     
+</testo_normale>
+<py_code>
+writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+</py_code>
+<testo_normale>
+Adesso le stringhe sono racchiuse tra virgolette:
+</testo_normale>
+<py_output>
+$ python csv_writer_quoted.py testout_quoted.csv
+"Title 1","Title 2","Title 3"
+1,"a","08/01/07"
+2,"b","08/02/07"
+3,"c","08/03/07"
+4,"d","08/04/07"
+5,"e","08/05/07"
+6,"f","08/06/07"
+7,"g","08/07/07"
+8,"h","08/08/07"
+9,"i","08/09/07"
+10,"j","08/10/07"    
+</py_output>
+<titolo_2>
+Quoting (racchiudere tra virgolette)
+</titolo_2>
+<testo_normale>
+Ci sono quattro diverse opzioni di quoting, definite come costanti nel modulo csv.
+QUOTE_ALL
+Racchiude tutto tra virgolette, a prescindere dal tipo.
+QUOTE_MINIMAL
+Racchiude tra virgolette i campi con caratteri speciali (qualsiasi cosa che potrebbe confondere l'analizzatore configurato con lo stesso dialetto ed opzioni). Questa è l'opzione di quoting predefinita
+QUOTE_NONNUMERIC
+Racchiude tra virgolette tutti i campi che non sono interi o float. Quando viene usato in lettura, i campi in input che non sono racchiusi tra virgolette vengono convertiti in float.
+QUOTE_NONE
+Non racchiude nulla tra virgolette in scrittura. Quando usato in lettura, i caratteri "virgolette" vengono inclusi nei valori di campo (in genere sono invece trattati come delimitatori ed eliminati).
+</testo_normale>
+<titolo_2>
+Dialetti
+</titolo_2>
+<testo_normale>
+Ci sono molti parametri per controllare come il modulo csv analizza o scrive i dati. Piuttosto che passare ognuno di questi parametri al lettore ed allo scrittore separatamente, essi sono raggruppati convenientemente in un oggetto "dialetto" (dialect). Le classi dialetto possono essere registrate per nome, quindi i chiamanti del modulo csv non hanno bisogno di conoscere in anticipo le impostazioni dei parametri. La libreria standard include due dialetti: ${sbk}excel${ebk} ed ${sbk}excel-tabs${ebk}. Il dialetto ${sbk}excel${ebk} è per lavorare con i dati nel formato di esportazione predefinito di Microsoft Excel, e funziona anche con OpenOffice o NeoOffice.
+</testo_normale>
+<testo_normale>
+Si supponga che, invece di usare le virgole, il file di input usi ${sbk}|${ebk} per delimitare i campi, tipo questo:
+</testo_normale>
+<py_output>
+"Title 1"|"Title 2"|"Title 3"
+1|"prima riga
+seconda riga"|08/18/07
+</py_output>
+<testo_normale>
+Un nuovo dialetto potrebbe essere registrato usando il delimitatore appropriato:
+</testo_normale>
+<py_code>
+import csv
+
+csv.register_dialect('pipes', delimiter='|')
+
+with open('testdata.pipes', 'r') as f:
+    reader = csv.reader(f, dialect='pipes')
+    for row in reader:
+        print row
+</py_code>
+<testo_normale>
+ed il file può essere letto proprio come il file delimitato da virgole:
+</testo_normale>
+<py_output>
+$ python csv_dialect.py
+['Title 1', 'Title 2', 'Title 3']
+['1', 'prima riga\nseconda riga', '08/18/07']
+</py_output>
+<testo_normale>
+Per dettagli sui parametri del dialetto e come sono usati, fare riferimento alla <a href='http://docs.python.org/library/csv.html#dialects-and-formatting-parameters'>documentazione della libreria standard per il modulo csv</a>.    
+</testo_normale>
+<titolo_2>
+DictReader e DictWriter
+</titolo_2>
+<testo_normale>
+Oltre a lavorare con sequenze di dati, il modulo csv include classi per lavorare con righe come dizionari. Le classi DictReader e DictWriter trascodificano le righe in dizionari. Le chiavi per il dizionario possono essere passate oppure ricavate per inferenza dalla prima riga dell'input (quando la riga contiene le intestazioni di colonna).
+</testo_normale>
+<py_code>
+import csv
+import sys
+
+f = open(sys.argv[1], 'rt')
+try:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print row
+finally:
+    f.close()
+</py_code>
+<testo_normale>
+Il lettore e lo scrittore basati sul dizionario sono implementati come <em>wrapper</em> attorno alle classi corrispondenti basate sui dati in sequenza, ed usano gli stessi parametri ed API. L'unica differenza è che le righe sono dizionari invece che liste di tuple.
+</testo_normale>
+<py_output>
+$ python csv_dictreader.py testdata.csv
+{'Title 1': '1', 'Title 3': '08/18/07', 'Title 2': 'a'}
+{'Title 1': '2', 'Title 3': '08/19/07', 'Title 2': 'b'}
+{'Title 1': '3', 'Title 3': '08/20/07', 'Title 2': 'c'}
+{'Title 1': '4', 'Title 3': '08/21/07', 'Title 2': 'd'}
+{'Title 1': '5', 'Title 3': '08/22/07', 'Title 2': 'e'}
+{'Title 1': '6', 'Title 3': '08/23/07', 'Title 2': 'f'}
+{'Title 1': '7', 'Title 3': '08/24/07', 'Title 2': 'g'}
+{'Title 1': '8', 'Title 3': '08/25/07', 'Title 2': 'h'}
+{'Title 1': '9', 'Title 3': '08/26/07', 'Title 2': 'i'}
+</py_output>
+<testo_normale>
+Si devono passare a DictWriter un elenco di nomi di campo così che possa conoscere in che modo le colonne debbano essere ordinate nella scrittura del file.
+</testo_normale>
+<py_code>
+import csv
+import sys
+
+f = open(sys.argv[1], 'wt')
+try:
+    fieldnames = ('Title 1', 'Title 2', 'Title 3')
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    headers = dict( (n,n) for n in fieldnames )
+    writer.writerow(headers)
+    for i in range(10):
+        writer.writerow({ 'Title 1':i+1,
+                          'Title 2':chr(ord('a') + i),
+                          'Title 3':'08/%02d/07' % (i+1),
+                          })
+finally:
+    f.close()
+
+print open(sys.argv[1], 'rt').read()
+</py_code>
+<py_output>
+$ python csv_dictwriter.py testout.csv
+Title 1,Title 2,Title 3
+1,a,08/01/07
+2,b,08/02/07
+3,c,08/03/07
+4,d,08/04/07
+5,e,08/05/07
+6,f,08/06/07
+7,g,08/07/07
+8,h,08/08/07
+9,i,08/09/07
+10,j,08/10/07
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/csv.html|csv|La documentazione della libreria standard per questo modulo.
+http://www.python.org/dev/peps/pep-0305|PEP 305|L'API per i file CSV
+http://www.doughellmann.com/PyMOTW/articles/data_persistence.html#article-data-persistence|Persistenza e scambio dati|
+</vedi_anche>
+</documento_tradotto>

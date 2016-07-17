@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+Counter - Conta oggetti hashable
+</titolo_1>
+<descrizione>
+Un <code>Counter</code> è un contenitore che tiene traccia di quante volte vengono aggiunti valori equivalenti. Può essere usato per implementare gli stessi algoritmi per i quali vengono comunemente usate in altri linguaggi le strutture dati <a href="http://it.wikipedia.org/wiki/Multiinsieme">multiset</a> o <a href='http://it.wikipedia.org/wiki/Lista_di_strutture_dati#Comparazione'>bag</a>
+
+</descrizione>
+<titolo_3>
+Inizializzazione
+</titolo_3>
+<testo_normale>
+<code>Counter</code> supporta tre forme di inizializzazione. Il suo costruttore può essere chiamato con una sequenza di elementi, un dizionario contenente chiavi e conteggi, oppure usando argomenti <em>keyword</em> che mappano nomi stringa a conteggi.
+</testo_normale>
+<py_code>
+# collections_counter_init.py
+
+import collections
+
+print(collections.Counter(['a', 'b', 'c', 'a', 'b', 'b']))
+print(collections.Counter({'a':2, 'b':3, 'c':1}))
+print(collections.Counter(a=2, b=3, c=1))
+</py_code>
+<testo_normale>
+Il risultato di tutte e tre le forme di inizializzazione è il medesimo.
+</testo_normale>
+<py_output>
+$ python3 collections_counter_init.py
+
+Counter({'b': 3, 'a': 2, 'c': 1})
+Counter({'b': 3, 'a': 2, 'c': 1})
+Counter({'b': 3, 'a': 2, 'c': 1})
+</py_output>
+<testo_normale>
+Un <code>Counter</code> vuoto può essere costruito senza argomenti e popolato tramite il metodo <code>update()</code>
+</testo_normale>
+<py_code>
+# collections_counter_update.py
+
+import collections
+
+c = collections.Counter()
+print('Iniziale :', c)
+
+c.update('abcdaab')
+print('Sequenza:', c)
+
+c.update({'a': 1, 'd': 5})
+print('Dizionario:', c)
+</py_code>
+<testo_normale>
+Invece che essere sostituiti, i valori del contatore sono incrementati in base ai nuovi dati. In questo esempio il contatore per <code>a</code> passa da 3 a 4
+</testo_normale>
+<py_output>
+$ python3 collections_counter_update.py
+
+Iniziale : Counter()
+Sequenza: Counter({'a': 3, 'b': 2, 'c': 1, 'd': 1})
+Dizionario: Counter({'d': 6, 'a': 4, 'b': 2, 'c': 1})
+</py_output>
+<titolo_3>
+Accedere ai Contatori
+</titolo_3>
+<testo_normale>
+Una volta che un <code>Counter</code> viene popolato, i suoi valori possono essere recuperati usando l'<a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a> dei dizionari.
+</testo_normale>
+<py_code>
+# collections_counter_get_values.py
+
+import collections
+
+c = collections.Counter('abcdaab')
+
+for letter in 'abcde':
+    print('{} : {}'.format(letter, c[letter]))
+</py_code>
+<testo_normale>
+<code>Counter</code> non solleva una eccezione <code>KeyError</code> in caso di chiavi non presenti. Se un valore non è stato passato in entrata (come la <code>e</code> in questo esempio) il suo contatore sarà 0.
+</testo_normale>
+<py_output>
+$ python3 collections_counter_get_values.py
+
+a : 3
+b : 2
+c : 1
+d : 1
+e : 0
+</py_output>
+<testo_normale>
+Il metodo <code>elements()</code> ritorna un iteratore che fornisce tutti gli elementi noti a <code>Counter</code>.
+</testo_normale>
+<py_code>
+import collections
+
+c = collections.Counter('estramamente')
+c['z'] = 0
+print(c)
+print(list(c.elements()))
+</py_code>
+<testo_normale>
+L'ordine degli elementi non è garantito, e gli elementi con contatore minore od uguale a zero non sono inclusi
+</testo_normale>
+<py_output>
+$ python3 collections_counter_elements.py
+
+Counter({'e': 3, 'a': 2, 'm': 2, 't': 2, 'r': 1, 'n': 1, 's': 1, 'z': 0})
+['r', 'a', 'a', 'n', 'e', 'e', 'e', 'm', 'm', 's', 't', 't']
+</py_output>
+<testo_normale>
+Si usi <code>most_common()</code> per produrre una sequenza degli <em>n</em> valori di input presenti più frequentemente e dei loro rispettivi contatori.
+</testo_normale>
+<py_code>
+# collections_counter_most_common.py
+
+import collections
+
+c = collections.Counter()
+with open('/usr/share/dict/words', 'rt') as f:
+    for line in f:
+        c.update(line.rstrip().lower())
+
+print('Più comuni:')
+for letter, count in c.most_common(3):
+    print('{}: {:>7}'.format(letter, count))
+</py_code>
+<testo_normale>
+In questo esempio si contano le lettere che appaiono in tutte le parole del dizionario di sistema (per i sistemi operativi Unix ed OS-X - n.d.t.) per generare una distribuzione di frequenza, quindi vengono stampate le tre lettere più comuni. Tralasciando l'argomento per <code>most_common()</code>, viene generata una lista di tutti gli elementi, in ordine di frequenza.
+</testo_normale>
+<py_output>
+$ python3 collections_counter_most_common.py
+
+Più comuni:
+s:   90113
+e:   88833
+i:   66986
+</py_output>
+<titolo_3>
+Aritmetica
+</titolo_3>
+<testo_normale>
+Le istanze di <code>Counter</code> supportano l'aritmetica e le operazioni sugli insiemi per l'aggregazione dei risultati. Questo esempio mostra gli operatori standard per creare nuove istanze di <code>Counter</code>, sono anche supportati gli operatori "sul posto" <code>+=</code>, <code>-=</code>, <code>&=</code> e <code>|=</code>.
+</testo_normale>
+<py_code>
+# collections_counter_arithmetic.py
+
+import collections
+
+c1 = collections.Counter(['a', 'b', 'c', 'a', 'b', 'b'])
+c2 = collections.Counter('alfabeto')
+
+print('C1:', c1)
+print('C2:', c2)
+
+print('\nContatori combinati:')
+print(c1 + c2)
+
+print('\nSottrazione:')
+print(c1 - c2)
+
+print('\nIntersezione (considerando i minimi positivi):')
+print(c1 & c2)
+
+print('\nUnione (considerando i massimi):')
+print(c1 | c2)
+</py_code>
+<testo_normale>
+Ogni volta che viene prodotto un nuovo <code>Counter</code> tramite una operazione, vengono tralasciati tutti gli elementi con contatore a zero o negativo. Il contatore per <code>a</code> è lo stesso in <code>c1</code> e <code>c2</code>, quindi la sottrazione lo porta a zero
+</testo_normale>
+<py_output>
+$ python3 collections_counter_arithmetic.py
+C1: Counter({'b': 3, 'a': 2, 'c': 1})
+C2: Counter({'a': 2, 'f': 1, 't': 1, 'b': 1, 'l': 1, 'o': 1, 'e': 1})
+
+Contatori combinati:
+Counter({'b': 4, 'a': 4, 'f': 1, 't': 1, 'l': 1, 'c': 1, 'o': 1, 'e': 1})
+
+Sottrazione:
+Counter({'b': 2, 'c': 1})
+
+Intersezione (considerando i minimi positivi):
+Counter({'a': 2, 'b': 1})
+
+Unione (considerando i massimi):
+Counter({'b': 3, 'a': 2, 'f': 1, 't': 1, 'l': 1, 'c': 1, 'o': 1, 'e': 1})
+</py_output>
+
+
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.Counter|Counter|La documentazione standard della libreria per questo modulo
+</vedi_anche>
+</documento_tradotto>

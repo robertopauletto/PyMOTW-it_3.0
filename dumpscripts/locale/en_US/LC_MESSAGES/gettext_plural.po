@@ -1,0 +1,25 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015
+# This file is distributed under the same license as the PACKAGE package.
+# Roberto Pauletto <pymotw-it@robyp.x10host.com>, 2015.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PyMOTW2\n"
+"Report-Msgid-Bugs-To: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"POT-Creation-Date: 2015-10-24 21:33+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Roberto Pauletto <pymotw-it@robyp.x10host.com>\n"
+"Language-Team: Italian <pymotw-it@robyp.x10host.com><LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;"
+
+#: gettext_plural.py:9
+#, python-format
+msgid "%(num)d significa singolare."
+msgid_plural "%(num)d significa plurale."
+msgstr[0] "In it_IT, %(num)d è singolare."
+msgstr[1] "In it_IT, %(num)d è plurale."

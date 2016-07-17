@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>protocolli internet e supporto</categoria>
+<titolo_1>
+urllib2 - Libreria per aprire gli URL
+</titolo_1>
+<descrizione>
+Una libreria per aprire gli <a href='http://it.wikipedia.org/wiki/Uniform_Resource_Locator'>URL</a> che può essere estesa definendo gestori di protocollo personalizzati.
+2.1 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>urllib2</strong> fornisce una <a href='http://it.wikipedia.org/wiki/Api'>API</a> aggiornata per usare le risorse internet identificate da 
+<a href='http://it.wikipedia.org/wiki/Uniform_Resource_Locator'>URL</a>. E' progettato per essere esteso da applicazioni individuali per supportare nuovi protocolli od aggiungere variazioni a quelli esistenti (tipo la gestione di base dell'autenticazione HTTP).
+</testo_normale>
+<titolo_2>
+HTTP GET
+</titolo_2>
+<note>
+Il server di test per questi esempi è BaseHTTPServer_GET.py, dagli esempi di <a href='basehttpserver.html' class='lnk_in_alert'>BaseHTTPServer</a>. Lanciare il server da una finestra di terminale, quindi eseguire gli esempi da un'altra.    
+</note>
+<testo_normale>
+Così come per <a href='urllib.html'>urllib</a> una operazione HTTP GET costituisce l'uso più semplice di <strong>urllib2</strong>. Si passa l'URL ad <code>urlopen()</code> per ottenere un <em>handle</em> di tipo file per i dati remoti.
+</testo_normale>
+<py_code>
+import urllib2
+
+response = urllib2.urlopen('http://localhost:8080/')
+print 'RISPOSTA:', response
+print 'URL     :', response.geturl()
+
+headers = response.info()
+print 'DATA    :', headers['date']
+print 'HEADER  :'
+print '---------'
+print headers
+
+data = response.read()
+print 'LUNGH.  :', len(data)
+print 'DATI    :'
+print '---------'
+print data
+</py_code>        
+<testo_normale>
+Il server di esempio accetta i valori in arrivo e formatta una risposta in testo semplice da restituire. Il valore di ritorno da <code>urllopen()</code> fornisce l'accesso agli <em>header</em> dal server HTTP tramite il metodo <code>info()</code>, ed i dati dalla risorsa remota tramite metodi tipo <code>read()</code> e <code>readlines()</code>.
+</testo_normale>
+<py_output>
+$ python urllib2_urlopen.py 
+
+RISPOSTA: &lt;addinfourl at 140688029658360 whose fp = &lt;socket._fileobject object at 0x7ff47c065bd0>>
+URL     : http://localhost:8080/
+DATA    : Mon, 30 Jun 2014 19:24:48 GMT
+HEADER  :
+---------
+Server: BaseHTTP/0.3 Python/2.7.6
+Date: Mon, 30 Jun 2014 19:24:48 GMT
+
+LUNGH.  : 364
+DATI    :
+---------
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 37150) (localhost)
+command=GET
+path=/
+real path=/
+query=
+request_version=HTTP/1.1
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+accept-encoding=identity
+connection=close
+host=localhost:8080
+user-agent=Python-urllib/2.7
+</py_output>
+<testo_normale>
+L'oggetto di tipo file ritornato da <code>urlopen()</code> è iterabile:
+</testo_normale>
+<py_code>
+import urllib2
+
+response = urllib2.urlopen('http://localhost:8080/')
+for line in response:
+    print line.rstrip()
+</py_code>        
+<testo_normale>
+Questo esempio elimina i ritorni a capo ed avanti riga prima di stampare l'output
+</testo_normale>
+<py_output>
+$ python urllib2_urlopen_iterator.py 
+
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 37264) (localhost)
+command=GET
+path=/
+real path=/
+query=
+request_version=HTTP/1.1
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+accept-encoding=identity
+connection=close
+host=localhost:8080
+user-agent=Python-urllib/2.7
+</py_output>
+<titolo_3>
+Codificare gli Argomenti
+</titolo_3>
+<testo_normale>
+Gli argomenti possono essere passati al server codificandoli con <code>urllib.urlencode()</code>  ed accodati all'URL
+</testo_normale>
+<py_code>
+import urllib
+import urllib2
+
+query_args = { 'q':'query string', 'foo':'bar' }
+encoded_args = urllib.urlencode(query_args)
+print 'Codificato:', encoded_args
+
+url = 'http://localhost:8080/?' + encoded_args
+print urllib2.urlopen(url).read()
+</py_code>        
+<testo_normale>
+L'elenco di valori del client restituiti nell'output di esempio contengono gli argomenti di ricerca codificati
+</testo_normale>
+<py_output>
+$ python urllib2_http_get_args.py 
+
+Codificato: q=query+string&foo=bar
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 44153) (localhost)
+command=GET
+path=/?q=query+string&foo=bar
+real path=/
+query=q=query+string&foo=bar
+request_version=HTTP/1.1
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+accept-encoding=identity
+connection=close
+host=localhost:8080
+user-agent=Python-urllib/2.7
+
+</py_output>
+<titolo_2>
+HTTP POST
+</titolo_2>
+<note>
+Il server di test per questi esempi è BaseHTTPServer_POST.py, dagli esempi per <a href='basehttpserver.html'>BaseHTTPServer</a>. Lanciare il server in una finestra di terminale, quindi eseguire questi esempi in un'altra.    
+</note>
+<testo_normale>
+Se si usa POST per inviare dati da form codificati al server remoto, invece che usare GET, si passano gli argomenti codificati della query come dati ad <code>urlopen()</code>.
+</testo_normale>
+<py_code>
+import urllib
+import urllib2
+
+query_args = { 'q':'query string', 'foo':'bar' }
+encoded_args = urllib.urlencode(query_args)
+url = 'http://localhost:8080/'
+print urllib2.urlopen(url, encoded_args).read()
+</py_code>        
+<testo_normale>
+Il server può decodificare i dati del form ed accedere ai valori individuali tramite nome
+</testo_normale>
+<py_output>
+$ python urllib2_urlopen_post.py 
+
+Client: ('127.0.0.1', 44414)
+User-agent: Python-urllib/2.7
+Path: /
+Dati form:
+    q=query string
+    foo=bar
+
+</py_output>
+<titolo_2>
+Lavorare Direttamente con le Richieste
+</titolo_2>
+<testo_normale>
+<code>urlopen()</code> è una funzione di convenienza che nasconde alcuni dei dettagli di come la richiesta sia fatta e gestita per conto del programmatore. Per un controllo più preciso, si dovrebbe istanziare ed usare direttamente un oggetto <code>Request</code>.
+</testo_normale>
+<titolo_3>
+Aggiungere Header in Uscita
+</titolo_3>
+<testo_normale>
+Come dimostrato dall'esempio qui sopra il valore di header predefinito <em>User-agent</em> è costruito dalla costante <code>Python-urllib</code>, seguita dalla versione dell'interprete di Python. Se si sta creando una applicazione che dovrà accedere a risorse web di terze parti, è cortesia includere informazioni reali circa l'<em>User-agent</em> nella propria richiesta, in modo che essi possano identificare la sorgente del contatto più agevolmente. Usare un <em>agent</em> personalizzato consente anche di controllare i crawler usando un file robots.txt (vedi <a href='robotparser.html'>robotparser</a>).
+</testo_normale>
+<py_code>
+import urllib2
+
+request = urllib2.Request('http://localhost:8080/')
+request.add_header('User-agent', 'PyMOTW (http://www.doughellmann.com/PyMOTW/)')
+
+response = urllib2.urlopen(request)
+data = response.read()
+print data
+</py_code>        
+<testo_normale>
+Dopo avere creato un oggetto <code>Request</code>, si usa <code>add_header()</code> per impostare il valore di <em>User-agent</em> prima di aprire la richiesta. L'ultima riga dell'output mostra il valore personalizzato.
+</testo_normale>
+<py_output>
+$ python urllib2_request_header.py 
+
+VALORI DEL CLIENT:
+client_address=('127.0.0.1', 44537) (localhost)
+command=GET
+path=/
+real path=/
+query=
+request_version=HTTP/1.1
+
+VALORI DEL SERVER:
+server_version=BaseHTTP/0.3
+sys_version=Python/2.7.6
+protocol_version=HTTP/1.0
+
+
+INTESTAZIONI RICEVUTE:
+accept-encoding=identity
+connection=close
+host=localhost:8080
+user-agent=PyMOTW (http://www.doughellmann.com/PyMOTW/)
+</py_output>
+<titolo_3>
+Inviare Dati da Form
+</titolo_3>
+<testo_normale>
+Si possono impostare i dati in uscita in <code>Request</code> per inviare i dati al server.
+</testo_normale>
+<py_code>
+import urllib
+import urllib2
+
+query_args = { 'q':'query string', 'foo':'bar' }
+
+request = urllib2.Request('http://localhost:8080/')
+print 'Metodo Request prima dei dati:', request.get_method()
+
+request.add_data(urllib.urlencode(query_args))
+print 'Metodo Request dopo i dati :', request.get_method()
+request.add_header('User-agent', 'PyMOTW (http://www.doughellmann.com/PyMOTW/)')
+
+print
+print 'DATI IN USCITA     :'
+print request.get_data()
+
+print
+print 'RISPOSTA DEL SERVER:'
+print urllib2.urlopen(request).read()
+</py_code>        
+<testo_normale>
+Il metodo HTTP usato da <code>Request</code> cambia da GET a POST automaticamente dopo che i dati sono stati aggiunti.
+</testo_normale>
+<py_output>
+$ python urllib2_request_post.py 
+
+Metodo Request prima dei dati: GET
+Metodo Request dopo i dati : POST
+
+DATI IN USCITA     :
+q=query+string&foo=bar
+
+RISPOSTA DEL SERVER:
+Client: ('127.0.0.1', 44636)
+User-agent: PyMOTW (http://www.doughellmann.com/PyMOTW/)
+Path: /
+Dati form:
+    q=query string
+    foo=bar
+</py_output>
+<note>
+Sebbene il metodo sia <code>add_data()</code> (aggiungi dati - n.d.t.),  il suo effetto <em>non</em> è cumulativo. Ogni chiamata sostituisce i dati precedenti.
+</note>
+<titolo_3>
+Inviare File
+</titolo_3>
+<testo_normale>
+Codificare file per l'invio richiede maggior lavoro dei semplici form. Un messaggio <a href='http://it.wikipedia.org/wiki/Multipurpose_Internet_Mail_Extensions'>MIME</a> completo deve essere costruito nel corpo della richiesta, in modo che il server possa distinguere i campi del forma in arrivo dai file inviati.
+</testo_normale>
+<py_code>
+import itertools
+import mimetools
+import mimetypes
+from cStringIO import StringIO
+import urllib
+import urllib2
+
+class MultiPartForm(object):
+    """Accumula i dati da usare quando si invia un form."""
+
+    def __init__(self):
+        self.form_fields = []
+        self.files = []
+        self.boundary = mimetools.choose_boundary()
+        return
+    
+    def get_content_type(self):
+        return 'multipart/form-data; boundary=%s' % self.boundary
+
+    def add_field(self, name, value):
+        """Aggiunge un semplice campi ai dati del form."""
+        self.form_fields.append((name, value))
+        return
+
+    def add_file(self, fieldname, filename, fileHandle, mimetype=None):
+        """Aggiunge un file da inviare."""
+        body = fileHandle.read()
+        if mimetype is None:
+            mimetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+        self.files.append((fieldname, filename, mimetype, body))
+        return
+    
+    def __str__(self):
+        """Ritorna una stringa che rappresenta i dati del form, compresi i file allegati."""
+        # Costruisce una lista di liste, ognuna contenente righe ("lines") della
+        # richiesta. Ogni parte è separata da una stringa di limite.
+        # Una volta costruita la lista, si ritorna una stringa con ciascuna riga
+        # separata da '\r\n'.  
+        parts = []
+        part_boundary = '--' + self.boundary
+        
+        # Aggiunge i campi del form
+        parts.extend(
+            [ part_boundary,
+              'Content-Disposition: form-data; name="%s"' % name,
+              '',
+              value,
+            ]
+            for name, value in self.form_fields
+            )
+        
+        # Aggiunge i file da inviare
+        parts.extend(
+            [ part_boundary,
+              'Content-Disposition: file; name="%s"; filename="%s"' % \
+                 (field_name, filename),
+              'Content-Type: %s' % content_type,
+              '',
+              body,
+            ]
+            for field_name, filename, content_type, body in self.files
+            )
+        
+        # Riunisce le liste ed aggiunge il marcatori di limite di chiusura,
+        # poi ritorna i dati separati da CR/LF
+        flattened = list(itertools.chain(*parts))
+        flattened.append('--' + self.boundary + '--')
+        flattened.append('')
+        return '\r\n'.join(flattened)
+
+if __name__ == '__main__':
+    # Crea il form con semplici campi
+    form = MultiPartForm()
+    form.add_field('firstname', 'Doug')
+    form.add_field('lastname', 'Hellmann')
+    
+    # Aggiunge un falso file
+    form.add_file('biography', 'bio.txt', 
+                  fileHandle=StringIO('Python developer and blogger.'))
+
+    # Costruisce la richiesta
+    request = urllib2.Request('http://localhost:8080/')
+    request.add_header('User-agent', 'PyMOTW (http://www.doughellmann.com/PyMOTW/)')
+    body = str(form)
+    request.add_header('Content-type', form.get_content_type())
+    request.add_header('Content-length', len(body))
+    request.add_data(body)
+
+    print
+    print 'DATI IN USCITA     :'
+    print request.get_data()
+
+    print
+    print 'RISPOSTA DEL SERVER:'
+    print urllib2.urlopen(request).read()
+</py_code>        
+<testo_normale>
+La classe <code>MultiPartForm</code> può rappresentare un form arbitrario come messaggio multi-part MIME con file allegati.
+</testo_normale>
+<py_output>
+$ python urllib2_upload_files.py 
+
+DATI IN USCITA     :
+--127.0.1.1.1000.9990.1404243104.851.1
+Content-Disposition: form-data; name="firstname"
+
+Doug
+--127.0.1.1.1000.9990.1404243104.851.1
+Content-Disposition: form-data; name="lastname"
+
+Hellmann
+--127.0.1.1.1000.9990.1404243104.851.1
+Content-Disposition: file; name="biography"; filename="bio.txt"
+Content-Type: text/plain
+
+Python developer and blogger.
+--127.0.1.1.1000.9990.1404243104.851.1--
+
+
+RISPOSTA DEL SERVER:
+Client: ('127.0.0.1', 44954)
+User-agent: PyMOTW (http://www.doughellmann.com/PyMOTW/)
+Path: /
+Dati form:
+    lastname=Hellmann
+    Inviato biography as "bio.txt" (29 bytes)
+    firstname=Doug
+</py_output>
+<titolo_2>
+Gestori di Protocollo Personalizzati
+</titolo_2>
+<testo_normale>
+<strong>urllib2</strong> ha supporto <em>built-in</em> per accesso ad HTTP(S), FTP e file locali. Se si deve aggiungere supporto per altri tipi di <a href='http://it.wikipedia.org/wiki/Uniform_Resource_Locator'>URL</a> si può registrare il proprio gestore di protocollo che verrà chiamato quando necessario. Ad esempio, se si vuole supportare il puntamento di URL a file arbitrari su server NFS remoti, senza richiedere che i propri utenti montino il percorso manualmente, si dovrebbe creare una classe derivata da <code>BaseHandler</code> con un metodo <code>nfs_open()</code>.
+</testo_normale>
+<testo_normale>
+Il metodo <code>nfs_open()</code> riceve un singolo argomento, l'istanza di <code>Request</code>, e dovrebbe ritornare un oggetto con un metodo <code>read()</code> che può essere usato per leggere dati, un metodo <code>info()</code> che restituisce gli header della risposta, e <code>geturl()</code> che ritorna il vero URL del file che si sta leggendo. Un semplice modo per ottenere questo è di creare una istanza di <code>urllib.addurlinfo</code>, passandole gli header, URL e l'handle del file aperto nel costruttore.
+</testo_normale>
+<py_code>
+import mimetypes
+import os
+import tempfile
+import urllib
+import urllib2
+
+class NFSFile(file):
+    def __init__(self, tempdir, filename):
+        self.tempdir = tempdir
+        file.__init__(self, filename, 'rb')
+    def close(self):
+        print
+        print 'NFSFile:'
+        print '  sto smontando %s' % self.tempdir
+        print '  quando %s è chiuso' % os.path.basename(self.name)
+        return file.close(self)
+
+class FauxNFSHandler(urllib2.BaseHandler):
+    
+    def __init__(self, tempdir):
+        self.tempdir = tempdir
+    
+    def nfs_open(self, req):
+        url = req.get_selector()
+        directory_name, file_name = os.path.split(url)
+        server_name = req.get_host()
+        print
+        print 'FauxNFSHandler simula il mount:'
+        print '  Percorso remoto: %s' % directory_name
+        print '  Server         : %s' % server_name
+        print '  Percorso locale: %s' % tempdir
+        print '  Nome file      : %s' % file_name
+        local_file = os.path.join(tempdir, file_name)
+        fp = NFSFile(tempdir, local_file)
+        content_type = mimetypes.guess_type(file_name)[0] or 'application/octet-stream'
+        stats = os.stat(local_file)
+        size = stats.st_size
+        headers = { 'Content-type': content_type,
+                    'Content-length': size,
+                  }
+        return urllib.addinfourl(fp, headers, req.get_full_url())
+
+if __name__ == '__main__':
+    tempdir = tempfile.mkdtemp()
+    try:
+        # Popola il file temporaneo per la simulazione
+        with open(os.path.join(tempdir, 'file.txt'), 'wt') as f:
+            f.write('Contenuto di file.txt')
+        
+        # Costruisce un oggetto per l'apertura con l'handler NFS
+        # e lo registra come predifinito.
+        opener = urllib2.build_opener(FauxNFSHandler(tempdir))
+        urllib2.install_opener(opener)
+
+        # Apre il file tramite un URL
+        response = urllib2.urlopen('nfs://server_remoto/percorso/a/file.txt')
+        print
+        print 'LEGGE CONTENUTO:', response.read()
+        print 'URL          :', response.geturl()
+        print 'HEADERS:'
+        for name, value in sorted(response.info().items()):
+            print '  %-15s = %s' % (name, value)
+        response.close()
+    finally:
+        os.remove(os.path.join(tempdir, 'file.txt'))
+        os.removedirs(tempdir)
+</py_code>        
+<testo_normale>
+Le classi <code>FauxNFSHandler</code> e <code>NFSFile</code> stampano messaggi per illustrare dove una vera implementazione avrebbe aggiunto le chiamate per il montaggio e lo smontaggio. Visto che si tratta solamente di una simulazione, a <code>FauxNFSHandler</code> viene assegnato il nome di una directory temporanea dove dovrebbe cercare tutti i propri file.
+</testo_normale>
+<py_output>
+$ python urllib2_nfs_handler.py 
+
+FauxNFSHandler simula il mount:
+  Percorso remoto: /percorso/a
+  Server         : server_remoto
+  Percorso locale: /tmp/tmps9C2Yq
+  Nome file      : file.txt
+
+LEGGE CONTENUTO: Contenuto di file.txt
+URL          : nfs://server_remoto/percorso/a/file.txt
+HEADERS:
+  Content-length  = 21
+  Content-type    = text/plain
+
+NFSFile:
+  sto smontando /tmp/tmps9C2Yq
+  quando file.txt è chiuso
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/urllib2.html|urllib2|La documentazione della libreria standard per questo modulo
+urllib.html|urllib|La libreria originale per la gestione degli URL
+urlparse.html|urlparse|Lavora con la stringa dell'URL
+http://www.voidspace.org.uk/python/articles/urllib2.shtml|urllib2 - The Missing Manual|uno scritto di Michael Foord sull'utilizzo di urllib2 
+http://www.voidspace.org.uk/python/cgi.shtml#upload|Upload Scripts|script di esempio di Michael Foord che illustrano come inviare un file usando HTTP, e poi ricevere i dati sul server
+http://code.activestate.com/recipes/146306/|HTTP client to POST using multipart/form-data|Una ricetta dal ricettario Python che mostra come codificare ed inviare dati, compreso i file, tramite HTTP.
+http://www.w3.org/TR/REC-html40/interact/forms.html#h-17.13.4|Form content types|specifiche WC3 per inviare file o dati di grandi dimensioni tramite form HTTP
+https://docs.python.org/2/library/mimetypes.html|mimetypes|mappa i nomi di file ai tipi MIME
+https://docs.python.org/2/library/mimetools.html|mimetools|strumenti per l'elaborazione di messaggi MIME
+</vedi_anche>
+</documento_tradotto>

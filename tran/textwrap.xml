@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<categoria>testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<titolo_1>
+textwrap - Formattare Paragrafi di Testo
+</titolo_1>
+<descrizione>
+Formatta il testo gestendo il punto dove occorrono le interruzioni di linea in un paragrafo
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>textwrap</strong> può essere usto per formattare il testo in uscita dove necessiti una stampa <em>pretty-printing</em>, vale a dire l'applicazione di vari convenzioni di formattazione di stile per file di testo. Fornisce funzionalità programmatiche simili a quelle di impaginazione o distribuzione di un paragrafo, comuni a molti editor di testo.
+</testo_normale>
+<titolo_2>
+Dati di Esempio
+</titolo_2>
+<testo_normale>
+Gli esempi di seguito usano <code>textwrap_example.py</code>, che contiene la stringa <code>sample_text</code>:
+</testo_normale>
+<py_code>
+# textwrap_example.py
+
+sample_text = '''
+	The textwrap module can be used to format text for output in
+    situations where pretty-printing is desired. It offers
+    programmatic functionality similar to the paragraph wrapping
+    or filling features found in many text editors.
+	'''
+</py_code>
+<titolo_2>
+Riempire Paragrafi
+</titolo_2>
+<testo_normale>
+La funzione <code>fill()</code> prende il testo in input e produce testo formattato in uscita.
+</testo_normale>
+<py_code>
+# textwrap_fill.py
+
+import textwrap
+from textwrap_example import sample_text
+
+print('Nessuna deindentazione:\n')
+print(textwrap.fill(sample_text, width=50))
+</py_code>
+<testo_normale>
+I risultati sono molto meno che desiderabili. Il testo ora è giustificato a sinistra, ma la prima riga mantiene la sua indentazione e gli spazi davanti ad ogni susseguente riga sono incorporati nel paragrafo
+</testo_normale>
+<py_output>
+$ python3 textwrap_fill.py
+
+Nessuna deindentazione:
+
+         The textwrap module can be used to format
+text for output in situations         where
+pretty-printing is desired.  It offers
+programmatic functionality similar         to the
+paragraph wrapping or filling features found in
+many text editors.
+</py_output>
+<titolo_2>
+Rimuovere Indentazione Esistente
+</titolo_2>
+<testo_normale>
+L'esempio precedente aveva delle tabulazioni incorporate e spazi supplementari nel mezzo dell'output, quindi non formattato in modo pulito. L'eliminazione di tutti gli spazi davanti a tutte le righe nel testo con <code>dedent()</code> produce migliori risultati e consente l'utilizzo di <a href="https://it.wikipedia.org/wiki/Docstring">docstring</a> o righe multiple incorporate direttamente dal codice Python rimuovendo la formattazione propria del codice. La stringa di esempio ha un livello di indentazione artificiale introdotto per illustrare questa caratteristica.
+</testo_normale>
+<py_code>
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text)
+print('Deindentato:')
+</py_code>
+<testo_normale>
+Il risultato inizia ad avere un aspetto migliore
+</testo_normale>
+<py_output>
+$ python3 textwrap_dedent.py
+
+Deindentato:
+
+The textwrap module can be used to format text for output in situations
+where pretty-printing is desired.  It offers programmatic functionality similar
+to the paragraph wrapping or filling features found in many text editors.
+
+</py_output>
+<testo_normale>
+Visto che la "deindentazione" è il contrario dell'indentazione, il risultato è un blocco di testo con gli spazi iniziali di ogni riga rimossi. Se una riga ha già una indentazione superiore alle altre alcuni degli spazi non saranno eliminati.
+</testo_normale>
+<py_output>
+␣Riga uno.
+␣␣␣Riga due.
+␣Riga tre.
+</py_output>
+<testo_normale>
+diventa
+</testo_normale>
+<py_output>
+Riga uno.
+␣␣Riga due.
+Riga tre.
+</py_output>
+<titolo_2>
+Combinare Dedent e Fill
+</titolo_2>
+<testo_normale>
+Proseguendo, il testo deindentato può essere passato attraverso fill() con diversi valori di larghezza <em>width</em>.
+</testo_normale>
+<py_code>
+#textwrap_fill_width.py
+
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text).strip()
+for width in [45, 60]:
+    print('{} Colonne:\n'.format(width))
+    print(textwrap.fill(dedented_text, width=width))
+    print()
+</py_code>
+<testo_normale>
+Si otterranno diversi tipi di ouput della larghezza specificata
+</testo_normale>
+<py_output>
+$ python3 textwrap_fill_width.py
+
+45 Colonne:
+
+The textwrap module can be used to format
+text for output in situations where pretty-
+printing is desired.  It offers programmatic
+functionality similar to the paragraph
+wrapping or filling features found in many
+text editors.
+
+60 Colonne:
+
+The textwrap module can be used to format text for output in
+situations where pretty-printing is desired.  It offers
+programmatic functionality similar to the paragraph wrapping
+or filling features found in many text editors.
+</py_output>
+<titolo_2>
+Indentare Blocchi
+</titolo_2>
+<testo_normale>
+Si utilizza la funzione <code>indent()</code> per aggiungere un prefisso consistente a tutte le righe in una stringa. Questo esempio formatta lo stesso testo di esempio come se fosse parte di un messaggio email marcato nella risposta utilizzando <em>&gt;</em> come prefisso per ciascuna riga.
+</testo_normale>
+<py_code>
+# textwrap_indent.py
+
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text)
+wrapped = textwrap.fill(dedented_text, width=50)
+wrapped += '\n\nSecondo paragrafo dopo una riga vuota.'
+final = textwrap.indent(wrapped, '> ')
+
+print('Blocco marcato:\n')
+print(final)
+</py_code>
+<testo_normale>
+Il blocco di testo viene separato ad ogni interruzione di riga, il prefisso viene aggiunto ad ogni riga che contenga testo, quindi le righe sono assemblate nuovamente in una nuova stringa, quindi restituite.
+</testo_normale>
+<py_output>
+$ python3 textwrap_indent.py
+
+Blocco marcato:
+
+>  The textwrap module can be used to format text
+> for output in situations where pretty-printing is
+> desired.  It offers programmatic functionality
+> similar to the paragraph wrapping or filling
+> features found in many text editors.
+
+> Secondo paragrafo dopo una riga vuota.
+</py_output>
+<testo_normale>
+Per controllare quale riga riceve il nuovo prefisso, si passi un <em>callable</em> come argomento predicato di <code>indent()</code>. Il <em>callable</em> sarà chiamato per ciascuna riga di testo ed il prefisso verrà aggiunto per quelle righe dove il valore ritornato è <code>True</code>
+</testo_normale>
+<py_code>
+# textwrap_indent_predicate.py
+
+import textwrap
+from textwrap_example import sample_text
+
+
+def should_indent(line):
+    print('Indentato {!r}?'.format(line))
+    return len(line.strip()) % 2 == 0
+
+
+dedented_text = textwrap.dedent(sample_text)
+wrapped = textwrap.fill(dedented_text, width=50)
+final = textwrap.indent(wrapped, 'PARI ',
+                        predicate=should_indent)
+
+print('\nBlocco marcato:\n')
+print(final)
+</py_code>
+<testo_normale>
+Questo esempio aggiunge il prefisso PARI a righe che contengono un numero pari di caratteri.
+</testo_normale>
+<py_output>
+$ python3 textwrap_indent_predicate.py
+
+Indentato ' The textwrap module can be used to format text\n'?
+Indentato 'for output in situations where pretty-printing is\n'?
+Indentato 'desired.  It offers programmatic functionality\n'?
+Indentato 'similar to the paragraph wrapping or filling\n'?
+Indentato 'features found in many text editors.'?
+
+Blocco marcato:
+
+PARI  The textwrap module can be used to format text
+for output in situations where pretty-printing is
+PARI desired.  It offers programmatic functionality
+PARI similar to the paragraph wrapping or filling
+PARI features found in many text editors.
+</py_output>
+<testo_normale>
+I valori di indentazione possono anche includere caratteri diversi dallo spazio, così che l'indentazione sospesa possa essere prefissata da un <code>*</code> per ottenere elementi puntati, etc. Questo mi tornò comodo quando dovetti convertire il contenuto del mio vecchio zwiki per importarlo in trac. Ho usato il pacchetto StructuredText da Zope per analizzare i dati da zwiki, quindi ho creato un formattatore per produrre il marcatore del trac di wiki come risultato. Usando <strong>textwrap</strong>, sono poi stato capace di formattare le pagine di output senza che quasi nessun intervento manuale sia stato necessario dopo la conversione.
+</testo_normale>
+<titolo_2>
+Indentazioni Sospese
+</titolo_2>
+<testo_normale>
+Così come si può impostare la larghezza dell'input, allo stesso modo  è possibile controllare l'indentazione della prima riga indipendentemente da quella delle seguenti.
+</testo_normale>
+<py_code>
+# textwrap_hanging_indent.py
+
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text).strip()
+print(textwrap.fill(dedented_text,
+                    initial_indent='',
+                    subsequent_indent=' ' * 4,
+                    width=50,
+                    ))
+</py_code>
+<testo_normale>
+E' quindi possibile produrre una indentazione sospesa, dove la prima riga ha minor indentazione rispetto alle altre righe.
+</testo_normale>
+<py_output>
+$ python3 textwrap_hanging_indent.py
+
+The textwrap module can be used to format text for
+    output in situations where pretty-printing is
+    desired.  It offers programmatic functionality
+    similar to the paragraph wrapping or filling
+    features found in many text editors.
+</py_output>
+<testo_normale>
+I valori di indentazione possono comprendere anche caratteri diversi da spazi. L'indentazione sospesa può essere prefissata da un <strong>*</strong> per generare elementi di lista, ecc.
+</testo_normale>
+<titolo_2>
+Troncare un Testo Lungo
+</titolo_2>
+<testo_normale>
+Per troncare il testo per creare un sommario od anteprima, si utilizza <code>shorten()</code>. Tutti i tipi di spazio esistenti (tabulatori, ritorni a capo e serie consecutive di spazi) sono ridotti ad un singolo spazio. Poi il testo viene troncato ad una lunghezza minore od uguale a quella richiesta, rispettando i confini delle parole in modo che non vengano incluse parole parziali.
+</testo_normale>
+<py_code>
+# textwrap_shorten.py
+
+import textwrap
+from textwrap_example import sample_text
+
+dedented_text = textwrap.dedent(sample_text)
+original = textwrap.fill(dedented_text, width=50)
+
+print('Originale:\n')
+print(original)
+
+shortened = textwrap.shorten(original, 100)
+shortened_wrapped = textwrap.fill(shortened, width=50)
+
+print('\nAccorciato:\n')
+print(shortened_wrapped)
+</py_code>
+<testo_normale>
+Se viene rimosso del testo diverso da spazio dal testo originale esso viene sostituito da un valore segnaposto. Il valore predefinito [...]  può essere modificato fornendo l'argomengo <code>placeholder</code> a <code>shorten()</code>
+</testo_normale>
+<py_output>
+$ python3 textwrap_shorten.py
+
+Originale:
+
+ The textwrap module can be used to format text
+for output in situations where pretty-printing is
+desired.  It offers programmatic functionality
+similar to the paragraph wrapping or filling
+features found in many text editors.
+
+Accorciato:
+
+The textwrap module can be used to format text for
+output in situations where pretty-printing [...]
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/textwrap.html|textwrap|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

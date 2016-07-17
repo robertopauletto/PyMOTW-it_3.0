@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+shelve - Persistenza di oggetti arbitrari Python
+</titolo_1>
+<descrizione>
+Il modulo <strong>shelve</strong> implementa una conservazione persistente di oggetti arbitrari Python i quali possono essere gestiti da <strong>pickle</strong>, usando una API tipo dizionario.
+1.4 e superiore (modificata dalla 2.3)
+</descrizione>
+<testo_normale>
+Il modulo <strong>shelve</strong> può essere usato come una semplice opzione per una conservazione persistente di oggetti Python, qualora un database relazionale sia eccessivo. Allo <em>shelf</em> si accede tramite chiavi, proprio come un dizionario. I valori vengono passati a pickle, quindi scritti in un database creato e gestito da <a href='antdbm.html'>anydbm</a>.
+</testo_normale>
+<titolo_2>
+Creare Un Nuovo Shelf
+</titolo_2>
+<testo_normale>
+Il modo più semplice di usare shelve è tramite la classe ${sbk}DbfilenameShelf${ebk}. Essa usa anydbm per conservare i dati. Si può usare la classe direttamente, oppure chiamare semplicemente ${sbk}shelve.open()${ebk}:
+</testo_normale>
+<py_code>
+import shelve
+
+s = shelve.open('test_shelf.db')
+try:
+    s['chiave1'] = { 'int': 10, 'float':9.5, 'string':'Dati di esempio' }
+finally:
+    s.close()
+</py_code>
+<testo_normale>
+Per accedere nuovamente ai dati, si apre lo shelf e lo si utilizza come un dizionario:
+</testo_normale>
+<py_code>
+import shelve
+
+s = shelve.open('test_shelf.db')
+try:
+    existing = s['chiave1']
+finally:
+    s.close()
+
+print existing
+</py_code>
+<testo_normale>
+Se si eseguono entrambi gli script di esempio si dovrebbe vedere:
+</testo_normale>
+<py_output>
+$ python shelve_create.py
+$ python shelve_existing.py
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+</py_output>
+<testo_normale>
+Il modulo <a href='dmb.html'>dbm</a> non supporta la scrittura di applicazioni multiple verso lo stesso database allo stesso tempo. Se si sa che un client non modificherà lo shelf, allora si può dire a shelve di aprire il database in sola lettura.
+</testo_normale>
+<py_code>
+import shelve
+
+s = shelve.open('test_shelf.db', flag='r')
+try:
+    existing = s['chiave1']
+finally:
+    s.close()
+
+print existing
+</py_code>
+<testo_normale>
+Se il proprio programma tenta di modificare il database mentre è aperto in sola lettura, viene generata una eccezione di errore di accesso. Il tipo di eccezione dipende dal modulo di database selezionato da anydbm quando viene creato il database.
+</testo_normale>
+<titolo_2>
+Ri-Scrittura
+</titolo_2>
+<testo_normale>
+Shelve non mantiene traccia di modifiche ad oggetti volatili, nel modo predefinito. Questo significa che si modifica il contenuto di un elemento contenuto nello shelf, occorre aggiornare esplicitamente lo shelf salvando nuovamente l'elemento.
+</testo_normale>
+<py_code>
+import shelve
+
+s = shelve.open('test_shelf.db')
+try:
+    print s['chiave1']
+    s['chiave1']['nuovo_valore'] = 'questo prima non era qui'
+finally:
+    s.close()
+
+s = shelve.open('test_shelf.db', writeback=True)
+try:
+    print s['chiave1']
+finally:
+    s.close()
+</py_code>
+<testo_normale>
+In questo esempio, il dizionario in 'chiave1' non è stato ancora salvato, quindi quando lo shelf viene riaperto, le modifiche non sono preservate.
+</testo_normale>
+<py_output>
+$ python shelve_withoutwriteback.py
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+</py_output>
+<testo_normale>
+Per catturare automaticamente le modifiche agli oggetti volatili conservati nello shelf, si apre lo shelf con abilitato <em>writeback</em>. Il flag <em>writeback</em> fa sì che shelf ricordi tutti gli oggetti che ha recuperato dal database usando una cache di memoria. Ogni oggetto nella cache viene riscritto nel database quando viene chiuso lo shelf.
+</testo_normale>
+<py_code>
+import shelve
+
+s = shelve.open('test_shelf.db', writeback=True)
+try:
+    print s['chiave1']
+    s['chiave1']['altro_valore'] = 'questo prima non era qui'
+    print s['chiave1']
+finally:
+    s.close()
+
+s = shelve.open('test_shelf.db', writeback=True)
+try:
+    print s['chiave1']
+finally:
+    s.close()
+</py_code>
+<testo_normale>
+Sebbene vengano ridotte le possibilità di un errore del programmatore e possa rendere la persistenza degli oggetti più trasparente, l'uso di <em>writeback</em> potrebbe non essere conveniente in tutte le situazioni. La cache consuma memoria extra mentre lo shelf è aperto, e la pausa per riscrivere ogni oggetto nella cache nel database quando viene chiuso può richiedere tempo supplementare. Visto che non vi è modo per conoscere se gli oggetti nella cache sono stati modificati, essi vengono tutti riscritti. Se la propria applicazione legge dati più di quanto li scriva, <em>writeback</em> potrebbe appesantire le cose più di quanto non si voglia.
+</testo_normale>
+<py_output>
+$ python shelve_create.py
+$ python shelve_writeback.py
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+{'int': 10, 'float': 9.5, 'altro_valore': 'questo prima non era qui', 'string': 'Dati di esempio'}
+{'int': 10, 'float': 9.5, 'altro_valore': 'questo prima non era qui', 'string': 'Dati di esempio'}
+</py_output>
+<titolo_2>
+Tipi di Shelf Specifici
+</titolo_2>
+<testo_normale>
+Gli esempi di cui sopra usano tutti l'implementazione shelf predefinita. Usando ${sbk}shelve.open()${ebk} invece che una delle implementazioni di shelf direttamente è un modello d'uso comune, specialmene se non ci si deve preoccupare di quale tipo di database venga usato per salvare i dati. Ci sono volte,  comunque, in qui occorre conoscere quale tipo di database usare. In queste situazioni si puà usare ${sbk}DbfilenameShelf${ebk} oppure ${sbk}BsdDbShelf${ebk} direttamente od addirittura derivare da ${sbk}Shelf${ebk} per una soluzione personalizzata.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/lib/module-shelve.html|shelve|La documentazione della libreria standard per questo modulo.
+anydbm.html|anydbm|Il modulo anydbm
+http://www.doughellmann.com/projects/feedcache/|feedcache|Il modulo feedcache usa shelve come opzione di conservazione predefinita
+http://pypi.python.org/pypi/shove/|shove|Shove implenta una API simile con molti formati backend
+http://www.doughellmann.com/PyMOTW/articles/data_persistence.html#article-data-persistence|Persistenza e scambio dati|Altri meccanismi per conservare dati usando i moduli della libreria standard.
+</vedi_anche>
+</documento_tradotto>

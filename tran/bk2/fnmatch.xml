@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+fnmatch - Confrontare nomi di file con i modelli di glob in stile Unix
+</titolo_1>
+<descrizione>
+Gestisce il confronto con i nomi dei file in stile Unix
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>fnmatch</strong> viene usato per confrontare nomi di file con i modelli in stile glob così come vengono usati dalle shell Unix.
+</testo_normale>
+<titolo_2>
+Corrispondenza semplice    
+</titolo_2>
+<testo_normale>
+${sbk}fnmatch()${ebk} confronta un singolo nome di file con un modello e restituisce un valore booleano che indica se la corrispondenza è stata trovata. Se il sistema operativo usa un filesystem insensibile alle differenze tra maiuscolo e minuscolo il confronto non terrà conto della differenza tra maiuscolo/minuscole. Altrimenti sì'.
+</testo_normale>
+<py_code>
+import fnmatch
+import os
+
+pattern = 'fnmatch_*.py'
+print 'Modello :', pattern
+print
+
+files = os.listdir('.')
+for name in files:
+    print 'Nome file: %-25s %s' % (name, fnmatch.fnmatch(name, pattern))
+</py_code>
+<testo_normale>
+In questo esempio, il modello cerca la corrispondenza con tutti i file che iniziano per "<em>fnmatch</em>" e finiscono in "<em>.py</em>".
+</testo_normale>
+<py_output>
+$ python fnmatch_fnmatch.py
+Modello : fnmatch_*.py
+
+Nome file: __init__.py               False
+Nome file: __init__.pyc              False
+Nome file: fnmatch_filter.py         True
+Nome file: fnmatch_fnmatch.py        True
+Nome file: fnmatch_fnmatchcase.py    True
+Nome file: fnmatch_translate.py      True
+Nome file: index.rst                 False    
+</py_output>
+<testo_normale>
+Per forzare un confronto sensibile al maiuscolo/minuscolo a prescindere dalle impostazioni del filesystem e del sistema operativo si usa ${sbk}fnmatchcase()${ebk}.
+</testo_normale>
+<py_code>
+import fnmatch
+import os
+
+pattern = 'FNMATCH_*.PY'
+print 'Modello :', pattern
+print
+
+files = os.listdir('.')
+for name in files:
+    print 'Nome file: %-25s %s' % (name,  fnmatch.fnmatchcase(name, pattern))
+</py_code>
+<testo_normale>
+Visto che il mio laptop usa un sistema operativo sensibile al maiuscolo/minuscolo nessun file corrisponde al modello modificato.
+</testo_normale>
+<py_output>
+$ python fnmatch_fnmatchcase.py
+Modello : FNMATCH_*.PY
+
+Nome file: __init__.py               False
+Nome file: __init__.pyc              False
+Nome file: fnmatch_filter.py         False
+Nome file: fnmatch_fnmatch.py        False
+Nome file: fnmatch_fnmatchcase.py    False
+Nome file: fnmatch_translate.py      False
+Nome file: index.rst                 False    
+</py_output>
+<titolo_2>
+Filtrare
+</titolo_2>
+<testo_normale>
+Per verificare una sequenza di nomi di file si può usare ${sbk}filter()${ebk}, che restituisce un elenco di nomi che corrispondono al parametro <em>pattern</em>
+</testo_normale>
+<py_code>
+import fnmatch
+import os
+
+pattern = 'fnmatch_*.py'
+print 'Modello :', pattern
+
+files = os.listdir('.')
+print 'File    :', files
+
+print 'Corrispondenze :', fnmatch.filter(files, pattern)
+</py_code>
+<testo_normale>
+In questo esempio, ${sbk}filter()${ebk} restituisce una lista di nomi dai file sorgente dell'esempio associato a questo post.
+</testo_normale>
+<py_output>
+$ python fnmatch_filter.py
+Modello : fnmatch_*.py
+File    : ['__init__.py', '__init__.pyc', 'fnmatch_filter.py', 'fnmatch_fnmatch.py', 'fnmatch_fnmatchcase.py', 'fnmatch_translate.py', 'index.rst']
+Corrispondenze : ['fnmatch_filter.py', 'fnmatch_fnmatch.py', 'fnmatch_fnmatchcase.py', 'fnmatch_translate.py']
+</py_output>
+<titolo_2>
+Trascodifica dei Modelli
+</titolo_2>
+<testo_normale>
+Internamente, <strong>fnmatch</strong> converte il modello glob in una espressione regolare ed usa il modulo <strong>re</strong> per confrontare nome e modello. La funzione ${sbk}translate()${ebk} è l'API pubblica per convertire modelli glob in espressioni regolari.
+</testo_normale>
+<py_code>
+import fnmatch
+
+pattern = 'fnmatch_*.py'
+print 'Modello      :', pattern
+print 'Espr. regolare:', fnmatch.translate(pattern)
+</py_code>
+<testo_normale>
+Si noti che alcuni caratteri sono preceduti da una sequenza di escape per renderli una espressione valida.
+</testo_normale>
+<py_output>
+$ python fnmatch_translate.py
+Modello       : fnmatch_*.py
+Espr. regolare: fnmatch\_.*\.py$
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/fnmatch.html|fnmatch|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/glob/index.html#module-glob|glob|Il modulo glob combina il sistema di corrispondenza di <strong>fnmatch</strong> con os.listdir() per produrre elenchi di file e directory che corrispondono a modelli.
+</vedi_anche>
+</documento_tradotto>

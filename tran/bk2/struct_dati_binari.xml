@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di stringa </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+struct - Lavorare con dati binari
+</titolo_1>
+<descrizione>
+Converte tra stringhe e dati binari
+1.4 e successiva
+</descrizione>
+<testo_normale>
+Il modulo <strong>struct</strong> include le funzioni per la conversione tra stringhe di byte e tipi di dati nativi di Python come numeri e stringhe.
+</testo_normale>
+<titolo_2>
+Le Funzioni contro la Classe Struct
+</titolo_2>
+<testo_normale>
+Ci sono un insieme di funzioni a livello modulo per lavorare con valori strutturati, e c'è anche la classe Struct (nuova in Python 2.5). Gli specificatori di formato sono convertiti dal loro formato stringa ad una rappresentazione compilata, simile al modo in cui sono compilate le espressioni regolari. La conversione richiede delle risorse, quindi in genere è più efficiente farlo una volta sola quando si crea l'istanza di Struct, quindi chiamare i metodi dell'istanza invece che usare le funzioni a livello modulo. Tutti gli esempi seguenti usano la classe Struct.
+</testo_normale>
+<titolo_2>
+Packing e Unpacking
+</titolo_2>
+<testo_normale>
+Struct supporta il <em>packing</em> di dati in stringhe e l'<em>unpacking</em> di dati dalle stringhe usando specificatori di formattazione costituiti da caratteri che rappresentano il tipo di dati ed indicatori di conteggio ed endian-ness opzionali. Per un completo dettaglio fare riferimento alla <a href='http://docs.python.org/library/struct.html'>documentazione della libreria standard</a>.
+</testo_normale>
+<testo_normale>
+In questo esempio lo specificatore di formato richiede un valore intero o long, una stringa di due caratteri ed un numero a virgola mobile. Gli spazi tra gli specificatori di formato sono qui inclusi per chiarezza, e sono ignorati quando la formattazione viene compilata.
+</testo_normale>
+<py_code>
+import struct
+import binascii
+
+values = (1, 'ab', 2.7)
+s = struct.Struct('I 2s f')
+packed_data = s.pack(*values)
+
+print 'Valori originali     :', values
+print 'Stringa formattazione:', s.format
+print 'Usa                  :', s.size, 'byte'
+print 'Valore Packed        :', binascii.hexlify(packed_data)
+</py_code>
+<py_output>
+$ python example_pack.py
+
+Valori originali     : (1, 'ab', 2.7000000000000002)
+Stringa formattazione: I 2s f
+Usa                  : 12 byte
+Valore Packed        : 0100000061620000cdcc2c40
+</py_output>
+<testo_normale>
+Il valore packed viene convertito in una sequenza di byte in notazione esadecimale per la stampa, visto che alcuni dei caratteri sono null.
+</testo_normale>
+<testo_normale>
+Se si passa il valore packed ad ${sbk}unpack()${ebk}, riotteniamo di fatto gli stessi valori originali (notare la discrepanza nel valore a virgola mobile).
+</testo_normale>
+<py_code>
+import struct
+import binascii
+
+packed_data = binascii.unhexlify('0100000061620000cdcc2c40')
+
+s = struct.Struct('I 2s f')
+unpacked_data = s.unpack(packed_data)
+print 'Valori Unpacked:', unpacked_data
+</py_code>
+<py_output>
+$ python example_unpack.py
+
+Valori Unpacked: (1, 'ab', 2.7000000476837158)
+</py_output>
+<titolo_2>
+Endianness
+</titolo_2>
+<testo_normale>
+Nel modo predefinito i valori sono codificati usando la nozione nativa della libreria di "endianness". E' semplice sovrascrivere quella scelta fornendo una direttiva esplicita di endianness nella stringa di formattazione.
+</testo_normale>
+<py_code>
+import struct
+import binascii
+
+values = (1, 'ab', 2.7)
+print 'Valori originali:', values
+
+endianness = [
+    ('@', 'native, native'),
+    ('=', 'native, standard'),
+    ('<', 'little-endian'),
+    ('>', 'big-endian'),
+    ('!', 'network'),
+    ]
+
+for code, name in endianness:
+    s = struct.Struct(code + ' I 2s f')
+    packed_data = s.pack(*values)
+    print
+    print 'Formato stringa  :', s.format, 'per', name
+    print 'Usa              :', s.size, 'byte'
+    print 'Valore Packed    :', binascii.hexlify(packed_data)
+    print 'Valore Unpacked  :', s.unpack(packed_data)
+</py_code>
+<py_output>
+$ python struct_endianness.py
+Valori originali: (1, 'ab', 2.7000000000000002)
+
+Formato stringa: @ I 2s f per native, native
+Usa            : 12 byte
+Valore packed  : 0100000061620000cdcc2c40
+Valore unpacked: (1, 'ab', 2.7000000476837158)
+
+Formato stringa: = I 2s f per native, standard
+Usa            : 10 byte
+Valore packed  : 010000006162cdcc2c40
+Valore unpacked: (1, 'ab', 2.7000000476837158)
+
+Formato stringa: < I 2s f per little-endian
+Usa            : 10 byte
+Valore packed  : 010000006162cdcc2c40
+Valore unpacked: (1, 'ab', 2.7000000476837158)
+
+Formato stringa: > I 2s f per big-endian
+Usa            : 10 byte
+Valore packed  : 000000016162402ccccd
+Valore unpacked: (1, 'ab', 2.7000000476837158)
+
+Formato stringa: ! I 2s f per network
+Usa            : 10 byte
+Valore packed  : 000000016162402ccccd
+Valore unpacked: (1, 'ab', 2.7000000476837158)    
+</py_output>
+<titolo_2>
+Buffer
+</titolo_2>
+<testo_normale>
+Il lavorare con dati binari packed è in genere riservato per situazioni delicate ad alte prestazioni o per il passaggio di dati da/per moduli estensione. Un modo di ottimizzare è di evitare di allocare un nuovo buffer per ogni struttura packed. I metodi ${sbk}pack_into()${ebk} e ${sbk}unpack_from()${ebk} forniscono il supporto alla scrittura diretta a buffer pre-allocati.
+</testo_normale>
+<py_code>
+import struct
+import binascii
+
+s = struct.Struct('I 2s f')
+values = (1, 'ab', 2.7)
+print 'Originali:', values
+
+print
+print 'buffer stringa ctypes'
+
+import ctypes
+b = ctypes.create_string_buffer(s.size)
+print 'Prima   :', binascii.hexlify(b.raw)
+s.pack_into(b, 0, *values)
+print 'Dopo    :', binascii.hexlify(b.raw)
+print 'Unpacked:', s.unpack_from(b, 0)
+
+print
+print 'array'
+
+import array
+a = array.array('c', '\0' * s.size)
+print 'Prima   :', binascii.hexlify(a)
+s.pack_into(a, 0, *values)
+print 'Dopo    :', binascii.hexlify(a)
+print 'Unpacked:', s.unpack_from(a, 0)
+</py_code>
+<vedi_anche>
+http://docs.python.org/library/struct.html|struct|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/array/index.html#module-array|array|Il modulo array, per lavorare con sequenze di valori di tipo fisso
+http://docs.python.org/library/binascii.html|binascii|Il modulo binascii per generare rappresentazioni ASCII di dati binari.
+http://en.wikipedia.org/wiki/Endianness|WidiPedia: Endianness|Spiegazione dell'ordine dei byte ed endianness nella codifica.
+</vedi_anche>
+
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+-->
+</documento_tradotto>

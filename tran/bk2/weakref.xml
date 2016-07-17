@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>tipi di dato</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+weakref - Riferimenti ad oggetti raccoglibili dal <em>garbage collector</em>
+</titolo_1>
+<descrizione>
+Fa riferimento ad un oggetto, ma consente ad esso di essere raccolto dal <em>garbage collector</em> se non ci sono altri riferimenti non deboli
+2.1 e superiore
+</descrizione>
+<note>
+In informatica, un <strong>riferimento debole (weak reference)</strong> è un riferimento che non protegge l'oggetto referenziato dall'essere raccolto da un <a href='http://it.wikipedia.org/wiki/Garbage_collection'>garbage collector</a> al contrario di un <strong>riferimento forte (strong reference)</strong>. Un oggetto referenziato solo da un <strong>riferimento debole</strong>, vale a dire che "ogni catena di riferimenti che raggiunge l'oggetto comprende almeno un riferimento debole come collegamento", viene considerato <em>weakly reachable</em> e può essere trattato come <em>irraggiungibile</em>, pertanto può essere raccolto dal <em>garbage collector</em> in qualsiasi momento. Python, assieme ad altri linguaggi (Java, C#, Perl, Lisp, Shell) ha un <em>garbage collector</em> che supporta vari livelli di <strong>riferimento debole</strong>.
+</note>
+<testo_normale>
+Il modulo <strong>weakref</strong> supporta <em>riferimenti deboli</em> di oggetti. Un normale riferimento incrementa il contatore dei riferimenti sull oggetto e lo preserva dall'essere raccolto dal <em>garbage collector</em>. La qual cosa non è sempre desiderabile, sia quando possa essere presente un riferimento circolare oppure quando si costruisce una cache di oggetti che dovrebbero essere eliminati quando è necessaria della memoria.
+</testo_normale>
+<titolo_2>
+Riferimenti
+</titolo_2>
+<testo_normale>
+I <em>riferimenti deboli</em> verso i propri oggetti sono gestiti tramite la classe <code>ref</code>. Per recuperare l'oggetto originale, chiamare l'oggetto referenziato.
+</testo_normale>
+<py_code>
+import weakref
+
+class ExpensiveObject(object):
+    def __del__(self):
+        print '(In eliminazione %s)' % self
+
+obj = ExpensiveObject()
+r = weakref.ref(obj)
+
+print 'obj:', obj
+print 'ref:', r
+print 'r():', r()
+
+print 'eliminazione di obj'
+del obj
+print 'r():', r()
+</py_code>
+<testo_normale>
+In questo caso, visto che <code>obj</code> viene eliminato prima della seconda chiamata al riferimento, <code>ref</code> ritorna <code>None</code>.
+</testo_normale>
+<py_output>
+$ python weakref_ref.py
+
+obj: <__main__.ExpensiveObject object at 0x7fa1bce4ead0>
+ref: <weakref at 0x7fa1bce55050; to 'ExpensiveObject' at 0x7fa1bce4ead0>
+r(): <__main__.ExpensiveObject object at 0x7fa1bce4ead0>
+eliminazione di obj
+(In eliminazione <__main__.ExpensiveObject object at 0x7fa1bce4ead0>)
+r(): None
+</py_output>
+<titolo_2>
+Riferimenti a Callback
+</titolo_2>
+<testo_normale>
+Il costruttore di <strong>ref</strong> ottiene un secondo argomento (opzionale) che dovrebbe essere una funzione di <a href='http://it.wikipedia.org/wiki/Callback'>callback</a> da chiamare quando l'oggetto referenziato viene eliminato.
+</testo_normale>
+<py_code>
+import weakref
+
+class ExpensiveObject(object):
+    def __del__(self):
+        print '(Eliminazione di %s)' % self
+
+def callback(reference):
+    """Chiamato quando l'oggetto referenziato viene eliminato"""
+    print 'callback(', reference, ')'
+
+obj = ExpensiveObject()
+r = weakref.ref(obj, callback)
+
+print 'obj:', obj
+print 'ref:', r
+print 'r():', r()
+
+print 'Eliminazione di obj'
+del obj
+print 'r():', r()
+</py_code>
+<testo_normale>
+La funzione di <a href='http://it.wikipedia.org/wiki/Callback'>callback</a> riceve il riferimento all'oggetto come argomento, dopo il riferimento è "morto" e non si riferisce più all'oggetto originale. Questo consente di rimuovere l'oggetto con <em>riferimento debole</em>  da una cache, ad esempio.
+</testo_normale>
+<py_output>
+$ python weakref_ref_callback.py
+
+obj: <__main__.ExpensiveObject object at 0x7f4a24609d10>
+ref: <weakref at 0x7f4a2460f100; to 'ExpensiveObject' at 0x7f4a24609d10>
+r(): <__main__.ExpensiveObject object at 0x7f4a24609d10>
+Eliminazione di obj
+callback( <weakref at 0x7f4a2460f100; dead> )
+(Eliminazione di <__main__.ExpensiveObject object at 0x7f4a24609d10>)
+r(): None
+</py_output>
+<titolo_2>
+Proxy
+</titolo_2>
+<testo_normale>
+Invece di utilizzare <strong>ref</strong> direttamente, potrebbe essere più conveniente utilizzare un  proxy. I proxy possono essere utilizzati come se fossero l'oggetto originale, quindi non serve  prima chiamare <strong>ref</strong> per accedere all'oggetto.
+</testo_normale>
+<py_code>
+import weakref
+
+class ExpensiveObject(object):
+    def __init__(self, name):
+        self.name = name
+    def __del__(self):
+        print '(Eliminazione di %s)' % self
+
+obj = ExpensiveObject('Il mio oggetto')
+r = weakref.ref(obj)
+p = weakref.proxy(obj)
+
+print 'via obj:', obj.name
+print 'via ref:', r().name
+print 'via proxy:', p.name
+del obj
+print 'via proxy:', p.name
+</py_code>
+<testo_normale>
+Se si accede al proxy dopo che l'oggetto a cui si riferisce è rimosso, viene sollevata una eccezione  <a href='eccezioni.html#referenceerror'>ReferenceError</a>
+</testo_normale>
+<py_output>
+$ python weakref_proxy.py
+
+via obj: Il mio oggetto
+via ref: Il mio oggetto
+via proxy: Il mio oggetto
+(Eliminazione di <__main__.ExpensiveObject object at 0x7f7c81ffee90>)
+via proxy:
+Traceback (most recent call last):
+  File "weakref_proxy.py", line 20, in <module>
+    print 'via proxy:', p.name
+ReferenceError: weakly-referenced object no longer exists
+</py_output>
+<titolo_2>
+Riferimenti Ciclici
+</titolo_2>
+<testo_normale>
+Un utilizzo per i <em>riferimenti deboli</em> è di consentire riferimenti ciclici senza impedire la raccolta dal <em>garbage collector</em>. Questo esempio illustra la differenza tra l'utilizzo di oggetti normali e di proxy quando un grafo comprende un ciclo.
+</testo_normale>
+<testo_normale>
+Per prima cosa occorre una classe <code>Graph</code> che accetti un qualsiasi oggetto come prossimo ("next") nodo nella sequenza. Per amor di brevità, <code>Graph</code> supporta un riferimento singolo in uscita da ogni nodo, il che produce grafi noiosi ma rende facile la creazione di cicli. La funzione <code>demo()</code> è una funzione di convenienza per far sì che la classe <code>Graph</code> crei un ciclo e quindi rimuova i vari riferimenti.
+</testo_normale>
+<py_code>
+    import gc
+from pprint import pprint
+import weakref
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.other = None
+    def set_next(self, other):
+        print '%s.set_next(%s (%s))' % (self.name, other, type(other))
+        self.other = other
+    def all_nodes(self):
+        "Genera i nodi nella sequenza del grafo."
+        yield self
+        n = self.other
+        while n and n.name != self.name:
+            yield n
+            n = n.other
+        if n is self:
+            yield n
+        return
+    def __str__(self):
+        return '->'.join([n.name for n in self.all_nodes()])
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+    def __del__(self):
+        print '(Eliminazione di  %s)' % self.name
+        self.set_next(None)
+
+class WeakGraph(Graph):
+    def set_next(self, other):
+        if other is not None:
+            # Verificare se si debba sostituire il riferimento ad
+            # other con una weakref.
+            if self in other.all_nodes():
+                other = weakref.proxy(other)
+        super(WeakGraph, self).set_next(other)
+        return
+
+def collect_and_show_garbage():
+    "Mostra che garbage è presente."
+    print 'Raccolta...'
+    n = gc.collect()
+    print 'Oggetti irraggiungili:', n
+    print 'Garbage:',
+    pprint(gc.garbage)
+
+def demo(graph_factory):
+    print 'Impostazione del grafo'
+    one = graph_factory('uno')
+    two = graph_factory('due')
+    three = graph_factory('tre')
+    one.set_next(two)
+    two.set_next(three)
+    three.set_next(one)
+
+    print
+    print 'Grafi :'
+    print str(one)
+    print str(two)
+    print str(three)
+    collect_and_show_garbage()
+
+    print
+    three = None
+    two = None
+    print 'Dopo la rimozione di 2 riferimenti:'
+    print str(one)
+    collect_and_show_garbage()
+
+    print
+    print "Rimozione dell'ultimo riferimento"
+    one = None
+    collect_and_show_garbage()
+</py_code>
+<testo_normale>
+Si imposta un programma di test utilizzando il modulo <a href='gc.html'>gc</a> per aiutare il debug della perdita. Il flag <code>DEBUG_LEAK</code> fa sì che <a href='gc.html'>gc</a> stampi informazioni sugli oggetti che non possono essere visti in altro modo se non tramite il riferimento ad essi che ha il <em>garbage collector</em>
+</testo_normale>
+<py_code>
+import gc
+from pprint import pprint
+import weakref
+
+from weakref_graph import Graph, demo, collect_and_show_garbage
+
+gc.set_debug(gc.DEBUG_LEAK)
+
+print 'Impostazione del ciclo'
+print
+demo(Graph)
+
+print
+print 'Interruzione del ciclo e pulizia del garbage'
+print
+gc.garbage[0].set_next(None)
+while gc.garbage:
+    del gc.garbage[0]
+print
+collect_and_show_garbage()
+</py_code>
+<testo_normale>
+Anche dopo l'eliminazione dei riferimenti locali alle istanze di <code>Graph</code> in <code>demo()</code> i grafi si trovano nella lista del <em>garbage</em> e non possono essere raccolti. I dizionari nel <em>garbage</em> mantengono gli attributi alle istanze di <code>Graph</code>. E' possibile forzare la cancellazione dei grafi, visto che si sa cosa sono.
+</testo_normale>
+<py_output>
+$ python weakref_cycle.py
+
+Impostazione del ciclo
+
+Impostazione del grafo
+uno.set_next(due (<class 'weakref_graph.Graph'>))
+due.set_next(tre (<class 'weakref_graph.Graph'>))
+tre.set_next(uno->due->tre (<class 'weakref_graph.Graph'>))
+
+Grafi :
+uno->due->tre->uno
+due->tre->uno->due
+tre->uno->due->tre
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+
+Dopo la rimozione di 2 riferimenti:
+uno->due->tre->uno
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+
+Rimozione dell'ultimo riferimento
+Raccolta...
+gc: uncollectable <Graph 0x7fcb65567690>
+gc: uncollectable <Graph 0x7fcb655676d0>
+gc: uncollectable <Graph 0x7fcb65567710>
+gc: uncollectable <dict 0x7fcb655dde88>
+gc: uncollectable <dict 0x7fcb655dd280>
+gc: uncollectable <dict 0x7fcb655ddb40>
+Oggetti irraggiungili: 6
+Garbage:[Graph(uno),
+ Graph(due),
+ Graph(tre),
+ {'name': 'uno', 'other': Graph(due)},
+ {'name': 'due', 'other': Graph(tre)},
+ {'name': 'tre', 'other': Graph(uno)}]
+
+Interruzione del ciclo e pulizia del garbage
+
+uno.set_next(None (<type 'NoneType'>))
+(Eliminazione di  due)
+due.set_next(None (<type 'NoneType'>))
+(Eliminazione di  tre)
+tre.set_next(None (<type 'NoneType'>))
+(Eliminazione di  uno)
+uno.set_next(None (<type 'NoneType'>))
+
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+</py_output>
+<testo_normale>
+Ora si definisce una classe più intelligente <code>WeakGraph</code> che sappia come non creare cicli utilizzando riferimenti normali, ma utilizzando <strong>ref</strong> quando viene individuato un ciclo.
+</testo_normale>
+<py_code>
+import gc
+from pprint import pprint
+import weakref
+
+from weakref_graph import Graph, demo
+
+class WeakGraph(Graph):
+    def set_next(self, other):
+        if other is not None:
+            # Verificare se si debba sostituire il riferimento ad
+            # other con una weakref.
+            if self in other.all_nodes():
+                other = weakref.proxy(other)
+        super(WeakGraph, self).set_next(other)
+        return
+
+demo(WeakGraph)
+</py_code>
+<testo_normale>
+Visto che le istanze di <code>WeakGraph</code> utilizzano proxy per riferirsi agli oggetti che hanno già visto, mentre <code>demo()</code> rimuove tutti i riferimenti locali agli oggetti, il ciclo viene spezzato ed il <em>garbage collector</em> può eliminare gli oggetti.
+</testo_normale>
+<py_output>
+$ python weakref_weakgraph.py
+
+Impostazione del grafo
+uno.set_next(due (<class '__main__.WeakGraph'>))
+due.set_next(tre (<class '__main__.WeakGraph'>))
+tre.set_next(uno->due->tre (<type 'weakproxy'>))
+
+Grafi :
+uno->due->tre
+due->tre->uno->due
+tre->uno->due->tre
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+
+Dopo la rimozione di 2 riferimenti:
+uno->due->tre
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+
+Rimozione dell'ultimo riferimento
+(Eliminazione di  uno)
+uno.set_next(None (<type 'NoneType'>))
+(Eliminazione di  due)
+due.set_next(None (<type 'NoneType'>))
+(Eliminazione di  tre)
+tre.set_next(None (<type 'NoneType'>))
+Raccolta...
+Oggetti irraggiungili: 0
+Garbage:[]
+</py_output>
+<titolo_2>
+Cache degli Oggetti
+</titolo_2>
+<testo_normale>
+Le classi <strong>ref</strong> e <strong>weakref</strong> sono considerate classi di "basso livello". Laddove esse sono utili per mantenere riferimenti deboli ad oggetti individuali e per consentire a cicli di essere raccolti dal <em>garbage collector</em>, se occorre creare una cache di parecchi oggetti <strong>WeakKeyDictionary</strong> e <strong>WeakValueDictionary</strong> forniscono <a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a> più appropriate.
+</testo_normale>
+<testo_normale>
+Come ci si potrebbe aspettare, <strong>WeakValueDictionary</strong> utilizza riferimenti deboli come valori da conservare, consentendo di essere poi raccolti dal <em>garbage collector</em> quando non vengono più utilizzati da altre parti di codice.
+</testo_normale>
+<testo_normale>
+Per dimostrare la differenza in termini di gestione di memoria rispetto ad un normale dizionario, si esperimenta chiamando ancora esplicitamente il <em>garbage collector</em>
+</testo_normale>
+<py_code>
+import gc
+from pprint import pprint
+import weakref
+
+gc.set_debug(gc.DEBUG_LEAK)
+
+class ExpensiveObject(object):
+    def __init__(self, name):
+        self.name = name
+    def __repr__(self):
+        return 'ExpensiveObject(%s)' % self.name
+    def __del__(self):
+        print '(Deleting %s)' % self
+
+def demo(cache_factory):
+    # trattiene gli oggetti in modo che nessun riferimento debole
+    # venga rimossa immediatamente
+    all_refs = {}
+    # La cache utilizza la factory che forniamo
+    print 'TIPO CACHE:', cache_factory
+    cache = cache_factory()
+    for name in [ 'uno', 'due', 'tre' ]:
+        o = ExpensiveObject(name)
+        cache[name] = o
+        all_refs[name] = o
+        del o # decref
+
+    print 'all_refs =',
+    pprint(all_refs)
+    print 'Prima, la cache contiene:', cache.keys()
+    for name, value in cache.items():
+        print '  %s = %s' % (name, value)
+        del value # decref
+
+    # Rimuove tutti i riferimenti ai nostri oggetti tranne la cache
+    print 'Pulizia:'
+    del all_refs
+    gc.collect()
+
+    print 'Dopo, la cache contiene:', cache.keys()
+    for name, value in cache.items():
+        print '  %s = %s' % (name, value)
+    print 'demo in uscita'
+    return
+
+demo(dict)
+print
+demo(weakref.WeakValueDictionary)
+</py_code>
+<testo_normale>
+Si noti che qualsiasi variabile di ciclo che fa riferimento ai valori oggetto di cache deve essere pulita esplicitamente per decrementare il conteggio di riferimenti sull'oggetto. Altrimenti il <em>garbage collector</em> non rimuoverebbe gli oggetti, che rimarrebbero nella cache. Alla stessa stregua, la variabile <code>all_refs</code> viene usata per mantenere riferimenti e prevenirne la raccolta prematura da parte del <em>garbage collector</em>.
+</testo_normale>
+<py_output>
+$ python weakref_valuedict.py
+
+TIPO CACHE: <type 'dict'>
+all_refs ={'due': ExpensiveObject(due),
+ 'tre': ExpensiveObject(tre),
+ 'uno': ExpensiveObject(uno)}
+Prima, la cache contiene: ['tre', 'due', 'uno']
+  tre = ExpensiveObject(tre)
+  due = ExpensiveObject(due)
+  uno = ExpensiveObject(uno)
+Pulizia:
+Dopo, la cache contiene: ['tre', 'due', 'uno']
+  tre = ExpensiveObject(tre)
+  due = ExpensiveObject(due)
+  uno = ExpensiveObject(uno)
+demo in uscita
+(Deleting ExpensiveObject(tre))
+(Deleting ExpensiveObject(due))
+(Deleting ExpensiveObject(uno))
+
+TIPO CACHE: weakref.WeakValueDictionary
+all_refs ={'due': ExpensiveObject(due),
+ 'tre': ExpensiveObject(tre),
+ 'uno': ExpensiveObject(uno)}
+Prima, la cache contiene: ['tre', 'due', 'uno']
+  tre = ExpensiveObject(tre)
+  due = ExpensiveObject(due)
+  uno = ExpensiveObject(uno)
+Pulizia:
+(Deleting ExpensiveObject(tre))
+(Deleting ExpensiveObject(due))
+(Deleting ExpensiveObject(uno))
+Dopo, la cache contiene: []
+demo in uscita
+</py_output>
+<testo_normale>
+WeakKeyDictionary lavora in modo simile ma utilizza riferimenti deboli per le chiavi invece che per i valori.
+</testo_normale>
+<testo_normale>
+La documentazione della libreria per weakref contiene questo avvertimento
+</testo_normale>
+<avvertimento>
+    Cautela: Visto che WeakValueDictionary è costruito sopra un dizionario Python, non deve cambiare dimensione quando viene iterato. Questo potrebbe essere difficoltoso per un WeakValueDictionary visto che le azioni eseguite dal programma durante l'iterazione potrebbero far sì che elementi nel dizionario spariscano "magicamente" (come effetto collaterale del raccolta del garbage collector)
+</avvertimento>
+<vedi_anche>
+http://docs.python.org/library/weakref.html|weakref|La documentazione della libreria standard per questo modulo.
+gc.html|gc|Il modulo <strong>gc</strong> è l'interfaccia per <em>garbage collector</em> dell'interprete
+</vedi_anche>
+</documento_tradot

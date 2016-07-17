@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+CRON / CRONTAB
+</titolo_1>
+<descrizione>
+Esegue un compito ad uno specifico orario
+</descrizione>
+<titolo_2>
+Sequenza Campi di Crontab
+</titolo_2>
+<tabella>
+MIN|Minuti|0-59
+HOUR|Ora|0-23
+DOM|Giorno del mese|1-31
+MON|Mese|1-12
+DOW|Giorno della settimana|0-6
+CMD|Comando|comando da eseguire
+</tabella>
+<titolo_3>
+Lancia job il 10 giugno alle 8.30 AM
+</titolo_3>
+<py_output>
+30 08 10 06 * /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Lancia un job per più di una volta (2 volte al giorno, alle 11 ed alle 16) ogni giorno
+</titolo_3>
+<py_output>
+00 11,16 * * * /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Lancia un job per uno specifico raggio di tempo (ogni ora, dalle 9 alle 18)
+</titolo_3>
+<py_output>
+00 09-18 * * * /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Lancia un job per uno specifico raggio di tempo (solo gg. lavorativi, ogni ora)
+</titolo_3>
+<py_output>
+00 09-18 * * 1-5 /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Visualizzare i job in schedulazione per l'utente in esecuzione
+</titolo_3>
+<py_output>
+$crontab -l
+<py_output>
+<titolo_3>
+Visualizzare i job in schedulazione da root per un certo utente
+</titolo_3>
+<py_output>
+$crontab -u utente -l
+<py_output>
+<titolo_3>
+Modificare la schedulazione con l'editor predefinito
+</titolo_3>
+<py_output>
+$crontab -e
+<py_output>
+<titolo_3>
+Lancia un job ogni minuto
+</titolo_3>
+<py_output>
+* * * * * /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Convenzione per specificare periodicità nell'ambito delle componenti
+</titolo_3>
+<py_output>
+*/5 ogni 5
+0-10/2 ogni 2 dei primi 10
+<py_output>
+<titolo_3>
+Lancia un job ogni 10 minuti
+</titolo_3>
+<py_output>
+*/10 * * * * /home/robbybin/robbyjob
+<py_output>
+<titolo_3>
+Parole chiave
+</titolo_3>
+<tabella>
+@yearly|0 0 1 1*
+@daily|0 0 * * *
+@hourly|0 * * * *
+@reboot|All'avvio
+</tabella>
+<<titolo_3>
+Specificare un PATH diverso in crontab
+</titolo_3>
+<testo_normale>
+Aggiungere in crontab un riga tipo PATH=/sbin:/usr/bin ....
+</testo_normale>
+</documento_tradotto>
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+anydbm - Accesso ai database in stile DBM
+</titolo_1>
+<descrizione>
+anydbm fornisce una interfaccia generica tipo dizionario ai database in stile DBM con chiavi a stringa
+1.4 e superiore
+</descrizione>
+<testo_normale>
+<strong>anydbm</strong> &egrave; un <a href='http://it.wikipedia.org/wiki/Front-end_e_back-end'>front-end</a> per database in stile DBM che usa semplici valori stringa come chiavi per accedere ai record. Usa il modulo <a href='whichdb.html'>whichdb</a> per identificare i database <a href='dbhash.html'>dbhash</a>, <a href='gdbm.html'>gbdm</a> e <a href='dbm.html'>dbm</a>, quindi li apre con il modulo appropriato. Esso viene usato come <a href='http://it.wikipedia.org/wiki/Front-end_e_back-end'>back-end</a> per <a href='shelve.html'>shelve</a> che a sua volta sa come conservare oggetti usando <a href='pickle.html'>pickle</a>.
+</testo_normale>
+<titolo_2>
+Creare un Nuovo Database    
+</titolo_2>
+<testo_normale>
+Il formato di conservazione per i nuovi database viene selezionato cercando nell'ordine ognuno di questi moduli    
+</testo_normale>
+<lista>
+<a href='dbhash.html'>dbhash</a>
+<a href='gdbm.html'>gdbm</a>
+<a href='dbm.html'>dbm</a>
+<a href='dumbdbm.html'>dumbdbm</a>
+</lista>
+<testo_normale>
+La funzione ${sbk}open()${ebk} richiede <em>flags</em> per controllare come viene gestito il database. Per creare un nuovo database quando necessario, si usa ${sbk}'c'${ebk}. Per creare sempre un nuovo database si usa ${sbk}'n'${ebk}
+</testo_normale>
+<py_code>
+import anydbm    
+    
+db = anydbm.open('/tmp/esempio.db', 'n')
+db['chiave'] = 'valore'
+db['oggi'] = 'Domenica'
+db['autore'] = 'Doug'
+db.close()
+</py_code>
+<py_output>
+$ python anydbm_new.py
+</py_output>
+<testo_normale>
+In questo esempio, il file viene sempre reinizializzato. Per vedere quale tipo di database &egrave; stato creato si pu&ograve; usare <a href='whichdb.html'>whichdb</a>    
+</testo_normale>
+<py_code>
+import whichdb
+
+print whichdb.whichdb('/tmp/esempio.db')
+</py_code>
+<testo_normale>
+Il risultato pu&ograve; variare, in dipendenza di quali moduli siano installati nel proprio sistema.    
+</testo_normale>
+<py_output>
+$ python anydbm_whichdb.py 
+dbhash
+</py_output>
+<titolo_2>
+Aprire un Database Esistente    
+</titolo_2>
+<testo_normale>
+Per aprire un database esistente si usano i flag ${sbk}'r'${ebk} (per sola lettura) oppure ${sbk}'w'${ebk} (per lettura-scrittura). Non occorre preoccuparsi del formato, poich&egrave; i database esistenti vengono automaticamente passati a <a href='whichdb.html'>whichdb</a> per essere identificati. Se un file pu&ograve; essere identificato, viene usato l'appropriato modulo per aprirlo
+</testo_normale>
+<py_code>
+import anydbm
+
+db = anydbm.open('/tmp/esempio.db', 'r')
+try:
+    print 'chiavi():', db.keys()
+    for k, v in db.iteritems():
+        print 'iterazione:', k, v
+    print 'db["autore"] =', db['autore']
+finally:
+    db.close()
+</py_code>
+<testo_normale>
+Una volta aperto, ${sbk}db${ebk} &egrave; un oggetto tipo dizionario, con supporto per i metodi abituali:
+</testo_normale>
+<py_output>
+$ python anydbm_existing.py 
+chiavi(): ['autore', 'chiave', 'oggi']
+iterazione: autore Doug
+iterazione: chiave value
+iterazione: oggi Sunday
+db["autore"] = Doug
+</py_output>
+<titolo_2>
+Casi di Errore    
+</titolo_2>
+<testo_normale>
+Le chiavi del database devono essere stringhe.    
+</testo_normale>
+<py_code>
+import anydbm
+
+db = anydbm.open('/tmp/esempio.db', 'w')
+try:
+    db[1] = 'uno'
+finally:
+    db.close()
+</py_code>
+<testo_normale>
+Il passare un altro tipo risulta in un <em>TypeError</em>.
+</testo_normale>
+<py_output>
+$ python anydbm_intkeys.py 
+Traceback (most recent call last):
+  File "anydbm_intkeys.py", line 8, in <module>
+    db[1] = 'uno'
+  File "/usr/lib/python2.6/bsddb/__init__.py", line 276, in __setitem__
+    _DeadlockWrap(wrapF)  # self.db[key] = value
+  File "/usr/lib/python2.6/bsddb/dbutils.py", line 68, in DeadlockWrap
+    return function(*_args, **_kwargs)
+  File "/usr/lib/python2.6/bsddb/__init__.py", line 275, in wrapF
+    self.db[key] = value
+TypeError: Integer keys only allowed for Recno and Queue DB's
+</py_output>
+<testo_normale>
+I valori devono essere stringhe o <strong>None</strong>    
+</testo_normale>
+<py_code>
+import anydbm
+
+db = anydbm.open('/tmp/esempio.db', 'w')
+try:
+    db['one'] = 1
+finally:
+    db.close()
+</py_code>
+<testo_normale>
+Un <em>TypeError</em> simile viene sollevato se il valore non &egrave; una stringa
+</testo_normale>
+<py_output>
+$ python anydbm_intvalue.py 
+Traceback (most recent call last):
+  File "anydbm_intvalue.py", line 8, in <module>
+    db['one'] = 1
+  File "/usr/lib/python2.6/bsddb/__init__.py", line 276, in __setitem__
+    _DeadlockWrap(wrapF)  # self.db[key] = value
+  File "/usr/lib/python2.6/bsddb/dbutils.py", line 68, in DeadlockWrap
+    return function(*_args, **_kwargs)
+  File "/usr/lib/python2.6/bsddb/__init__.py", line 275, in wrapF
+    self.db[key] = value
+TypeError: Data values must be of type string or None.
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/anydbm.html|anydbm|La documentazione della libreria standard per questo modulo.
+shelve.html|shelve|Esempi per il modulo shelve, che usa <strong>anydbm</strong> per conservare i dati
+http://www.doughellmann.com/PyMOTW/articles/data_persistence.html#article-data-persistence|Data Persistence|Persistenza e Scambio Dati
+</vedi_anche>
+</documento_tradotto>

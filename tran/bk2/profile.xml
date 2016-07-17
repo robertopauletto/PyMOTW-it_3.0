@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>debug e profilatura</categoria>
+<titolo_1>
+profile, cProfile e pstats - Analisi delle prestazioni dei programmi Python
+</titolo_1>
+<descrizione>
+Analisi delle prestazioni dei programmi Python
+1.4 e successivo, questi esempi sono per Python 2.5
+</descrizione>
+<testo_normale>
+I moduli <strong>profile</strong> e <strong>cProfile</strong> forniscono API per raccogliere ed analizzare statistiche circa il modo in  cui la sorgente Python consuma le risorse del processore.
+</testo_normale>
+<titolo_2>
+run()
+</titolo_2>
+<testo_normale>
+Il punto di partenza base nel modulo <strong>profile</strong> è <code>run()</code>. Riceve una stringa contenente una istruzione come singolo argomento, quindi crea un rapporto circa il tempo trascorso eseguendo le diverse righe di codice mentre l'istruzione è in esecuzione.
+</testo_normale>
+<py_code>
+import profile
+
+def fib(n):
+    # da http://en.literateprograms.org/Fibonacci_numbers_(Python)
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+def fib_seq(n):
+    seq = [ ]
+    if n > 0:
+        seq.extend(fib_seq(n-1))
+    seq.append(fib(n))
+    return seq
+
+print 'GREZZA'
+print '=' * 80
+profile.run('print fib_seq(20); print')
+</py_code>
+<testo_normale>
+La versione ricorsiva del <a href='http://en.literateprograms.org/Fibonacci_numbers_(Python)'>calcolatore della sequenza di Fibonacci</a>  è particolarmente utile per la dimostrazione di <strong>profile</strong>, visto che si possono di molto migliorare le prestazioni. Il formato standard del rapporto mostra un riepilogo, quindi i dettagli per ogni funzione eseguita.
+</testo_normale>
+<py_output>
+$ python profile_fibonacci_raw.py
+
+GREZZA
+================================================================================
+[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+
+         57356 function calls (66 primitive calls) in 0.233 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       21    0.000    0.000    0.000    0.000 :0(append)
+       20    0.000    0.000    0.000    0.000 :0(extend)
+        1    0.004    0.004    0.004    0.004 :0(setprofile)
+        1    0.000    0.000    0.229    0.229 <string>:1(<module>)
+        1    0.000    0.000    0.233    0.233 profile:0(print fib_seq(20); print)
+        0    0.000             0.000          profile:0(profiler)
+     21/1    0.000    0.000    0.229    0.229 profile_fibonacci_raw.py:15(fib_seq)
+ 57291/21    0.229    0.000    0.229    0.011 profile_fibonacci_raw.py:6(fib)
+</py_output>
+<testo_normale>
+Come si nota, sono state effettuate 57356 chiamate separate di funzione e circa un quarto di secondo per l'esecuzione (ovviamente il tempo varia a seconda del processore - n.d.t. ). Visto che si sono state solo 66 chiamate <em>originali</em>, le altre 57 mila e passa sono ricorsive. I dettagli sul dove il tempo è stato speso sono divisi per funzione nel listato che mostra il numero di chiamate, il tempo totale trascorso nella funzione, il tempo per chiamata (tottime/ncalls), il tempo cumulato trascorso in una funzione ed il rapporto di tempo cumulativo per le chiamate originali
+</testo_normale>
+<testo_normale>
+Non sorprendentemente, la maggior parte del tempo è trascorso chiamando <code>fib()</code> ripetutatemte. Si può aggiungere un decoratore di <a href="http://it.wikipedia.org/wiki/Memoizzazione">memoizzazione</a>, tratto da <a href='http://avinashv.net/2008/04/python-decorators-syntactic-sugar/'><em>qui</em></a> per ridurre il numero di chiamate ricorsive ed ottenere un grosso impatto sulle prestazioni di questa funzione.
+</testo_normale>
+<py_code>
+import profile
+
+class memoize:
+    # da http://avinashv.net/2008/04/python-decorators-syntactic-sugar/
+    def __init__(self, function):
+        self.function = function
+        self.memoized = {}
+
+    def __call__(self, *args):
+        try:
+            return self.memoized[args]
+        except KeyError:
+            self.memoized[args] = self.function(*args)
+            return self.memoized[args]
+
+@memoize
+def fib(n):
+    # da http://en.literateprograms.org/Fibonacci_numbers_(Python)
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+def fib_seq(n):
+    seq = [ ]
+    if n > 0:
+        seq.extend(fib_seq(n-1))
+    seq.append(fib(n))
+    return seq
+
+if __name__ == '__main__':
+    print 'CON MEMOIZE'
+    print '=' * 80
+    profile.run('print fib_seq(20); print')
+</py_code>
+<testo_normale>
+Conservando il valore di Fibonacci ad ogni livello è possibile evitare la maggior parte della ricorsione e scendere fino a 145 chiamate con un tempo impiegato di soli 0.0002 (ovviamente il tempo varia a seconda del processore - n.d.t. ). Si noti anche che il conteggio di ncalls mostra che per <code>fib()</code> non vi è <em>mai</em> stata ricorsione.
+</testo_normale>
+<py_output>
+$ python profile_fibonacci_memoized.py
+
+CON MEMOIZE
+================================================================================
+[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+
+         145 function calls (87 primitive calls) in 0.005 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       21    0.000    0.000    0.000    0.000 :0(append)
+       20    0.000    0.000    0.000    0.000 :0(extend)
+        1    0.004    0.004    0.004    0.004 :0(setprofile)
+        1    0.000    0.000    0.001    0.001 <string>:1(<module>)
+        1    0.000    0.000    0.005    0.005 profile:0(print fib_seq(20); print)
+        0    0.000             0.000          profile:0(profiler)
+    59/21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:12(__call__)
+       21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:19(fib)
+     21/1    0.000    0.000    0.001    0.001 profile_fibonacci_memoized.py:29(fib_seq)
+</py_output>
+<titolo_2>
+runctx()
+</titolo_2>
+<testo_normale>
+Talvolta, invece di costruire una espressione complessa per <code>run()</code>, è più facile costruire una semplice espressione e passare i parametri tramite un contesto, usando <code>runctx()</code>
+</testo_normale>
+<py_code>
+import profile
+from profile_fibonacci_memoized import fib, fib_seq
+
+if __name__ == '__main__':
+    profile.runctx('print fib_seq(n); print', globals(), {'n':20})
+</py_code>
+<testo_normale>
+In questo esempio, il valore di "n" viene passato attraverso la variabile del contesto locale invece di essere direttamente incorporata nell'istruzione passata a <code>runctx()</code>.
+</testo_normale>
+<py_output>
+s$ python profile_runctx.py
+
+[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+
+         145 function calls (87 primitive calls) in 0.005 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       21    0.000    0.000    0.000    0.000 :0(append)
+       20    0.000    0.000    0.000    0.000 :0(extend)
+        1    0.004    0.004    0.004    0.004 :0(setprofile)
+        1    0.000    0.000    0.001    0.001 <string>:1(<module>)
+        1    0.000    0.000    0.005    0.005 profile:0(print fib_seq(n); print)
+        0    0.000             0.000          profile:0(profiler)
+    59/21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:12(__call__)
+       21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:19(fib)
+     21/1    0.000    0.000    0.001    0.001 profile_fibonacci_memoized.py:29(fib_seq)
+</py_output>
+<titolo_2>
+pstats: Salvare e Lavorare le Statistiche
+</titolo_2>
+<testo_normale>
+Il rapporto standard creato delle funzioni in <strong>profile</strong> non è molto elastico. Se non fa al proprio scopo, si possono autonomamente produrre i propri rapporti salvando  la profilatura dei dati grezza da <code>run()</code> e <code>runctx()</code>, qundi elaborandola separatamente con la classe <em class='code'>Stats</em> dal modulo <strong>pstats</strong>.
+</testo_normale>
+<testo_normale>
+Ad esempio, per eseguire parecchie iterazioni dello stesso test e combinarne i risultati, si potrebbe fare qualcosa del tipo:
+</testo_normale>
+<py_code>
+import profile
+import pstats
+from profile_fibonacci_memoized import fib, fib_seq
+
+# Crea 5 insiemi di statistiche
+filenames = []
+for i in range(5):
+    filename = 'profile_stats_%d.stats' % i
+    profile.run('print %d, fib_seq(20)' % i, filename)
+
+# Legge tutti e 5 i file di statistica in un singolo oggetto
+stats = pstats.Stats('profile_stats_0.stats')
+for i in range(1, 5):
+    stats.add('profile_stats_%d.stats' % i)
+
+# Pulisce i nomi dei file per il rapporto
+stats.strip_dirs()
+
+# Sort the statistics by the cumulative time spent in the function
+# Ordina le statistiche per tempo cumulativo trascorso nella funzione
+stats.sort_stats('cumulative')
+
+stats.print_stats()
+</py_code>
+<testo_normale>
+Il rapporto in uscita viene ordinato per tempo cumulativo trascorso nella funzione discendente ed i nomi della directory sono stati rimossi dal nome del file nel rapporto in modo da risparmiare spazio orizzonale.
+</testo_normale>
+<py_output>
+$ python profile_stats.py
+
+0 [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+1 [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+2 [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+3 [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+4 [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+Sun Aug 24 15:22:02 2014    profile_stats_0.stats
+Sun Aug 24 15:22:02 2014    profile_stats_1.stats
+Sun Aug 24 15:22:02 2014    profile_stats_2.stats
+Sun Aug 24 15:22:02 2014    profile_stats_3.stats
+Sun Aug 24 15:22:02 2014    profile_stats_4.stats
+
+         489 function calls (351 primitive calls) in 0.003 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.000    0.000    0.002    0.000 <string>:1(<module>)
+    105/5    0.001    0.000    0.002    0.000 profile_fibonacci_memoized.py:29(fib_seq)
+        1    0.000    0.000    0.001    0.001 profile:0(print 0, fib_seq(20))
+  143/105    0.000    0.000    0.001    0.000 profile_fibonacci_memoized.py:12(__call__)
+        1    0.000    0.000    0.000    0.000 profile:0(print 3, fib_seq(20))
+        1    0.000    0.000    0.000    0.000 profile:0(print 1, fib_seq(20))
+        1    0.000    0.000    0.000    0.000 profile:0(print 2, fib_seq(20))
+        1    0.000    0.000    0.000    0.000 profile:0(print 4, fib_seq(20))
+       21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:19(fib)
+      100    0.000    0.000    0.000    0.000 :0(extend)
+      105    0.000    0.000    0.000    0.000 :0(append)
+        5    0.000    0.000    0.000    0.000 :0(setprofile)
+        0    0.000             0.000          profile:0(profiler)
+</py_output>
+<titolo_2>
+Limitare il Contenuto del Rapporto
+</titolo_2>
+<testo_normale>
+Visto che si stanno studiando le prestazioni di <code>fib()</code> e <code>fib_seq()</code>, si può anche limitare il rapporto generato includendo solamente le succitate funzioni utilizzando una espressione regolare che trovi corripondenza con i valori di <code>filename:lineno(function)</code> che si vogliono.
+</testo_normale>
+<py_code>
+import profile
+import pstats
+from profile_fibonacci_memoized import fib, fib_seq
+
+# Legge tutti e 5 i file di statistica in un singolo oggetto
+stats = pstats.Stats('profile_stats_0.stats')
+for i in range(1, 5):
+    stats.add('profile_stats_%d.stats' % i)
+stats.strip_dirs()
+stats.sort_stats('cumulative')
+
+# limita l'output alle righe che contengono  "(fib"
+stats.print_stats('\(fib')
+</py_code>
+<testo_normale>
+L'espressione regolare include una parentesi tonda di apertura per farla corrispondere alla porzione di nome di funzione nel valore che descrive il punto in cui si trova la funzione nel codice.
+</testo_normale>
+<py_output>
+$ python profile_stats_restricted.py
+
+Sun Aug 24 15:22:02 2014    profile_stats_0.stats
+Sun Aug 24 15:22:02 2014    profile_stats_1.stats
+Sun Aug 24 15:22:02 2014    profile_stats_2.stats
+Sun Aug 24 15:22:02 2014    profile_stats_3.stats
+Sun Aug 24 15:22:02 2014    profile_stats_4.stats
+
+         489 function calls (351 primitive calls) in 0.003 seconds
+
+   Ordered by: cumulative time
+   List reduced from 13 to 2 due to restriction <'\\(fib'>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    105/5    0.001    0.000    0.002    0.000 profile_fibonacci_memoized.py:29(fib_seq)
+       21    0.000    0.000    0.000    0.000 profile_fibonacci_memoized.py:19(fib)
+</py_output>
+<titolo_2>
+Grafici per Caller e Callee (Chiamante e chiamato)
+</titolo_2>
+<testo_normale>
+La classe <strong>Stats</strong> include metodi per stampare i chiamanti ed i chiamati delle funzioni.
+</testo_normale>
+<py_code>
+import profile
+import pstats
+from profile_fibonacci_memoized import fib, fib_seq
+
+# Legge tutti e 5 i file di statistica in un singolo oggetto
+stats = pstats.Stats('profile_stats_0.stats')
+for i in range(1, 5):
+    stats.add('profile_stats_%d.stats' % i)
+stats.strip_dirs()
+stats.sort_stats('cumulative')
+
+print 'CHAIMANTI IN ENTRATA:'
+stats.print_callers('\(fib')
+
+print 'CHIAMATI IN USCITA:'
+stats.print_callees('\(fib')
+</py_code>
+<testo_normale>
+Gli argomenti a <code>print_callers()</code> e <code>print_callees()</code> funzionano allo stesso modo degli argomenti di filtro per <code>print_stats()</code>. Il risultato mostra li chiamante, il chiamato ed il tempo cumulativo.
+</testo_normale>
+<py_output>
+$ python profile_stats_callers.py
+
+CHAIMANTI IN ENTRATA:
+   Ordered by: cumulative time
+   List reduced from 13 to 2 due to restriction <'\\(fib'>
+
+Function                                   was called by...
+profile_fibonacci_memoized.py:29(fib_seq)  <- <string>:1(<module>)(5)    0.002
+                                              profile_fibonacci_memoized.py:29(fib_seq)(100)    0.002
+profile_fibonacci_memoized.py:19(fib)      <- profile_fibonacci_memoized.py:12(__call__)(21)    0.001
+
+
+CHIAMATI IN USCITA:
+   Ordered by: cumulative time
+   List reduced from 13 to 2 due to restriction <'\\(fib'>
+
+Function                                   called...
+profile_fibonacci_memoized.py:29(fib_seq)  -> :0(append)(105)    0.000
+                                              :0(extend)(100)    0.000
+                                              profile_fibonacci_memoized.py:12(__call__)(105)    0.001
+                                              profile_fibonacci_memoized.py:29(fib_seq)(100)    0.002
+profile_fibonacci_memoized.py:19(fib)      -> profile_fibonacci_memoized.py:12(__call__)(38)    0.001
+</py_output>
+<vedi_anche>
+https://docs.python.org/2.7/library/profile.html?highlight=cprofile#cProfile|profile e cProfile|La documentazione della libreria standard per questo modulo
+https://docs.python.org/2.7/library/profile.html?highlight=pstats#pstats|pstats|La documentazione della libreria standard per pstats
+http://code.google.com/p/jrfonseca/wiki/Gprof2Dot|Gprof2Dot|Strumento per la visualizzazione dei dati in uscita di profile
+http://en.literateprograms.org/Fibonacci_numbers_(Python)|Fibonacci numbers (Python) - LiteratePrograms|
+http://avinashv.net/2008/04/python-decorators-syntactic-sugar/|Python Decorators: Syntactic Sugar - avinash.vora|
+</vedi_anche>
+</documento_tradotto>

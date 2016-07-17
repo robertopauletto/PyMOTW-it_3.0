@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+gdbm - Versione GNU della libreria dbm
+</titolo_1>
+<descrizione>
+Versione GNU della libreria dbm.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>gdbm</strong> è la versione aggiornata da GNU della libreria <a href='dbm.html'>dbm</a>. Segue le stesse semantiche delle altre implementazioni di DBM descritte in <a href='anydbm.html'>anydbm</a>, con alcune modifiche ai <em>flag</em> supportati da ${sbk}open()${ebk}.
+</testo_normale>
+<testo_normale>
+Oltre ai flag standard ${sbk}'r'${ebk}, ${sbk}'w'${ebk}, ${sbk}'c'${ebk} ed ${sbk}'n'${ebk} ${sbk}gdbm.open()${ebk} supporta:
+</testo_normale>
+<lista>
+${sbk}'f'${ebk} per aprire i database in modalità <em>veloce</em>. In questa modalità le scritture verso il database non sono sincronizzate.
+${sbk}'s'${ebk} per aprire i database in modalità <em>sincronizzata</em>. Le modifiche al database sono scritte nel file non appena sono eseguite, invece che essere differite fino a che il database viene chiuso o sincronizzato esplicitamente.
+${sbk}'u'${ebk} per aprire il database non bloccato.
+</lista>
+<vedi_anche>
+http://docs.python.org/library/gdbm.html|gdbm|La documentazione della libreria standard per questo modulo.
+dbm.html|dbm|Il modulo dbm
+anydbm.html|anydbm|Il modulo anydbm
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+getopt - Analizza le opzioni di riga di comando
+</titolo_1>
+<descrizione>
+Analizza le opzioni di riga di comando
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>getopt</strong> è la versione "vecchia scuola" dell'analizzatore di opzioni di riga di comando che supporta le convenzioni stabilite dalla funzione ${sbk}getopt()${ebk}. Elabora una sequenza di parametri tipo sys.argv e restituisce una sequanza di coppie di valori opzione:parametro ed una sequenza di parametri non abbinati ad una opzione.
+</testo_normale>
+<testo_normale>
+La sintassi delle opzioni supportata comprende:
+</testo_normale>
+<lista>
+-a
+-bval
+-b val
+--noarg
+--witharg=val
+--witharg val    
+</lista>
+<titolo_2>
+Parametri della Funzione    
+</titolo_2>
+<testo_normale>
+La funzione getopt riceve tre parametri:    
+</testo_normale>
+<lista>
+Il primo è la sequenza di parametri da analizzare. In genere deriva da sys.argv[1:] (viene ignorato il nome del programma in sys.argv[0]).
+Il secondo parametro è la stringa di definizione dell'opzione a carattere sigolo. Se una delle opzioni richiede un parametro, la sua lettera viene seguita da una virgola.
+Il terzo parametro, se usato, dovrebbe essere una sequanza di nomi di opzioni nella versione "lunga". La versione lunga delle opzioni può essere più di un singolo caratter, tipo --senzaparametro oppure --conparametro. I nomi dell'opzione nella sequenza non dovrebbero comprendere il prefisso --. Se una opzione lunga richiede un parametro, il suo nome dovrebbe avere come suffisso -.
+</lista>
+<testo_normale>
+La forma breve e la forma lunga possono essere combinate in una unica chiamata.
+</testo_normale>
+<titolo_2>
+Forma Breve di Opzioni
+</titolo_2>
+<testo_normale>
+Se un programma vuole ottenere 2 opzioni, -a e -b con l'opzionie b che richiede un parametro, il valore dovrebbe essere "ab:".
+</testo_normale>
+<py_code>
+import getopt
+
+print getopt.getopt(['-a', '-bval', '-c', 'val'], 'ab:c:')
+</py_code>
+<py_output>
+$ python getopt_short.py
+([('-a', ''), ('-b', 'val'), ('-c', 'val')], [])    
+</py_output>
+<titolo_2>
+Forma Lunga di Opzioni
+</titolo_2>
+<testo_normale>
+Se un programma vuole ottenere 2 opzioni, --noarg e --witharg la sequanza dovrebbe essere [ 'noarg', 'witharg=' ].
+</testo_normale>
+<py_code>
+import getopt
+
+print getopt.getopt([ '--noarg', '--witharg', 'val', '--witharg2=another' ],
+                    '',
+                    [ 'noarg', 'witharg=', 'witharg2=' ])
+</py_code>
+<py_output>
+$ python getopt_long.py
+([('--noarg', ''), ('--witharg', 'val'), ('--witharg2', 'another')], [])    
+</py_output>
+<titolo_2>
+Esempio    
+</titolo_2>
+<testo_normale>
+Di sequito un programma di esempio più completo che richiede 5 opzioni: -o, -v, --output, --verbose, e --version. Le opzioni -o, --output, e --version richiedono ciascuna un parametro
+</testo_normale>
+<py_code>
+import getopt
+import sys
+
+version = '1.0'
+verbose = False
+output_filename = 'default.out'
+
+print 'ARGV      :', sys.argv[1:]
+
+options, remainder = getopt.getopt(sys.argv[1:], 'o:v', ['output=', 
+                                                         'verbose',
+                                                         'version=',
+                                                         ])
+print 'OPZIONI   :', options
+
+for opt, arg in options:
+    if opt in ('-o', '--output'):
+        output_filename = arg
+    elif opt in ('-v', '--verbose'):
+        verbose = True
+    elif opt == '--version':
+        version = arg
+
+print 'VERSION   :', version
+print 'VERBOSE   :', verbose
+print 'OUTPUT    :', output_filename
+print 'RIMASTE   :', remainder
+</py_code>
+<testo_normale>
+Il programma può essere richiamato in diversi modi    
+</testo_normale>
+<py_output>
+$ python getopt_example.py
+ARGV      : []
+OPZIONI   : []
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : default.out
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Un opzione breve (ad una lettera) può esere divisa dal proprio parametro:
+</testo_normale>
+<py_output>
+$ python getopt_example.py -o foo
+ARGV      : ['-o', 'foo']
+OPZIONI   : [('-o', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+oppure unita:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -ofoo
+ARGV      : ['-ofoo']
+OPZIONI   : [('-o', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Allo stesso modo una opzione lunga può essere separata dal suo parametro:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py --output foo
+ARGV      : ['--output', 'foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+oppure può essere combinata con =:
+</testo_normale>
+<py_output>
+$ python getopt_example.py --output=foo
+ARGV      : ['--output=foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<titolo_2>
+Abbreviazione della Forma Lunga di Opzioni    
+</titolo_2>
+<testo_normale>
+L'opzione a forma lugna non necessita che sia passata letteralmente, fintanto che viene passato un prefisso univoco:
+</testo_normale>
+<py_output>
+$ python getopt_example.py --o foo
+ARGV      : ['--o', 'foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Se non viene passato un prefisso univoco viene sollevata una eccezione    
+</testo_normale>
+<py_output>
+$ python getopt_example.py --ver 2.0
+ARGV      : ['--ver', '2.0']
+Traceback (most recent call last):
+  File "getopt_example.py", line 44, in <module>
+    'version=',
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 88, in getopt
+    opts, args = do_longs(opts, args[0][2:], longopts, args[1:])
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 152, in do_longs
+    has_arg, opt = long_has_args(opt, longopts)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 179, in long_has_args
+    raise GetoptError('option --%s not a unique prefix' % opt, opt)
+getopt.GetoptError: option --ver not a unique prefix    
+</py_output>
+<testo_normale>
+L'analisi delle opzioni si interrompe non appena viene rilevato il primo parametro che non appartiene ad una opzione    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -v not_an_option --output foo
+ARGV      : ['-v', 'not_an_option', '--output', 'foo']
+OPZIONI   : [('-v', '')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : default.out
+RIMASTI   : ['not_an_option', '--output', 'foo']    
+</py_output>
+<titolo_2>
+Analisi di Opzione in Stile GNU    
+</titolo_2>
+<testo_normale>
+A partire da Python 2.3 è stata aggiunta la funzione ${sbk}gnu_option()${ebk}. Consente ai parametri di opzione ed a quelli non abbinati ad una opzione di essere mescolati nella riga di comando in qualsiasi ordine.
+</testo_normale>
+<py_code>
+import getopt
+import sys
+
+version = '1.0'
+verbose = False
+output_filename = 'default.out'
+
+print 'ARGV      :', sys.argv[1:]
+
+options, remainder = getopt.gnu_getopt(sys.argv[1:], 'o:v', ['output=', 
+                                                             'verbose',
+                                                             'version=',
+                                                             ])
+print 'OPZIONI   :', options
+
+for opt, arg in options:
+    if opt in ('-o', '--output'):
+        output_filename = arg
+    elif opt in ('-v', '--verbose'):
+        verbose = True
+    elif opt == '--version':
+        version = arg
+
+print 'VERSION   :', version
+print 'VERBOSE   :', verbose
+print 'OUTPUT    :', output_filename
+print 'RIMASTI   :', remainder
+</py_code>
+<testo_normale>
+Dopo avere modificato la chiamata nell'esempio precedente, la differenza appare chiara:    
+</testo_normale>
+<py_output>
+$ python getopt_gnu.py -v not_an_option --output foo
+ARGV      : ['-v', 'not_an_option', '--output', 'foo']
+OPZIONI   : [('-v', ''), ('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : foo
+RIMASTI   : ['not_an_option']    
+</py_output>
+<titolo_2>
+Un Caso Particolare: --    
+</titolo_2>
+<testo_normale>
+Se getopt trova -- come parametro in input, interrompe l'elaborazione dei parametri restanti come opzioni:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -v -- --output foo
+ARGV      : ['-v', '--', '--output', 'foo']
+OPZIONI   : [('-v', '')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : default.out
+RIMASTI   : ['--output', 'foo']
+</py_output>
+<note>
+Nel <a name='vedinota'></a> documento originale, e lasciati invariati in questo documento, si parla di <strong>wall clock time</strong> e di <strong>processor clock time</strong>; mentre il primo si riferisce all'umana percezione del passaggio di tempo dalla partenza al completamento di un compito, il secondo fa riferimento al tempo effettivo impiegato dalla CPU per svolgere un certo compito. Visto che la CPU esegue anche altri compiti contemporanemente e deve comunque attendere altri processi o risposte dall'hardware.Il <strong>wall clock time</strong> è in genere maggiore rispetto al <strong>processor clock time</strong>. (<strong>n.d.t.</strong>)
+</note>
+<titolo_2>
+Wall Clock Time
+</titolo_2>
+<testo_normale>
+Una delle funzioni base del modulo <strong>time</strong> è ${sbk}time()${ebk}, che restituisce il numero di secondi trascorsi dall'inizio dell'epoca sotto forma di valore a virgola mobile.
+</testo_normale>
+<py_code>
+import time
+
+print 'The time is:', time.time()
+</py_code>
+<testo_normale>
+Sebbene il valora sia a virgola mobile, la precisione reale dipende dalla piattaforma.
+</testo_normale>
+<py_output>
+$ python time_time.py 
+L'ora è: 1280161322.19
+</py_output>    
+<testo_normale>
+La rappresentazione a virgola mobile è utile quando si debbono conservare o confrontare date, ma non molto utile per produrre rappresentazioni leggibili dall'uomo. Per una registrazione o stampa del tempo ${sbk}ctime()${ebk} può essere molto più utile.
+</testo_normale>
+<py_code>
+import time
+
+print "L'ora è          :", time.ctime()
+later = time.time() + 15
+print '15 sec. da adesso:', time.ctime(later)
+</py_code>
+<testo_normale>
+In questo caso la seconda riga dell'output mostra come usare ${sbk}ctime()${ebk} per formattare una valore di tempo diverso da quello corrente
+</testo_normale>
+<py_output>
+$ python time_ctime.py 
+L'ora è          : Mon Jul 26 18:27:01 2010
+15 sec. da adesso: Mon Jul 26 18:27:16 2010
+</py_output>
+<titolo2>
+Processor Clock Time    
+</titolo2>
+<testo_normale>
+Laddove ${sbk}time()${ebk} restituisce il <em>wall clock time</em>, ${sbk}clock()${ebk} ritorna il <em>processor clock time</em>. I valori ritornati da ${sbk}clock()${ebk} dovrebbero essere usati per controllare prestazioni, per benchmarcking ecc., visto che essi rappresentatno i valori reali impiegati dal programma, e possono essere più precisi di quelli di ${sbk}time()${ebk}. <a href='#vedinota'> (vedere nota)</a>
+</testo_normale>
+<py_code>
+import hashlib
+import time
+
+# Dati da usare per calcolare i checksums md5
+data = open(__file__, 'rt').read()
+
+for i in range(5):
+    h = hashlib.sha1()
+    print time.ctime(), ': %0.3f %0.3f' % (time.time(), time.clock())
+    for i in range(100000):
+        h.update(data)
+    cksum = h.digest()
+</py_code>
+<testo_normale>
+In questo esempio il tempo formattato ${sbk}ctime()${ebk} viene stampato assiema ai valori a virgola mobile da ${sbk}time()${ebk}, e ${sbk}clock()${ebk} per ogni iterazione attraverso il ciclo. Se si vuole eseguire l'esempio nel proprio sistema, si potrebbe dover aggiungere pià cicli al loop pià interno o lavorare con un numero maggiore di dati per vedere realmente la differenza.
+</testo_normale>
+<py_output>
+$ python time_clock.py 
+Mon Jul 26 18:42:40 2010 : 1280162560.821 0.010
+Mon Jul 26 18:42:41 2010 : 1280162561.007 0.170
+Mon Jul 26 18:42:41 2010 : 1280162561.185 0.330
+Mon Jul 26 18:42:41 2010 : 1280162561.361 0.500
+Mon Jul 26 18:42:41 2010 : 1280162561.535 0.670
+</py_output>
+<testo_normale>
+Tipicamente, il <em>processor clock</em> non scorre se il proprio programma non sta facendo nulla.
+</testo_normale>
+<py_code>
+import time
+
+for i in range(6, 1, -1):
+    print '%s %0.2f %0.2f' % (time.ctime(), time.time(), time.clock())
+    print 'In pausa', i
+    time.sleep(i)
+</py_code>
+<testo_normale>
+In questo esempio, il ciclo fa un lavoro minimo, mettendosi in pausa dopo ogni iterazione. Il valore di ${sbk}time()${ebk} aumenta anche quando l'applicazione è in pausa, ma il valore di ${sbk}clock()${ebk} rimane invariato:
+</testo_normale>
+<py_output>
+$ python time_clock_sleep.py 
+Mon Jul 26 18:48:06 2010 1280162886.03 0.01
+In pausa 6
+Mon Jul 26 18:48:12 2010 1280162892.04 0.01
+In pausa 5
+Mon Jul 26 18:48:17 2010 1280162897.04 0.01
+In pausa 4
+Mon Jul 26 18:48:21 2010 1280162901.05 0.01
+In pausa 3
+Mon Jul 26 18:48:24 2010 1280162904.05 0.01
+In pausa 2
+</py_output>
+<testo_normale>
+La chiamata di ${sbk}sleep()${ebk} mantiene il controllo sul thread corrente e gli chiede di attendere fino a che il sistema non esca dalla pausa. Se il proprio programma ha un solo thread, l'applicazione viene effettivamente bloccata e non funziona.
+</testo_normale>
+<titolo2>
+struct_time
+</titolo2>
+<testo_normale>
+Convervare il tempo come secondi trascorsi puù essere utile in alcune situazioni, ma ci sono volte nelle quali ci deve avere accesso ai singoli campi di una data (anno, mese, ecc.). Il modulo <strong>time</strong> definisce <strong>struct_time</strong> per mantenere i valori di data ed ora con i componenti separati in modo da essere facilmente accessibili. Ci sono parecchie funzioni che lavorano con i valori di <strong>struct_time</strong> invece che con i valori a virgola mobile.
+</testo_normale>
+<py_code>
+import time
+
+print 'gmtime   :', time.gmtime()
+print 'localtime:', time.localtime()
+print 'mktime   :', time.mktime(time.localtime())
+
+print
+t = time.localtime()
+print 'Giorno del mese:', t.tm_mday
+print 'Giorno della settimana:', t.tm_wday
+print "Giorno dell'anno:", t.tm_yday
+</py_code>
+<testo_normale>
+${sbk}gmtime()${ebk} ritorna il tempo corrente <a href='http://it.wikipedia.org/wiki/Tempo_coordinato_universale'>UTC</a>. ${sbk}localtime()${ebk} ritorna il tempo corrente in base al fuso orario apllicato. ${sbk}mktime()${ebk} ottiene una <strong>struct_time</strong> e la converte nella sua rappresentazione a virgola mobile.
+</testo_normale>
+<py_output>
+$ python time_struct.py 
+gmtime   : time.struct_time(tm_year=2010, tm_mon=7, tm_mday=26, tm_hour=16, tm_min=55, tm_sec=42, tm_wday=0, tm_yday=207, tm_isdst=0)
+localtime: time.struct_time(tm_year=2010, tm_mon=7, tm_mday=26, tm_hour=18, tm_min=55, tm_sec=42, tm_wday=0, tm_yday=207, tm_isdst=1)
+mktime   : 1280163342.0
+
+Giorno del mese: 26
+Giorno della settimana: 0
+Giorno dell'anno: 207
+</py_output>
+<titolo2>
+Analizzare e Formattare il Tempo
+</titolo2>
+<testo_normale>
+Le funzioni ${sbk}strptime()${ebk} e ${sbk}strftime()${ebk} convertono tra struct_time e rappresentazioni stringa di valori di tempo. C'è una lunga lista di informazioni disponibile per la formattazione per il supporto di input ed output in stili differenti. L'elenco completo è inserito nella documentazione della libreria per questo modulo.
+</testo_normale>
+<testo_normale>
+Questo esempio converte il tempo corrente da una stringa ad una istanza di <strong>struct_time</strong>, quindi lo riscrive come stringa.
+</testo_normale>
+<py_code>
+import time
+
+now = time.ctime()
+print now
+parsed = time.strptime(now)
+print parsed
+print time.strftime("%a %b %d %H:%M:%S %Y", parsed)
+</py_code>
+<testo_normale>
+La stringa di output non è esattamente come l'input, visto che il giorno del mese viene prefissato da uno zero.
+</testo_normale>
+<py_output>
+$ python time_strptime.py 
+Mon Jul  6 19:04:23 2010
+time.struct_time(tm_year=2010, tm_mon=7, tm_mday=26, tm_hour=19, tm_min=4, tm_sec=23, tm_wday=0, tm_yday=207, tm_isdst=-1)
+Mon Jul 06 19:04:23 2010
+</py_output>
+<titolo2>
+Lavorare con i Fusi Orari
+</titolo2>
+<testo_normale>
+Le funzioni per determinare il tempo corrente dipende dall'avere impostato il fuso orario, sia dal proprio programma che usando l'impostazione del fuso orario del sistema. La modifica del fuso orario non modifica l'orario effettivo, ma solo il modo in cui viene rappresentato.
+</testo_normale>
+<testo_normale>
+Per modificare il fuso orario, si imposta la variabile di ambiente ${sev}TZ${eev}, quindi si chiama ${sbk}tzset()${ebk}. Tramite l/'uso di TZ, si può specificare il fuso orario molto dettagliatamente, fino all'inizio ed alla fine dell'ora legale; è in genere più semplice usare il nome del fuso orario e lasciare che le librerie sottostanti ricavino le altre informazioni.
+</testo_normale>
+<testo_normale>
+In questo esempio il programma modifica il fuso orario ad un valore diverso e mostra come le modifiche si ripercuotono sulle altre impostazioni nel modulo time.
+</testo_normale>
+<py_code>
+import time
+import os
+
+def show_zone_info():
+    print '\tTZ    :', os.environ.get('TZ', '(not set)')
+    print '\ttznome:', time.tzname
+    print '\tZona  : %d (%d)' % (time.timezone, (time.timezone / 3600))
+    print '\tDST   :', time.daylight
+    print '\tORa   :', time.ctime()
+    print
+
+print 'Predefinito :'
+show_zone_info()
+
+for zone in [ 'US/Eastern', 'US/Pacific', 'GMT', 'Europe/Amsterdam' ]:
+    os.environ['TZ'] = zone
+    time.tzset()
+    print zone, ':'
+    show_zone_info()
+</py_code>
+<testo_normale>
+Il fuso orario predefinito per l'esecuzione di questo script è Europe/Amsterdam, quindi l'impostazione di TZ a questo valore non ha effetto. ma le altre zone usate modificano il nome della zona, il flag dell'ora legale ed i valori di scostamento per quel fuso orario.
+</testo_normale>
+<py_output>
+$ python time_timezone.py 
+Predefinito :
+	TZ    : (not set)
+	tznome: ('CET', 'CEST')
+	Zona  : -3600 (-1)
+	DST   : 1
+	ORa   : Mon Jul 26 19:12:35 2010
+
+US/Eastern :
+	TZ    : US/Eastern
+	tznome: ('EST', 'EDT')
+	Zona  : 18000 (5)
+	DST   : 1
+	ORa   : Mon Jul 26 13:12:35 2010
+
+US/Pacific :
+	TZ    : US/Pacific
+	tznome: ('PST', 'PDT')
+	Zona  : 28800 (8)
+	DST   : 1
+	ORa   : Mon Jul 26 10:12:35 2010
+
+GMT :
+	TZ    : GMT
+	tznome: ('GMT', 'GMT')
+	Zona  : 0 (0)
+	DST   : 0
+	ORa   : Mon Jul 26 17:12:35 2010
+
+Europe/Amsterdam :
+	TZ    : Europe/Amsterdam
+	tznome: ('CET', 'CEST')
+	Zona  : -3600 (-1)
+	DST   : 1
+	ORa   : Mon Jul 26 19:12:35 2010
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-time.html|time|La documentazione della libreria standard per questo modulo.
+http://robyp.x10hosting.com/pymotw-it/datetime.html|datetime|Il modulo datetime include altre classi per eseguire calcoli con date ed ora.
+http://robyp.x10hosting.com/pymotw-it/calendar.html|calendar|Lavora con funzioni di data a più alto livello per produrre calendari o calcolare eventi ricorrenti.
+</vedi_anche>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

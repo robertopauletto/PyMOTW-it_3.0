@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>servizi python in fase di esecuzione</categoria>
+<titolo_1>
+contextlib - Utilità per gestore di contesto
+</titolo_1>
+<descrizione>
+Utilità per creare e lavorare con gestori di contesto
+2.5 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>contextlib</strong> contiene utilità per lavorare con gestori di contesto e con l'istruzione <strong>with</strong>.
+</testo_normale>
+<note>
+I gestori di contesto sono legati all'istruzione <strong>with</strong>. Visto che <strong>with</strong> è ufficialmente parte di Python 2.6, prima di utilizzarlo in Python 2.5 occorre importarlo tramite <code>__future__</code>
+</note>
+<titolo_2>
+API del Gestore di Contesto
+</titolo_2>
+<testo_normale>
+Un <em>gestore di contesto</em> (context manager) è responsabile per una risorsa all'interno di un blocco di codice, che possibilmente dallo stesso viene creata quando il flusso del codice entra nel blocco, quindi viene ripulita quando il flusso esce dal blocco. Ad esempio, gli oggetti <strong>file</strong> supportano l'API del gestore di contesto per facilitare l'assicurarsi che essi vengano chiusi dopo che tutte le operazioni di lettura e scrittura sono terminate.
+</testo_normale>
+<py_code>
+with open('/tmp/pymotw.txt', 'wt') as f:
+    f.write('il contenuto va qui')
+# il file viene chiuso automaticamente
+</py_code>
+<testo_normale>
+Un <em>gestore di contesto</em> viene abilitato dall'istruzione <strong>with</strong>, e l'API coinvolge due metodi: <code>__enter__()</code> viene eseguito quando il flusso di esecuzione entra nel blocco di codice all'interno di <strong>with</strong>. Esso ritorna un oggetto da utilizzare all'interno del contesto. Quando il flusso di esecuzione abbandona il blocco <strong>with</strong>, viene chiamato il metodo <code>__exit__()</code> del gestore di contesto per ripulire qualsivoglia risorsa sia stata utilizzata.
+</testo_normale>
+<py_code>
+class Context(object):
+
+    def __init__(self):
+        print '__init__()'
+
+    def __enter__(self):
+        print '__enter__()'
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print '__exit__()'
+
+with Context():
+    print 'Lavoro eseguito nel contesto'
+
+</py_code>
+<testo_normale>
+La combinazione di un gestore di contesto e dell'istruzione <strong>with</strong> costituisce un modo più compatto di scrivere un blocco <code>try:finally</code>, visto che il metodo <code>__exit__()</code> del gestore di contesto viene sempre chiamato, anche se viene sollevata una eccezione.
+</testo_normale>
+<py_output>
+$ python contextlib_api.py
+
+__init__()
+__enter__()
+Lavoro eseguito nel contesto
+__exit__()
+</py_output>
+<testo_normale>
+Il metodo <code>__enter__()</code> può restituire un qualsiasi oggetto che venga associato ad un nome specificato nella clausola <strong>as</strong> dell'istruzione <strong>with</strong>. In questo esempio, <strong>Context</strong> ritorna un oggetto che utilizza il contesto aperto.
+</testo_normale>
+<py_code>
+class DentroIlContesto(object):
+
+    def __init__(self, context):
+        print 'DentroIlContesto.__init__(%s)' % context
+
+    def do_something(self):
+        print 'DentroIlContesto.do_something()'
+
+    def __del__(self):
+        print 'DentroIlContesto.__del__'
+
+
+class Context(object):
+
+    def __init__(self):
+        print 'Context.__init__()'
+
+    def __enter__(self):
+        print 'Context.__enter__()'
+        return DentroIlContesto(self)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print 'Context.__exit__()'
+
+with Context() as c:
+    c.do_something()
+</py_code>
+<testo_normale>
+Può confondere un tantino, ma il valore associato alla variabile <code>c</code> è l'oggetto restituito da <code>__enter__()</code> e <em>non</em> dall'istanza di <code>Context</code> creata nell'istruzione <strong>with</strong>.
+</testo_normale>
+<py_output>
+$ python contextlib_api_other_object.py
+
+Context.__init__()
+Context.__enter__()
+DentroIlContesto.__init__(<__main__.Context object at 0x7f649bca8750>)
+DentroIlContesto.do_something()
+Context.__exit__()
+DentroIlContesto.__del__
+</py_output>
+<testo_normale>
+Il metodo <code>__exit__()</code> riceve argomenti che contengono dettagli di qualsiasi eccezione venga sollevata all'interno del blocco <strong>with</strong>.
+</testo_normale>
+<py_code>
+class Context(object):
+
+    def __init__(self, handle_error):
+        print '__init__(%s)' % handle_error
+        self.handle_error = handle_error
+
+    def __enter__(self):
+        print '__enter__()'
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print '__exit__(%s, %s, %s)' % (exc_type, exc_val, exc_tb)
+        return self.handle_error
+
+with Context(True):
+    raise RuntimeError('messaggio di errore gestito')
+
+print
+
+with Context(False):
+    raise RuntimeError('messaggio di errore propagato')
+</py_code>
+<testo_normale>
+Se il gestore di contesto può gestire l'eccezione, <code>__exit__()</code> dovrebbe restituire un valore <code>True</code> per indicare che l'eccezione non deve propagarsi. Restituire <code>False</code> fa sì che l'eccezione sia sollevata dopo che <code>__exit__()</code> ritorna.
+</testo_normale>
+<py_output>
+$ python contextlib_api_error.py
+
+__init__(True)
+__enter__()
+__exit__(<type 'exceptions.RuntimeError'>, messaggio di errore gestito, <traceback object at 0x7fb111a62bd8>)
+
+__init__(False)
+__enter__()
+__exit__(<type 'exceptions.RuntimeError'>, messaggio di errore propagato, <traceback object at 0x7fb111a62c68>)
+Traceback (most recent call last):
+  File "contextlib_api_error.py", line 24, in <module>
+    raise RuntimeError('messaggio di errore propagato')
+RuntimeError: messaggio di errore propagato
+</py_output>
+<titolo_2>
+Dal Generatore al Gestore di Contesto
+</titolo_2>
+<testo_normale>
+Creare gestori di contesto nel modo tradizionale, scrivendo una classe che abbia i metodi <code>__enter__()</code> ed <code>__exit__()</code> non è difficile. Tuttavia qualche volta può essere inutilmente dispendioso rispetto alla necessità di gestire un pezzo triviale di contesto. In questo tipo di situazioni si potrebbe utilizzare il decoratore <strong>contextmanager()</strong> per convertire una funzione generatore in un gestore di contesto.
+</testo_normale>
+<py_code>
+import contextlib
+
+@contextlib.contextmanager
+def make_context():
+    print '  in entrata'
+    try:
+        yield {}
+    except RuntimeError, err:
+        print '  ERRORE:', err
+    finally:
+        print '  in uscita'
+
+print 'Normale:'
+with make_context() as value:
+    print '  dentro l\'istruzione with:', value
+
+print
+print 'Errore gestito:'
+with make_context() as value:
+    raise RuntimeError('si mostra un esempio di gestione di un errore')
+
+print
+print 'Errore non gestito:'
+with make_context() as value:
+    raise ValueError('questa eccezione non viene gestita')
+</py_code>
+<testo_normale>
+Il generatore dovrebbe inizializzare il contesto, trattenerlo esattamente una volta, quindi ripulire il contesto. Il valore trattenuto, se esiste, viene legato alla variabile nella clausola <strong>as</strong> dell'istruzione <strong>with</strong>. Le eccezioni all'interno del blocco <strong>with</strong> sono nuovamente sollevate all'interno del generatore, in modo che ivi possano essere trattate.
+</testo_normale>
+<py_output>
+$ python contextlib_contextmanager.py
+
+Normale:
+  in entrata
+  dentro l'istruzione with: {}
+  in uscita
+
+Errore gestito:
+  in entrata
+  ERRORE: si mostra un esempio di gestione di un errore
+  in uscita
+
+Errore non gestito:
+  in entrata
+  in uscita
+Traceback (most recent call last):
+  File "contextlib_contextmanager.py", line 28, in <module>
+    raise ValueError('questa eccezione non viene gestite')
+ValueError: questa eccezione non viene gestita
+</py_output>
+<titolo_2>
+Annidare Contesti
+</titolo_2>
+<testo_normale>
+A volte risulta necessario gestire simultaneamente contesti multipli (tipo quando si copiano dati da <em>handle</em> di file in input ed output, ad esempio). E' possibile annidare istruzioni <strong>with</strong> una all'interno dell'altra. Se il contesto più esterno non necessita del suo proprio blocco separato, tuttavia, si deve aggiungere un livello di indentazione senza avere un reale beneficio. Utilizzando <strong>nested()</strong> i contesti vengono annidati usando una singola istruzione <strong>with</strong>
+</testo_normale>
+<py_code>
+import contextlib
+
+@contextlib.contextmanager
+def make_context(name):
+    print 'in entrata:', name
+    yield name
+    print 'in uscita :', name
+
+with contextlib.nested(make_context('A'), make_context('B'), make_context('C')) as (A, B, C):
+    print 'all\'interno dell\'istruzione with:', A, B, C
+</py_code>
+<testo_normale>
+Si noti che si esce dai contesti nell'ordine inverso rispetto a quello di entrata.
+</testo_normale>
+<py_output>
+$ python contextlib_nested_with.py
+
+in entrata: A
+in entrata: B
+in entrata: C
+all'interno dell'istruzione with: A B C
+in uscita : C
+in uscita : B
+in uscita : A
+</py_output>
+<testo_normale>
+In Python 2.7 e superiore, <strong>nested()</strong> è deprecato visto che l'istruzione <strong>with</strong> supporta l'annidamento direttamente.
+</testo_normale>
+<py_code>
+import contextlib
+
+@contextlib.contextmanager
+def make_context(name):
+    print 'in entrata:', name
+    yield name
+    print 'in uscita :', name
+
+with contextlib.nested(make_context('A'), make_context('B'), make_context('C')) as (A, B, C):
+    print 'all\'interno dell\'istruzione with:', A, B, C
+</py_code>
+<testo_normale>
+Ciascun gestore di contesto e clausola opzionale <strong>as</strong> è separato da un virgola <code>,</code>. L'effetto è simile a quello con l'utilizzo di <strong>nested()</strong>, ma evita alcuni dei casi limite riguardo alla gestione di errori che <strong>nested()</strong> non può implementare correttamente.
+</testo_normale>
+<py_output>
+$ python contextlib_nested_with.py
+entering: A
+entering: B
+entering: C
+all'interno dell'istruzione with: A B C
+exiting : C
+exiting : B
+exiting : A
+</py_output>
+<titolo_2>
+Chiudere Handle Aperti
+</titolo_2>
+<testo_normale>
+La classe <strong>file</strong> supporta direttamente l'API del gestore di contesto, ma taluni altri oggetti che rappresentano <em>handle</em> aperti non lo fanno. L'esempio fornito nella documentazione della libreria standard per <strong>contextlib</strong> è l'oggetto restituito da <a href="urllib.html#da_contextlib">urllib.urlopen()</a>. Ci sono altre classi <em>legacy</em> che utilizzano un metodo <strong>close()</strong> ma non supportano l'API del gestore di contesto. Per assicurarsi che l'<em>handle</em> venga chiuso, si usi <code>closing()</code> per creare un gestore di contesto per la situazione.
+</testo_normale>
+<py_code>
+import contextlib
+
+class Door(object):
+    def __init__(self):
+        print '  __init__()'
+    def close(self):
+        print '  close()'
+
+print 'Esempio Normale:'
+with contextlib.closing(Door()) as door:
+    print '  dentro l\'istruzione with'
+
+print
+print 'Esempio di gestione errore:'
+try:
+    with contextlib.closing(Door()) as door:
+        print '  sollevata da dentro l\'istruzione with'
+        raise RuntimeError('messaggio di errore')
+except Exception, err:
+    print '  Si è verificato un errore:', err
+</py_code>
+<testo_normale>
+L'<em>handle</em> viene chiuso a prescindere che si verifichi un errore nel blocco <strong>with</strong>.
+</testo_normale>
+<py_output>
+$ python contextlib_clong.py
+
+Esempio Normale:
+  __init__()
+  dentro l'istruzione with
+  close()
+
+Esempio di gestione errore:
+  __init__()
+  sollevata da dentro l'istruzione with
+  close()
+  Si è verificato un errore: messaggio di errore
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/contextlib.html|contextlib|La documentazione della libreria standard per questo modulo
+http://www.python.org/dev/peps/pep-0343|PEP 343|L'istruzione <strong>with</strong>
+http://docs.python.org/library/stdtypes.html#typecontextmanager|Tipi di Gestori di Contesto|Descrizione dell'API del gestore di contesto dalla documentazione della libreria standard (in inglese - n.d.t.)
+http://docs.python.org/reference/datamodel.html#context-managers|Gestori di Contesto nell'istruzione with|Descrizione dell'API del gestore di contesto dalla guida di riferimento di Python (in inglese - n.d.t.)
+</vedi_anche>
+</documento_tradotto>

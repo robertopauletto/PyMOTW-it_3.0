@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi python in fase di esecuzione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+gc - Garbage Collector
+</titolo_1>
+<descrizione>
+Gestisce la memoria usata dagli oggetti Python
+2.1 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>gc</strong> espone il sottostante meccanismo di gestione della memoria di Python, il <a href='http://it.wikipedia.org/wiki/Garbage_collection'>garbage collector</a> automatico. Il modulo include funzioni per controllare come il collettore opera e per esaminare gli oggetti noti al sistema, siano essi insiemi in sospeso o cicli di riferimenti bloccati che non sono in grado di essere liberati.
+</testo_normale>
+<titolo_2>
+Tracciare i Riferimenti
+</titolo_2>
+<testo_normale>
+Con <strong>gc</strong> si possono utilizzare i riferimenti in uscita ed in entrata tra oggetti per trovare cicli in strutture dati complesse. Se si conosce la struttura dati con il ciclo, è possibile costruire del codice personalizzato per esaminarne le proprietà. Altrimenti è possibile utilizzare le funzioni <code>get_referents()</code> e <code>get_referrers</code> per costruire strumenti generici di debug.
+</testo_normale>
+<testo_normale>
+Ad esempio <code>get_referents()</code> mostra gli oggetti referenziati dagli argomenti in input
+</testo_normale>
+<py_code>
+import gc
+import pprint
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+print
+print 'tre si riferisce a:'
+for r in gc.get_referents(three):
+    pprint.pprint(r)
+</py_code>
+<testo_normale>
+In questo caso l'instanza <code>three</code> di Graph ha un riferimento al suo  dizionario di istanze (nell'attributo <code>__dict__</code>) ed alla sua classe
+</testo_normale>
+<py_output>
+$ python gc_get_referents.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+
+tre si riferisce a:
+{'name': 'tre', 'next': Graph(uno)}
+<class '__main__.Graph'>
+</py_output>
+<testo_normale>
+Questo esempio utilizza una <a href='queue.html'>Queue</a> per eseguire una <a href='http://it.wikipedia.org/wiki/Ricerca_in_ampiezza'>ricerca in ampiezza</a> di tutti i riferimenti di oggetto per trovare dei cicli. Gli elementi inseriti nella queue sono tuple che contengono la catena dei riferimenti fino ad ora ed il prossimo oggetto da esaminare. Inizia con <em>three</em>, poi cerca qualsiasi cosa ad esso faccia riferimento. L'ignorare le classi consente evitare di cercare tra metodi, moduli, ecc.
+</testo_normale>
+<py_code>
+
+import gc
+import pprint
+import Queue
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+print
+
+seen = set()
+to_process = Queue.Queue()
+
+# Si parte con una catena di oggetti vuota ed il Grafo three.
+to_process.put( ([], three) )
+
+# Cerca dei cicli, costruendo la catena di oggetti per ogni oggetto che
+# viene trovato nella coda in modo che si possa stampare l'intero ciclo quando
+# si finisce
+while not to_process.empty():
+    chain, next = to_process.get()
+    chain = chain[:]
+    chain.append(next)
+    print 'In esame:', repr(next)
+    seen.add(id(next))
+    for r in gc.get_referents(next):
+        if isinstance(r, basestring) or isinstance(r, type):
+            # Ignora stringhe e classi
+            pass
+        elif id(r) in seen:
+            print
+            print 'Trovato un ciclo per %s:' % r
+            for i, link in enumerate(chain):
+                print '  %d: ' % i,
+                pprint.pprint(link)
+        else:
+            to_process.put( (chain, r) )
+</py_code>
+<testo_normale>
+Il ciclo nei nodi viene facilmente trovato cercando oggetti che sono già stati esaminati. Per evitare di mantenere riferimenti a quegli oggetti, il loro valore <code>id()</code> viene conservato in un insieme. Gli oggetti dizionario trovati nel ciclo cono i valori di <code>__dict__</code> per le istanze di <strong>Graph</strong>, e serbano gli attributi delle loro istanze.
+</testo_normale>
+<py_output>
+$ python gc_get_referents_cycles.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+
+In esame: Graph(tre)
+In esame: {'name': 'tre', 'next': Graph(uno)}
+In esame: Graph(uno)
+In esame: {'name': 'uno', 'next': Graph(due)}
+In esame: Graph(due)
+In esame: {'name': 'due', 'next': Graph(tre)}
+
+Trovato un ciclo per Graph(tre):
+  0: Graph(tre)
+  1: {'name': 'tre', 'next': Graph(uno)}
+  2: Graph(uno)
+  3: {'name': 'uno', 'next': Graph(due)}
+  4: Graph(due)
+</py_output>
+<titolo_2>
+Forzare Garbage Collection
+</titolo_2>
+<testo_normale>
+Sebbene il <em>garbage collector</em> venga eseguito automaticamente mentre l'interprete esegue il proprio programma, si potrebbe volerlo attivare ad uno specifico momento, quando si sa che ci sono molti oggetti da liberare oppure che la propria applicazione non sta eseguendo molto lavoro. L'attivazione della raccolta avviene tramite <code>collect()</code>.
+</testo_normale>
+<py_code>
+import gc
+import pprint
+import Queue
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+# Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
+one = two = three = None
+
+# Mostra gli effetti della garbage collection
+for i in range(2):
+    print 'In raccolta %d ...' % i
+    n = gc.collect()
+    print 'Oggetti non raggiungibili:', n
+    print 'Garbage rimanente:',
+    pprint.pprint(gc.garbage)
+    print
+</py_code>
+<testo_normale>
+In questo esempio, il ciclo viene pulito non appena la raccolta viene eseguita la prima volta, visto che nulla è riferito a nodi <strong>Graph</strong> tranne essi stessi. <code>collect()</code> ritorna il numero di oggetti "irraggiungibili" che trova. In questo caso, il valore è 6 visto che vi erano tre oggeetti con i propri dizionari con i propri attributi di istanza.
+</testo_normale>
+<py_output>
+$ python gc_collect.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+In raccolta 0 ...
+Oggetti non raggiungibili: 6
+Garbage rimanente:[]
+
+In raccolta 1 ...
+Oggetti non raggiungibili: 0
+Garbage rimanente:[]
+</py_output>
+<testo_normale>
+Comunque, se <strong>Graph</strong> ha un metodo <code>__del__()</code> il <em>garbage collector</em> non può interrompere il ciclo.
+</testo_normale>
+<py_code>
+import gc
+import pprint
+import Queue
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+# Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
+one = two = three = None
+
+# Mostra gli effetti della garbage collection
+print 'In raccolta ...'
+n = gc.collect()
+print 'Oggetti non raggiungibili:'
+print 'Garbage rimanente:',
+pprint.pprint(gc.garbage)
+</py_code>
+<testo_normale>
+Visto che più di un oggetto nel ciclo contiene un metodo di finalizzazione, l'ordine nel quale gli oggetti devono essere finalizzati, quindi raccolti dal <em>garbage collector</em> non si può determinare, quindi il <em>garbage collector</em> agisce in sicurezza e mantiene gli oggetti.
+</testo_normale>
+<py_output>
+$ python gc_collect_with_del.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+In raccolta ...
+Oggetti non raggiungibili: 6
+Garbage rimanente:[Graph(uno), Graph(due), Graph(tre)]
+</py_output>
+<testo_normale>
+Quando il ciclo viene interrotto, le istanze di <strong>Graph</strong> possono essere raccolte.
+</testo_normale>
+<py_code>
+import gc
+import pprint
+import Queue
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+# Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
+one = two = three = None
+
+# Se si raccoglie ora gli oggetti non sono possono essere raccolti
+print
+print 'In raccolta ...'
+n = gc.collect()
+print 'Oggetti non raggiungibili:', n
+print 'Garbage rimanente:',
+pprint.pprint(gc.garbage)
+
+# Si interrompe il ciclo
+print
+print 'Interruzione del ciclo'
+gc.garbage[0].set_next(None)
+print 'Riferimenti rimossi in in gc.garbage'
+del gc.garbage[:]
+
+# Ora gli oggetti vengono rimoss
+print
+print 'In raccolta ...'
+n = gc.collect()
+print 'Oggetti non raggiungibili:'
+print 'Garbage rimanente:',
+pprint.pprint(gc.garbage)
+</py_code>
+<testo_normale>
+Visto che <code>gc.garbage</code> mantiene un riferimento agli oggetti dalla precedente esecuzione della raccolta, deve essere pulito dopo la rottura del ciclo affinchè possa diminuire il conteggio dei riferimenti in modo che possano essere finalizzati e liberati.
+</testo_normale>
+<py_output>
+$ python gc_collect_break_cycle.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+
+In raccolta ...
+Oggetti non raggiungibili: 6
+Garbage rimanente:[Graph(uno), Graph(due), Graph(tre)]
+
+Interruzione del ciclo
+Collegamento nodi Graph(uno).next = None
+Riferimenti rimossi in in gc.garbage
+Graph(due).__del__()
+Graph(tre).__del__()
+Graph(uno).__del__()
+
+In raccolta ...
+Oggetti non raggiungibili:
+Garbage rimanente:[]
+</py_output>
+<titolo_2>
+Trovare Riferimenti ad Oggetti che non Possono Essere Raccolti
+</titolo_2>
+<testo_normale>
+La ricerca di oggetti che mantengono un riferimento a qualcosa nel garbage è qualcosa di più complicato rispetto a vedere cosa un oggetto fa riferimento. Visto che il codice che chiede il riferimento deve a sua volta mantenere esso stesso un riferimento, alcuni dei referenti devono essere ignorati. Questo esempio crea un ciclo di grafi, quindi lavora attraverso le istanze di <strong>Graph</strong> nel garbage e rimuove i riferimenti nel nodo "genitore".
+</testo_normale>
+<py_code>
+import gc
+import pprint
+import Queue
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+    def set_next(self, next):
+        print 'Collegamento nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('uno')
+two = Graph('due')
+three = Graph('tre')
+one.set_next(two)
+two.set_next(three)
+three.set_next(one)
+
+# Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
+one = two = three = None
+
+# Se si raccoglie ora gli oggetti non sono possono essere raccolti
+print
+print 'In raccolta ...'
+n = gc.collect()
+print 'Oggetti non raggiungibili:', n
+print 'Garbage rimanente:',
+pprint.pprint(gc.garbage)
+
+REFERRERS_TO_IGNORE = [ locals(), globals(), gc.garbage ]
+
+def find_referring_graphs(obj):
+    print 'Si cercano riferimenti a %s' % repr(obj)
+    referrers = (r for r in gc.get_referrers(obj)
+                 if r not in REFERRERS_TO_IGNORE)
+    for ref in referrers:
+        if isinstance(ref, Graph):
+            # Un nodo grafo
+            yield ref
+        elif isinstance(ref, dict):
+            # Una istanza od un altro dizionario di spazio dei nomi
+            for parent in find_referring_graphs(ref):
+                yield parent
+
+# Cerca oggetti che fanno riferimento ad oggetti che rimangono in gc.garbage.
+print
+print 'Pulizia dei referenti:'
+for obj in gc.garbage:
+    for ref in find_referring_graphs(obj):
+        ref.set_next(None)
+        del ref # rimuove riferimento locale così che si possa eliminare il nodo
+    del obj # rimuove riferimento locale così che si possa eliminare il nodo
+
+# Pulizia dei riferimenti mantenuti da gc.garbage
+print
+print 'Pulizia di gc.garbage:'
+del gc.garbage[:]
+
+# A questo punto tutto dovrebbe essere stato liberato
+print
+print 'In raccolta ...'
+n = gc.collect()
+print 'Oggetti non raggiungibili:', n
+print 'Garbage rimanente:',
+pprint.pprint(gc.garbage)
+</py_code>
+<testo_normale>
+Questa sorta di logica è esagerata se in prima battuta si  comprende perchè i cicli sono stati creati, tuttavia se si hanno dei cicli non spiegabili nei propri dati, utilizzando <code>get_referrers()</code> si possono esporre le relazioni non previste.
+</testo_normale>
+<py_output>
+$ python gc_get_referrers.py
+
+Collegamento nodi Graph(uno).next = Graph(due)
+Collegamento nodi Graph(due).next = Graph(tre)
+Collegamento nodi Graph(tre).next = Graph(uno)
+
+In raccolta ...
+Oggetti non raggiungibili: 6
+Garbage rimanente:[Graph(uno), Graph(due), Graph(tre)]
+
+Pulizia dei referenti:
+Si cercano riferimenti a Graph(uno)
+Si cercano riferimenti a {'name': 'tre', 'next': Graph(uno)}
+Collegamento nodi Graph(tre).next = None
+Si cercano riferimenti a Graph(due)
+Si cercano riferimenti a {'name': 'uno', 'next': Graph(due)}
+Collegamento nodi Graph(uno).next = None
+Si cercano riferimenti a Graph(tre)
+Si cercano riferimenti a {'name': 'due', 'next': Graph(tre)}
+Collegamento nodi Graph(due).next = None
+
+Pulizia di gc.garbage:
+Graph(tre).__del__()
+Graph(due).__del__()
+Graph(uno).__del__()
+
+In raccolta ...
+Oggetti non raggiungibili: 0
+Garbage rimanente:[]
+</py_output>
+<titolo_2>
+Soglie di Raccolta e Generazioni
+</titolo_2>
+<testo_normale>
+Il <em>garbage collector</em> mantiene tre liste di oggetti che vede mentre è in esecuzione, una per ogni "generatore" che viene tracciato dal collettore. Mentre gli oggetti vengono esaminati in ogni generazione, sono raccolti oppure passano nelle generazioni successive fino a che raggiungono lo stato nel quale essi sono mantenuti in modo permanente.
+</testo_normale>
+<testo_normale>
+Le <em>routine</em> del collettore possono essere regolate per farle eseguire con diversa frequenza in base alle differenze tra li numero di allocazioni e deallocazioni di oggetti tra le esecuzioni. Quando il numero delle allocazioni meno le deallocazioni è maggiore della soglia per la generazione, viene eseguito il <em>garbage collector</em>. La soglia attuale può essere esaminata con <code>get_threshold()</code>.
+</testo_normale>
+<py_code>
+import gc
+
+print gc.get_threshold()
+</py_code>
+<testo_normale>
+Il valore restituito è una tupla con la soglia per ciascuna generazione.
+</testo_normale>
+<py_output>
+$ python gc_get_threshold.py
+
+(700, 10, 10)
+</py_output>
+<testo_normale>
+Le soglie possono essere modificate con <code>set_threshold()</code>. Questo esempio legge le soglie per la generazione <code>0</code> dalla riga di comando, quindi modifica le impostazioni di <strong>gc</strong> ed alloca una serie di oggetti.
+</testo_normale>
+<py_code>
+import gc
+import pprint
+import sys
+
+try:
+    threshold = int(sys.argv[1])
+except (IndexError, ValueError, TypeError):
+    print 'Soglia mancante o non valida, si utilizza la predefinita'
+    threshold = 5
+
+class MyObj(object):
+    def __init__(self, name):
+        self.name = name
+        print 'Creato', self.name
+
+gc.set_debug(gc.DEBUG_STATS)
+
+gc.set_threshold(threshold, 1, 1)
+print 'Soglie:', gc.get_threshold()
+
+print 'Pulisce il collettore forzando una esecuzione'
+gc.collect()
+print
+
+print 'Creazione oggetti'
+objs = []
+for i in range(10):
+    objs.append(MyObj(i))
+</py_code>
+<testo_normale>
+Diversi valori di soglia introducone nel <em>garbage collector</em> azioni di raccolta in tempi diversi, qui sotto dimostrato abilitando il debug.
+</testo_normale>
+<py_output>
+$ python -u gc_threshold.py 5
+
+Soglie: (5, 1, 1)
+Pulisce il collettore forzando una esecuzione
+gc: collecting generation 2...
+gc: objects in each generation: 598 3151 0
+gc: done, 0.0005s elapsed.
+
+Creazione oggetti
+gc: collecting generation 0...
+gc: objects in each generation: 7 0 3473
+gc: done, 0.0000s elapsed.
+Creato 0
+Creato 1
+Creato 2
+Creato 3
+Creato 4
+gc: collecting generation 0...
+gc: objects in each generation: 6 4 3473
+gc: done, 0.0000s elapsed.
+Creato 5
+Creato 6
+Creato 7
+Creato 8
+Creato 9
+gc: collecting generation 2...
+gc: objects in each generation: 5 6 3471
+gc: done, 0.0004s elapsed.
+</py_output>
+<testo_normale>
+Una soglia inferiore fa sì che la pulizia venga effettuata con maggiore frequenza
+</testo_normale>
+<py_output>
+$ python -u gc_threshold.py 2
+
+Soglie: (2, 1, 1)
+Pulisce il collettore forzando una esecuzione
+gc: collecting generation 2...
+gc: objects in each generation: 598 3151 0
+gc: done, 0.0004s elapsed.
+
+Creazione oggetti
+gc: collecting generation 0...
+gc: objects in each generation: 3 0 3473
+gc: done, 0.0000s elapsed.
+gc: collecting generation 0...
+gc: objects in each generation: 4 3 3473
+gc: done, 0.0000s elapsed.
+Creato 0
+Creato 1
+gc: collecting generation 1...
+gc: objects in each generation: 3 4 3473
+gc: done, 0.0000s elapsed.
+Creato 2
+Creato 3
+Creato 4
+gc: collecting generation 0...
+gc: objects in each generation: 5 0 3478
+gc: done, 0.0000s elapsed.
+Creato 5
+Creato 6
+Creato 7
+gc: collecting generation 0...
+gc: objects in each generation: 5 3 3478
+gc: done, 0.0000s elapsed.
+Creato 8
+Creato 9
+gc: collecting generation 2...
+gc: objects in each generation: 2 6 3474
+gc: done, 0.0004s elapsed.
+</py_output>
+<titolo_2>
+Debug
+</titolo_2>
+<testo_normale>
+Il debug per trovare perdita o fuoriuscita di memoria (<a href='http://it.wikipedia.org/wiki/Memory_leak'>memory leak</a>) può essere impegnativo. <strong>gc</strong> include parecchie opzioni per esporre i meccanismi più interni per facilitare il lavoro. Le opzioni sono dei <em>bit-flag</em>, che si possono combinare e passare a <code>set_debug()</code> per configurare il <em>garbage collector</em> mentre un proprio programma è in esecuzione. Le informazioni di debug sono stampate verso lo <a href='runtime.html'>stderr</a>
+</testo_normale>
+<testo_normale>
+Il flag <code>DEBUG STATS</code> attiva la rilevazione delle statistiche, facendo in modo che il <em>garbage collector</em> rilevi, quando è in  esecuzione, il numero di oggetti tracciati per ogni generazione ed il tempo servito per eseguire il passaggio di pulizia.
+</testo_normale>
+<py_code>
+import gc
+
+gc.set_debug(gc.DEBUG_STATS)
+
+gc.collect()
+</py_code>
+<testo_normale>
+Il risultato di questo esempio mostra due esecuzioni separate del collettore visto che viene eseguito una volta quando viene chiamato esplicitamente, ed una seconda quando l'interprete esce.
+</testo_normale>
+<py_output>
+$ python gc_debug_stats.py
+gc: collecting generation 2...
+
+gc: objects in each generation: 463 3151 0
+gc: done, 0.0009s elapsed.
+gc: collecting generation 2...
+gc: objects in each generation: 0 0 3401
+gc: done, 0.0008s elapsed.
+</py_output>
+<testo_normale>
+L'attivazione dei flag <code>DEBUG_COLLECTABLE</code> e <code>DEBUG_UNCOLLECTABLE</code> fa sì che il collettore rilevi il fatto che ogni oggetto che esamina possa essere o meno raccolto. Occorre combinare questi flag con <code>DEBUG_OBJECTS</code> in modo che <strong>gc</strong> stampi le informazioni sugli oggetti trattenuti.
+</testo_normale>
+<py_code>
+import gc
+
+flags = (gc.DEBUG_COLLECTABLE |
+         gc.DEBUG_UNCOLLECTABLE |
+         gc.DEBUG_OBJECTS
+         )
+gc.set_debug(flags)
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+        print 'Creazione di %s 0x%x (%s)' % (self.__class__.__name__, id(self), name)
+    def set_next(self, next):
+        print 'Connessione nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+class CleanupGraph(Graph):
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('Uno')
+two = Graph('Due')
+one.set_next(two)
+two.set_next(one)
+
+# Costruisce un altro nodo a se stante
+three = CleanupGraph('three')
+
+# Costruisce un ciclo di Grafi con un finalizzatore
+four = CleanupGraph('four')
+five = CleanupGraph('five')
+four.set_next(five)
+five.set_next(four)
+
+# Elimina i riferimenti ai nodi del grafo in questo spazio dei nomi del modulo
+one = two = three = four = five = None
+
+print
+
+# Force una raccolta
+print 'In raccolta'
+gc.collect()
+print 'Fatto'
+</py_code>
+<testo_normale>
+Le due classi <code>Graph</code> e <code>CleanupGraph</code> sono costruite in modo che sia possibile creare strutture che sono automaticamente raccoglibili dal collettore ed altre dove i cicli devono essere esplicitamente spezzati dall'utente.
+</testo_normale>
+<testo_normale>
+Il risultato mostra che le istanze di <code>Graph</code> <code>uno</code> e <code>due</code> creano un ciclo, ma sono comunque raccoglibili visto che non hanno un finalizzatore ed i loro riferimenti in entrata provengono da altri oggetti che possono essere raccolti. Sebbene <code>CleanupGraph</code> abbia un finalizzatore, <code>tre</code> viene raccolto non appena il conteggio dei suoi riferimenti raggiunge lo zero. Al contrario, <code>quattro</code> e <code>cinque</code> creano un ciclo e non possono essere liberati.
+</testo_normale>
+<py_output>
+$ python -u gc_debug_collectable_objects.py
+
+Creazione di Graph 0x7fcabb293f10 (Uno)
+Creazione di Graph 0x7fcabb293f50 (Due)
+Connessione nodi Graph(Uno).next = Graph(Due)
+Connessione nodi Graph(Due).next = Graph(Uno)
+Creazione di CleanupGraph 0x7fcabb293f90 (tre)
+Creazione di CleanupGraph 0x7fcabb293fd0 (quattro)
+Creazione di CleanupGraph 0x7fcabb2a6050 (cinque)
+Connessione nodi CleanupGraph(quattro).next = CleanupGraph(cinque)
+Connessione nodi CleanupGraph(cinque).next = CleanupGraph(quattro)
+CleanupGraph(tre).__del__()
+
+In raccolta
+gc: collectable <Graph 0x7fcabb293f10>
+gc: collectable <Graph 0x7fcabb293f50>
+gc: collectable <dict 0x7fcabb29ea28>
+gc: collectable <dict 0x7fcabb29ed70>
+gc: uncollectable <CleanupGraph 0x7fcabb293fd0>
+gc: uncollectable <CleanupGraph 0x7fcabb2a6050>
+gc: uncollectable <dict 0x7fcabb29ee88>
+gc: uncollectable <dict 0x7fcabb29f280>
+Fatto
+</py_output>
+<testo_normale>
+Il flag <code>DEBUG_INSTANCES</code> funziona quansi allo stesso modo per istanze di classi "vecchio-stile" (non derivate da <code>object</code>).
+</testo_normale>
+<py_code>
+import gc
+
+flags = (gc.DEBUG_COLLECTABLE |
+         gc.DEBUG_UNCOLLECTABLE |
+         gc.DEBUG_INSTANCES
+         )
+gc.set_debug(flags)
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+        print 'Creazione di %s 0x%x (%s)' % (self.__class__.__name__, id(self), name)
+    def set_next(self, next):
+        print 'Connessione nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+class CleanupGraph(Graph):
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('Uno')
+two = Graph('Due')
+one.set_next(two)
+two.set_next(one)
+
+# Costruisce un altro nodo a se stante
+three = CleanupGraph('tre')
+
+# Costruisce un ciclo di Grafi con un finalizzatore
+four = CleanupGraph('quattro')
+five = CleanupGraph('cinque')
+four.set_next(five)
+five.set_next(four)
+
+# Elimina i riferimenti ai nodi del grafo in questo spazio dei nomi del modulo
+one = two = three = four = five = None
+
+print
+
+# Forcza una raccolta
+print 'In raccolta'
+gc.collect()
+print 'Fatto'
+</py_code>
+<testo_normale>
+In questo caso, comunque, gli oggetti <code>dict</code> che mantengono gli attributi di istanza non sono inclusi nella stampa del risultato
+</testo_normale>
+<py_output>
+$ python -u gc_debug_collectable_istances.py
+
+Creazione di Graph 0x7fcb3486bed0 (Uno)
+Creazione di Graph 0x7fcb3486bf10 (Due)
+Connessione nodi Graph(Uno).next = Graph(Due)
+Connessione nodi Graph(Due).next = Graph(Uno)
+Creazione di CleanupGraph 0x7fcb3486bf50 (tre)
+Creazione di CleanupGraph 0x7fcb3486bf90 (quattro)
+Creazione di CleanupGraph 0x7fcb3486bfd0 (cinque)
+Connessione nodi CleanupGraph(quattro).next = CleanupGraph(cinque)
+Connessione nodi CleanupGraph(cinque).next = CleanupGraph(quattro)
+CleanupGraph(tre).__del__()
+
+In raccolta
+Fatto
+</py_output>
+<testo_normale>
+Se il poter vedere gli oggetti che non possono essere raccolti non costituisce informazione sufficiente per capire dove i dati sono trattenuti, è possibile abilitare <code>DEBUG_SAVEALL</code> per fare sì che <strong>gc</strong> preservi tutti gli oggetti che trova senza alcun riferimento nella lista <code>garbage</code>, in modo che possano essere esaminati. Questo aiuta se, ad esempio, non si ha accesso al costruttore per stampare l'id dell'oggetto quando lo stesso viene creato.
+</testo_normale>
+<py_code>
+import gc
+
+flags = (gc.DEBUG_COLLECTABLE |
+         gc.DEBUG_UNCOLLECTABLE |
+         gc.DEBUG_OBJECTS |
+         gc.DEBUG_SAVEALL
+         )
+
+gc.set_debug(flags)
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+        print 'Creazione di %s 0x%x (%s)' % (self.__class__.__name__, id(self), name)
+    def set_next(self, next):
+        print 'Connessione nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+class CleanupGraph(Graph):
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('Uno')
+two = Graph('Due')
+one.set_next(two)
+two.set_next(one)
+
+# Costruisce un altro nodo a se stante
+three = CleanupGraph('tre')
+
+# Costruisce un ciclo di Grafi con un finalizzatore
+four = CleanupGraph('quattro')
+five = CleanupGraph('cinque')
+four.set_next(five)
+five.set_next(four)
+
+# Elimina i riferimenti ai nodi del grafo in questo spazio dei nomi del modulo
+one = two = three = four = five = None
+
+print
+
+# Forcza una raccolta
+print 'In raccolta'
+gc.collect()
+print 'Fatto'
+
+# Report su quello che è rimasto
+for o in gc.garbage:
+    if isinstance(o, Graph):
+        print 'Trattenuto: %s 0x%x' % (o, id(o))
+</py_code>
+<py_output>
+$ python -u gc_debug_saveall.py
+
+Creazione di Graph 0x7f9cb7580ed0 (Uno)
+Creazione di Graph 0x7f9cb7580f10 (Due)
+Connessione nodi Graph(Uno).next = Graph(Due)
+Connessione nodi Graph(Due).next = Graph(Uno)
+Creazione di CleanupGraph 0x7f9cb7580f50 (tre)
+Creazione di CleanupGraph 0x7f9cb7580f90 (quattro)
+Creazione di CleanupGraph 0x7f9cb7580fd0 (cinque)
+Connessione nodi CleanupGraph(quattro).next = CleanupGraph(cinque)
+Connessione nodi CleanupGraph(cinque).next = CleanupGraph(quattro)
+CleanupGraph(tre).__del__()
+
+In raccolta
+gc: collectable <Graph 0x7f9cb7580ed0>
+gc: collectable <Graph 0x7f9cb7580f10>
+gc: collectable <dict 0x7f9cb758bc58>
+gc: collectable <dict 0x7f9cb758bd70>
+gc: uncollectable <CleanupGraph 0x7f9cb7580f90>
+gc: uncollectable <CleanupGraph 0x7f9cb7580fd0>
+gc: uncollectable <dict 0x7f9cb758be88>
+gc: uncollectable <dict 0x7f9cb758c280>
+Fatto
+Trattenuto: Graph(Uno) 0x7f9cb7580ed0
+Trattenuto: Graph(Due) 0x7f9cb7580f10
+Trattenuto: CleanupGraph(quattro) 0x7f9cb7580f90
+Trattenuto: CleanupGraph(cinque) 0x7f9cb7580fd0
+</py_output>
+<testo_normale>
+Per semplicità, <code>DEBUG_LEAK</code> viene definito come la combinazione di tutte le altre opzioni.
+</testo_normale>
+<py_code>
+import gc
+
+flags = gc.DEBUG_LEAK
+
+gc.set_debug(flags)
+
+class Graph(object):
+    def __init__(self, name):
+        self.name = name
+        self.next = None
+        print 'Creazione di %s 0x%x (%s)' % (self.__class__.__name__, id(self), name)
+    def set_next(self, next):
+        print 'Connessione nodi %s.next = %s' % (self, next)
+        self.next = next
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.name)
+
+class CleanupGraph(Graph):
+    def __del__(self):
+        print '%s.__del__()' % self
+
+# Costruisce un ciclo di Grafi
+one = Graph('Uno')
+two = Graph('Due')
+one.set_next(two)
+two.set_next(one)
+
+# Costruisce un altro nodo a se stante
+three = CleanupGraph('tre')
+
+# Costruisce un ciclo di Grafi con un finalizzatore
+four = CleanupGraph('quattro')
+five = CleanupGraph('cinque')
+four.set_next(five)
+five.set_next(four)
+
+# Elimina i riferimenti ai nodi del grafo in questo spazio dei nomi del modulo
+one = two = three = four = five = None
+
+print
+
+# Forcza una raccolta
+print 'In raccolta'
+gc.collect()
+print 'Fatto'
+
+# Report su quello che è rimasto
+for o in gc.garbage:
+    if isinstance(o, Graph):
+        print 'Trattenuto: %s 0x%x' % (o, id(o))
+</py_code>
+<testo_normale>
+Si rammenti che, visto che <code>DEBUG_SAVEALL</code> viene abilitato da <code>DEBUG_LEAK</code> anche gli oggetti non referenziati, che normalmente sarebbero stati raccolti ed eliminati, sono trattenuti.
+</testo_normale>
+<py_output>
+$ python -u gc_debug_leak.py
+
+Creazione di Graph 0x7f904d552ed0 (Uno)
+Creazione di Graph 0x7f904d552f10 (Due)
+Connessione nodi Graph(Uno).next = Graph(Due)
+Connessione nodi Graph(Due).next = Graph(Uno)
+Creazione di CleanupGraph 0x7f904d552f50 (tre)
+Creazione di CleanupGraph 0x7f904d552f90 (quattro)
+Creazione di CleanupGraph 0x7f904d552fd0 (cinque)
+Connessione nodi CleanupGraph(quattro).next = CleanupGraph(cinque)
+Connessione nodi CleanupGraph(cinque).next = CleanupGraph(quattro)
+CleanupGraph(tre).__del__()
+
+In raccolta
+gc: collectable <Graph 0x7f904d552ed0>
+gc: collectable <Graph 0x7f904d552f10>
+gc: collectable <dict 0x7f904d55dc58>
+gc: collectable <dict 0x7f904d55dd70>
+gc: uncollectable <CleanupGraph 0x7f904d552f90>
+gc: uncollectable <CleanupGraph 0x7f904d552fd0>
+gc: uncollectable <dict 0x7f904d55de88>
+gc: uncollectable <dict 0x7f904d55e280>
+Fatto
+Trattenuto: Graph(Uno) 0x7f904d552ed0
+Trattenuto: Graph(Due) 0x7f904d552f10
+Trattenuto: CleanupGraph(quattro) 0x7f904d552f90
+Trattenuto: CleanupGraph(cinque) 0x7f904d552fd0
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/gc.html|gc|La documentazione della libreria standard per questo modulo.
+weakref.html|weakref|Il modulo <strong>weakref</strong> fornisce riferimenti ad oggetti senza incrementare il loro contatore di riferimenti, in modo che possano essere comunque raccolti dal <em>garbage collector</em>.
+http://docs.python.org/c-api/gcsupport.html|Supporting Cyclic Garbage Collection|Materiale di supporto dalla documentazione di Python delle API C.
+http://effbot.org/pyfaq/how-does-python-manage-memory.htm|How does Python manage memory?|Un articolo sulla gestione della memoria di Python di Fredrik Lundh.
+</vedi_anche>
+</documento_tradotto>

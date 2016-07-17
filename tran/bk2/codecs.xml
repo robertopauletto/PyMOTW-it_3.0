@@ -1,0 +1,1165 @@
+﻿<?xml version="1.0" encoding="Utf-8"?>
+<categoria>servizi di stringa </categoria><documento_tradotto>
+<titolo_1>
+codecs - Codifica e Decodifica di Stringhe
+</titolo_1>
+<descrizione>
+Codificatori e decodificatori per convertire testo tra diverse rappresentazioni
+2.1 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>codecs</strong> fornisce interfacce ai flussi ed ai file per trascodificare dati nel proprio programma. E' pi&ugrave; comunemente usato per lavorare con testo Unicode, ma sono disponibili altre codifiche per altri scopi.
+</testo_normale>
+<titolo_2>
+Nozioni di Unicode
+</titolo_2>
+<testo_normale>
+CPython 2.x supporta due tipi di stringhe per lavorare con dati testuali. Le istanze "vecchio stile" <em class='code'>str</em> usano un singolo byte composto da 8 bit per rappresentare ciascun carattere della stringa utilizzando il suo codice ASCII. Di contro, le stringhe <em class='code'>unicode</em> sono gestite internamente come sequenze di cosiddetti <em>code point</em> Unicode. I valori di un  <em>code point</em> sono salvati come sequenze di 2 o 4 byte ciascuno, a seconda delle opzioni fornite quando Python &egrave; stato compilato. Sia <em class='code'>unicode</em> che <em class='code'>str</em> sono derivate da una classe base comune e supportano una API similare.
+</testo_normale>
+<testo_normale>
+Quando le stringhe <em class='code'>unicode</em> sono richieste, esse sono codificate usando uno dei parecchi schemi standard, in modo che la sequenza di byte possa essere ricostruita tale e quale successivamente. I byte del valore codificato non sono necessariamente uguali ai valori di <em>code point</em> e la codifica definisce un modo per trascodificare tra i due insiemi di valori. Per leggere dati Unicode occorre anche sapere la codifica in modo che i byte in arrivo possano essere convertiti nella loro rappresentazione interna usata dalla classe <em class='code'>unicode</em>.
+</testo_normale>
+<testo_normale>
+Le codifiche pi&ugrave; comuni per i linguaggi occidentali sono <span class='bkItem'>UTF-8</span> e <span class='bkItem'>UTF-16</span>, che usano rispettivamente sequenze di valori di uno e due byte per rappresentare ciascun carattere. Altre codifiche possono essere pi&ugrave; efficaci per linguaggi per i quali la maggior parte dei caratteri sono rappresentati da <em>code point</em> che non rientrano nei due byte.
+</testo_normale>
+<note>
+Per maggiori informazioni introduttive circa Unicode, fare riferimento all'elenco di risorse alla fine dell'articolo. Il documento Python <a href='http://docs.python.org/howto/unicode'>Unicode HOWTO</a> &egrave; particolarmente utile.
+</note>
+<titolo_2>
+Encoding
+</titolo_2>
+<testo_normale>
+Il modo migliore per comprendere l'<em>encoding</em> &egrave; di osservare le diverse serie di byte prodotte codificando la stessa stringa di modi diversi. Gli esempi che seguono usano questa funzione per formattare la stringa di byte per facilitarne la lettura
+</testo_normale>
+<py_code>
+import binascii
+
+def to_hex(t, nbytes):
+    """Formattazione del testo t come sequenza valori lunghi nbyte separati da spazi."""
+    chars_per_item = nbytes * 2
+    hex_version = binascii.hexlify(t)
+    num_chunks = len(hex_version) / chars_per_item
+    def chunkify():
+        for start in xrange(0, len(hex_version), chars_per_item):
+            yield hex_version[start:start + chars_per_item]
+    return ' '.join(chunkify())
+
+if __name__ == '__main__':
+    print to_hex('abcdef', 1)
+    print to_hex('abcdef', 2)
+    
+</py_code>
+<testo_normale>
+La funzione usa <em class='code'>binascii</em> per ottenere una rappresentazione esadecimale dei byte della stringa in input, quindi inserisce uno spazio tra ogni <em>nbytes</em> byte prima di restituire il valore.
+</testo_normale>
+<py_output>
+$ python codecs_to_hex.py
+
+61 62 63 64 65 66
+6162 6364 6566
+</py_output>
+<testo_normale>
+Il primo esempio di <em>encoding</em> inizia stampando il testo <span class='bkItem'>pi: &pi;</span> usando la rappresentazione <em>raw</em> della classe <em class='code'>unicode</em>. Il carattere <span class='bkItem'>&pi;</span> viene sostituito con l'espressione per il <em>code point</em> Unicode, <span class='bkItem'>\u03c0</span>. Le due successive righe codificano la stringa rispettivamente come UTF-8 e UTF-16, e mostrano i valori esadecimali risultanti dall'operazione di <em>encoding</em>.
+</testo_normale>
+<py_code>
+from codecs_to_hex import to_hex
+
+text = u'pi: π;'
+
+print 'Raw   :', repr(text)
+print 'UTF-8 :', to_hex(text.encode('utf-8'), 1)
+print 'UTF-16:', to_hex(text.encode('utf-16'), 2)
+</py_code>
+<testo_normale>
+Il risultato dell'operazione di <em class='code'>encoding</em> di una stringa <em class='code'>unicode</em> &egrave; un oggetto <em class='code'>str</em>.
+</testo_normale>
+<py_output>
+$ codecs_encodings.py
+Raw   : u'pi: \u03c0'
+UTF-8 : 70 69 3a 20 70
+UTF-16: fffe 7000 6900 3a00 2000 7000
+</py_output>
+<testo_normale>
+Data una sequenza di byte codificati come una istanza di <em class='code'>str</em>, il metodo <span class='bkIstruzione'>decode()</span> li trascodifica in <em>code point</em> e restituisce la sequenza come istanza di <em class='code'>unicode</em>
+</testo_normale>
+<py_code>
+from codecs_to_hex import to_hex
+
+text = u'pi: \u03c0'
+encoded = text.encode('utf-8')
+decoded = encoded.decode('utf-8')
+
+print 'Originali   :', repr(text)
+print 'Codificati  :', to_hex(encoded, 1), type(encoded)
+print 'Decodificati:', repr(decoded), type(decoded)
+</py_code>
+<testo_normale>
+La scelta della codifica usata non modifica il tipo di output.
+</testo_normale>
+<py_output>
+$ codecs_decode.py
+Originali   : u'pi: \u03c0'
+Codificati  : 70 69 3a 20 70 <type 'str'>
+Decodificati: u'pi: \u03c0' <type 'unicode'>
+</py_output>
+<note>
+L'<em>encoding</em> predefinito &egrave; impostato durante il processo di avvio dell'interprete, quando viene caricato 
+<a href='http://www.doughellmann.com/PyMOTW/site/index.html#module-site' title='site'  >site</a>. Fare riferimento a <a href='http://www.doughellmann.com/PyMOTW/sys/interpreter.html#sys-unicode-defaults' title='Unicode Defaults'  >Unicode Defaults</a> per una descrizione delle impostazioni di <em>encoding</em> predefinite accessibili tramite
+<a href='http://www.doughellmann.com/PyMOTW/sys/index.html#module-sys' title='sys'  >sys</a>
+</note>
+<titolo_2>
+Lavorare con i File
+</titolo_2>
+<testo_normale>
+Codificare e decodificare le stringhe &egrave; in particolar modo importante quando si ha a che fare con operazioni di I/O. Che si stia scrivendo verso un socket, un file, od altri tipi di flusso, occorre assicurarsi che i dati vengano elaborati con l'<em>encoding</em> appropriato. In generale, tutti i dati testuali devono essere decodificati dalla loro rappresentazione in byte in fase di lettura, e codificati dai loro valori interni verso una specifica rappresentazione quando sono scritti. Un proprio programma potrebbe codificare/decodificare i dati, ma a seconda dell'<em>encoding</em> usato potrebbe non essere cos&igrave; semplice determinare se si sono letti byte a sufficienza per la completa decodifica dei dati. <strong>codecs</strong> fornisce delle classi per gestire la codifica e la decodifica dei dati, in modo che il programmatore non debba preoccuparsi di farlo egli stesso.
+</testo_normale>
+<testo_normale>
+L'interfaccia pi&ugrave; semplice fornita da <strong>codecs</strong> &egrave; un rimpiazzo della funzione <em>built-in</em> <span class='bkIstruzione'>open()</span>. La nuova versione funziona proprio come quella <em>built-in</em>, ma aggiunge due ulteriori parametri per specificare l'<em>encoding</em> e la tecnica di gestione degli errori desiderata.
+</testo_normale>
+<py_code>
+from codecs_to_hex import to_hex
+
+import codecs
+import sys
+
+encoding = sys.argv[1]
+filename = encoding + '.txt'
+
+print 'Scrittura verso', filename
+with codecs.open(filename, mode='wt', encoding=encoding) as f:
+    f.write(u'pi: \u03c0')
+
+# Determina il raggruppamento di byte da usare per to_hex()
+nbytes = { 'utf-8':1,
+           'utf-16':2,
+           'utf-32':4,
+           }.get(encoding, 1) 
+
+# Mostra i byte raw nel file
+print 'Contenuto del file:'
+with open(filename, mode='rt') as f:
+    print to_hex(f.read(), nbytes)
+</py_code>
+<testo_normale>
+Partendo da una stringa <em class='code'>unicode</em> con il <em>code point</em> per <em>&pi;</em>. questo esempio salva il testo in un file usando l'<em>encoding</em> specificato da riga di comando:
+</testo_normale>
+<py_output>
+$ codecs_open_write.py utf-8
+
+Scrittura verso utf-8.txt
+Contenuto del file:
+70 69 3a 20 cf 80
+
+$ codecs_open_write.py utf-16
+
+Scrittura verso utf-16.txt
+Contenuto del file:
+fffe 7000 6900 3a00 2000 c003
+
+$ codecs_open_write.py utf-32
+
+Scrittura verso utf-32.txt
+Contenuto del file:
+fffe0000 70000000 69000000 3a000000 20000000 c0030000
+</py_output>
+<testo_normale>
+Leggere i dati con <span class='bkIstruzione'>open()</span> &egrave; lineare, ma c'&egrave; un inconveniente: occorre sapere in anticipo quale &egrave; l'<em>encoding</em>, per potere impostare correttamente il decodificatore. Alcuni formati di dati, tipo XML, consentono di specificare l'<em>encoding</em> come parte del file, ma in  genere la gestione spetta all'applicazione. <strong>codecs</strong> semplicemente ottiene l'<em>encoding</em> come parametro ed assume che sia corretto.
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+encoding = sys.argv[1]
+filename = encoding + '.txt'
+
+print 'Lettura da: ', filename
+with codecs.open(filename, mode='rt', encoding=encoding) as f:
+    print repr(f.read())
+</py_code>
+<testo_normale>
+Questo esempio legge dai file creati dall'esempio precedente, e stampa la rappresentazione dell'oggetto <em class='code'>unicode</em> risultante alla console.
+</testo_normale>
+<py_output>
+$ codecs_open_read.py utf-8
+Lettura da:  utf-8.txt
+u'pi: \u03c0'
+
+$ codecs_open_read.py utf-16
+Lettura da:  utf-16.txt
+u'pi: \u03c0'
+
+$ codecs_open_read.py utf-32
+Lettura da:  utf-32.txt
+u'pi: \u03c0'
+</py_output>
+<titolo_2>
+Ordine dei Byte
+</titolo_2>
+<testo_normale>
+Le codifiche multi-byte tipo UTF-16 ed UTF-32 pongono un problema quando i dati vengono trasferiti tra diversi sistemi di computer, sia copiando il file direttamente che trasferendolo tramite rete. Sistemi diversi usano ordinamenti diversi rispetto all'ordine alto e basso dei byte. Questa caratteristica dei dati, nota come <em>endianness</em>, dipende da fattori tipo l'architettura hardware e da scelte fatte dal sistema operativo e dallo sviluppatore dell'applicazione. Non sempre vi &egrave; modo di sapere in anticipo quale ordine di byte usare per un certo insieme di dati, per questo motivo gli encoding multi-byte comprendono un marcatore dell'ordine dei byte (<em>byte-order marker - BOM )</em> come primi byte dell'output codificato. Ad esempio UTF-16 viene definito in modo tale che 0xFFFE  e 0xFEFF  non sono caratteri validi, e possono essere usati per indicare l'ordine di byte. <strong>codecs</strong> definisce le costanti per i marcatori dell'ordine dei byte (BOM) usate da UTF-16 ed UTF-32.
+</testo_normale>
+<py_code>
+import codecs
+from codecs_to_hex import to_hex
+
+for name in [ 'BOM', 'BOM_BE', 'BOM_LE',
+              'BOM_UTF8',
+              'BOM_UTF16', 'BOM_UTF16_BE', 'BOM_UTF16_LE',
+              'BOM_UTF32', 'BOM_UTF32_BE', 'BOM_UTF32_LE',
+              ]:
+    print '{:12} : {}'.format(name, to_hex(getattr(codecs, name), 2))
+</py_code>
+<testo_normale>
+<span class='bkItem'>BOM</span>, <span class='bkItem'>BOM_UTF16</span> e <span class='bkItem'>BOM_UTF32</span> sono impostati automaticamente ai valori <em>big-endian</em> o <em>little-endian</em> appropriati a seconda del nativo ordine dei byte nel sistema corrente.
+</testo_normale>
+<py_output>
+$ python codecs_bom.py
+
+BOM          : fffe
+BOM_BE       : feff
+BOM_LE       : fffe
+BOM_UTF8     : efbb bf
+BOM_UTF16    : fffe
+BOM_UTF16_BE : feff
+BOM_UTF16_LE : fffe
+BOM_UTF32    : fffe 0000
+BOM_UTF32_BE : 0000 feff
+BOM_UTF32_LE : fffe 0000
+</py_output>
+<testo_normale>
+L'ordinamento dei byte &egrave; rilevato e gestito automaticamente dai decodificatori in <strong>codecs</strong>, ma si pu&ograve; anche scegliere un ordinamento esplicito per la codifica.
+</testo_normale>
+<py_code>
+import codecs
+from codecs_to_hex import to_hex
+
+# Sceglie la versione non-nativa dell'encoding UTF-16 
+if codecs.BOM_UTF16 == codecs.BOM_UTF16_BE:
+    bom = codecs.BOM_UTF16_LE
+    encoding = 'utf_16_le'
+else:
+    bom = codecs.BOM_UTF16_BE
+    encoding = 'utf_16_be'
+
+print 'Ordine nativo     :', to_hex(codecs.BOM_UTF16, 2)
+print 'Ordine selezionato:', to_hex(bom, 2)
+
+# Codifica il testo.
+encoded_text = u'pi: \u03c0'.encode(encoding)
+print '{:14}: {:}'.format(encoding, to_hex(encoded_text, 2))
+
+with open('non-native-encoded.txt', mode='wb') as f:
+    # Scrive il byte-order marker selezionato.  Non e' incluso nel
+    # testo codificato in quanto la cosa e' stata resa esplicita in fase di 
+    # selezione della codifica
+    f.write(bom)
+    # Scrive la stringa di byte per il testo codificato.
+    f.write(encoded_text)
+
+</py_code>
+<testo_normale>
+<span class='bkItem'>codecs_bom_create_file.py</span> determina l'ordinamento nativo dei byte, quindi usa esplicitamente la forma alternativa in modo che il prossimo esempio possa dimestrare l'auto identificazione in fase di lettura.
+</testo_normale>
+<py_output>
+$ codecs_bom_create_file.py
+Ordine nativo     : fffe
+Ordine selezionato: feff
+utf_16_be     : 0070 0069 003a 0020 03c0
+</py_output>
+<testo_normale>
+<span class='bkItem'>codecs_bom_detection.py</span> non specifica un ordine di byte durante l'apertura del file, quindi il decodificatore usa il valore BOM che si trova nei primi due byte del file per determinarlo.
+</testo_normale>
+<py_code>
+import codecs
+from codecs_to_hex import to_hex
+
+# Lettura dei dati grezzi
+with open('non-native-encoded.txt', mode='rb') as f:
+    raw_bytes = f.read()
+
+print 'Raw    :', to_hex(raw_bytes, 2)
+
+# Riapertura del file lasciando che codecs identifichi il  BOM
+with codecs.open('non-native-encoded.txt', mode='rt', encoding='utf-16') as f:
+    decoded_text = f.read()
+
+print 'Decodificato:', repr(decoded_text)	
+</py_code>
+<testo_normale>
+Viso che i primi due byte del file vengono usati per l'identificazione dell'ordinamento dei byte, essi non sono compresi nei dati restituiti da <span class='bkIstruzione'>read()</span>.
+</testo_normale>
+<py_output>
+$ codecs_bom_detection.py
+Raw    : feff 0070 0069 003a 0020 03c0
+Decodificato: u'pi: \u03c0'
+</py_output>
+<titolo_2>
+Gestione degli Errori
+</titolo_2>
+<testo_normale>
+Le sezioni precedenti rimarcavano la necessit&agrave; di sapere la codifica usata durante la lettura e la scrittura dei file Unicode. Impostare correttamente la codifica &egrave; importante per due ragioni. Se la codifica &egrave; configurata in modo errato durante la lettura da un file, i dati verranno interpretati in modo sbagliato e potrebbero essere corrotti oppure si verificher&agrave; semplicemente un fallimento della decodifica. Non tutti i caratteri Unicode possono essere rappresentati in tutte le codifiche, quindi se viene usata la codifica sbagliata in fase di scrittura sar&agrave; generato un errore ed i dati potrebbero andare persi.
+</testo_normale>
+<testo_normale>
+<strong>codecs</strong> usa le stesse cinque opzioni di gestione degli errori che sono fornite dal metodo <span class='bkIstruzione'>encode()</span> di <em class='code'>unicode</em> e dal metodo <span class='bkIstruzione'>decode()</span> di <em class='code'>str</em>
+</testo_normale>
+<tabella_1>
+Modalit&agrave; errore|Descrizione
+strict|Solleva una eccezione se i dati non possono essere convertiti
+replace|I dati che non possono essere codificati vengono sostituiti da carattere marcatore speciale
+ignore|Non elabora i dati
+xmlcharrefreplace|carattere XML (solo in codifica)
+backslashreplace|sequenza di escape (solo in codifica)
+</tabella_1>
+<testo_normale>
+<br />
+</testo_normale>
+<titolo_3>
+Errori in Codifica
+</titolo_3>
+<testo_normale>
+La condizione di errore pi&ugrave; comune &egrave; ricevere un <a href='${baseurl}/pymotw-it/eccezioni.html#unicode_error'>UnicodeEncodeError</a> in fase di scrittura di dati Unicode verso un flusso in uscita ASCII, tipo un normale file oppure <em>sys.stdout</em>
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+error_handling = sys.argv[1]
+
+text = u'pi: \u03c0'
+
+try:
+    # Salva i dati, codificati in ASCII, usando la modalita'
+    # di gestione errori specificata da riga di comando.
+    with codecs.open('encode_error.txt', 'w',
+                     encoding='ascii',
+                     errors=error_handling) as f:
+        f.write(text)
+        
+except UnicodeEncodeError, err:
+    print 'ERRORE:', err
+    
+else:
+    # Se non ci sono errori scrivendo sul file,
+    # si mostra il suo contenuto
+    with open('encode_error.txt', 'rb') as f:
+        print 'Contenuto del file:', repr(f.read())
+</py_code>
+<testo_normale>
+La modalit&agrave; <span class='bkItem'>strict</span> &egrave; la pi&ugrave; sicura per fare s&igrave; che una propria applicazione imposti esplicitamente la corretta codifica per tutte le operazioni di I/O, tuttavia pu&ograve; condurre all'uscita prematura dal programma una volta che l'eccezione viene sollevata.
+</testo_normale>
+<py_output>
+$ python codecs_encode_error.py strict
+ERRORE: 'ascii' codec can't encode character u'\u03c0' in position 4: ordinal not in range(128)
+</py_output>
+<testo_normale>
+Alcune delle altre tipologie di errore sono pi&ugrave; flessibili. Ad esempio <span class='bkItem'>replace</span> assicura che non venga sollevato alcun errore, a scapito della possibile perdita dei dati che non possono essere convertiti nella codifica richiesta. Il carattere Unicode per il pi greco non pu&ograve; essere codificato in ASCII, ma invece che sollevare una eccezione, viene sostituito il carattere con un <span class='bkItem'>?</span> nell'output.
+</testo_normale>
+<py_output>
+$ python codecs_encode_error.py replace
+
+Contenuto del file: 'pi: ?'
+</py_output>
+<testo_normale>
+Per ignorare completamente problemi sui dati si usa <span class='bkItem'>ignore</span>. Tutti i dati che non possono essere codificati vengono semplicemente ignorati.
+</testo_normale>
+<py_output>
+$ python codecs_encode_error.py ignore
+
+Contenuto del file: 'pi: '
+</py_output>
+<testo_normale>
+Ci sono due opzioni di gestione errori che non causano perdita di dati, entrambe sostituiscono il carattere con una rappresentazione alternativa definita da uno standard a prescindere dalla codifica. <span class='bkItem'>xmlcharrefreplace</span> usa una entit&agrave; XML come sostituto (l'elenco delle entit&agrave;viene specificato nel documento presso W3C <span class='bkItem'><a href='http://www.w3.org/TR/xml-entity-names/' title='XML Entity Definitions for Characters'  >XML Entity Definitions for Characters</a></span>).
+</testo_normale>
+<py_output>
+$ python codecs_encode_error.py xmlcharrefreplace
+Contenuto del file: 'pi: &amp;#960;'
+</py_output>
+<testo_normale>
+L'altro schema di gestione errori senza perdita di dati &egrave; <span class='bkItem'>backslashreplace</span> che produce un formato in output simile a quello che si ottiene quando si usa <span class='bkIstruzione'>repr()</span> per stampare un oggetto <em class='code'>unicode</em>. I caratteri Unicode sono sostituiti da <span class='bkItem'>\u</span> seguito dal valore esadecimale del <em>code point</em>
+</testo_normale>
+<py_output>
+$ python codecs_encode_error.py backslashreplace
+Contenuto del file: 'pi: \\u03c0'
+</py_output>
+<titolo_3>
+Errori in Decodifica
+</titolo_3>
+<testo_normale>
+E' anche possibile che si verifichino errori durante la decodifica dei dati, specialmente se viene usata un codifica sbagliata.
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+from codecs_to_hex import to_hex
+
+error_handling = sys.argv[1]
+
+text = u'pi: \u03c0'
+print 'Originale         :', repr(text)
+
+# Salva i dati con una codifica   
+with codecs.open('decode_error.txt', 'w', encoding='utf-16') as f:
+    f.write(text)
+
+# Scarica i byte dal file
+with open('decode_error.txt', 'rb') as f:
+    print 'Contenuto del file:', to_hex(f.read(), 1)
+
+# Tenta di leggere i dati con la codifica errata
+with codecs.open('decode_error.txt', 'r',
+                 encoding='utf-8',
+                 errors=error_handling) as f:
+    try:
+        data = f.read()
+    except UnicodeDecodeError, err:
+        print 'ERRORE:', err
+    else:
+        print 'Originale         :', repr(data)
+</py_code>
+<testo_normale>
+Come per la codifica, la gestione di errori in modalit&agrave; <span class='bkItem'>strict</span> solleva una eccezione se il flusso di byte non pu&ograve; essere decodificato appropriatamente. In questo caso, si ottiene un <a href='${baseurl}/pymotw-it/eccezioni.html#decode_error'>UnicodeDecodeError</a> tendando di convertire parte del BOM UTF-16 in un carattere usando il decodificatore UTF-8.
+</testo_normale>
+<py_output>
+$ python codecs_decode_error.py strict
+
+Originale         : u'pi: \u03c0'
+Contenuto del file: ff fe 70 00 69 00 3a 00 20 00 c0 03
+ERRORE: 'utf8' codec can't decode byte 0xff in position 0: unexpected code byte
+</py_output>
+<testo_normale>
+Se si passa alla modalit&agrave; <span class='bkItem'>ignore</span> il decodificatore ignorer&agrave; i byte non validi. Il risultato non &egrave; ancora quello che ci si aspetta comunque, visto che sono inclusi i byte null incorporati.
+</testo_normale>
+<py_output>
+$ python codecs_decode_error.py ignore
+
+Originale         : u'pi: \u03c0'
+Contenuto del file: ff fe 70 00 69 00 3a 00 20 00 c0 03
+Letto        : u'p\x00i\x00:\x00 \x00'
+</py_output>
+<testo_normale>
+Con la modalit&agrave; <span class='bkItem'>replace</span> i byte non validi sono sostituiti da <span class='bkItem'>\uFFFD</span>, il carattere Unicode di sostituizione ufficiale, che assomiglia ad un diamante con uno sfondo nero che contiene un punto interrogativo bianco (&#65533;)
+</testo_normale>
+<py_output>
+$ python codecs_decode_error.py replace
+
+Originale         : u'pi: \u03c0'
+Contenuto del file: ff fe 70 00 69 00 3a 00 20 00 c0 03
+Letto        : u'\ufffd\ufffdp\x00i\x00:\x00 \x00\ufffd'
+</py_output>
+<titolo_2>
+Flussi Standard di Input ed Output
+</titolo_2>
+<testo_normale>
+La causa pi&ugrave; comune delle eccezioni <a href='eccezioni.html#encode_error'>UnicodeEncodeError</a>
+&egrave; del codice che tenta di stampare dati <em class='code'>unicode</em> alla console o verso una <em>pipeline</em> Unix quando ${sev}sys.stdout${eev} non è configurato con una codifica. 
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+text = u'pi: π'
+
+# La stampa verso stdout potrebbe causare un errore di codifica
+print 'encoding predefinito:', sys.stdout.encoding
+print 'TTY:', sys.stdout.isatty()
+print text
+</py_code>
+<testo_normale>
+I problemi con la codifica predefinita dei canali standard I/O  possono essere difficili da rilevare e risolvere in quanto il programma funziona come ci si attende quando l'output va verso la console, ma provoca errori di codifica quando viene usato come parte di una <em>pipeline</em> e l'output include caratteri Unicode al di sopra del limite ASCII. Questa differenza di comportamento &egrave; causata dal codice di inizializzazione di Python, che imposta la codifica predefinita per ogni canale I/O standard <em>solo se</em> il canale &egrave; connesso ad un terminale (<span class='bkIstruzione'>isatty()</span> restituisce <em>True</em>). Se non esiste un terminale, Python presume che il programma configurer&agrave; esplicitamente la codifica, e lascia perdere il canale di I/O.
+</testo_normale>
+<py_output>
+$ python codecs_stdout.py
+encoding predefinito: cp850
+TTY: True
+pi: π
+
+$ python codecs_stdout.py | cat -
+encoding predefinito: cp850
+TTY: False
+Traceback (most recent call last):
+  File "codecs_stdout.py", line 18, in <module>
+    print text
+UnicodeEncodeError: 'ascii' codec can't encode character u'\u03c0' in
+ position 4: ordinal not in range(128)
+</py_output>
+<testo_normale>
+Per impostare esplicitamente la codifica sul canale standard di output si usa <span class='bkIstruzione'>getwriter()</span> per ottenere una classe per la codifica di un flusso per una certo encoding. Successivamente si istanzia la classe passando <span class='bkItem'>sys.stdout</span> come unico parametro.
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+text = u'pi: π'
+
+# Si inserisce sys.stdout in un writer che sa come
+# gestire la codifica di dati Unicode.
+wrapped_stdout = codecs.getwriter('UTF-8')(sys.stdout)
+wrapped_stdout.write(u'Tramite write: ' + text + '\n')
+
+# Sostituzione di sys.stdout con un writer
+sys.stdout = wrapped_stdout
+
+print u'Tramite print:', text
+</py_code>
+<testo_normale>
+Quando si scrive alla versione incapsulata di <span class='bkItem'>sys.stdout</span> il testo Unicode viene passato attraverso un codificatore prima che i byte codidificati siano poi trasmessi a <em>stdout</em>. Sostituire <span class='bkItem'>sys.stdout</span> vuol dire che qualsiasi codice usato dalla propria applicazione che stampi sullo standard output sar&agrave; sempre in grado di usufruire del codificatore in scrittura.
+</testo_normale>
+<py_output>
+$ python codecs_stdout_wrapped.py
+Tramite write: pi: π
+Tramite print: pi: π
+</py_output>
+<testo_normale>
+Il prossimo problema da risolvere &egrave; come si possa sapere quale codifica dovrebbe essere usata. La codifica appropriata varia in base alla locazione, alla lingua ed alle configurazioni utente o di sistema, quindi scrivere direttamente nel codice un valore fisso non &egrave; una buona idea. Sarebbe inoltre poco simpatico per un utente essere costretto a passare esplicitamente dei parametri per ogni programma per impostare le codifiche per input ed output. Per fortuna esiste un metodo globale per ottenere una codifica ragionevole predefinita, tramite l'uso di <a href='http://www.doughellmann.com/PyMOTW/locale/index.html#module-locale' title='locale'  >locale</a>.
+</testo_normale>
+<py_code>
+import codecs
+import locale
+import sys
+
+text = u'pi: π'
+
+# Configurazione locale dalle impostazioni di ambiente dell'utente.
+locale.setlocale(locale.LC_ALL, '')
+
+# Inserisce stdout all'interno di un writer che conosce la codifica.
+lang, encoding = locale.getdefaultlocale()
+print 'Codifica locale    :', encoding
+sys.stdout = codecs.getwriter(encoding)(sys.stdout)
+
+print 'Con stdout incapsulato:', text
+</py_code>
+<testo_normale>
+<span class='bkIstruzione'>getdefaultlocale()</span> restituisce la lingua e la codifica preferenziale in base alle impostazioni di configurazione del sistema e dell'utente in un formato che possa essere usato con <span class='bkIstruzione'>getwriter()</span>.
+</testo_normale>
+<py_output>
+$ python codecs_stdout_locale.py
+
+Codifica locale    : cp1252
+Con stdout incapsulato: pi: π
+</py_output>
+<testo_normale>
+La codifica deve inoltre essere impostata quando si lavora con <a href='http://www.doughellmann.com/PyMOTW/sys/runtime.html#sys-input-output' title='sys.stdin'  >sys.stdin</a>. Si usa <span class='bkIstruzione'>getreader()</span> per ottenere un lettore in grado di decodificare i byte in input.
+</testo_normale>
+<py_code>
+import codecs
+import locale
+import sys
+
+# Configurazione locale dalle impostazioni di ambiente dell'utente
+locale.setlocale(locale.LC_ALL, '')
+
+# Inserisce stdin in un lettore che conosce la codifica
+lang, encoding = locale.getdefaultlocale()
+sys.stdin = codecs.getreader(encoding)(sys.stdin)
+
+print 'Da stdin:', repr(sys.stdin.read())
+</py_code>
+<testo_normale>
+La lettura da un handle incapsulato restituisce degli oggetti <em class='code'>unicode</em> in luogo di istanze di <em class='code'>str</em>.
+</testo_normale>
+<py_output>
+$ python codecs_stdout_locale.py | python codecs_stdin.py
+
+Da stdin: u'Codifica locale    : cp1252\nCon stdout incapsulato: pi:  \u03c0\n'
+</py_output>
+<titolo_3>
+Comunicazioni di Rete
+</titolo_3>
+<testo_normale>
+Anche i socket di rete sono flussi di byte, quindi i dati Unicode devono essere codificati in byte prima di essere scritti verso un socket
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import SocketServer
+
+class Echo(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        # Ottengo alcuni byte e li riverbero al client.
+        data = self.request.recv(1024)
+        self.request.send(data)
+        return
+
+
+if __name__ == '__main__':
+    import codecs
+    import socket
+    import threading
+
+    address = ('localhost', 0) # Lasciamo che il kernel ci fornisca una porta
+    server = SocketServer.TCPServer(address, Echo)
+    ip, port = server.server_address # scopriamo quale porta ci è stata assegnata
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) #  non lo lasciamo appeso all'uscita
+    t.start()
+
+    # Connessione al server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Invia i dati
+    text = u'pi: π'
+    len_sent = s.send(text)
+
+    # Riceve una risposta
+    response = s.recv(len_sent)
+    print repr(response)
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<testo_normale>
+Si potrebbero codificare i dati esplicitamente, prima di inviarli, ma basterebbe perdere una chiamata a ${sbk}send()${ebk}  ed il proprio programma fallirebbe con un errore di encoding.
+</testo_normale>
+<py_output>
+$ python codecs_socket_fail.py 
+
+Traceback (most recent call last):
+  File "codecs_socket_fail.py", line 35, in <module>
+    len_sent = s.send(text)
+UnicodeEncodeError: 'ascii' codec can't encode character u'\u03c0' in position 4: ordinal not in range(128)
+</py_output>
+<testo_normale>
+Se si usa ${sbk}makefile()${ebk} per ottenere un file handle per il socket, quindi lo si incapsula in un lettore/scrittore di flusso, si riescono a passare stringhe Unicode sapendo che sono codificate in entrata ed uscita dal socket.
+</testo_normale>
+<vedi_anche>
+<py_code>
+import sys
+import SocketServer
+
+
+class Echo(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        # Si ottengono alcuni byte e li si riverbera al client. 
+        # Non occorre decoficarli visto che non sono usati.
+        data = self.request.recv(1024)
+        self.request.send(data)
+        return
+
+
+class PassThrough(object):
+
+    def __init__(self, other):
+        self.other = other
+
+    def write(self, data):
+        print 'In scrittura :', repr(data)
+        return self.other.write(data)
+
+    def read(self, size=-1):
+        print 'In lettura :',
+        data = self.other.read(size)
+        print repr(data)
+        return data
+
+    def flush(self):
+        return self.other.flush()
+
+    def close(self):
+        return self.other.close()
+    
+
+if __name__ == '__main__':
+    import codecs
+    import socket
+    import threading
+
+    address = ('localhost', 0) # Lasciamo che il kernel ci fornisca una porta
+    server = SocketServer.TCPServer(address, Echo)
+    ip, port = server.server_address # scopriamo quale porta ci è stata assegnata
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # non lo lasciamo appeso all'uscita
+    t.start()
+
+    # Connessione al server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Incapsula il socket in un lettore e scrittore
+    incoming = codecs.getreader('utf-8')(PassThrough(s.makefile('r')))
+    outgoing = codecs.getwriter('utf-8')(PassThrough(s.makefile('w')))
+
+    # Invia i dati
+    text = u'pi: π'
+    print 'Inviati :', repr(text)
+    outgoing.write(text)
+    outgoing.flush()
+
+    # Riceve una risposta
+    response = incoming.read()
+    print 'Ricevuti:', repr(response)
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<testo_normale>
+Questo esempio usa ${sbk}PassThrough${ebk} per mostrare che i dati sono codificati prima di essere spediti, e la risposta viene decodificata dopo che &egrave; stata ricevuta nel client.
+</testo_normale>
+<py_output>
+$ python codecs_socket.py Inviati : u'pi: \u03c0'
+
+In scrittura : 'pi: \xcf\x80'
+In lettura : 'pi: \xcf\x80'
+Ricevuti: u'pi: \u03c0'
+</py_output>
+<titolo_3>
+Trascodifica di Encoding
+</titolo_3>
+<testo_normale>
+Sebbene la maggior parte delle applicazioni internamente lavorino con dati <em class='code'>unicode</em>, la decodifica o la codifica è parte di una operazione di I/O, ci sono volte nelle quali cambiare l'encoding di un file senza mantenere quel formato dati intermedio &egrave; utile. <span class='bkIstruzione'>EncodedFile()</span> riceve un handle di file aperto usando un encoding, quindi lo incapsula in una classe che trascodifica i dati in un altro encoding mentre &egrave; in corso l'operazione di I/O
+</testo_normale>
+<py_code>
+from codecs_to_hex import to_hex
+
+import codecs
+from cStringIO import StringIO
+
+# Versione grezza dei dati originali
+data = u'pi: \u03c0'
+
+# Codifica manuale come UTF-8
+utf8 = data.encode('utf-8')
+print 'Inizia come UTF-8   :', to_hex(utf8, 1)
+
+# Imposta un buffer in uscita, quindi lo incapsula come EncodedFile.
+output = StringIO()
+encoded_file = codecs.EncodedFile(output, data_encoding='utf-8',
+                                  file_encoding='utf-16')
+encoded_file.write(utf8)
+
+# Recupera il contenuto del buffer con codifica della stringa 
+# di byte in UTF-16
+utf16 = output.getvalue()
+print 'Codificato in UTF-16:', to_hex(utf16, 2)
+
+# Imposta un altro buffer con i dati UTF-16 per la lettura
+# e li incapsula con un altro EncodedFile.
+buffer = StringIO(utf16)
+encoded_file = codecs.EncodedFile(buffer, data_encoding='utf-8',
+                                  file_encoding='utf-16')
+
+# Legge la versione dati codificata come UTF-8
+recoded = encoded_file.read()
+print 'Ritorna ad UTF-8    :', to_hex(recoded, 1)
+</py_code>
+<testo_normale>
+L'esempio mostra la lettura da e la scrittura verso <em>handle</em> separati restituiti da ${sbk}EncodedFile()${ebk}. Non importa se l'<em>handle</em> viene usato per leggere o scrivere, <em>file_encoding</em> fa sempre riferimento all'encoding usato dall'<em>handle</em> del file aperto passato come primo parametro, ed il valore di <em>data_encoding</em> si riferisce alla codifica usata dai dati che passano attraverso le chiamate di ${sbk}read()${ebk} e ${sbk}write()${ebk}.
+</testo_normale>
+<py_output>
+$ python codecs_encodedfile.py 
+Inizia come UTF-8   : 70 69 3a 20 cf 80
+Codificato in UTF-16: fffe 7000 6900 3a00 2000 c003
+Ritorna ad UTF-8    : 70 69 3a 20 cf 80
+</py_output>
+<titolo_3>
+Encoding Non-Unicode
+</titolo_3>
+<testo_normale>
+Sebbene la maggior parte degli esempi precedenti usino codifiche Unicode, <strong>codecs</strong> può essere usato per molte altre trascodifiche di dati. Ad esempio, Python comprende codec per lavorare con formati base-64, bzip2, ROT-13, ZIP, ed altri.
+</testo_normale>
+<py_code>
+import codecs
+from cStringIO import StringIO
+
+buffer = StringIO()
+stream = codecs.getwriter('rot_13')(buffer)
+
+text = 'abcdefghijklmnopqrstuvwxyz'
+
+stream.write(text)
+stream.flush()
+
+print 'Originale:', text
+print 'ROT-13   :', buffer.getvalue()
+</py_code>
+<testo_normale>
+Qualunque trasformazione che possa essere espressa come una funzione che riceve un singolo parametro come input e restituisce un byte od una stringa Unicode può essere registrata come un codec.
+</testo_normale>
+<py_output>
+$ python codecs_rot13.py 
+
+Originale: abcdefghijklmnopqrstuvwxyz
+ROT-13   : nopqrstuvwxyzabcdefghijklm
+</py_output>
+<testo_normale>
+L'uso di <strong>codecs</strong> per incapsulare un flusso di dati fornisce una interfaccia più semplice rispetto al lavorare direttamente con <a href='http://www.doughellmann.com/PyMOTW/zlib/index.html#module-zlib'>zlib</a>.
+</testo_normale>
+<py_code>
+import codecs
+from cStringIO import StringIO
+
+from codecs_to_hex import to_hex
+
+buffer = StringIO()
+stream = codecs.getwriter('zlib')(buffer)
+
+text = 'abcdefghijklmnopqrstuvwxyz\n' * 50
+
+stream.write(text)
+stream.flush()
+
+print 'Lunghezza originale      :', len(text)
+compressed_data = buffer.getvalue()
+print 'Compressione ZIP         :', len(compressed_data)
+
+buffer = StringIO(compressed_data)
+stream = codecs.getreader('zlib')(buffer)
+
+first_line = stream.readline()
+print 'Lettura della prima riga :', repr(first_line)
+
+uncompressed_data = first_line + stream.read()
+print 'Non compresso            :', len(uncompressed_data)
+print 'Uguale                   :', text == uncompressed_data
+</py_code>
+<testo_normale>
+Non tutti i sistemi di compressione o codifica supportano la lettura di una porzione di dati attraverso l'interfaccia al flusso usando ${sbk}readline()${ebk} oppure ${sbk}read()${ebk}, in quanto devono trovare la fine di un segmento compresso da espandere. Se un proprio programma non può conservare l'intero insieme di dati non compressi in memoria, si devono usare le caratteristiche di accesso incrementale della libreria di compressione invece che di <strong>codecs</strong>.
+</testo_normale>
+<py_output>
+$ python codecs_zlib.py 
+
+Lunghezza originale      : 1350
+Compressione ZIP         : 48
+Lettura della prima riga : 'abcdefghijklmnopqrstuvwxyz\n'
+Non compresso            : 1350
+Uguale                   : True
+</py_output>
+<titolo_3>
+Encoding Incrementale
+</titolo_3>
+<testo_normale>
+Alcuni degli encoding forniti, specialmente ${sev}bz2${eev} e ${sev}zlib${eev}, possono modificare in  modo significativo la lunghezza del flusso dei dati mentre stanno lavorandoci. Per insiemi di dati molto grandi, questi encoding operano meglio in modo incrementale, lavorando su una piccola porzione di dati alla volta. Le API ${sev}IncrementalEncoder${eev} ed ${sev}IncrementalDecoder${eev} sono progettate per questo scopo.
+</testo_normale>
+<py_code>
+import codecs
+import sys
+
+from codecs_to_hex import to_hex
+
+text = 'abcdefghijklmnopqrstuvwxyz\n'
+repetitions = 50
+
+print 'Lung. testo   :', len(text)
+print 'Ripetizioni   :', repetitions
+print 'Lung. prevista:', len(text) * repetitions
+
+# Codifica il testo parecchie volte sviluppando un grande ammontare di dati
+encoder = codecs.getincrementalencoder('bz2')()
+encoded = []
+
+print
+print 'Encoding :',
+for i in range(repetitions):
+    en_c = encoder.encode(text, final = (i==repetitions-1))
+    if en_c:
+        print '\nCodificati: {} byte'.format(len(en_c))
+        encoded.append(en_c)
+    else:
+        sys.stdout.write('.')
+    
+bytes = ''.join(encoded)
+print
+print 'Lung. totale codificati:', len(bytes)
+print
+
+# Decodifica la stringa di byte un byte alla volta
+decoder = codecs.getincrementaldecoder('bz2')()
+decoded = []
+
+print 'Decoding:',
+for i, b in enumerate(bytes):
+    final= (i+1) == len(text)
+    c = decoder.decode(b, final)
+    if c:
+        print '\nDecodificati : {} caratteri'.format(len(c))
+        print 'Decoding:',
+        decoded.append(c)
+    else:
+        sys.stdout.write('.')
+print
+
+restored = u''.join(decoded)
+
+print
+print 'Lung. totale non compressi:', len(restored)
+</py_code>
+<testo_normale>
+Ogni volta che i dati sono passati al codificatore od al decodificatore viene aggiornato il loro stato interno. Quando lo stato è consistente (così come definito dal coded), vengono restituiti i dati e lo stato viene reimpostato. Fino a quel punto, le chiamate a ${sbk}encode()${ebk} o ${sbk}decode()${ebk} non restituiranno dati. Quanto l'ultimo bit di dati è stato ricevuto in input, il parametro <em>final</em> dovrebbe essere impostato a <em class='code'>True</em> in modo che il codec sappia che deve far fuoriuscire tutti i dati che sono rimasti nel buffer.
+</testo_normale>
+<py_output>
+$ python codecs_incremental_bz2.py 
+
+Lung. testo   : 27
+Ripetizioni   : 50
+Lung. prevista: 1350
+
+Encoding :.................................................
+Codificati: 99 byte
+
+Lung. totale codificati: 99
+
+Decoding:........................................................................................
+Decodificati : 1350 caratteri
+Decoding:..........
+
+Lung. totale non compressi: 1350
+</py_output>
+<titolo_3>
+Definire La Propria Codifica
+</titolo_3>
+<testo_normale>
+Visto che Python è gia provvisto di un vasto numero di codec, è improbabile che si debba definire un proprio codec. Se questo è il caso, ci sono parecchie classi base in <strong>codecs</strong> che possono facilitare il processo.
+</testo_normale>
+<testo_normale>
+Il primo passo è capire la natura della trasformazione descritta dalla codifica. Ad esempio un encoding "invertcaps" converte le lettere maiuscole in minuscole e viceversa. Ecco una semplice definizione di una funzione di encoding che eseguqe questa trasformazione in una stringa in input:
+</testo_normale>
+<py_code>
+import string
+
+def invertcaps(text):
+    """Restituisce una nuova stringa con le lettere maiuscole trasformate
+    in minuscole e viceversa.       
+    """
+    return ''.join( c.upper() if c in string.ascii_lowercase
+                    else c.lower() if c in string.ascii_uppercase
+                    else c
+                    for c in text
+                    )
+
+if __name__ == '__main__':
+    print invertcaps('ABC.def')
+    print invertcaps('abc.DEF')
+</py_code>
+<testo_normale>
+In questo caso il codificatore ed il decodificatore sono la stessa funzione (come con ${sev}ROT-13${eev}).
+</testo_normale>
+<py_output>
+$ python codecs_invertcaps.py 
+
+abc.DEF
+ABC.def
+</py_output>
+<testo_normale>
+Sebbene sia facila da comprendere, questa implementazione non è efficiente, specialmente per stringhe di testo molto grandi. Per fortuna <strong>codecs</strong> comprende alcune funzioni di aiuto per creare codec basati su delle <em>mappe di caratteri</em> tipo "invertcaps". Una mappa di caratteri per l'encoding è composta da due dizionari. La <em>mappa di codifica</em> converte i valori dei caratteri della stringa in input in valori di byte nell'output, quindi la <em>mappa di decodifica</em> li converte nell'altro senso. Occorre prima creare la <em>mappa di decodifica</em>, qundi usare ${sbk}make_encoding_map()${ebk} per la conversione nella <em>mappa di codifica</em>. Le funzioni C ${sbk}charmap_encode()${ebk} e ${sbk}charmap_decode()${ebk} usano le mappe per convertire i dati in input con efficacia.
+</testo_normale>
+<py_code>
+import codecs
+import string
+
+# Mappatura di ogni carattere su se stesso
+decoding_map = codecs.make_identity_dict(range(256))
+
+# Genera una lista di coppie di valori ordinali per le lettere 
+# minunscole e maiuscole
+pairs = zip([ ord(c) for c in string.ascii_lowercase],
+            [ ord(c) for c in string.ascii_uppercase])
+
+# Modifica la mappatura per convertire da maiuscolo a minuscolo e da 
+# minuscolo a maiuscolo.
+decoding_map.update( dict( (upper, lower) for (lower, upper) in pairs) )
+decoding_map.update( dict( (lower, upper) for (lower, upper) in pairs) )
+
+# Crea una mappa di codifica a se stante.
+encoding_map = codecs.make_encoding_map(decoding_map)
+
+if __name__ == '__main__':
+    print codecs.charmap_encode('abc.DEF', 'strict', encoding_map)
+    print codecs.charmap_decode('abc.DEF', 'strict', decoding_map)
+    print encoding_map == decoding_map
+</py_code>
+<testo_normale>
+Sebbene le mappe per la codifica e la decodifica per "invertcaps" siano le stesse, questo potrebbe non sempre essere il caso. ${sbk}make_encoding_map()${ebk} rileva le situazioni dove più di un carattere in input viene codificato con lo stesso byte in output e sostituisce il valore in codifica con <em class='code'>None</em> per contrassegnare la codifica come indefinita.
+</testo_normale>
+<py_output>
+$ python codecs_invertcaps_charmap.py 
+
+('ABC.def', 7)
+(u'ABC.def', 7)
+True
+</py_output>
+<testo_normale>
+Le mappe di caratteri in codifica e decodifica supportano tutti i metodi di gestione di errori standard descritti in precedenza, quindi non occorre un lavoro supplementare per completare quella parte di API.
+</testo_normale>
+<py_code>
+import codecs
+from codecs_invertcaps_charmap import encoding_map
+
+text = u'pi: π'
+
+for error in [ 'ignore', 'replace', 'strict' ]:
+    try:
+        encoded = codecs.charmap_encode(text, error, encoding_map)
+    except UnicodeEncodeError, err:
+        encoded = str(err)
+    print '{:7}: {}'.format(error, encoded)
+</py_code>
+<testo_normale>
+Visto che il <em>code point</em> Unicode per π non si trova nella mappa di codifica, la modalità di gestione errore <em>strict</em> solleva una eccezione.
+</testo_normale>
+<py_output>
+$ python codecs_invertcaps_error.py 
+
+ignore : ('PI: ', 5)
+replace: ('PI: ?', 5)
+strict : 'charmap' codec can't encode character u'\u03c0' in position 4: character maps to <undefined>
+</py_output>
+<testo_normale>
+Dopo che le mappe di codifica e decodifica sono state definite, occorre impostare alcune classi addizionali e registrare l'encoding. ${sbk}register()${ebk} aggiunge una funzione di ricerca al registro in modo che quando un utente vuole usare il proprio encoding <strong>codecs</strong> è in grado di trovarlo. La funzione di ricerca deve ottenere un singola stringa come parametro con il nome dell'encoding, e restituire un oggetto ${sbk}CodecInfo${ebk} se conosce l'encoding, oppure <em class='code'>None</em> se non lo conosce.
+</testo_normale>
+<py_code>
+import codecs
+import encodings
+
+def search1(encoding):
+    print 'ricerca1: Ricerca di :', encoding
+    return None
+
+def search2(encoding):
+    print 'ricerca2: Ricerca di :', encoding
+    return None
+
+codecs.register(search1)
+codecs.register(search2)
+
+utf8 = codecs.lookup('utf-8')
+print 'UTF-8:', utf8
+
+try:
+    unknown = codecs.lookup('questo-encoding-non-esiste')
+except LookupError, err:
+    print 'ERRORE:', err
+</py_code>
+<testo_normale>
+Si possono registare molteplici funzioni di ricerca, ognuna delle quali sarà chiamata di volta in volta, fino a che viene restituito un ${sbk}CodecInfo${ebk} oppure l'elenco viene esaurito. La funzione di ricerca interna registrata da <strong>codecs</strong> sa come caricare i codec standard tipo UTF-8 da <em class='code'>encodings</em>, per cui questi nomi non verranno mai passati alla propria funzione di ricerca.
+</testo_normale>
+<py_output>
+$ python codecs_register.py 
+
+UTF-8: <codecs.CodecInfo object for encoding utf-8 at 0xb78867dc>
+ricerca1: Ricerca di : questo-encoding-non-esiste
+ricerca2: Ricerca di : questo-encoding-non-esiste
+ERRORE: unknown encoding: questo-encoding-non-esiste
+</py_output>
+<testo_normale>
+L'istanza di ${sbk}CodecInfo${ebk} restituita dalla funzione di ricerca dice a <strong>codecs</strong> come eseguire la codifica e la decodifica usando tutti i vari meccanismi supportati: <em>stateless</em>, <em>incremental</em> e <em>stream</em>. <strong>codecs</strong> comprende delle classi base per facilitare l'imposatzione della mappa di caratteri di codifica. Questo esempio mette insieme tutti i pezzi per registrare una funzione che restituisca una istanza di ${sbk}CodecInfo${ebk} configurata per il codec <em>invertcaps</em>.
+</testo_normale>
+<py_code>
+import codecs
+
+from codecs_invertcaps_charmap import encoding_map, decoding_map
+
+# Stateless encoder/decoder
+
+class InvertCapsCodec(codecs.Codec):
+    def encode(self, input, errors='strict'):
+        return codecs.charmap_encode(input, errors, encoding_map)
+
+    def decode(self, input, errors='strict'):
+        return codecs.charmap_decode(input, errors, decoding_map)
+
+# Forma Incrementale
+
+class InvertCapsIncrementalEncoder(codecs.IncrementalEncoder):
+    def encode(self, input, final=False):
+        return codecs.charmap_encode(input, self.errors, encoding_map)[0]
+
+class InvertCapsIncrementalDecoder(codecs.IncrementalDecoder):
+    def decode(self, input, final=False):
+        return codecs.charmap_decode(input, self.errors, decoding_map)[0]
+
+# Lettore/scrittore di flusso
+
+class InvertCapsStreamReader(InvertCapsCodec, codecs.StreamReader):
+    pass
+
+class InvertCapsStreamWriter(InvertCapsCodec, codecs.StreamWriter):
+    pass
+
+# Registra la funzione di ricerca del codec
+
+def find_invertcaps(encoding):
+    """Riturna il codec per 'invertcaps'.
+    """
+    if encoding == 'invertcaps':
+        return codecs.CodecInfo(
+            name='invertcaps',
+            encode=InvertCapsCodec().encode,
+            decode=InvertCapsCodec().decode,
+            incrementalencoder=InvertCapsIncrementalEncoder,
+            incrementaldecoder=InvertCapsIncrementalDecoder,
+            streamreader=InvertCapsStreamReader,
+            streamwriter=InvertCapsStreamWriter,
+            )
+    return None
+
+codecs.register(find_invertcaps)
+
+if __name__ == '__main__':
+
+    # Stateless encoder/decoder
+    encoder = codecs.getencoder('invertcaps')
+    text = 'abc.DEF'
+    encoded_text, consumed = encoder(text)
+    print "L'encoder ha convertito '{}' in '{}', utilizzando {} caratteri".format(
+        text, encoded_text, consumed)
+
+    # Scrittore di flusso
+    import sys
+    writer = codecs.getwriter('invertcaps')(sys.stdout)
+    print 'Scrittore di flusso per stdout: ',
+    writer.write('abc.DEF')
+    print
+
+    # Decoder Incrementale
+    decoder_factory = codecs.getincrementaldecoder('invertcaps')
+    decoder = decoder_factory()
+    decoded_text_parts = []
+    for c in encoded_text:
+        decoded_text_parts.append(decoder.decode(c, final=False))
+    decoded_text_parts.append(decoder.decode('', final=True))
+    decoded_text = ''.join(decoded_text_parts)
+    print "IncrementalDecoder ha convertito '{}' in '{}'".format(
+        encoded_text, decoded_text)
+</py_code>
+<testo_normale>
+La classe base per il codificatore/decoficatore <em>stateless</em> è ${sbk}Codec${ebk}. Occorre sovrascrivere ${sbk}encode()${ebk} e ${sbk}decode()${ebk} con la propria implementazione (in questo caso, chiamando ${sbk}charmap_encode()${ebk} e ${sbk}charmap_decode()${ebk} rispettivamente). Ogni metodo deve restituire una tupla che contiene i dati trasformati ed il numero di byte o caratteri in input che sono stati utilizzati. Opportunamente, sia ${sbk}charmap_encode()${ebk} che ${sbk}charmap_decode()${ebk} restituiscono già quell'informazione.
+</testo_normale>
+<testo_normale>
+${sbk}IncrementalEncoder${ebk} ed ${sbk}IncrementalDecoder${ebk} servono da classe base per le interfacce incrementali. I metodi ${sbk}encode()${ebk} e ${sbk}decode()${ebk} delle classi incrementali sono definiti in modo che essi restituiscono solo gli  effettivi dati trasformati. Qualsiasi informazione circa il <em>buffering</em> viene mantenuta come stato interno. L'encoding <em>invertcaps</em> non necessita di un buffer di dati (usa una mappatura uno-ad-uno). Per encoding che producono un diverso ammontare in output a seconda dei dati che sono elaborati, tipo gli algoritmi di compressione, ${sbk}BufferedIncrementalEncoder${ebk} e ${sbk}BufferedIncrementalDecoder${ebk} sono più appropriati come classi base, visto che esse gestiscono autonomamente la porzione di input non elaborata.
+</testo_normale>
+<testo_normale>
+Anche ${sbk}StreamReader${ebk} e ${sbk}StreamWriter${ebk} hanno bisogno dei metodi ${sbk}encode()${ebk} e ${sbk}decode()${ebk}, e visto che ci si aspetta che restituiscano lo stesso valore della versione di ${sbk}Codec${ebk} si può utilizzare l'ereditarietà multipla per l'implementazione.
+</testo_normale>
+<py_output>
+$ python codecs_invertcaps_register.py 
+
+L'encoder ha convertito 'abc.DEF' in 'ABC.def', utilizzando 7 caratteri
+StreamWriter per per stdout: ABC.def
+IncrementalDecoder ha convertito 'ABC.def' in 'abc.DEF'
+</py_output>
+<vedi_anche>
+http://www.doughellmann.com/PyMOTW/locale/index.html#module-locale|locale|Accedere e gestire le impostazioni ed i comportamenti di configurazione basati sulla localizzazione
+http://docs.python.org/library/io.html|io|Anche il modulo <strong>io</strong> contiene metodi per incapsulare i file e gli stream che gestiscono la codifica e la decodifica
+http://www.doughellmann.com/PyMOTW/SocketServer/index.html#module-SocketServer|SocketServer|Per informazioni più dettagliate di un echo server, vedere il modulo SocketServer 
+#|encodings|Pacchetto della libreria standard che contiene le implementazioni per encoder/decoder fornite da Python.
+http://docs.python.org/howto/unicode|Unicode HOWTO|La guida ufficiale all'uso di Unicode con Python 2.x.
+http://effbot.org/zone/unicode-objects.htm|Python Unicode Objects|Un articolo di Fredrik Lundh sull'uso di insiemi di caratteri non-ASCII in Python 2.0.
+http://evanjones.ca/python-utf8.html|How to use UTF-8 with Python|Guida rapida di Evan Jones per lavorare con Unicode, incluso i dati XML ed il Byte-Order Marker.
+http://www.tbray.org/ongoing/When/200x/2003/04/06/Unicode|On the Goodness of Unicode|Introduzione alla internazionalizzazione ed Unicode, di Tim Bray.
+http://www.tbray.org/ongoing/When/200x/2003/04/13/Strings|On Character Strings|Uno sguardo alla storie della elaborazione di stringhe nei linguaggi di programmazione, di Tim Bray.
+http://www.tbray.org/ongoing/When/200x/2003/04/26/UTF|Characters vs. Bytes|Prima parte di 'essay on modern character string processing for computer programmers', di Tim Bray. Questo lavoro tratta della rappresentazione in memoria del testo in formati diversi da byte ASCII.
+http://www.joelonsoftware.com/articles/Unicode.html|The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)|Una introduzione ad Unicode, di Joel Spolsky.
+http://it.wikipedia.org/wiki/Ordine_dei_byte|Ordine dei byte|All'interno dell'articolo di Wikipedia una spiegazione su endianness.
+</vedi_anche>
+</documento_tradotto>
+    

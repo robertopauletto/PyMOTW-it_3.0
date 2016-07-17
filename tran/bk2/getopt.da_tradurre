@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+getopt - Analizza le opzioni di riga di comando
+</titolo_1>
+<descrizione>
+Analizza le opzioni di riga di comando
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>getopt</strong> è la versione "vecchia scuola" dell'analizzatore di opzioni di riga di comando che supporta le convenzioni Unix stabilite dalla funzione ${sbk}getopt()${ebk}. Elabora una sequenza di parametri tipo ${sev}sys.argv${eev} e restituisce una sequenza di coppie di valori opzione:parametro ed una sequenza di parametri non abbinati ad una opzione.
+</testo_normale>
+<testo_normale>
+La sintassi delle opzioni supportata comprende:
+</testo_normale>
+<lista>
+-a
+-bval
+-b val
+--noarg
+--witharg=val
+--witharg val    
+</lista>
+<titolo_2>
+Parametri della Funzione    
+</titolo_2>
+<testo_normale>
+La funzione getopt riceve tre parametri:    
+</testo_normale>
+<lista>
+Il primo è la sequenza di parametri da analizzare. In genere deriva da ${sev}sys.argv[1:]${eev} (viene ignorato il nome del programma in ${sev}sys.argv[0]${eev}).
+Il secondo parametro è la stringa di definizione dell'opzione a carattere sigolo. Se una delle opzioni richiede un parametro, la sua lettera viene seguita da una virgola.
+Il terzo parametro, se usato, dovrebbe essere una sequanza di nomi di opzioni nella versione "lunga". La versione lunga delle opzioni può essere più di un singolo carattere, tipo ${sev}--noarg${eev} oppure ${sev}--witharg${eev}. I nomi dell'opzione nella sequenza non dovrebbero comprendere il prefisso ${sev}--${eev}. Se una opzione lunga richiede un parametro, il suo nome dovrebbe avere come suffisso ${sev}=${eev}.
+</lista>
+<testo_normale>
+La forma breve e la forma lunga possono essere combinate in una unica chiamata.
+</testo_normale>
+<titolo_2>
+Forma Breve di Opzioni
+</titolo_2>
+<testo_normale>
+Se un programma vuole ottenere 2 opzioni, ${sev}-a${eev} e ${sev}-b${eev} con l'opzionie b che richiede un parametro, il valore dovrebbe essere ${sev}"ab:"${eev}.
+</testo_normale>
+<py_code>
+import getopt
+
+print getopt.getopt(['-a', '-bval', '-c', 'val'], 'ab:c:')
+</py_code>
+<py_output>
+$ python getopt_short.py
+([('-a', ''), ('-b', 'val'), ('-c', 'val')], [])    
+</py_output>
+<titolo_2>
+Forma Lunga di Opzioni
+</titolo_2>
+<testo_normale>
+Se un programma vuole ottenere 2 opzioni, ${sev}--noarg${eev} e ${sev}--witharg${eev} la sequanza dovrebbe essere ${sev}[ 'noarg', 'witharg=' ]${eev}.
+</testo_normale>
+<py_code>
+import getopt
+
+print getopt.getopt([ '--noarg', '--witharg', 'val', '--witharg2=another' ],
+                    '',
+                    [ 'noarg', 'witharg=', 'witharg2=' ])
+</py_code>
+<py_output>
+$ python getopt_long.py
+([('--noarg', ''), ('--witharg', 'val'), ('--witharg2', 'another')], [])    
+</py_output>
+<titolo_2>
+Esempio    
+</titolo_2>
+<testo_normale>
+Di sequito un programma di esempio più completo che richiede 5 opzioni: ${sev}-o${eev}, ${sev}-v${eev}, ${sev}--output${eev}, ${sev}--verbose${eev}, e ${sev}--version${eev}. Le opzioni ${sev}-o${eev}, ${sev}--output${eev}, e ${sev}--version${eev} richiedono ciascuna un parametro
+</testo_normale>
+<py_code>
+import getopt
+import sys
+
+version = '1.0'
+verbose = False
+output_filename = 'default.out'
+
+print 'ARGV      :', sys.argv[1:]
+
+options, remainder = getopt.getopt(sys.argv[1:], 'o:v', ['output=', 
+                                                         'verbose',
+                                                         'version=',
+                                                         ])
+print 'OPZIONI   :', options
+
+for opt, arg in options:
+    if opt in ('-o', '--output'):
+        output_filename = arg
+    elif opt in ('-v', '--verbose'):
+        verbose = True
+    elif opt == '--version':
+        version = arg
+
+print 'VERSION   :', version
+print 'VERBOSE   :', verbose
+print 'OUTPUT    :', output_filename
+print 'RIMASTE   :', remainder
+</py_code>
+<testo_normale>
+Il programma può essere richiamato in diversi modi    
+</testo_normale>
+<py_output>
+$ python getopt_example.py
+ARGV      : []
+OPZIONI   : []
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : default.out
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Un opzione breve (ad una lettera) può esere divisa dal proprio parametro:
+</testo_normale>
+<py_output>
+$ python getopt_example.py -o foo
+ARGV      : ['-o', 'foo']
+OPZIONI   : [('-o', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+oppure unita:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -ofoo
+ARGV      : ['-ofoo']
+OPZIONI   : [('-o', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Allo stesso modo una opzione lunga può essere separata dal suo parametro:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py --output foo
+ARGV      : ['--output', 'foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+oppure può essere combinata con ${sev}=${eev}:
+</testo_normale>
+<py_output>
+$ python getopt_example.py --output=foo
+ARGV      : ['--output=foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<titolo_2>
+Abbreviazione della Forma Lunga di Opzioni    
+</titolo_2>
+<testo_normale>
+L'opzione a forma lunga non necessita che sia passata letteralmente, fintanto che viene passato un prefisso univoco:
+</testo_normale>
+<py_output>
+$ python getopt_example.py --o foo
+ARGV      : ['--o', 'foo']
+OPZIONI   : [('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : False
+OUTPUT    : foo
+RIMASTE   : []    
+</py_output>
+<testo_normale>
+Se non viene passato un prefisso univoco viene sollevata una eccezione    
+</testo_normale>
+<py_output>
+$ python getopt_example.py --ver 2.0
+ARGV      : ['--ver', '2.0']
+Traceback (most recent call last):
+  File "getopt_example.py", line 44, in <module>
+    'version=',
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 88, in getopt
+    opts, args = do_longs(opts, args[0][2:], longopts, args[1:])
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 152, in do_longs
+    has_arg, opt = long_has_args(opt, longopts)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/getopt.py", line 179, in long_has_args
+    raise GetoptError('option --%s not a unique prefix' % opt, opt)
+getopt.GetoptError: option --ver not a unique prefix    
+</py_output>
+<testo_normale>
+L'analisi delle opzioni si interrompe non appena viene rilevato il primo parametro che non appartiene ad una opzione    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -v not_an_option --output foo
+ARGV      : ['-v', 'not_an_option', '--output', 'foo']
+OPZIONI   : [('-v', '')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : default.out
+RIMASTI   : ['not_an_option', '--output', 'foo']    
+</py_output>
+<titolo_2>
+Analisi di Opzione in Stile GNU    
+</titolo_2>
+<testo_normale>
+A partire da Python 2.3 è stata aggiunta la funzione ${sbk}gnu_getopt()${ebk}. Consente ai parametri di opzione ed a quelli non abbinati ad una opzione di essere mescolati nella riga di comando in qualsiasi ordine.
+</testo_normale>
+<py_code>
+import getopt
+import sys
+
+version = '1.0'
+verbose = False
+output_filename = 'default.out'
+
+print 'ARGV      :', sys.argv[1:]
+
+options, remainder = getopt.gnu_getopt(sys.argv[1:], 'o:v', ['output=', 
+                                                             'verbose',
+                                                             'version=',
+                                                             ])
+print 'OPZIONI   :', options
+
+for opt, arg in options:
+    if opt in ('-o', '--output'):
+        output_filename = arg
+    elif opt in ('-v', '--verbose'):
+        verbose = True
+    elif opt == '--version':
+        version = arg
+
+print 'VERSION   :', version
+print 'VERBOSE   :', verbose
+print 'OUTPUT    :', output_filename
+print 'RIMASTI   :', remainder
+</py_code>
+<testo_normale>
+Dopo avere modificato la chiamata nell'esempio precedente, la differenza appare chiara:    
+</testo_normale>
+<py_output>
+$ python getopt_gnu.py -v not_an_option --output foo
+ARGV      : ['-v', 'not_an_option', '--output', 'foo']
+OPZIONI   : [('-v', ''), ('--output', 'foo')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : foo
+RIMASTI   : ['not_an_option']    
+</py_output>
+<titolo_2>
+Un Caso Particolare: --    
+</titolo_2>
+<testo_normale>
+Se getopt trova ${sev}--${eev} come parametro in input, interrompe l'elaborazione dei parametri restanti come opzioni:    
+</testo_normale>
+<py_output>
+$ python getopt_example.py -v -- --output foo
+ARGV      : ['-v', '--', '--output', 'foo']
+OPZIONI   : [('-v', '')]
+VERSION   : 1.0
+VERBOSE   : True
+OUTPUT    : default.out
+RIMASTI   : ['--output', 'foo']
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/getopt.html|getopt|La documentazione della libreria standard per questo modulo.
+${baseurl}/pymotw-it/optparse.html|optparse|Il modulo optparse
+</vedi_anche>
+
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+-->
+</documento_tradotto>

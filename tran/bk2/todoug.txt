@@ -1,0 +1,20 @@
+Doug,
+
+If I don't bother you I would like, as long as I'm going on with the translation, to signal you some typos in your articles:
+http://www.doughellmann.com/PyMOTW/StringIO/index.html -  conctatenation
+http://www.doughellmann.com/PyMOTW/string/index.html - INTERPLOATION
+
+Regarding this article: http://www.doughellmann.com/PyMOTW/struct/index.html at a certain point you say:
+"... (note the discrepancy in the floating point value)."
+but no console output is shown in the article.
+So I took the liberty to add in my translated article some console output for the pack and unpack example to clarify the discrepancy concept.
+
+I'm well aware that a translator must stick to the original article without whatsoever interpretation so if you don'agree I will cut out from the article the console output.
+
+Sorry again to bother you.
+
+Bye, Roberto
+
+
+
+

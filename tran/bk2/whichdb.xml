@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+wichdb - Identifica i formati di database in stile DBM
+</titolo_1>
+<descrizione>
+Esamina un file di database in stile DBM esistente e determina quale libreria dovrebbe essere usata per aprirlo
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>whicdb</strong> contiene una funzione, ${sbk}whicdb()${ebk}. Può essere usato per esaminare un file di database esistente per determinare quale libreria dbm si dovrebbe usare per aprirlo. Restituisce <strong>None</strong> se ci sono problemi nell'apertura del file, oppure la stringa con il nome del modulo da usare per aprire il file. Se riesce ad aprire il file ma non può determinare quale libreria usare, restituisce una stringa vuota.
+</testo_normale>
+<py_code>
+import anydbm
+import whichdb
+
+db = anydbm.open('/tmp/esempio.db', 'n')
+db['chiave'] = 'valore'
+db.close()
+
+print whichdb.whichdb('/tmp/esempio.db')
+</py_code>
+<testo_normale>
+I risultati potrebbero variare, a seconda di quali moduli siano disponibili nel proprio PYTHONPATH.    
+</testo_normale>
+<py_output>
+$ python whichdb_whichdb.py 
+dbhash
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-whichdb.html|whichdb|La documentazione della libreria standard per questo modulo.
+anydbm.html|anydbm|Il modulo anydbm usa l'implementazione DBM migliore disponibile per la creazione di nuovi database.
+shelve.html|shelve|Il modulo shelve fornisce una API in stile mappatura per i database DBM
+</vedi_anche>
+</documento_tradotto>

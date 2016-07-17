@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>riferimenti</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+Riferimenti
+</titolo_1>
+<descrizione>
+Questa sezione include note e suggerimenti per l'aggiornamento da Python 2 a Python 3, compresi riepiloghi e riferimenti riguardo alle modifiche per ciascun modulo.
+</descrizione>
+<titolo_2>
+Le note in questa sezione sono basate sui documenti "What's New", preparati dalla squadra di sviluppo di Python e gestione dei rilasci per ogni rilascio.
+</titolo_2>
+<lista>
+<a href='https://docs.python.org/3.0/whatsnew/3.0.html'>What's new in Python 3.0</a>
+<a href='https://docs.python.org/3.0/whatsnew/3.1.html'>What's new in Python 3.1</a>
+<a href='https://docs.python.org/3.0/whatsnew/3.2.html'>What's new in Python 3.2</a>
+<a href='https://docs.python.org/3.0/whatsnew/3.3.html'>What's new in Python 3.3</a>
+<a href='https://docs.python.org/3.0/whatsnew/3.4.html'>What's new in Python 3.4</a>
+<a href='https://docs.python.org/3.0/whatsnew/3.5.html'>What's new in Python 3.5</a>
+</lista>
+<testo_normale>
+Per ulteriori informazioni sulla portabilità verso Python 3, fare riferimento a
+<lista>
+</testo_normale>
+<a href='https://docs.python.org/3/howto/pyporting.html'>Porting Python 2 Code to Python 3</a>
+<a href="http://python3porting.com/">Porting to Python 3, di Lennart Regebro</a>
+<a href="http://mail.python.org/mailman/listinfo/python-porting">La mailing list python-porting </a>
+</lista>
+<titolo_2>
+Moduli Rinominati
+</titolo_2>
+<testo_normale>
+Molti moduli della libreria standard sono stati rinominati in Python 3 rispetto alla versione 2 in base alla riorganizzazione della libreria standard (<a href="https://www.python.org/dev/peps/pep-3108">PEP 3108</a>). Tutti i nuovi nomi dei moduli sono consistenti con la sintassi in minuscolo, alcuni moduli sono stati spostati in pacchetti per una migliore organizzazione dei moduli collegati. Una lista completa dei moduli rinominati si può trovare nel dizionario <code>lib2to3.fixes.fix_imports.MAPPING</code> (le chiavi sono il nome in Python 3 ed i valori sono i nomi in Python 3).
+</testo_normale>
+<tabella_semplice>
+BaseHTTPServer;http.server
+CGIHTTPServer;http.server
+ConfigParser;configparser
+Cookie;http.cookies
+Dialog;tkinter.dialog
+DocXMLRPCServer;xmlrpc.server
+FileDialog;tkinter.filedialog
+HTMLParser;html.parser
+Queue;queue
+ScrolledText;tkinter.scrolledtext
+SimpleDialog;tkinter.simpledialog
+SimpleHTTPServer;http.server
+SimpleXMLRPCServer;xmlrpc.server
+SocketServer;socketserver
+StringIO;io
+Tix;tkinter.tix
+Tkconstants;tkinter.constants
+Tkdnd;tkinter.dnd
+Tkinter;tkinter
+UserList;collections
+UserString;collections
+__builtin__;builtins
+_winreg;winreg
+cPickle;pickle
+cStringIO;io
+commands;subprocess
+cookielib;http.cookiejar
+copy_reg;copyreg
+dbhash;dbm.bsd
+dbm;dbm.ndbm
+dumbdbm;dbm.dumb
+dummy_thread;_dummy_thread
+gdbm;dbm.gnu
+htmlentitydefs;html.entities
+httplib;http.client
+markupbase;_markupbase
+repr;reprlib
+robotparser;urllib.robotparser
+thread;_thread
+tkColorChooser;tkinter.colorchooser
+tkCommonDialog;tkinter.commondialog
+tkFileDialog;tkinter.filedialog
+tkFont;tkinter.font
+tkMessageBox;tkinter.messagebox
+tkSimpleDialog;tkinter.simpledialog
+ttk;tkinter.ttk
+urlparse;urllib.parse
+xmlrpclib;xmlrpc.client
+</tabella_semplice>
+<vedi_anche>
+http://pythonhosted.org/six/|six|Il pacchetto <strong>six</strong>|Utile per scrivere codice che funziona sotto Python 2 e Python 3. In particolare, il modulo <code>six.moves</code> consente al proprio codice di importare moduli rinominati utilizzando una singola istruzione <code>import</code>, redirigendo automaticamente l'importazione alla versione corretta del modulo in base alla versione di Python.
+https://www.python.org/dev/peps/pep-3108|Riorganizzazione della libreria standard|
+</vedi_anche>
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+-->
+</documento_tradotto>

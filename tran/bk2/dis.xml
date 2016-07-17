@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>servizi del linguaggio python</categoria>
+<titolo_1>
+dis - Disassemblatore di bytecode Python
+</titolo_1>
+<descrizione>
+Converte oggetti codice in una rappresentazione leggibile dall'uomo dei <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> per un'analisi
+1.4 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>dis</strong> contiene funzioni per lavorare con <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> Python per "disassemblarlo" in una forma più leggibile dall'uomo. Esaminare i <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> che l'interprete sta eseguendo è un buon modo per realizzare una "sintonizzazione manuale" di <a href='#tightloop'>tight loop</a> ed esegurire altri tipi di ottimizzazioni. E' anche utile per trovare <a href="http://it.wikipedia.org/wiki/Race_condition">race conditions</a> in applicazioni <a href='http://it.wikipedia.org/wiki/Multithreading'>multi thread</a>, visto che è possibile stabilire il punto nel proprio codice nel quale il controllo del thread potrebbe trasferirsi.
+</testo_normale>
+<note>
+<a name='tightloop'></a>
+Per tight loop si intende un ciclo che contiene poche istruzioni e che esegue iterazioni per molte volte, oppure un ciclo che usa pesantemente risorse in I/O oppure del processore, senza dividerle adeguatamente con altri programmi in esecuzione nel sistema operativo - n.d.t.
+</note>
+<titolo_2>
+Disassemblaggio di base
+</titolo_2>
+<testo_normale>
+La funzione <code>dis.dis()</code> stampa la rappresentazione disassemblata di un sorgente di codice Python (modulo, classe, metodo, funzione od oggetto codice). Si può disassemblare un modulo in questo modo:
+</testo_normale>
+<py_code_lineno>
+#!/usr/binf/env python
+# -*- coding: UTF-8 -*-
+
+my_dict = { 'a':1 }
+</py_code_lineno>
+<testo_normale>
+eseguendo <strong>dis</strong> dalla riga di comando. La visualizzazione del risultato è organizzata in colonne con il numero di riga del sorgente originale, l'indirizzo dell'istruzione all'interno dell'oggetto codice, il nome <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> e qualsivoglia argomento passato all'<a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a>.
+</testo_normale>
+<py_output>
+$ python -m dis dis_simple.py
+
+  4           0 BUILD_MAP                1
+              3 LOAD_CONST               0 (1)
+              6 LOAD_CONST               1 ('a')
+              9 STORE_MAP
+             10 STORE_NAME               0 (my_dict)
+             13 LOAD_CONST               2 (None)
+             16 RETURN_VALUE
+</py_output>
+<testo_normale>
+In questo caso, il sorgente si traduce in 5 diverse operazioni per creare e popolare il dizionario, quindi salvare i risultati in una variabile locale. Visto che l'interprete Python è basato sullo <a href='http://it.wikipedia.org/wiki/Stack'>stack</a>, i primi passi sono il porre le costanti nello <a href='http://it.wikipedia.org/wiki/Stack'>stack</a> nel corretto ordine con <strong>LOAD_CONST</strong>, quindi usare <strong>STORE_MAP</strong> per estrarre la nuova chiave ed il valore da aggiungere al dizionario. L'oggetto risultante viene legato al nome "my_dict" con <strong>STORE_NAME</strong>.
+</testo_normale>
+<titolo_2>
+Disassemblare Funzioni
+</titolo_2>
+<testo_normale>
+Sfortunatamente, il disassemblaggio dell'intero modulo non esegue una ricorsione all'interno delle funzioni automaticamente. Ad esempio, se si inizia con questo modulo:
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+def f(*args):
+    nargs = len(args)
+    print nargs, args
+
+if __name__ == '__main__':
+    import dis
+    dis.dis(f)
+</py_code_lineno>
+<testo_normale>
+i risultati mostrano il caricamento dell'oggetto codice dentro lo stack, quindi lo spostamento in una funzione (<strong>LOAD_CONST</strong>, <strong>MAKE_FUNCTION</strong>), ma non il corpo della funzione.
+</testo_normale>
+<py_output>
+$ python -m dis dis_function.py
+
+  4           0 LOAD_CONST               0 (&lt;code object f at 0x7faadb1fe830, file "dis_function.py", line 4>)
+              3 MAKE_FUNCTION            0
+              6 STORE_NAME               0 (f)
+
+  8           9 LOAD_NAME                1 (__name__)
+             12 LOAD_CONST               1 ('__main__')
+             15 COMPARE_OP               2 (==)
+             18 POP_JUMP_IF_FALSE       49
+
+  9          21 LOAD_CONST               2 (-1)
+             24 LOAD_CONST               3 (None)
+             27 IMPORT_NAME              2 (dis)
+             30 STORE_NAME               2 (dis)
+
+ 10          33 LOAD_NAME                2 (dis)
+             36 LOAD_ATTR                2 (dis)
+             39 LOAD_NAME                0 (f)
+             42 CALL_FUNCTION            1
+             45 POP_TOP
+             46 JUMP_FORWARD             0 (to 49)
+        >>   49 LOAD_CONST               3 (None)
+             52 RETURN_VALUE
+</py_output>
+<testo_normale>
+Per vedere l'interno della funzione, occorre passarla a <code>dis.dis()</code>
+</testo_normale>
+<py_output>
+$ python  dis_function.py
+
+  5           0 LOAD_GLOBAL              0 (len)
+              3 LOAD_FAST                0 (args)
+              6 CALL_FUNCTION            1
+              9 STORE_FAST               1 (nargs)
+
+  6          12 LOAD_FAST                1 (nargs)
+             15 PRINT_ITEM
+             16 LOAD_FAST                0 (args)
+             19 PRINT_ITEM
+             20 PRINT_NEWLINE
+             21 LOAD_CONST               0 (None)
+             24 RETURN_VALUE
+</py_output>
+<titolo_2>
+Classi
+</titolo_2>
+<testo_normale>
+Anche le classi possono essere passate a <strong>dis</strong>, nel qual caso tutti i metodi sono a loro volta disassemblati.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+import dis
+
+class MyObject(object):
+    """Esempio per dis."""
+
+    CLASS_ATTRIBUTE = 'un qualche valore'
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return 'MyObject(%s)' % self.name
+
+dis.dis(MyObject)
+</py_code_lineno>
+<py_output>
+$ python  dis_class.py
+
+Disassembly of __init__:
+ 12           0 LOAD_FAST                1 (name)
+              3 LOAD_FAST                0 (self)
+              6 STORE_ATTR               0 (name)
+              9 LOAD_CONST               0 (None)
+             12 RETURN_VALUE
+
+Disassembly of __str__:
+ 15           0 LOAD_CONST               1 ('MyObject(%s)')
+              3 LOAD_FAST                0 (self)
+              6 LOAD_ATTR                0 (name)
+              9 BINARY_MODULO
+             10 RETURN_VALUE
+</py_output>
+<titolo_2>
+Usare il Disassemblaggio per Debug
+</titolo_2>
+<testo_normale>
+Talvolta quanto si sta eseguendo il debug di una eccezione, può essere utile vedere quale <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> ha causato il problema. Ci sono un paio di metodi per disassemblare il codice intorno ad un errore.
+</testo_normale>
+<testo_normale>
+Il primo è usare <code>dis.dis()</code> nell'interprete interattivo per ottenere informazioni circa l'ultima eccezione. Se non viene passato a <code>dis</code> alcun argomento, allora viene cercata una eccezione e viene mostrato il disassemblaggio dell'inizio dello <a href='http://it.wikipedia.org/wiki/Stack'>stack</a> che la ha causata.
+</testo_normale>
+<py_output>
+$ python
+
+Python 2.7.6 (default, Mar 22 2014, 22:59:56)
+[GCC 4.8.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import dis
+>>> j = 4
+>>> i = i + 4
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'i' is not defined
+>>> dis.distb()
+  1 -->       0 LOAD_NAME                0 (i)
+              3 LOAD_CONST               0 (4)
+              6 BINARY_ADD
+              7 STORE_NAME               0 (i)
+             10 LOAD_CONST               1 (None)
+             13 RETURN_VALUE
+>>>
+</py_output>
+<testo_normale>
+Si noti che il simbolo <code>--></code> indica l'<a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> che ha causato l'errore. Non esiste nessuna variabile <code>i</code> dichiarata, quindi il valore associato a quel nome non può essere caricato nello stack.
+</testo_normale>
+<testo_normale>
+All'interno del proprio codice si possono anche stampare le informazioni sul <em>traceback</em> attivo passandolo direttamente a <code>dis.distb()</code>. In questo esempio, c'è una eccezione <em>DivideByZero</em>, tuttavia, visto che la formula contiene due divisioni, non è chiaro quale parte è zero.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+i = 1
+j = 0
+k = 3
+
+# ... molte righe rimosse ...
+
+try:
+    result = k * (i / j) + (i / k)
+except:
+    import dis
+    import sys
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    dis.distb(exc_tb)
+</py_code_lineno>
+<testo_normale>
+E' facile identificare il valore errato quando esso viene caricato nello <a href='http://it.wikipedia.org/wiki/Stack'>stack</a> nella versione disassemblata. L'operazione errata viene evidenziata con <code>--></code>, quindi basta cercare qualche riga più in alto dove il valore <code>0</code> di <code>i</code> viene inserito nello stack.
+</testo_normale>
+<py_output>
+$ python  dis_traceback.py
+
+  4           0 LOAD_CONST               0 (1)
+              3 STORE_NAME               0 (i)
+
+  5           6 LOAD_CONST               1 (0)
+              9 STORE_NAME               1 (j)
+
+  6          12 LOAD_CONST               2 (3)
+             15 STORE_NAME               2 (k)
+
+ 10          18 SETUP_EXCEPT            26 (to 47)
+
+ 11          21 LOAD_NAME                2 (k)
+             24 LOAD_NAME                0 (i)
+             27 LOAD_NAME                1 (j)
+    -->      30 BINARY_DIVIDE
+             31 BINARY_MULTIPLY
+             32 LOAD_NAME                0 (i)
+             35 LOAD_NAME                2 (k)
+             38 BINARY_DIVIDE
+             39 BINARY_ADD
+             40 STORE_NAME               3 (result)
+             43 POP_BLOCK
+             44 JUMP_FORWARD            65 (to 112)
+
+ 12     >>   47 POP_TOP
+             48 POP_TOP
+             49 POP_TOP
+
+ 13          50 LOAD_CONST               3 (-1)
+             53 LOAD_CONST               4 (None)
+             56 IMPORT_NAME              4 (dis)
+             59 STORE_NAME               4 (dis)
+
+ 14          62 LOAD_CONST               3 (-1)
+             65 LOAD_CONST               4 (None)
+             68 IMPORT_NAME              5 (sys)
+             71 STORE_NAME               5 (sys)
+
+ 15          74 LOAD_NAME                5 (sys)
+             77 LOAD_ATTR                6 (exc_info)
+             80 CALL_FUNCTION            0
+             83 UNPACK_SEQUENCE          3
+             86 STORE_NAME               7 (exc_type)
+             89 STORE_NAME               8 (exc_value)
+             92 STORE_NAME               9 (exc_tb)
+
+ 16          95 LOAD_NAME                4 (dis)
+             98 LOAD_ATTR               10 (distb)
+            101 LOAD_NAME                9 (exc_tb)
+            104 CALL_FUNCTION            1
+            107 POP_TOP
+            108 JUMP_FORWARD             1 (to 112)
+            111 END_FINALLY
+        >>  112 LOAD_CONST               4 (None)
+            115 RETURN_VALUE
+</py_output>
+<titolo_2>
+Analisi delle Prestazioni dei Cicli
+</titolo_2>
+<testo_normale>
+Oltre ad eseguire il debug degli errori, <strong>dis</strong> può anche aiutare ad identificare problemi di prestazioni nel proprio codice. Esaminare il codice disassemblato è particolarmente utile con i <a href='#tightloop'>tight loop</a> dove il numero di istruzioni Python esposte è basso ma esse si traducono in un insieme di  <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> inefficiente. Si può vedere come il disassemblatore viene in aiuto esaminando qualche diversa implementazione di una classe, <code>Dictionary</code>, che legge una lista di parole e le raggruppa in base alla loro prima lettera.
+</testo_normale>
+<testo_normale>
+Per prima cosa, l'applicazione che guida il test:
+</testo_normale>
+<py_code_lineno>
+import dis
+import sys
+import timeit
+
+module_name = sys.argv[1]
+module = __import__(module_name)
+Dictionary = module.Dictionary
+
+dis.dis(Dictionary.load_data)
+print
+t = timeit.Timer(
+    'd = Dictionary(words)',
+    """from %(module_name)s import Dictionary
+words = [l.strip() for l in open('/usr/share/dict/words', 'rt')]
+    """ % locals()
+    )
+iterations = 10
+print 'TIME: %0.4f' % (t.timeit(iterations)/iterations)
+</py_code_lineno>
+<testo_normale>
+Si può usare <em class='code'>dis_test_loop.py</em> per eseguire ogni versione della classe <code>Dictionary</code>
+</testo_normale>
+<testo_normale>
+Una semplice implementazione di <code>Dictionary</code> potrebbe essere tipo questa:
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+class Dictionary(object):
+
+    def __init__(self, words):
+        self.by_letter = {}
+        self.load_data(words)
+
+    def load_data(self, words):
+        for word in words:
+            try:
+                self.by_letter[word[0]].append(word)
+            except KeyError:
+                self.by_letter[word[0]] = [word]
+</py_code_lineno>
+<testo_normale>
+Il risultato mostra che questa versione ha impiegato 0.0123 secondi per caricare 99171 parole (questi dati sono rilevati dall'esecuzione sul mio computer su di un s.o. Linux a 64 bit - n.d.t.). Non è male, tuttavia come si può rilevare dal codice disassemblato sottostante il ciclo sta eseguendo molto più lavoro di quello che serve effettivamente. Quando entra nel ciclo, nell'<a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> 13, imposta un contesto di eccezione (<strong>SETUP_EXCEPT</strong>). Poi gli occorrono 6 <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> per trovare <code>self.by_letter[word[0]]</code> prima di aggiungere <code>word</code> alla lista. Se si verifica una eccezione in quanto la chiave <code>word[0]</code> non si trova ancora nel dizionario, il gestore di eccezione esegue tutto lo stesso lavoro per determinare <code>word[0]</code> (3 <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a>) ed impostare <code>self.by_letter[word[0]]</code> ad una nuova lista che contiene la parola.
+</testo_normale>
+<py_output>
+$ python   dis_test_loop.py dis_slow_loop
+
+ 11           0 SETUP_LOOP              82 (to 85)
+              3 LOAD_FAST                1 (words)
+              6 GET_ITER
+        >>    7 FOR_ITER                74 (to 84)
+             10 STORE_FAST               2 (word)
+
+ 12          13 SETUP_EXCEPT            28 (to 44)
+
+ 13          16 LOAD_FAST                0 (self)
+             19 LOAD_ATTR                0 (by_letter)
+             22 LOAD_FAST                2 (word)
+             25 LOAD_CONST               1 (0)
+             28 BINARY_SUBSCR
+             29 BINARY_SUBSCR
+             30 LOAD_ATTR                1 (append)
+             33 LOAD_FAST                2 (word)
+             36 CALL_FUNCTION            1
+             39 POP_TOP
+             40 POP_BLOCK
+             41 JUMP_ABSOLUTE            7
+
+ 14     >>   44 DUP_TOP
+             45 LOAD_GLOBAL              2 (KeyError)
+             48 COMPARE_OP              10 (exception match)
+             51 POP_JUMP_IF_FALSE       80
+             54 POP_TOP
+             55 POP_TOP
+             56 POP_TOP
+
+ 15          57 LOAD_FAST                2 (word)
+             60 BUILD_LIST               1
+             63 LOAD_FAST                0 (self)
+             66 LOAD_ATTR                0 (by_letter)
+             69 LOAD_FAST                2 (word)
+             72 LOAD_CONST               1 (0)
+             75 BINARY_SUBSCR
+             76 STORE_SUBSCR
+             77 JUMP_ABSOLUTE            7
+        >>   80 END_FINALLY
+             81 JUMP_ABSOLUTE            7
+        >>   84 POP_BLOCK
+        >>   85 LOAD_CONST               0 (None)
+             88 RETURN_VALUE
+
+TIME: 0.0123
+</py_output>
+<testo_normale>
+Una tecnica per eliminare l'impostazione dell'eccezione è di popolare precedentemente <code>self.by_letter</code> con una lista per ognuna delle lettere dell'alfabeto. In questo modo si dovrebbe sempre trovare la lista alla quale si vuole assegnare la nuova parola, quindi eseguire semplicemente la ricerca della chiave e salvarne il valore.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+import string
+
+class Dictionary(object):
+
+    def __init__(self, words):
+        self.by_letter = dict( (letter, [])
+                                for letter in string.letters)
+        self.load_data(words)
+
+    def load_data(self, words):
+        for word in words:
+            self.by_letter[word[0]].append(word)
+</py_code_lineno>
+<testo_normale>
+La modifica riduce il numero di <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> di circa la metà, ma riduce il tempo di esecuzione solo fino a 0.0112 (sempre sul mio computer - n.d.t.). Ovviamente la gestione dell'eccezione generava qualche appesantimento, ma non così tanto.
+</testo_normale>
+<py_output>
+$ python   dis_test_loop.py dis_faster_loop
+
+ 14           0 SETUP_LOOP              38 (to 41)
+              3 LOAD_FAST                1 (words)
+              6 GET_ITER
+        >>    7 FOR_ITER                30 (to 40)
+             10 STORE_FAST               2 (word)
+
+ 15          13 LOAD_FAST                0 (self)
+             16 LOAD_ATTR                0 (by_letter)
+             19 LOAD_FAST                2 (word)
+             22 LOAD_CONST               1 (0)
+             25 BINARY_SUBSCR
+             26 BINARY_SUBSCR
+             27 LOAD_ATTR                1 (append)
+             30 LOAD_FAST                2 (word)
+             33 CALL_FUNCTION            1
+             36 POP_TOP
+             37 JUMP_ABSOLUTE            7
+        >>   40 POP_BLOCK
+        >>   41 LOAD_CONST               0 (None)
+             44 RETURN_VALUE
+
+TIME: 0.0112
+</py_output>
+<testo_normale>
+E' possibile migliorare ulteriormente le prestazioni spostando la ricerca della lettera <code>self.by_letter</code> all'esterno del ciclo (il valore, dopo tutto, non cambia).
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+import collections
+
+class Dictionary(object):
+
+    def __init__(self, words):
+        self.by_letter = collections.defaultdict(list)
+        self.load_data(words)
+
+    def load_data(self, words):
+        by_letter = self.by_letter
+        for word in words:
+            by_letter[word[0]].append(word)
+</py_code_lineno>
+<testo_normale>
+In <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a> 0-6 adesso si cerca il valore di <code>self.by_letter</code> e lo si salva come variabile locale <code>by_letter</code>. L'uso di una variabile locale richiede un solo <a href='http://it.wikipedia.org/wiki/Opcode'>opcode</a>, in luogo dei 2 (l'istruzione 22 utilizza <strong>LOAD_FAST</strong> per piazzare il dizionario nello stack). Dopo questa modifica, il tempo di esecuzione si è ridotto a 0.0098 secondi (sul mio computer - n.d.t.).
+</testo_normale>
+<py_output>
+$ python   dis_test_loop.py dis_fastest_loop
+
+ 13           0 LOAD_FAST                0 (self)
+              3 LOAD_ATTR                0 (by_letter)
+              6 STORE_FAST               2 (by_letter)
+
+ 14           9 SETUP_LOOP              35 (to 47)
+             12 LOAD_FAST                1 (words)
+             15 GET_ITER
+        >>   16 FOR_ITER                27 (to 46)
+             19 STORE_FAST               3 (word)
+
+ 15          22 LOAD_FAST                2 (by_letter)
+             25 LOAD_FAST                3 (word)
+             28 LOAD_CONST               1 (0)
+             31 BINARY_SUBSCR
+             32 BINARY_SUBSCR
+             33 LOAD_ATTR                1 (append)
+             36 LOAD_FAST                3 (word)
+             39 CALL_FUNCTION            1
+             42 POP_TOP
+             43 JUMP_ABSOLUTE           16
+        >>   46 POP_BLOCK
+        >>   47 LOAD_CONST               0 (None)
+             50 RETURN_VALUE
+
+TIME: 0.0098
+</py_output>
+<testo_normale>
+Una ulteriore ottimizzazione, suggerita da <a href='http://rhodesmill.org/brandon/'>Brandon Rhodes</a> è di eliminare interamente la versione Python del ciclo <code>for</code>. Se si utilizza <a href='http://pymotw.com/2/itertools/index.html#itertools-groupby'>itertools.groupby()</a> per sistemare l'input, l'iterazione viene spostata in C. E' possibile farlo in sicurezza visto che si sa che i dati in input sono già ordinati, viceversa avrebbero dovuto essere ordinati in precedenza.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+import operator
+import itertools
+
+class Dictionary(object):
+
+    def __init__(self, words):
+        self.by_letter = {}
+        self.load_data(words)
+
+    def load_data(self, words):
+        # Disposti per lettera
+        grouped = itertools.groupby(words, key=operator.itemgetter(0))
+        # Salva gli insiemi di parola disposti
+        self.by_letter = dict((group[0][0], group) for group in grouped)
+</py_code_lineno>
+<testo_normale>
+La versione che utilizza <a href='http://pymotw.com/2/itertools/index.html#module-itertools'>itertools</a> impiega solamente 0.0044 secondi per essere eseguita  (meno della metà del tempo della versione di partenza sul mio computer - n.d.t.)
+</testo_normale>
+<py_output>
+$ python   dis_test_loop.py dis_eliminate_loop
+
+ 15           0 LOAD_GLOBAL              0 (itertools)
+              3 LOAD_ATTR                1 (groupby)
+              6 LOAD_FAST                1 (words)
+              9 LOAD_CONST               1 ('key')
+             12 LOAD_GLOBAL              2 (operator)
+             15 LOAD_ATTR                3 (itemgetter)
+             18 LOAD_CONST               2 (0)
+             21 CALL_FUNCTION            1
+             24 CALL_FUNCTION          257
+             27 STORE_FAST               2 (grouped)
+
+ 17          30 LOAD_GLOBAL              4 (dict)
+             33 LOAD_CONST               3 (&lt;code object <genexpr> at 0x7fd422483030, file "/home/robby/Dropbox/Code/python/pymotw-it2.0/dumpscripts/dis_eliminate_loop.py", line 17>)
+             36 MAKE_FUNCTION            0
+             39 LOAD_FAST                2 (grouped)
+             42 GET_ITER
+             43 CALL_FUNCTION            1
+             46 CALL_FUNCTION            1
+             49 LOAD_FAST                0 (self)
+             52 STORE_ATTR               5 (by_letter)
+             55 LOAD_CONST               0 (None)
+             58 RETURN_VALUE
+
+TIME: 0.0044
+</py_output>
+<titolo_2>
+Ottimizzazioni del Compilatore
+</titolo_2>
+<testo_normale>
+Il disassemblare sorgente compilato rivela anche alcune delle ottimizzazioni eseguite dal computer. Ad esempio espressioni letterali sono unite durante la compilazione, dove possibile.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+
+# Folded
+i = 1 + 2
+f = 3.4 * 5.6
+s = 'Ciao,' + ' Mondo!'
+
+# Not folded
+I = i * 3 * 4
+F = f / 2 / 3
+S = s + '\n' + 'Fantastico!'
+</py_code_lineno>
+<testo_normale>
+Le espressioni nelle righe da 5 a 7 possono essere calcolate in fase di compilazione ed unite in singole istruzioni <strong>LOAD_CONST</strong>, visto che nulla nell'espressione può modificare il modo in cui l'operazione viene eseguita. Il che non è vero per le istruzioni nelle righe da 10 a 12. Visto che in quelle espressioni è coinvolta una variabile, ed una variabile potrebbe fare riferimento ad un oggetto che sovrascrive l'operatore coinvolto, la valutazione deve essere demandata al tempo dell'esecuzione.
+</testo_normale>
+<py_output>
+$ python -m dis dis_constant_folding.py
+
+  5           0 LOAD_CONST              11 (3)
+              3 STORE_NAME               0 (i)
+
+  6           6 LOAD_CONST              12 (19.04)
+              9 STORE_NAME               1 (f)
+
+  7          12 LOAD_CONST              13 ('Ciao, Mondo!')
+             15 STORE_NAME               2 (s)
+
+ 10          18 LOAD_NAME                0 (i)
+             21 LOAD_CONST               6 (3)
+             24 BINARY_MULTIPLY
+             25 LOAD_CONST               7 (4)
+             28 BINARY_MULTIPLY
+             29 STORE_NAME               3 (I)
+
+ 11          32 LOAD_NAME                1 (f)
+             35 LOAD_CONST               1 (2)
+             38 BINARY_DIVIDE
+             39 LOAD_CONST               6 (3)
+             42 BINARY_DIVIDE
+             43 STORE_NAME               4 (F)
+
+ 12          46 LOAD_NAME                2 (s)
+             49 LOAD_CONST               8 ('\n')
+             52 BINARY_ADD
+             53 LOAD_CONST               9 ('Fantastico!')
+             56 BINARY_ADD
+             57 STORE_NAME               5 (S)
+             60 LOAD_CONST              10 (None)
+             63 RETURN_VALUE
+</py_output>
+<vedi_anche>
+https://docs.python.org/2.7/library/dis.html|dis|La documentazione della libreria standard per questo modulo, compreso l'elenco delle <a href='https://docs.python.org/2.7/library/dis.html#python-bytecode-instructions'>istruzioni bytecode</a>
+http://www.informit.com/store/product.aspx?isbn=0672329786|Python Essential Reference, 4th Edition, David M. Beazley|Presso Informit (in inglese)
+http://stackoverflow.com/questions/869229/why-is-looping-over-range-in-python-faster-than-using-a-while-loop|Why is looping over range() in Python faster than using a while loop?|Una discussione (in inglese) su StackOverflow.com circa il confrontare due esempi di cicli tramite i loro  <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> disassemblati.
+http://code.activestate.com/recipes/277940/|Decorator for binding constants at compile time|Una ricetta di Python Cookbook di Raymond Hettinger e Skip Montanaro con un decoratore di funzione che riscrive il  <a href='http://it.wikipedia.org/wiki/Bytecode'>bytecode</a> per una funzione per inserire costanti globali per evitare ricerche di nomi in fase di esecuzione.
+</vedi_anche>
+</documento_tradotto>

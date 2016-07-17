@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+filecmp - Confronta file
+</titolo_1>
+<descrizione>
+Confronta file e directory nel filesystem
+2.1 e superiore
+</descrizione>
+<titolo_2>
+Dati di esempio    
+</titolo_2>
+<testo_normale>
+Gli esempi nella discussione di seguito usano un insieme di file di testo creati da ${sbk}filecmp_mkexamples.py${ebk}.
+</testo_normale>
+<py_code>
+import os
+
+def mkfile(filename, body=None):
+    f = open(filename, 'w')
+    try:
+        f.write(body or filename)
+    finally:
+        f.close()
+    return
+
+def make_example_dir(top):
+    if not os.path.exists(top):
+        os.mkdir(top)
+    curdir = os.getcwd()
+    os.chdir(top)
+
+    os.mkdir('dir1')
+    os.mkdir('dir2')
+
+    mkfile('dir1/file_solo_in_dir1')
+    mkfile('dir2/file_solo_in_dir2')
+
+    os.mkdir('dir1/dir_solo_in_dir1')
+    os.mkdir('dir2/dir_solo_in_dir2')
+
+    os.mkdir('dir1/dir_comune')
+    os.mkdir('dir2/dir_comune')
+
+    mkfile('dir1/file_comune', 'questo file è lo stesso')
+    mkfile('dir2/file_comune', 'questo file è lo stesso')
+
+    mkfile('dir1/non_lo_stesso')
+    mkfile('dir2/non_lo_stesso')
+
+    mkfile('dir1/file_in_dir1', 'Questo è un file in dir1')
+    os.mkdir('dir2/file_in_dir1')
+    
+    os.chdir(curdir)
+    return
+
+if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__) or os.getcwd())
+    make_example_dir('esempio')
+    make_example_dir('esempio/dir1/dir_comune')
+    make_example_dir('esempio/dir2/dir_comune')
+</py_code>
+<py_output>
+$ ls -Rlast esempio
+total 0
+0 drwxr-xr-x  4 dhellmann  dhellmann  136 Apr 20 17:04 .
+0 drwxr-xr-x  9 dhellmann  dhellmann  306 Apr 20 17:04 ..
+0 drwxr-xr-x  8 dhellmann  dhellmann  272 Apr 20 17:04 dir1
+0 drwxr-xr-x  8 dhellmann  dhellmann  272 Apr 20 17:04 dir2
+
+esempio/dir1:
+total 32
+0 drwxr-xr-x  8 dhellmann  dhellmann  272 Apr 20 17:04 .
+0 drwxr-xr-x  4 dhellmann  dhellmann  136 Apr 20 17:04 ..
+0 drwxr-xr-x  2 dhellmann  dhellmann   68 Apr 20 17:04 dir_comune
+8 -rw-r--r--  1 dhellmann  dhellmann   21 Apr 20 17:04 file_comune
+0 drwxr-xr-x  2 dhellmann  dhellmann   68 Apr 20 17:04 dir_solo_in_dir1
+8 -rw-r--r--  1 dhellmann  dhellmann   22 Apr 20 17:04 file_in_dir1
+8 -rw-r--r--  1 dhellmann  dhellmann   22 Apr 20 17:04 file_solo_in_dir1
+8 -rw-r--r--  1 dhellmann  dhellmann   17 Apr 20 17:04 non_lo_stesso
+
+esempio/dir2:
+total 24
+0 drwxr-xr-x  8 dhellmann  dhellmann  272 Apr 20 17:04 .
+0 drwxr-xr-x  4 dhellmann  dhellmann  136 Apr 20 17:04 ..
+0 drwxr-xr-x  2 dhellmann  dhellmann   68 Apr 20 17:04 dir_comune
+8 -rw-r--r--  1 dhellmann  dhellmann   21 Apr 20 17:04 file_comune
+0 drwxr-xr-x  2 dhellmann  dhellmann   68 Apr 20 17:04 dir_solo_in_dir2
+0 drwxr-xr-x  2 dhellmann  dhellmann   68 Apr 20 17:04 file_in_dir1
+8 -rw-r--r--  1 dhellmann  dhellmann   22 Apr 20 17:04 file_solo_in_dir2
+8 -rw-r--r--  1 dhellmann  dhellmann   17 Apr 20 17:04 non_lo_stesso    
+</py_output>
+<testo_normale>
+La stessa struttura di driectory viene ripetuta una volta sotto le directory "dir_comune" per offrire delle interessanti opzioni di confronto ricorsivo.
+</testo_normale>
+<titolo_2>
+Confrontare file    
+</titolo_2>
+<testo_normale>
+Il modulo <strong>filecmp</strong> comprende delle funzioni ed una classe per confrontare file e directory nel filesystem. Se si devono confrontare due file si usa la funzione ${sbk}cmp()${ebk}.
+</testo_normale>
+<py_code>
+import filecmp
+
+print 'file_comune:', 
+print filecmp.cmp('esempio/dir1/file_comune', 
+                  'esempio/dir2/file_comune'),
+print filecmp.cmp('esempio/dir1/file_comune', 
+                  'esempio/dir2/file_comune',
+                  shallow=False)
+
+print 'non_lo_stesso:', 
+print filecmp.cmp('esempio/dir1/non_lo_stesso', 
+                  'esempio/dir2/non_lo_stesso'),
+print filecmp.cmp('esempio/dir1/non_lo_stesso', 
+                  'esempio/dir2/non_lo_stesso',
+                  shallow=False)
+
+print 'identici:',
+print filecmp.cmp('esempio/dir1/file_solo_in_dir1', 
+                  'esempio/dir1/file_solo_in_dir1'),
+print filecmp.cmp('esempio/dir1/file_solo_in_dir1', 
+                  'esempio/dir1/file_solo_in_dir1',
+                  shallow=False)
+
+</py_code>
+<testo_normale>
+Nel modo predefinito, ${sbk}cmp()${ebk} accede solo alle informazioni disponibili da ${sbk}os.stat()${ebk}. Il parametro <em>shallow</em> dice a ${sbk}cmp()${ebk} se guardare anche al contenuto del file. Il modo predefinito è quello di effettuare un confronto shallow, senza guardare al contenuto del file. Notare che file della stessa dimensione creati allo stesso momento sembrano essere uguali se il loro contenuto non viene confrontato.
+</testo_normale>
+<py_output>
+$ python filecmp_cmp.py
+file_comuni: True True
+non_lo_stesso: True False
+identici: True True    
+</py_output>
+<testo_normale>
+Per confrontare un insieme di file in due directory senza ricorsione si usa ${sbk}filecmp.cmpfiles()${ebk}. I parametri sono i nomi delle directory ed un elenco di file da verificare nelle due locazioni. L'elenco dei file comuni dovrebbe contenere solo nomi di file (le directory risultano sempre in una discrepanza) ed i file devono essere presenti nelle due locazioni. Il codice seguente mostra un semplice modo di costruire un elenco comune. Se si pensa di avere una formula più breve, la si invii nei commenti. Il confronto riceve anche il flag shallow, proprio come ${sbk}cmp()${ebk}.
+</testo_normale>
+<py_code>
+import filecmp
+import os
+
+# Determina gli elementi che esistono in entrambe le directory
+d1_contents = set(os.listdir('esempio/dir1'))
+d2_contents = set(os.listdir('esempio/dir2'))
+common = list(d1_contents & d2_contents)
+common_files = [ f 
+                for f in common 
+                if os.path.isfile(os.path.join('esempio/dir1', f))
+                ]
+print 'File comuni:', common_files
+
+# Confronta le directory
+match, mismatch, errors = filecmp.cmpfiles('esempio/dir1', 
+                                           'esempio/dir2', 
+                                           common_files)
+print 'Corrispondenza:', match
+print 'Discrepanza:', mismatch
+print 'Errori:', errors
+</py_code>
+<testo_normale>
+${sbk}cmpfiles()${ebk} restituisce tre liste di nomi di file per i file che corrispondono, per quelli che non corrispondono e per quelli che non possono essere confrontati (per problemi di permessi o qualsiasi altre ragione).
+</testo_normale>
+<py_output>
+python filecmp_cmpfiles.py 
+File comuni: ['non_lo_stesso', 'file_in_dir1', 'file_comune']
+Corrispondenza: ['non_lo_stesso', 'file_comune']
+Discrepanza: ['file_in_dir1']
+Errori: []
+</py_output>
+<titolo_2>
+Usare dircmp    
+</titolo_2>
+<testo_normale>
+Le funzioni descritte qui sopra sono indicate per confronti relativamente semplici, ma per un confronto ricorsivo di grandi alberi di directory o per una  analisi più completa, la classe dircmp è più utile. Nel suo uso con la casistica più semplice, si può stampare un rapporto confrontando due directory con il metodo ${sbk}report()${ebk}.
+</testo_normale>
+<py_code>
+import filecmp
+
+filecmp.dircmp('esempio/dir1', 'esempio/dir2').report()
+</py_code>
+<testo_normale>
+Il risultato è un rapporto con testo semplice che mostra i risultati per il contenuto delle directory fornite, senza ricorsione in questo caso, il file "non_lo_stesso" è ritenuto essere uguale poichè i contenuti non vengono confrontati. Non sembra esserci il modo di far sì che dircmp confronti i contenuti dei file come riesce a fare cmp().    
+</testo_normale>
+<py_output>
+python filecmp_dircmp_report.py 
+diff esempio/dir1 esempio/dir2
+Only in esempio/dir1 : ['dir_solo_in_dir1', 'file_solo_in_dir1']
+Only in esempio/dir2 : ['dir_solo_in_dir2', 'file_solo_in_dir2']
+Identical files : ['file_comune', 'non_lo_stesso']
+Common subdirectories : ['dir_comune']
+Common funny cases : ['file_in_dir1']
+</py_output>
+<testo_normale>
+Per ottenere maggiori dettagli ed un confronto ricorsivo, usare ${sbk}report_full_closure()${ebk}    :
+</testo_normale>
+<py_code>
+import filecmp
+
+filecmp.dircmp('esempio/dir1', 'esempio/dir2').report_full_closure()    
+</py_code>
+<testo_normale>
+Il risultato comprende il confronto tra tutte le directory parallele
+</testo_normale>
+<py_output>
+diff esempio/dir1 esempio/dir2
+Only in esempio/dir1 : ['dir_solo_in_dir1', 'file_solo_in_dir1']
+Only in esempio/dir2 : ['dir_solo_in_dir2', 'file_solo_in_dir2']
+Identical files : ['file_comune', 'non_lo_stesso']
+Common subdirectories : ['dir_comune']
+Common funny cases : ['file_in_dir1']
+
+diff esempio/dir1/dir_comune esempio/dir2/dir_comune
+Common subdirectories : ['dir1', 'dir2']
+
+diff esempio/dir1/dir_comune/dir2 esempio/dir2/dir_comune/dir2
+Identical files : ['file_comune', 'file_solo_in_dir2', 'non_lo_stesso']
+Common subdirectories : ['dir_comune', 'dir_solo_in_dir2', 'file_in_dir1']
+
+diff esempio/dir1/dir_comune/dir2/file_in_dir1 esempio/dir2/dir_comune/dir2/file_in_dir1
+
+diff esempio/dir1/dir_comune/dir2/dir_comune esempio/dir2/dir_comune/dir2/dir_comune
+
+diff esempio/dir1/dir_comune/dir2/dir_solo_in_dir2 esempio/dir2/dir_comune/dir2/dir_solo_in_dir2
+
+diff esempio/dir1/dir_comune/dir1 esempio/dir2/dir_comune/dir1
+Identical files : ['file_comune', 'file_in_dir1', 'file_solo_in_dir1', 'non_lo_stesso']
+Common subdirectories : ['dir_comune', 'dir_solo_in_dir1']
+
+diff esempio/dir1/dir_comune/dir1/dir_comune esempio/dir2/dir_comune/dir1/dir_comune
+
+diff esempio/dir1/dir_comune/dir1/dir_solo_in_dir1 esempio/dir2/dir_comune/dir1/dir_solo_in_dir1    
+</py_output>
+<titolo_2>
+Usare le differenze in un programma    
+</titolo_2>
+<testo_normale>
+Oltre a produrre listati stampabili, ${sbk}dircmp${ebk}  calcola delle utili liste di file che si possono usare direttamente in un programma. Ognuno dei seguenti attributi viene calcolato solo quando richiesto, quindi l'istanziare ${sbk}dircmp${ebk} non produce un sovraccarico supplementare.
+</testo_normale>
+<testo_normale>
+I file e le sottodirectory contenute nelle directory che sono oggetto di confronto sono elencate in <em>left_list</em> e <em>right_list</em>:    
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print 'Left :', dc.left_list
+print 'Right:', dc.right_list
+</py_code>
+<py_output>
+$ python filecmp_dircmp_list.py
+Left : ['dir_comune', 'dir_solo_in_dir1', 'file_comune', 'file_in_dir1', 'file_solo_in_dir1', 'non_lo_stesso']
+Right: ['dir_comune', 'dir_solo_in_dir2', 'file_comune', 'file_in_dir1', 'file_solo_in_dir2', 'non_lo_stesso']
+</py_output>
+<testo_normale>
+Gli input possono essere filtrati passando una lista di nomi da ignorare al costruttore. In modo predefinito i nomi RCS, CVS e tags sono ignorati.    
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2', ignore=['file_comune'])
+print 'Left :', dc.left_list
+print 'Right:', dc.right_list
+</py_code>
+<testo_normale>
+In questo caso "file_comune" viene escluso dalla lista di file da confrontare.    
+</testo_normale>
+<py_output>
+$ python filecmp_dircmp_list_filter.py
+Left : ['dir_comune', 'dir_solo_in_dir1', 'file_in_dir1', 'file_solo_in_dir1', 'non_lo_stesso']
+Right: ['dir_comune', 'dir_solo_in_dir2', 'file_in_dir1', 'file_solo_in_dir2', 'non_lo_stesso']
+</py_output>
+<testo_normale>
+L'insieme dei file comuni ad entrambe le directory sono mantenuti in <em>common</em>, ed i file univoci in ciascuna directory sono elencati in <em>left_only</em> e <em>right_only</em>    .
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print 'Comuni:', dc.common
+print 'Left  :', dc.left_only
+print 'Right :', dc.right_only
+</py_code>
+<py_output>
+$ python filecmp_dircmp_membership.py
+CComuni: ['file_comune', 'non_lo_stesso', 'dir_comune', 'file_in_dir1']
+Left  : ['dir_solo_in_dir1', 'file_solo_in_dir1']
+Right : ['file_solo_in_dir2', 'dir_solo_in_dir2']
+</py_output>
+<testo_normale>
+I membri comuni possono essere successivamente divisi in file, directory ed elementi "funny" (qualsiasi cosa che sia di un tipo diverso nelle due directory o dove si verifichi un errore da os.stat()).
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print 'Comuni     :', dc.common
+print 'Directory  :', dc.common_dirs
+print 'File       :', dc.common_files
+print 'Funny      :', dc.common_funny
+</py_code>
+<testo_normale>
+$ python filecmp_dircmp_common.py
+Nei dati di esempio l'elemento chiamato "file_in_dir1" è un file in una directory ed una sottodirectory in un altra; quindi viene messo nella lista "funny".    
+</testo_normale>
+<py_output>
+Comuni     : ['file_comune', 'non_lo_stesso', 'dir_comune', 'file_in_dir1']
+Directory  : ['dir_comune']
+File       : ['file_comune', 'non_lo_stesso']
+Funny      : ['file_in_dir1']
+</py_output>
+<testo_normale>
+Le dfferenze tra file sono disposte similarmente    
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('example/dir1', 'example/dir2')
+print 'Same      :', dc.same_files
+print 'Different :', dc.diff_files
+print 'Funny     :', dc.funny_files
+</py_code>
+<testo_normale>
+Ricordare che il file "non_lo_stesso" viene confrontato solo tramite os.stat e che il contenuto non viene esaminato.    
+</testo_normale>
+<py_output>
+$ python filecmp_dircmp_diff.py
+Uguali    : ['file_comune', 'non_lo_stesso']
+Diversi   : []
+Funny     : []    
+</py_output>
+<testo_normale>
+Infine, le sottodirectory sono mappate in nuovi oggetti dircmp nell'attributo <em>subdirs</em> per consentire un comodo confronto ricorsivo.    
+</testo_normale>
+<py_code>
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print 'Sottodirectory:'
+print dc.subdirs
+</py_code>
+<py_output>
+$ python filecmp_dircmp_subdirs.py
+Sottodirectory:
+{'dir_comune': &lt;filecmp.dircmp instance at 0x93bcb6c&gt;}    
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/filecmp.html|filecmp|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

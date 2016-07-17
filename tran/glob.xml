@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+glob - Corrispondenza su un modello di nome di file
+</titolo_1>
+<descrizione>
+Usa le regole della shell UNIX per trovare nomi di file che corrispondono ad un modello.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>random</strong> fornisce un veloce generatore pseudocasuale di numeri basato sull'algoritmo <a href="https://it.wikipedia.org/wiki/Mersenne_Twister"><em>Mersenne Twister</em></a>. Originariamente sviluppato per produrre input per le simulazioni Monte Carlo, tramite <em>Mersenne Twister</em> vengono generati numeri con distribuzione pressochè uniformi rendendoli adatti ad un grande spettro di applicazioni.
+</testo_normale>
+<titolo_2>
+Generare Numeri Casuali
+</titolo_2>
+<testo_normale>
+La funzione <code>random()</code> ritorna il prossimo valore a virgola mobile più vicino  dalla sequenza generata. Tutti i valori di ritorno sono racchiusi tra <code>o <= 1.0</code>.
+</testo_normale>
+<py_code>
+# random_random.py
+
+import random
+
+for i in range(5):
+    print('%04.3f' % random.random(), end=' ')
+print()
+</py_code>
+<testo_normale>
+Eseguendo il programma ripetutamente, si ottengono sequenze di numeri differenti.
+</testo_normale>
+<py_output>
+$ python3 random_random.py
+
+0.038 0.115 0.705 0.902 0.907
+
+$ python3 random_random.py
+
+0.919 0.640 0.473 0.384 0.223
+</py_output>
+<testo_normale>
+Per generare numeri compresi in un intervallo numerico definito si utilizza <code>uniform()</code>
+</testo_normale>
+<py_code>
+# random_uniform.py
+
+import random
+
+for i in range(5):
+    print('{:04.3f}'.format(random.uniform(1, 100)), end=' ')
+print()
+</py_code>
+<testo_normale>
+Si passano i valori minimi e massimi ed <code>uniform()</code> adatta i valori restituiti da <code>random()</code> usando la formula <code>min + (max - min) * random()</code>.
+</testo_normale>
+<py_output>
+$ python3 random_uniform.py
+
+79.664 89.742 89.874 1.878 34.278
+</py_output>
+<titolo_2>
+Utilizzare un valore seme (Seeding)
+</titolo_2>
+<testo_normale>
+<code>random()</code> produce valori diversi ogni volta che viene invocato ed ha un periodo di tempo molto largo prima che un qualsiasi numero venga ripetuto. Questo è utilie per produrre valori univoci o variazioni, ma ci sono volte nelle quali è utile avere lo stesso insieme di dati a disposizione per essere elaborato in diversi modi. Una tecnica è quella di utilizzare un programma per generare valori casuali e salvarli per essere elaborati come passo separato; il che potrebbe non essere praticabile per  una vasta mole di dati, quindi <strong>random</strong> comprende la funzione <code>seed()</code> per inizializzare un generatore pseudocasuale in modo da produrre un insieme di valori atteso.
+</testo_normale>
+<py_code>
+# random_seed.py
+
+import random
+
+random.seed(1)
+
+for i in range(5):
+    print('{:04.3f}'.format(random.random()), end=' ')
+print()
+</py_code>
+<testo_normale>
+Il valore seme controlla il primo valore prodotto dalla formula utilizzata per produrre i numeri pseudocasuali, e, visto che la formula è deterministica, imposta anche l'intera sequenza prodotta dopo che il seme è cambiato. L'argomento di <code>seed()</code> può essere una qualsiasi oggetto <a href="https://it.wikipedia.org/wiki/Hash">hashable</a>. La modalità predefinita è utilizzare una sorgente di casualità specifica alla piattaforma, se disponibile. Altrimenti viene utilizzato l'orario corrente.
+</testo_normale>
+<py_output>
+$ python3 random_seed.py
+
+0.134 0.847 0.764 0.255 0.495
+
+$ python3 random_seed.py
+
+0.134 0.847 0.764 0.255 0.495
+</py_output>
+<titolo_2>
+Salvare lo Stato
+</titolo_2>
+<testo_normale>
+Lo stato interno dell'algoritmo di pseudocasualità utilizzato da <code>random()</code> può essere salvato ed utilizzato per controllare i numeri prodotti in esecuzioni successive. Ristabilire lo stato precedente prima di continuare riduce la possibilità di valori o sequenze di valori ripetute dall'input precedente. La funzione <code>getstate()</code> ritorna dati che possono essere utilizzati per reinizializzare il generatore di numeri casuali successivamente con <code>setstate()</code>.
+</testo_normale>
+<py_code>
+# random_state.py
+
+import random
+import os
+import pickle
+
+if os.path.exists('state.dat'):
+    # Ripristino dello stato precedentemente salvato
+    print('Trovato state.dat, inizializzazione del modulo random')
+    with open('state.dat', 'rb') as f:
+        state = pickle.load(f)
+    random.setstate(state)
+else:
+    # Si usa uno stato di partenza noto
+    print('state.dat non trovato, utilizzo un valore seme')
+    random.seed(1)
+
+# Produce valori casuali
+for i in range(3):
+    print('{:04.3f}'.format(random.random()), end=' ')
+print()
+
+# Salva lo state per la prossima volta
+with open('state.dat', 'wb') as f:
+    pickle.dump(random.getstate(), f)
+
+# Produce ulteriori valori casuali
+print('\nDopo il salvataggio dello stato:')
+for i in range(3):
+    print('{:04.3f}'.format(random.random()), end=' ')
+print()
+</py_code>
+<testo_normale>
+I dati restituiti da <code>getstate()</code> sono un dettaglio di implementazione, quindi questo esempio salva i dati in un file con <code>pickle</code> e li tratta come una scatola nera. Se il file esiste quando il programma parte, carica il vecchio stato e continua. Ogni esecuzione produce alcuni numeri prima e dopo il salvataggio dello stato, per mostrare che il ripristino dello stato fa sì che il generatore produca nuovamente gli stessi valori.
+</testo_normale>
+<py_output>
+$ python3 random_state.py
+
+state.dat non trovato, utilizzo un valore seme
+0.134 0.847 0.764
+
+Dopo il salvataggio dello stato:
+0.255 0.495 0.449
+
+$ python3 random_state.py
+
+Trovato state.dat, inizializzazione del modulo random
+0.255 0.495 0.449
+
+Dopo il salvataggio dello stato:
+0.652 0.789 0.094
+</py_output>
+<titolo_2>
+Interi Casuali
+</titolo_2>
+<testo_normale>
+<code>random()</code> genera numeri a virgola mobile. E' possibile convertirli in interi, ma è più conveniente utilizzare <code>randint()</code> per generare direttamente gli interi.
+</testo_normale>
+<py_code>
+# random_randint.py
+
+import random
+
+print('[1, 100]:', end=' ')
+
+for i in range(3):
+    print(random.randint(1, 100), end=' ')
+
+print('\n[-5, 5]:', end=' ')
+for i in range(3):
+    print(random.randint(-5, 5), end=' ')
+print()
+</py_code>
+<testo_normale>
+Gli argomenti per <code>randint()</code> sono i valori dell'intervallo compresi gli estremi. I numeri possono essere negativi o positivi, ma il primo valore dovrebbe essere inferiore al secondo.
+</testo_normale>
+<py_output>
+$ python3 random_randint.py
+
+[1, 100]: 22 65 41
+[-5, 5]: 2 1 -2
+</py_output>
+<testo_normale>
+<code>randrange()</code> è una forma più generica per selezionare valori da un intervallo.
+</testo_normale>
+<py_code>
+# random_randrange.py
+
+import random
+
+for i in range(3):
+    print(random.randrange(0, 101, 5), end=' ')
+print()
+</py_code>
+<testo_normale>
+<code>randrange()</code> supporta l'argomento <em>step</em>, oltre ai valori di inizio e fine, il che lo rende completamente equivalente alla selezione di un valore da <code>range(start, stop, step)</code>. E' tuttavia più efficiente, in quanto l'intervallo non viene in realtà costruito.
+</testo_normale>
+<py_output>
+$ python3 random_randrange.py
+
+0 50 75
+</py_output>
+<titolo_2>
+Scegliere Elementi Casuali
+</titolo_2>
+<testo_normale>
+Un uso comune per i generatori di numeri casuali è  per selezionare un elemento casuale da una sequenza di valori enumerati, anche se detti valori non sono numeri. <strong>random</strong> comprende la funzione <code>choice()</code> per effettuare una scelta casuale da una sequenza. Questo esempio simula il lancio di una moneta per 10.000 volte per conteggiare il numero di testa e croce ottenuti.
+</testo_normale>
+<py_code>
+# random_choice.py
+
+import random
+import itertools
+
+outcomes = {
+    'heads': 0,
+    'tails': 0,
+}
+sides = list(outcomes.keys())
+
+for i in range(10000):
+    outcomes[random.choice(sides)] += 1
+
+print('Testa:', outcomes['heads'])
+print('Croce:', outcomes['tails'])
+</py_code>
+<testo_normale>
+Ci sono solo due risultati possibili, quindi invece che usare numeri e convertirli, vengono usati con <code>choice()</code> le parole "testa" e "croce". I risultati sono disposti in un dizionario che utilizza i nomi dei risultati come chiave.
+</testo_normale>
+<py_output>
+$ python3 random_choice.py
+
+Testa: 4965
+Croce: 5035
+</py_output>
+<titolo_2>
+Permutazioni
+</titolo_2>
+<testo_normale>
+Per la simulazione di un gioco di carte è necessario mescolare il mazzo, quindi distribuire le carte ai giocatori, senza usare la stessa carta più di una volta. Se si utilizzasse <code>choice()</code> si potrebbe viceversa distribuire la stessa carta due volte; al contrario il mazzo potrebbe essere "mescolato" con <code>shuffle()</code> e le singole carte verranno rimosse non appena distribuite.
+</testo_normale>
+<py_code>
+# random_shuffle.py
+
+import random
+import itertools
+
+FACE_CARDS = ('J', 'Q', 'K', 'A')
+SUITS = ('\u2665', '\u2666', '\u2663', '\u2660')
+
+
+def new_deck():
+    return [
+        # Si utilizzano due caratteri per il valore in modo che le stringhe
+        # abbiano una lunghezza consistente.
+        '{:>2}{}'.format(*c)
+        for c in itertools.product(
+            itertools.chain(range(2, 11), FACE_CARDS),
+            SUITS,
+        )
+    ]
+
+
+def show_deck(deck):
+    p_deck = deck[:]
+    while p_deck:
+        row = p_deck[:13]
+        p_deck = p_deck[13:]
+        for j in row:
+            print(j, end=' ')
+        print()
+
+# Si crea un nuovo mazzo, con le carte ordinate
+deck = new_deck()
+print('Mazzo Iniziale :')
+show_deck(deck)
+
+# Si mescola il mazzo per rendere l'ordine casuale
+random.shuffle(deck)
+print('\nMazzo Mescolato:')
+show_deck(deck)
+
+# Si distribuiscono 4 mani di 5 carte ciascuna
+hands = [[], [], [], []]
+
+for i in range(5):
+    for h in hands:
+        h.append(deck.pop())
+
+# Si mostrano le mani
+print('\nMani:')
+for n, h in enumerate(hands):
+    print('{}:'.format(n + 1), end=' ')
+    for c in h:
+        print(c, end=' ')
+    print()
+
+# Si mostra la rimanenza del mazzo
+print('\nRimaste nel mazzo:')
+show_deck(deck)
+</py_code>
+<testo_normale>
+Le carte sono rappresentate come stringhe con il valore ed il simbolo <a href="https://it.wikipedia.org/wiki/Unicode">unicode</a>  che indica il seme. Le mani distribuite sono create aggiungendo una carta alla volta ad ognuna delle quattro liste e rimosse dal mazzo in modo che non possano essere distribuite nuovamente.
+</testo_normale>
+<py_output>
+$ python3 random_shuffle.py
+
+Mazzo Iniziale
+ 2♥  2♦  2♣  2♠  3♥  3♦  3♣  3♠  4♥  4♦  4♣  4♠  5♥
+ 5♦  5♣  5♠  6♥  6♦  6♣  6♠  7♥  7♦  7♣  7♠  8♥  8♦
+ 8♣  8♠  9♥  9♦  9♣  9♠ 10♥ 10♦ 10♣ 10♠  J♥  J♦  J♣
+ J♠  Q♥  Q♦  Q♣  Q♠  K♥  K♦  K♣  K♠  A♥  A♦  A♣  A♠
+
+Mazzo Mescolato:
+ K♦  5♦  6♦  9♦ 10♦  4♦  4♣  K♠  A♦  Q♠ 10♥  K♥ 10♣
+ A♥  7♥  8♦  9♥  7♦  A♠  6♥  K♣  3♥  2♣  4♠  5♣  J♥
+ J♦  3♠  4♥  7♣  5♥  Q♦  J♠  6♠  2♠  3♣  8♣  7♠  8♥
+ 5♠  3♦ 10♠  A♣  Q♣  2♦  Q♥  J♣  8♠  9♠  6♣  9♣  2♥
+
+Mani:
+1:  2♥  8♠  Q♣  5♠  3♣
+2:  9♣  J♣  A♣  8♥  2♠
+3:  6♣  Q♥ 10♠  7♠  6♠
+4:  9♠  2♦  3♦  8♣  J♠
+
+Rimaste nel mazzo:
+ K♦  5♦  6♦  9♦ 10♦  4♦  4♣  K♠  A♦  Q♠ 10♥  K♥ 10♣
+ A♥  7♥  8♦  9♥  7♦  A♠  6♥  K♣  3♥  2♣  4♠  5♣  J♥
+ J♦  3♠  4♥  7♣  5♥  Q♦
+</py_output>
+<titolo_2>
+Campionamento
+</titolo_2>
+<testo_normale>
+Molte simulazioni richiedono campioni casuali da una popolazione di valori in input. La funzione <code>sample()</code> genera campioni senza ripetere i valori e senza modificare la sequenza in input. Questo esempio stampa un campione casuale di parole dal dizionario di sistema (solo sistemi Mac e Unix - N.d.T.)
+</testo_normale>
+<py_code>
+# random_sample.py
+
+import random
+
+with open('/usr/share/dict/words', 'rt') as f:
+    words = f.readlines()
+words = [w.rstrip() for w in words]
+
+for w in random.sample(words, 5):
+    print(w)
+</py_code>
+<testo_normale>
+L'algoritmo per produrre l'insieme dei risultati prende in considerazione la dimensione dell'input e del campione richiesto per produrre il risultato nel modo più efficiente possibile
+</testo_normale>
+<py_output>
+$ python3 random_sample.py
+
+lure's
+Wendi's
+better's
+formalism's
+breaking
+
+$ python3 random_sample.py
+
+sissier
+forgo
+sanely
+chicaneries
+Shelia's
+</py_output>
+<titolo_2>
+Generatori Multipli Simultanei
+</titolo_2>
+<testo_normale>
+Oltre alle funzioni a livello di modulo, <strong>random</strong> comprende anche la classe <code>Random</code> per gestire lo stato interno di parecchi generatori di numeri casuali. Tutte le funzioni descritte in precedenza sono disponibili come metodi delle istanze di <code>Random</code>, e ciascuna istanza può essere inizializzata e utilizzata separatamente, senza interferire con i valori ritornati da altre istanze.
+</testo_normale>
+<py_code>
+# random_random_class.py
+
+import random
+import time
+
+print('Inizializzazione predefinita:\n')
+
+r1 = random.Random()
+r2 = random.Random()
+
+for i in range(3):
+    print('{:04.3f}  {:04.3f}'.format(r1.random(), r2.random()))
+
+print('\nStesso seme:\n')
+
+seed = time.time()
+r1 = random.Random(seed)
+r2 = random.Random(seed)
+
+for i in range(3):
+    print('{:04.3f}  {:04.3f}'.format(r1.random(), r2.random()))
+</py_code>
+<testo_normale>
+Su di un sistema con un buon sistema di semi di valori casuali, le istanze partono in uno stato univoco. Tuttavia, se questa condizione non si manifesta, è probabile che il seme utilizzato per le istanze sia l'orario corrente, di conseguenza verranno prodotti gli stessi valori.
+</testo_normale>
+<py_output>
+$ python3 random_random_class.py
+
+Inizializzazione predefinita:
+
+0.377  0.857
+0.286  0.152
+0.758  0.057
+
+Stesso seme:
+
+0.933  0.933
+0.958  0.958
+0.225  0.225
+</py_output>
+<titolo_2>
+SystemRandom
+</titolo_2>
+<testo_normale>
+Alcuni sistemi operativi forniscono un generatore di numeri casuali che ha accesso ad ulteriori fonti di entropia che possono essere inserite nel generatore. <strong>random</strong> espone questa caratteristica tramite la classe <code>SystemRandom</code>, cha ha la stessa <a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> di <code>Random</code> ma utilizza <code>os.urandom()</code> per generare i valori che formano le basi di tutti gli altri algoritmi.
+</testo_normale>
+<py_code>
+# random_system_random.py
+
+import random
+import time
+
+print('Inizializzazione predefinita:\n')
+
+r1 = random.SystemRandom()
+r2 = random.SystemRandom()
+
+for i in range(3):
+    print('{:04.3f}  {:04.3f}'.format(r1.random(), r2.random()))
+
+print('\nStesso seme:\n')
+
+seed = time.time()
+r1 = random.SystemRandom(seed)
+r2 = random.SystemRandom(seed)
+
+for i in range(3):
+    print('{:04.3f}  {:04.3f}'.format(r1.random(), r2.random()))
+
+</py_code>
+<testo_normale>
+Le sequenze prodotte da <code>SystemRandom</code> non sono riproducibili dato che la casualità proviene dal sistema, invece che da uno stato software (in effetti <code>seed()</code> e <code>setstate()</code> non hanno alcun effetto).
+</testo_normale>
+<py_output>
+$ python3 random_system_random.py
+
+Inizializzazione predefinita:
+
+0.249  0.057
+0.914  0.401
+0.682  0.903
+
+Stesso seme:
+
+0.823  0.142
+0.456  0.970
+0.027  0.730
+</py_output>
+<titolo_2>
+Distribuzioni Non Uniformi
+</titolo_2>
+<testo_normale>
+Mentre la distribuzione uniforme dei valori prodotta da <code>random()</code> è utile per molti scopi, ci sono altre distribuzioni che modellano più accuratamente specifiche situazioni. Il modulo <strong>random</strong> include funzioni per produrre valori anche per quelle distribuzioni. Sono elencati di seguito, ma non trattati dettagliatamente in quanto il loro uso tende ad essere specialistico e richiede esempi più complessi.
+</testo_normale>
+<titolo_3>
+Normale
+</titolo_3>
+<testo_normale>
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_normale">distribuzione normale</a> viene comunemente ustilizzata per valori ininterrotti non uniformi tipo voti, altezze, larghezze ecc. La curva prodotta dalla distribuzione ha una forma particolare che viene denominata &quot;curva a campana&quot;. <strong>random</strong> include due funzioni per generare valori con una distribuzione normale, <code>normalvariate()</code> e <code>gauss()</code> (leggermente più veloce) - la distribuzione normale viene anche chiamata distribuzione Gaussiana.
+</testo_normale>
+<testo_normale>
+La funzione collegata <code>lognormvariate()</code> produce valori pseudocasuali dove il logaritmo dei valori è normalmente distribuito. Queste distribuzioni sono utili per valori che sono il prodotto di diverse variabili casuali che non interagiscono.
+</testo_normale>
+<titolo_3>
+Approssimazione
+</titolo_3>
+<testo_normale>
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_triangolare">distribuzione triangolare</a> viene usata come distribuzione approssimata per campioni di piccole dimensioni. La curva di una distribuzione triangolare ha i due punti bassi ai valore minimo e massimo noti, il punto alto è quello (la moda) che si stima sia basato sul risultato più probabile (rispecchiato dall'argomento <em>mode</em> per <code>triangular()</code>)
+</testo_normale>
+<titolo_3>
+Esponenziale
+</titolo_3>
+<testo_normale>
+<code>expovariate()</code> produce una <a href="https://it.wikipedia.org/wiki/Distribuzione_esponenziale">distribuzione esponenziale</a> utile per simulare valori di arrivo od intervalli temporali per processi omogenei di <a href="https://it.wikipedia.org/wiki/Distribuzione_di_Poisson"></a>Poisson tipo l'intervallo del decadimento radioattivo oppure le richieste in arrivo su di un server web.
+</testo_normale>
+<testo_normale>
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_paretiana">distribuzione paretiana</a> o legge di potenza, corrisponde a molti fenomeni osservabili e fu resa popolare dal libro <a href="https://www.amazon.it/coda-lunga-Chris-Anderson/dp/8875786178/ref=sr_1_3?s=books&ie=UTF8&qid=1468662344&sr=1-3&keywords=chris+anderson">La coda lunga</a> di Chris Anderson. La funzione <code>paretovariate()</code> è utile per simulare l'allocazione di risorse agli individui (beni alle persone, richieste ai musicisti, attenzione ai blog ecc.)
+</testo_normale>
+<titolo_3>
+Angolare
+</titolo_3>
+<testo_normale>
+La distribuzione di von Mises, o circolare normale (prodotta da <code>vonmisesvariate()</code>) viene utilizzata per calcolare le probabilità di valori ciclici tipo angoli, giorni di calendario, orari.
+</testo_normale>
+<titolo_3>
+Dimensioni
+</titolo_3>
+<testo_normale>
+<code>betavariate()</code> genera valori con la <a href="https://it.wikipedia.org/wiki/Distribuzione_Beta">distribuzione Beta</a>, comunemente utilizzata in statistiche Bayesiane ed applicazioni tipo la progettazione della durata di compiti.
+</testo_normale>
+<testo_normale>
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_Gamma">distribuzione Gamma</a> prodotta da <code>gammavariate()</code> viene utilizzata per la progettazione delle dimensioni di cose tipo i tempi di attesa, precipitazioni ed errori computazionali.
+</testo_normale>
+<testo_normale>
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_di_Weibull">distribuzione di Weibull</a> calcolata da <code>weibullvariate()</code> viene utilizzata in analisi di guasti, progettazione industriale e previsioni del tempo. Descrive la distribuzione di dimensioni di particelle od altri oggetti discreti.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/3.5/library/random.html|random|La documentazione della libreria standard per questo modulo.
+http://dl.acm.org/citation.cfm?doid=272991.272995|Mersenne Twister: A 623-dimensionally equidistributed uniform pseudorandom number generator|Articolo di M. Matsumoto e T. Nishimura
+</vedi_anche>
+</documento_tradotto>

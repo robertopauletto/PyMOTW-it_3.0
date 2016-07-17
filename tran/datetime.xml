@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Date ed Orari</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+datetime - Manipolazione dei Valori di Data ed Orario
+</titolo_1>
+<descrizione>
+Il modulo datetime include le funzioni e le classi per analizzare, formattare e compiere operazioni aritmetiche su date ed orari.
+
+</descrizione>
+<titolo_2>
+Orari
+</titolo_2>
+<testo_normale>
+I valori di orario sono rappresentati dalla classe <code>time</code>. Una istanza di <code>time</code> ha attributi per ora, minuto, secondo e microsecondo (rispettivamente <code>hour</code>, <code>minute</code>,<code>second</code> e <code>microsecond</code>). Può anche includere informazioni circa la zona di fuso orario.
+</testo_normale>
+<py_code>
+# datetime_time.py
+
+import datetime
+
+t = datetime.time(1, 2, 3)
+print(t)
+print('ora         :', t.hour)
+print('minuto      :', t.minute)
+print('secondo     :', t.second)
+print('microsecondo:', t.microsecond)
+print('zona fuso or:', t.tzinfo)
+</py_code>
+<testo_normale>
+Gli argomenti per inizializzare una istanza di <code>time</code> sono opzionali, ma il valore predefinito (0) è piuttosto improbabile che sia corretto.
+</testo_normale>
+<py_output>
+$ python3 datetime_time.py
+
+01:02:03
+ora         : 1
+minuto      : 2
+secondo     : 3
+microsecondo: 0
+zona fuso or: None
+</py_output>
+<testo_normale>
+Una istanza di <code>time</code> contiene solo valori di orario, non una data associata ad un orario
+</testo_normale>
+<py_code>
+# datetime_time_minmax.py
+
+import datetime
+
+print('Orario min.:', datetime.time.min)
+print('Orario max :', datetime.time.max)
+print('Risoluzione:', datetime.time.resolution)
+</py_code>
+<testo_normale>
+Gli attributi di classe <code>min</code> e <code>max</code> rappresentano i limiti validi di orario in un singolo giorno
+</testo_normale>
+<py_output>
+$ python3 datetime_time_minmax.py
+
+Orario min.: 00:00:00
+Orario max : 23:59:59.999999
+Risoluzione: 0:00:00.000001
+</py_output>
+<testo_normale>
+La risoluzione per <code>time</code> è limitata agli interi microsecondi
+</testo_normale>
+<py_code>
+# datetime_time_resolution.py
+
+import datetime
+
+for m in [1, 0, 0.1, 0.6]:
+    try:
+        print('{:02.1f} :'.format(m),
+              datetime.time(0, 0, 0, microsecond=m))
+    except TypeError as err:
+        print('ERRORE:', err)
+</py_code>
+<testo_normale>
+Valori in virgola mobile per i microsecondi provocano un <code>TypeError</code>
+</testo_normale>
+<py_output>
+$ python3 datetime_time_resolution.py
+
+1.0 : 00:00:00.000001
+0.0 : 00:00:00
+ERRORE: integer argument expected, got float
+ERRORE: integer argument expected, got float
+</py_output>
+<titolo_2>
+Date
+</titolo_2>
+<testo_normale>
+I valori per date di calendario sono rappresentati con la classe <code>date</code>. Le istanze hanno attributi per anno (<code>year</code>), mese (<code>month</code>) e giorno (<code>day</code>). Con il metodo di classe <code>today()</code> è semplice creare un oggetto data che rappresenta la data corrente.
+</testo_normale>
+<py_code>
+# datetime_date.py
+import datetime
+
+today = datetime.date.today()
+print(today)
+print('ctime  :', today.ctime())
+tt = today.timetuple()
+print('tupla   : tm_year  =', tt.tm_year)
+print('          tm_mon   =', tt.tm_mon)
+print('          tm_mday  =', tt.tm_mday)
+print('          tm_hour  =', tt.tm_hour)
+print('          tm_min   =', tt.tm_min)
+print('          tm_sec   =', tt.tm_sec)
+print('          tm_wday  =', tt.tm_wday)
+print('          tm_yday  =', tt.tm_yday)
+print('          tm_isdst =', tt.tm_isdst)
+print('ordinale:', today.toordinal())
+print('Anno   :', today.year)
+print('Mese   :', today.month)
+print('Giorno :', today.day)
+</py_code>
+<testo_normale>
+Questo esempio stampa la data corrente di diversi formati:
+</testo_normale>
+<py_output>
+$ python3 datetime_date.py
+
+2016-06-12
+ctime  : Sun Jun 12 00:00:00 2016
+tupla   : tm_year  = 2016
+          tm_mon   = 6
+          tm_mday  = 12
+          tm_hour  = 0
+          tm_min   = 0
+          tm_sec   = 0
+          tm_wday  = 6
+          tm_yday  = 164
+          tm_isdst = -1
+ordinale: 736127
+Anno   : 2016
+Mese   : 6
+Giorno : 12
+</py_output>
+<testo_normale>
+Ci sono anche metodi di classe per creare istanze da marche temporali POSIX (<code>fromtimestamp()</code>) o da interi che rappresentano valori di data dal <a href="https://it.wikipedia.org/wiki/Calendario_gregoriano_prolettico">calendario Gregoriano</a>, dove il primo gennaio dell'anno 1 vale 1 ed ogni giorno seguente incrementa il valore di 1 (<code>fromordinal()</code>).
+</testo_normale>
+<py_code>
+# datetime_date_fromordinal.py
+import datetime
+import time
+
+o = 733114
+print('o               :', o)
+print('fromordinal(o)  :', datetime.date.fromordinal(o))
+
+t = time.time()
+print('t               :', t)
+print('fromtimestamp(t):', datetime.date.fromtimestamp(t))
+</py_code>
+<testo_normale>
+Questo esempio illustra i diversi tipi di valore utillzzati da <code>fromordinal()</code> e da <code>fromtimestamp()</code>
+</testo_normale>
+<py_output>
+$ python3 datetime_date_fromordinal.py
+
+o               : 733114
+fromordinal(o)  : 2008-03-13
+t               : 1465745266.076346
+fromtimestamp(t): 2016-06-12
+</py_output>
+<testo_normale>
+Così come per <code>time</code> l'intervallo di valori data supportati può essere determinato utilizzando gli attributi <code>min</code> e <code>max</code>
+</testo_normale>
+<py_code>
+# datetime_date_minmax.py
+
+import datetime
+
+print('Minimo     :', datetime.date.min)
+print('Massimo    :', datetime.date.max)
+print('Risoluzione:', datetime.date.resolution)
+import datetime
+</py_code>
+<testo_normale>
+La risoluzione per le date è il giorno intero.
+</testo_normale>
+<py_output>
+$ python3 datetime_date_minmax.py
+
+Minimo     : 0001-01-01
+Massimo    : 9999-12-31
+Risoluzione: 1 day, 0:00:00
+</py_output>
+<testo_normale>
+Un altro modo per creare nuove istanze di <code>date</code> è tramite il metodo <code>replace()</code> di una istanza di <code>date</code> esistente
+</testo_normale>
+<py_code>
+# datetime_date_replace.py
+import datetime
+
+d1 = datetime.date(2008, 3, 29)
+print('d1:', d1.ctime())
+
+d2 = d1.replace(year=2009)
+print('d2:', d2.ctime())
+</py_code>
+<testo_normale>
+Questo esempio modifica l'anno, lasciando mese e giorno invariati.
+</testo_normale>
+<py_output>
+$ python3 datetime_date_replace.py
+
+d1: Sat Mar 29 00:00:00 2008
+d2: Sun Mar 29 00:00:00 2009
+</py_output>
+<titolo_2>
+Intervalli Temporali (timedelta)
+</titolo_2>
+<testo_normale>
+Date future e passate possono essere calcolate utilizzando operazioni aritmetiche su due oggetti <strong>datetime</strong>, oppure combinando un <strong>datetime</strong> con un <code>timedelta</code>. La sottrazione di date produce un <code>timedelta</code>; ed un <code>timedelta</code> può essere aggiunto o sottratto da una data per produrne un'altra. I valori interi di <code>timedelta</code> sono conservati in giorni, secondi e microsecondi.
+</testo_normale>
+<py_code>
+#datetime_timedelta.py
+
+import datetime
+
+print("microsecondi:", datetime.timedelta(microseconds=1))
+print("millisecondi:", datetime.timedelta(milliseconds=1))
+print("secondi     :", datetime.timedelta(seconds=1))
+print("minuti      :", datetime.timedelta(minutes=1))
+print("ore         :", datetime.timedelta(hours=1))
+print("giorni      :", datetime.timedelta(days=1))
+print("settimane   :", datetime.timedelta(weeks=1))
+</py_code>
+<testo_normale>
+Valori di livello intermedio passati al costruttore sono convertiti in giorni, secondi e microsecondi.
+</testo_normale>
+<py_output>
+$ python3 datetime_timedelta.py
+
+microsecondi: 0:00:00.000001
+millisecondi: 0:00:00.001000
+secondi     : 0:00:01
+minuti      : 0:01:00
+ore         : 1:00:00
+giorni      : 1 day, 0:00:00
+settimane   : 7 days, 0:00:00
+</py_output>
+<testo_normale>
+La durata completa di un intervallo temporale può essere recuperato come numero di secondi tramite <code>total_seconds()</code>.
+</testo_normale>
+<py_code>
+# datetime_timedelta_total_seconds.py
+
+import datetime
+
+for delta in [datetime.timedelta(microseconds=1),
+              datetime.timedelta(milliseconds=1),
+              datetime.timedelta(seconds=1),
+              datetime.timedelta(minutes=1),
+              datetime.timedelta(hours=1),
+              datetime.timedelta(days=1),
+              datetime.timedelta(weeks=1),
+              ]:
+    print('{:15} = {:8} secondi'.format(
+        str(delta), delta.total_seconds())
+    )
+</py_code>
+<testo_normale>
+Il valore di ritorno è un numero a virgola mobile (<code>float</code>), per gestire durate inferiori al secondo
+</testo_normale>
+<py_output>
+$ python3 datetime_timedelta_total_seconds.py
+
+0:00:00.000001  =    1e-06 secondi
+0:00:00.001000  =    0.001 secondi
+0:00:01         =      1.0 secondi
+0:01:00         =     60.0 secondi
+1:00:00         =   3600.0 secondi
+1 day, 0:00:00  =  86400.0 secondi
+7 days, 0:00:00 = 604800.0 secondi
+</py_output>
+<titolo_2>
+Aritmetica sulle Date
+</titolo_2>
+<testo_normale>
+Per compiere operazioni matematiche sulle date si utilizzano gli operatori aritmetici standard.
+</testo_normale>
+<py_code>
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+import datetime
+
+today = datetime.date.today()
+print('Oggi     :', today)
+
+one_day = datetime.timedelta(days=1)
+print('Un giorno:', one_day)
+
+yesterday = today - one_day
+print('Ieri     :', yesterday)
+
+tomorrow = today + one_day
+print('Domani   :', tomorrow)
+
+print('domani - ieri:', tomorrow - yesterday)
+print('ieri - domani:', yesterday - tomorrow)
+</py_code>
+<testo_normale>
+Questo esempio con oggetti <code>date</code> illustra l'uso di oggetti <code>timedelta</code> per calcolare nuove date, e per sottrarre istanze di <code>date</code> per produrre <code>timedelta</code> (incluso un intervallo temporale negativo).
+</testo_normale>
+<py_output>
+$ python3 datetime_date_math.py
+
+Oggi     : 2016-06-12
+Un giorno: 1 day, 0:00:00
+Ieri     : 2016-06-11
+Domani   : 2016-06-13
+domani - ieri: 2 days, 0:00:00
+ieri - domani: -2 days, 0:00:00
+</py_output>
+<testo_normale>
+Un oggetto <code>timedelta</code> supporta anche operazioni aritmetiche con interi, valori a virgola mobile ed altre istanze di <code>timedelta</code>.
+</testo_normale>
+<py_code>
+# datetime_timedelta_math.py
+
+import datetime
+
+one_day = datetime.timedelta(days=1)
+print('1 giorno   :', one_day)
+print('5 giorni   :', one_day * 5)
+print('1.5 giorni :', one_day * 1.5)
+print('1/4 giorno :', one_day / 4)
+
+# si assume un ora per il pranzo
+work_day = datetime.timedelta(hours=7)
+meeting_length = datetime.timedelta(hours=1)
+print('riunioni al giorno :', work_day / meeting_length)
+</py_code>
+<testo_normale>
+In questo esempio, sono calcolati diversi multipli per un singolo giorno, ed i risultanti <code>timedelta</code> contengono il numero di giorni od ore appropriato. L'esempio finale dimostra come calcolare valori combinando due oggetti <code>timedelta</code>. In questo caso il risultata è un numero a virgola mobile.
+</testo_normale>
+<py_output>
+$ python3 datetime_timedelta_math.py
+
+1 giorno   : 1 day, 0:00:00
+5 giorni   : 5 days, 0:00:00
+1.5 giorni : 1 day, 12:00:00
+1/4 giorno : 6:00:00
+riunioni al giorno : 7.0
+</py_output>
+<titolo_2>
+Confrontare Valori
+</titolo_2>
+<testo_normale>
+I valori sia di data che di orario possono essere confrontati tramite gli operatori di confronto standard per determinare quale è il più od il meno recente.
+</testo_normale>
+<py_code>
+# datetime_comparing.py
+
+import datetime
+import time
+
+print('Orari:')
+t1 = datetime.time(12, 55, 0)
+print('  t1:', t1)
+t2 = datetime.time(13, 5, 0)
+print('  t2:', t2)
+print('  t1 < t2:', t1 < t2)
+
+print
+print('Date :')
+d1 = datetime.date.today()
+print('  d1:', d1)
+d2 = datetime.date.today() + datetime.timedelta(days=1)
+print('  d2:', d2)
+print('  d1 > d2:', d1 > d2)
+</py_code>
+<testo_normale>
+Tutti gli operatori di confronto sono supportati.
+</testo_normale>
+<py_output>
+$ python3 datetime_comparing.py
+
+Orari:
+  t1: 12:55:00
+  t2: 13:05:00
+  t1 &lt; t2: True
+Date :
+  d1: 2016-06-19
+  d2: 2016-06-20
+  d1 &gt; d2: False
+</py_output>
+<titolo_2>
+Combinare Date ed Orari
+</titolo_2>
+<testo_normale>
+Si utilizza la classe <code>datetime</code> per conservare valori sia di data che di orario. Così come per <code>date</code> ci sono parecchi metodi di classe di convenienza per la creazione di istanze di <code>datetime</code> derivate da altri valori comuni.
+</testo_normale>
+<py_code>
+# datetime_datetime.py
+
+import datetime
+
+print('Oggi      ,', datetime.datetime.today())
+print('UTC adesso,', datetime.datetime.utcnow())
+print
+
+FIELDS = [
+    ('year', 'anno'),
+    ('month', 'mese'),
+    ('day', 'giorno'),
+    ('hour', 'ora'),
+    ('minute', 'minuto'),
+    ('second', 'secondi'),
+    ('microsecond', 'microsecondi')
+]
+
+d = datetime.datetime.now()
+for attr, descr in FIELDS:
+    print('{:15}, {}'.format(descr, getattr(d, attr)))
+</py_code>
+<testo_normale>
+Come ci si potrebbe aspettare, l'istanza di <code>datetime</code> ha tutti gli attributi degli oggetti <code>date</code> e <code>time</code>
+</testo_normale>
+<py_output>
+$ python3 datetime_datetime.py
+
+Oggi      , 2016-06-18 16:31:57.334704
+UTC adesso, 2016-06-18 14:31:57.334757
+anno           , 2016
+mese           , 6
+giorno         , 18
+ora            , 16
+minuto         , 31
+secondi        , 57
+microsecondi   , 334779
+</py_output>
+<testo_normale>
+Proprio come con <code>date</code>, <code>datetime</code> fornisce dei metodi di classe di convenienza per la creazione di nuove istanze. Include anche <code>fromordinal()</code> e <code>fromtimestamp()</code>
+</testo_normale>
+<py_code>
+# datetime_datetime_combine.py
+
+import datetime
+
+t = datetime.time(1, 2, 3)
+print('t :', t)
+
+d = datetime.date.today()
+print('d :', d)
+
+dt = datetime.datetime.combine(d, t)
+print('dt:', dt)
+</py_code>
+<testo_normale>
+<code>combine()</code> crea istanze di <code>datetime</code> da una istanza di <code>date</code> ed una di <code>time</code>.
+</testo_normale>
+<py_output>
+$ python3 datetime_datetime_combine.py
+
+t : 01:02:03
+d : 2016-06-18
+dt: 2016-06-18 01:02:03
+</py_output>
+<titolo_2>
+Formattazione ed Elaborazione
+</titolo_2>
+<testo_normale>
+La rappresentazione stringa predefinita di un oggetto <code>datetime</code> utilizza il formato ISO-8601 (YYYY-MM-DDTHH:MM:SS.mmmmmm). Formati alternativi possono essere generati utilizzando <code>strftime()</code>.
+</testo_normale>
+<py_code>
+# datetime_datetime_strptime.py
+
+import datetime
+
+format = "%a %b %d %H:%M:%S %Y"
+
+today = datetime.datetime.today()
+print('ISO     :', today)
+
+s = today.strftime(format)
+print('strftime:', s)
+
+d = datetime.datetime.strptime(s, format)
+print('strptime:', d.strftime(format))
+</py_code>
+<testo_normale>
+Si usa <code>datetime.strptime()</code> per convertire stringhe formattate in istanze di <code>datetime</code>.
+</testo_normale>
+<py_output>
+$ python3 datetime_datetime_strptime.py
+
+ISO     : 2016-06-18 16:49:00.075603
+strftime: Sat Jun 18 16:49:00 2016
+strptime: Sat Jun 18 16:49:00 2016
+</py_output>
+<testo_normale>
+Gli stessi codici di formattazione possono essere utilizzati con il <a href="https://docs.python.org/3.5/library/string.html#formatspec">mini linguaggio di formattazione stringhe</a> di Python piazzandoli dopo il <code>:</code> nella specifica del campo della stringa di formato
+</testo_normale>
+<py_code>
+# datetime_format.py
+
+import datetime
+
+today = datetime.datetime.today()
+print('ISO     :', today)
+print('format(): {:%a %b %d %H:%M:%S %Y}'.format(today))
+</py_code>
+<testo_normale>
+Ciascun codice di formato di <code>datetime</code> deve essere preceduto da <code>%</code> e tutti i successivi <code>:</code> sono trattati come caratteri letterali da includere nell'output.
+</testo_normale>
+<py_output>
+$ python3 datetime_format.py
+
+ISO     : 2016-06-18 16:52:39.249801
+format(): Sat Jun 18 16:52:39 2016
+</py_output>
+<testo_normale>
+La tabella seguente mostra tutti i codici di formattazione per le ore 15.00 del pomeriggio del 5 giugno 2016 con la localizzazione italiana.
+</testo_normale>
+<tabella_semplice>
+SIMBOLO;SIGNIFICATO;ESEMPIO
+%a;Giorno della settimana abbreviato;'dom'
+%A;Nome del giorno della settimana;'domenica'
+%w;Numero del giorno della settimana - da 0 (Domenica) a 6 (Sabato);'0'
+%d;Giorno del mese (con zero iniziali);'05'
+%b;Nome del mese abbreviato;'giu'
+%B;Nome del mese completo; 'giugno'
+%m;Mese nell'anno;'06'
+%y;Anno senza cifre del secolo;'16'
+%Y;Anno completo; '2016'
+%H;Ora su 24;'15'
+%I;Ora su 12;'03'
+%p;AM/PM;''
+%M;Minuti;'00'
+%S;Secondi;'00'
+%f;Microsecondi;'000000'
+%z;scostamento UTC per oggetti che tengono conto della zone di fuso orario;''
+%Z;Nome della zona di fuso orario;''
+%j;Numero giorno nell'anno;'157'
+%W;Numero settimana nell'anno;'22'
+%c;Rappresentazione di data ed ora per la localizzazione corrente;'05/06/2015 15:00:00'
+%x;Rappresentazione di data per la localizzazione corrente;'05/06/16'
+%X;Rappresentazione di ora per la localizzazione corrente;'15:00:00'
+%%;Il carattere letterale %;'%'
+</tabella_semplice>
+<titolo_2>
+Zone di Fuso Orario
+</titolo_2>
+<testo_normale>
+All'interno di <strong>datetime</strong>, le zone di fuso orario sono rappresentate da sottoclassi di <code>tzinfo</code>. Visto che <code>tzinfo</code> è una classe base astratta, le applicazioni devono definire una sottoclasse e fornire le implementazioni appropriate per alcuni metodi affinchè siano utilizzabili.
+</testo_normale>
+<testo_normale>
+<strong>datetime</strong> include una implemetazione, poco sofisticata se vogliamo, nella classe <code>timezone</code> che utilizza uno scostamento fisso rispetto all'<a href="https://it.wikipedia.org/wiki/Tempo_coordinato_universale">UTC</a> e non supporta valori di scostamento diversi per diversi giorni dell'anno, ad esempio laddove viene applicata l'ora legale, oppure laddove lo scostamento dall'<a href="https://it.wikipedia.org/wiki/Tempo_coordinato_universale">UTC</a> sia mutato nel tempo.
+</testo_normale>
+<py_code>
+# datetime_timezone.py
+
+import datetime
+
+min6 = datetime.timezone(datetime.timedelta(hours=-6))
+plus6 = datetime.timezone(datetime.timedelta(hours=6))
+d = datetime.datetime.now(min6)
+
+print(min6, ':', d)
+print(datetime.timezone.utc, ':',
+      d.astimezone(datetime.timezone.utc))
+print(plus6, ':', d.astimezone(plus6))
+
+# conversione alla zona di fuso orario corrente del sistema
+d_system = d.astimezone()
+print(d_system.tzinfo, '      :', d_system)
+</py_code>
+<testo_normale>
+https://it.wikipedia.org/wiki/Tempo_coordinato_universale
+https://it.wikipedia.org/wiki/Tempo_coordinato_universale
+Per convertire un valore <code>datetime</code> da una zona di fuso orario all'altra si utilizzi <code>astimezone()</code>. Nell'esempio qui sopra sono mostrate due zone di fuso orario separate da 6 ore dalle parti opposte rispetto all'<a href="https://it.wikipedia.org/wiki/Tempo_coordinato_universale">UTC</a>, viene inoltre utilizzata l'istanza <code>utc</code> da <code>datetime.timezone</code> come riferimento. L'output finale mostra il valore nella zona di fuso orario del sistema, acquisita dalla chiamata di <code>astimezone()</code> senza argomenti.
+</testo_normale>
+<py_output>
+$ python3 datetime_timezone.py
+
+UTC-06:00 : 2016-06-19 02:05:43.105264-06:00
+UTC+00:00 : 2016-06-19 08:05:43.105264+00:00
+UTC+06:00 : 2016-06-19 14:05:43.105264+06:00
+</py_output>
+<note>
+Una migliore implementazione per le zone di fuso orario è fornita dal modulo di terze parti <a href="http://pytz.sourceforge.net/"><strong>pytz</strong></a>. Supporta zone di fuso orario definite ed il database degli scostamenti viene mantenuto aggiornato non appena le modifiche vengono ratificate dagli organi politici in tutto il mondo.
+</note>
+<vedi_anche>
+http://docs.python.org/3.5/library/datetime.html|datetime|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#datetime_porting|Note di portabilità|Note di portabilità per datetime
+calendar.html|calendar|Il modulo <code>calendar</code>
+http://labix.org/python-dateutil|dateutil| <code>dateutil</code> da Labix estende il modulo <code>datetime</code> con funzionalità aggiuntive
+http://pytz.sourceforge.net/|pytz|Database delle zone di fuso orario nel mondo e classi per rendere gli oggetti <code>datetime</code> consapevoli delle zone di fuso orario
+https://it.wikipedia.org/wiki/Calendario_gregoriano_prolettico|Wikipedia: Calendario Gregoriano prolettico|Una descrizione dei sistema di calendario Gregoriano
+http://www.iso.org/iso/support/faqs/faqs_widely_used_standards/widely_used_standards_other/date_and_time_format.htm|ISO 8601|La rappresentazione numerica standard di date ed orari
+</vedi_anche>
+</documento_tradotto>

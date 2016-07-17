@@ -1,0 +1,533 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>comunicazione interprocesso e networking </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+subprocess - Genera e comunica con processi addizionali
+</titolo_1>
+<descrizione>
+Genera e comunica con processi addizionali
+Nuovo nella 2.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>subprocess</strong> fornisce un'interfaccia consistente per creare e lavorare con processi addizionali. Offre una interfaccia a livello più alto rispetto ad altri moduli disponibili, ed è destinato a rimpiazzare funzioni tipo ${sbk}os.system()${ebk}, ${sbk}os.spawn*()${ebk}, ${sbk}os.popen*()${ebk}, ${sbk}os.popen2*()${ebk} e ${sbk}commands.*()${ebk}. Per facilitare il confronto di subprocess con questi altri moduli, gli esempi di seguito ricreano quelli usati per <a href='os.html'>os</a> e ${sbk}popen${ebk}.
+</testo_normale>
+<testo_normale>
+Il modulo <strong>subprocess</strong> definisce una classe: ${sbk}Popen${ebk} e qualche funzione wrapper che usa quella classe. Il  costruttore per ${sbk}Popen${ebk} riceve parecchi parametri per facilitare l'impostazione del nuovo processo, e quindi comunicare con esso tramite le pipe. Ci si concentrerà su un codice di esempio qui; per una descrizione completa degli argomenti fare riferimento alla sezione 17.1.1. della documentazione della libreria.
+</testo_normale>
+<note>
+L'API è grossomodo la stessa, ma l'implementazione sottostante è leggermente diversa tra Unix e Windows. Tutti gli esempi qui mostrati  sono testati su MAC Os X. L'esperienza personale (in un sistema operativo diverso da Unix) potrebbe essere diversa.
+</note>
+<titolo_2>
+Eseguire comandi esterni
+</titolo_2>
+<testo_normale>
+Per eseguire un comando esterno senza interagire con esso, proprio come si farebbe con <em>os.system()</em>, si usa la funzione ${sbk}call()${ebk}
+</testo_normale>
+<py_code>
+import subprocess
+
+# Semplice comando
+subprocess.call(['ls', '-1'], shell=True)
+</py_code>
+<py_output>
+$ python subprocess_os_system.py
+__init__.py
+index.rst
+interaction.py
+repeater.py
+signal_child.py
+signal_parent.py
+subprocess_os_system.py
+subprocess_pipes.py
+subprocess_popen2.py
+subprocess_popen3.py
+subprocess_popen4.py
+subprocess_popen_read.py
+subprocess_popen_write.py
+subprocess_shell_variables.py
+subprocess_signal_parent_shell.py
+subprocess_signal_setsid.py
+</py_output>
+<testo_normale>
+Quando <em>shell</em> è impostato a <strong>True</strong>, le variabili di shell nella stringa di comando sono espanse
+</testo_normale>
+<py_code>
+import subprocess
+
+# Comando con espansione della shell
+subprocess.call('ls -1 $HOME', shell=True)
+</py_code>
+<py_output>
+$ python subprocess_shell_variables.py
+%backup%~
+Desktop
+Devel
+Documents
+DownloadedApps
+Downloads
+Dropbox
+Envs
+Library
+Logitech
+Magazines
+Movies
+Music
+Pictures
+Public
+Sites
+bender-old
+bin
+browser - logitech
+build
+cfx
+emacs
+gnupg-old.tar.gz
+iPod
+page-speed-images
+page-speed-javascript
+pip-log.txt
+public_html
+ssh_config.tar.gz
+texlive
+tmp
+trace.txt
+versioned_home_files
+</py_output>
+<titolo_2>
+Lavorare con le Pipe
+</titolo_2>
+<testo_normale>
+Passando diversi parametri per <em>stdin</em>, <em>stdout</em>, e <em>stderr</em> è possibile imitare le varianti di ${sbk}os.popen()${ebk}
+</testo_normale>
+<testo_normale>
+ <strong>popen</strong>
+</testo_normale>
+<testo_normale>
+Lettura dall'output di una pipe:
+</testo_normale>
+<py_code>
+import subprocess
+
+print '\nlettura:'
+proc = subprocess.Popen(['echo', '"to stdout"'],
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        )
+stdout_value = proc.communicate()[0]
+print '\tstdout:', repr(stdout_value)
+</py_code>
+<py_output>
+$ python -u subprocess_popen_read.py
+
+lettura:
+	stdout: '\n'
+</py_output>
+<testo_normale>
+Scrittura dell'input di una pipe:
+</testo_normale>
+<py_code>
+import subprocess
+
+print '\nscrittura:'
+proc = subprocess.Popen(['cat', '-'],
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        )
+proc.communicate('\tstdin: to stdin\n')
+</py_code>
+<py_output>
+$ python -u subprocess_popen_write.py
+
+scrittura:
+	stdin: to stdin
+</py_output>
+<testo_normale>
+ <strong>popen2</strong>
+</testo_normale>
+<testo_normale>
+Lettura e scrittura, come popen2:
+</testo_normale>
+<py_code>
+import subprocess
+
+print '\npopen2:'
+
+proc = subprocess.Popen(['cat', '-'],
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        )
+stdout_value = proc.communicate('attraverso stdin a stdout')[0]
+print '\tpassa attraverso:', repr(stdout_value)
+</py_code>
+<py_output>
+$ python -u subprocess_popen2.py
+popen2:
+	passa attraverso: 'attraverso stdin a stdout'
+</py_output>
+<testo_normale>
+ <strong>popen3</strong>
+</testo_normale>
+<testo_normale>
+Flussi separati per stdout ed stderr, come con popen3:
+</testo_normale>
+<py_code>
+import subprocess
+
+print '\npopen3:'
+proc = subprocess.Popen('cat -; echo ";to stderr" 1>&2',
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        )
+stdout_value, stderr_value = proc.communicate('attraverso stdin a stdout')
+print '\tpassa attraverso:', repr(stdout_value)
+print '\tstderr:', repr(stderr_value)
+</py_code>
+<py_output>
+$ python -u subprocess_popen3.py
+
+popen3:
+	passa attraverso: 'attraverso stdin a stdout'
+	stderr: ';to stderr\n'
+</py_output>
+<testo_normale>
+ <strong>popen4</strong>
+</testo_normale>
+<testo_normale>
+stdout ed stderr sono combinati, come con popen4:
+</testo_normale>
+<py_code>
+import subprocess
+
+print '\npopen4:'
+proc = subprocess.Popen('cat -; echo ";to stderr" 1>&2',
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        )
+stdout_value, stderr_value = proc.communicate('attraverso stdin a stdout\n')
+print '\tOutput combinato:', repr(stdout_value)
+</py_code>
+<py_output>
+$ python -u subprocess_popen4.py
+
+popen4:
+	Output combinato: 'attraverso stdin a stdout\n;to stderr\n'
+</py_output>
+<titolo_2>
+Connettere Segmenti di una Pipe
+</titolo_2>
+<testo_normale>
+Creando istanze separate di Popen e concatenando i loro input ed output, si può creare la propia conduttura di comandi proprio come in una shell Unix.
+</testo_normale>
+<py_code>
+import subprocess
+
+cat = subprocess.Popen(['cat', 'index.rst'],
+                        stdout=subprocess.PIPE,
+                        )
+
+grep = subprocess.Popen(['grep', '.. include::'],
+                        stdin=cat.stdout,
+                        stdout=subprocess.PIPE,
+                        )
+
+cut = subprocess.Popen(['cut', '-f', '3', '-d:'],
+                        stdin=grep.stdout,
+                        stdout=subprocess.PIPE,
+                        )
+
+end_of_pipe = cut.stdout
+
+print 'File inclusi:'
+for line in end_of_pipe:
+    print '\t', line.strip()
+</py_code>
+<py_output>
+$ python -u subprocess_pipes.py
+File inclusi:
+        subprocess_os_system.py
+        subprocess_shell_variables.py
+        subprocess_popen_read.py
+        subprocess_popen_write.py
+        subprocess_popen2.py
+        subprocess_popen3.py
+        subprocess_popen4.py
+        subprocess_pipes.py
+        repeater.py
+        interaction.py
+        signal_child.py
+        signal_parent.py
+        subprocess_signal_parent_shell.py
+        subprocess_signal_setsid.py
+</py_output>
+<titolo_2>
+Interagire con un Altro Comando
+</titolo_2>
+<testo_normale>
+Tutti gli esempi sopra riportati presuppongono una limitata interazione. Il metodo ${sbk}communicate()${ebk} legge tutto l'output ed attende che il processo figlio esca prima di ritornare. E' anche possibile scrivere verso e leggere da singoli gestori di pipe usati dalla istanza di <strong>Popen</strong>. Un semplice programma che legge dallo standard input e scrive verso lo standard output illustra questa situazione:
+</testo_normale>
+<py_code>
+import sys
+
+sys.stderr.write('repeater.py: inizio\n')
+sys.stderr.flush()
+
+while True:
+    next_line = sys.stdin.readline()
+    if not next_line:
+        break
+    sys.stdout.write(next_line)
+    sys.stdout.flush()
+
+sys.stderr.write('repeater.py: uscita\n')
+sys.stderr.flush()
+</py_code>
+<testo_normale>
+Si prenda nota del fatto che ${sev}<em>repeater.py</em>${eev}  scrive allo standard error quando parte e si interrompe. Quella informazione può essere usata per mostrare il ciclo di vita del processo figlio.
+</testo_normale>
+<testo_normale>
+Il successivo esempio di interazione usa i gestori di file stdin ed stdout che appartengono all'istanza di <strong>Popen</strong> in modi diversi. Nel primo esempio, una sequenza di 10 numeri vengono scritti allo stdin del processo, e dopo ogni scrittura la successiva riga di output viene riletta. Nel secondo esempio, gli stessi 10 numeri sono scritti ma l'output viene letto in una sola volta usando ${sbk}communicate()${ebk}.
+</testo_normale>
+<py_code>
+import subprocess
+
+print 'Una riga alla volta:'
+proc = subprocess.Popen('python repeater.py',
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        )
+for i in range(10):
+    proc.stdin.write('%d\n' % i)
+    output = proc.stdout.readline()
+    print output.rstrip()
+remainder = proc.communicate()[0]
+print remainder
+
+print
+print "Tutto l'output in una volta:"
+proc = subprocess.Popen('python repeater.py',
+                        shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        )
+for i in range(10):
+    proc.stdin.write('%d\n' % i)
+
+output = proc.communicate()[0]
+print output
+</py_code>
+<testo_normale>
+Si noti dove le righe ${sev}"repeater.py: uscita"${eev}  si trovano nell'output per ogni ciclo:
+</testo_normale>
+<py_output>
+$ python -u interaction.py
+Una riga alla volta:
+repeater.py: inizio
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+repeater.py: uscita
+
+
+Tutto l'output in una volta:
+repeater.py: inizio
+repeater.py: uscita
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+</py_output>
+<titolo_2>
+Segnalazioni tra Processi
+</titolo_2>
+<testo_normale>
+Gli esempi di <a href='os.html'>os</a> comprendono una dimostrazione della segnalazione tra processi usando os.fork() ed os.kill(). VIsto che ogni istanza di <strong>Popen</strong> fornisce un attributo <em>pid</em> con l'identificativo del processo figlio, è possibile fare qualcosa di simile con <strong>subprocess</strong>. Ad esempio usare questo script per fare in modo che il processo figlio venga eseguito dal processo genitore:
+</testo_normale>
+<py_code>
+import os
+import signal
+import time
+import sys
+
+pid = os.getpid()
+received = False
+
+def signal_usr1(signum, frame):
+    """Callback chiamato quando viene ricevuto un segnale"""
+    global received
+    received = True
+    print 'FIGLIO %s: Ricevuto USR1' % pid
+    sys.stdout.flush()
+
+print 'FIGLIO %s: Impostazione del gestore di segnale' % pid
+sys.stdout.flush()
+signal.signal(signal.SIGUSR1, signal_usr1)
+print 'FIGLIO %s: In pausa in attesa del segnale' % pid
+sys.stdout.flush()
+time.sleep(3)
+
+if not received:
+    print 'FIGLIO %s: Segnale mai ricevuto' % pid
+</py_code>
+<testo_normale>
+e questo processo genitore:
+</testo_normale>
+<py_code>
+import subprocess
+import time
+import sys
+
+proc = subprocess.Popen(['python', 'signal_child.py'])
+print 'GENITORE: In pausa prima di inviare il segnale...'
+sys.stdout.flush()
+time.sleep(1)
+print 'GENITORE: Segnalazione al figlio'
+sys.stdout.flush()
+os.kill(proc.pid, signal.SIGUSR1)
+</py_code>
+<testo_normale>
+Il risultato dovrebbe assomigliare a questo:
+</testo_normale>
+<py_output>
+$ python -u signal_parent.py
+GENITORE: In pausa prima di inviare il segnale...
+FIGLIO 3250: Impostazione del gestore di segnale
+FIGLIO 3250: In pausa in attesa del segnale
+GENITORE: Segnalazione al figlio
+FIGLIO 3250: Ricevuto USR1
+</py_output>
+<titolo_2>
+Processi Gruppi/Sessioni
+</titolo_2>
+<testo_normale>
+A causa del modo in cui funziona l'albero dei processi sotto Unix, se il processo creato da <strong>Popen</strong> genera dei sotto processi, questi suoi figli non riceveranno alcuno dei segnali inviati al genitore, Questo significa, ad esempio, che sarà difficile farli terminare inviandogli un ${sev}SIGINT${eev} od un ${sev}SIGTERM${eev}.
+</testo_normale>
+<py_code>
+import os
+import signal
+import subprocess
+import tempfile
+import time
+import sys
+
+script = '''#!/bin/sh
+echo "Shell script in esecuzione $$"
+set -x
+python signal_child.py
+'''
+script_file = tempfile.NamedTemporaryFile('wt')
+script_file.write(script)
+script_file.flush()
+
+proc = subprocess.Popen(['sh %s' % script_file.name], shell=True, close_fds=True)
+print 'GENITORE: In pausa prima di inviare il segnale al figlio %s...' % proc.pid
+sys.stdout.flush()
+time.sleep(1)
+print 'GENITORE: Segnalazione al figlio  %s' % proc.pid
+sys.stdout.flush()
+os.kill(proc.pid, signal.SIGUSR1)
+time.sleep(3)
+</py_code>
+<testo_normale>
+Si noti che il pid usato per inviare il segnale è diverso dal pid del figlio dello script della shell che è in attesa del segnale perchè in questo esempio, ci sono tre processi separati che interagiscono.:
+</testo_normale>
+<lista_numerata>
+${sev}subprocess_signal_parent_shell.py${eev}
+un processo della shell Unix che sta eseguento lo script creato dal programma python principale
+${sev}signal_child.py${eev}
+</lista_numerata>
+<py_output>
+$ python subprocess_signal_parent_shell.py
+GENITORE: In pausa prima di inviare il segnale al figlio 2592...
+Shell script in esecuzione 2593
++ python signal_child.py
+FIGLIO 2594: Impostazione del gestore di segnale
+FIGLIO 2594: In pausa in attesa del segnale
+GENITORE: Segnalazione al figlio  2592
+FIGLIO 2594: Segnale mai ricevuto
+</py_output>
+<testo_normale>
+La soluzione di questo problema è usare un <a href='http://it.wikipedia.org/wiki/PID_%28Unix%29'><em>gruppo di processi</em></a> da associare ai figli in modo che possa essere inviata una segnalazione a tutti insieme. Il gruppo di processi viene creato con ${sbk}os.setsid()${ebk}, impostando l'identificativo di sessione ("session id") all'id del processo corrente. Tutti i processi figlio ereditano il "session id", e visto che lo si vuole solamente impostare nella shell creata da <strong>Popen</strong> ed i suoi discendenti non occorre chiamare il processo corrente, al contrario lo si passa come parametro <em>preexec_fn</em> a Popen in mdodo che possa essere eseguito dopo il ${sbk}fork()${ebk} all'interno del nuovo processo, prima che chiami ${sbk}exec()${ebk}.
+</testo_normale>
+<py_code>
+import os
+import signal
+import subprocess
+import tempfile
+import time
+import sys
+
+script = '''#!/bin/sh
+echo "Shell script in esecuzione $$"
+set -x
+python signal_child.py
+'''
+script_file = tempfile.NamedTemporaryFile('wt')
+script_file.write(script)
+script_file.flush()
+
+proc = subprocess.Popen(['sh %s' % script_file.name],
+                        shell=True,
+                        close_fds=True,
+                        preexec_fn=os.setsid,
+                        )
+print 'GENITORE: In pausa prima di inviare il segnale al figlio %s...' % proc.pid
+sys.stdout.flush()
+time.sleep(1)
+print 'GENITORE: Segnalazione del gruppo di processo %s' % proc.pid
+sys.stdout.flush()
+os.killpg(proc.pid, signal.SIGUSR1)
+time.sleep(3)
+</py_code>
+<testo_normale>
+Per segnalare all'intero gruppo di processi, si usa ${sbk}os.killpg()${ebk} con il valore del pid dall'istanza di <strong>Popen</strong>
+</testo_normale>
+<py_output>
+$ python subprocess_signal_setsid.py
+GENITORE: In pausa prima di inviare il segnale al figlio 2957...
+Shell script in esecuzione 2958
++ python signal_child.py
+FIGLIO 2959: Impostazione del gestore di segnale
+FIGLIO 2959: In pausa in attesa del segnale
+GENITORE: Segnalazione del gruppo di processo 2957
+FIGLIO 2959: Ricevuto USR1
+</py_output>
+<titolo_2>
+Conclusioni
+</titolo_2>
+<testo_normale>
+Come si vede, lavorare con <strong>subprocess</strong> è molto più facile di fork, exex, e le pipe da soli. Fornisce tutte le funzionalità degli altri moduli e delle funzioni che sostituisce, ed altro. L'API è consistente per tutti gli utilizzi e la maggior parte dell'attività extra necessaria (tipo chiudere i descrittori di file extra, assicurarsi che le pipe siano chiuse, ecc) sono incorporate in esso invece che dover essere gestite separatamente dal codice della propria applicazione.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/lib/module-subprocess.html|subprocess|La documentazione della libreria standard per questo modulo.
+os.html|os|Sebbene molte di esse siano deprecate, le funzioni per lavorare con i processi contenute nel modulo os sono ancora largamente usate nel codice esistente.
+http://www.amazon.com/Programming-Environment-Addison-Wesley-Professional-Computing/dp/0201433079/ref=pd_bbs_3/002-2842372-4768037?ie=UTF8&s=books&amp;qid=1182098757&sr=8-3|Unix Signals and Process Groups|Una buona descrizione delle segnalazioni in Unix e come i gruppi di processi funzionano.
+http://www.amazon.com/Programming-Environment-Addison-Wesley-Professional-Computing/dp/0201433079/ref=pd_bbs_3/002-2842372-4768037?ie=UTF8&s=books&amp;qid=1182098757&sr=8-3|Advanced Programming in the UNIX(R) Environment|Tratta il lavorare con processi multipli, tipo la gestione di segnali, la chiusura di descrittori di file duplicati, ecc.
+pipes.html|pipe|modelli di pipeline di comandi della shell unix nella libreria standard
+</vedi_anche>
+</documento_tradotto>

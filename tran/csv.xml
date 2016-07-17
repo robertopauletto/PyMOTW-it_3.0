@@ -1,0 +1,483 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>persistenza e scambio dei dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+csv - File con Valori separati da virgola
+</titolo_1>
+<descrizione>
+Legge e scrive file con valori separati da virgola
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>csv</strong> può esere usato per lavorare con dati esportati da fogli di calcolo e database in file di testo formattati con campi e record, generalmente riferiti come file con formato CSV (<em>comma-separated value</em>) visto che le virgole sono spesso utilizzate come separatore di campo nei record.
+</testo_normale>
+<titolo_2>
+Lettura
+</titolo_2>
+<testo_normale>
+Si utilizza  <code>reader()</code> (lettore - n.d.t.) per creare un oggetto per leggere dati da un file CSV. Il lettore può essere usato come un iteratore per elaborare in sequenza le righe del file in esame. Ad esempio:
+</testo_normale>
+<py_code>
+# csv_reader.py
+import csv
+import sys
+
+with open(sys.argv[1], 'rt') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row)
+</py_code>
+<testo_normale>
+Il primo argomento di <code>reader()</code> è la sorgente delle righe di testo. In questo caso si tratta di un file, ma è accettato un qualsiasi iterabile (istanze di <code>StringIO</code>, liste, ecc.). Altri argomenti opzionali possono essere passati per controllare come vengono elaborati i dati in input.
+</testo_normale>
+<py_output>
+"Titolo 1","Titolo 2","Titolo 3","Titolo 4"
+1,"a",08/18/07,"å"
+2,"b",08/19/07,"∫"
+3,"c",08/20/07,"ç"
+</py_output>
+<testo_normale>
+Mano a mano che il file viene letto, ogni riga viene elaborata e convertita in una lista di stringhe.
+</testo_normale>
+<py_output>
+$ python3 csv_reader.py  testdata.csv
+
+['Titolo 1', 'Titolo 2', 'Titolo 3', 'Titolo 4']
+['1', 'a', '08/18/07', 'å']
+['2', 'b', '08/19/07', '∫']
+['3', 'c', '08/20/07', 'ç']
+</py_output>
+<testo_normale>
+Il <a href="https://it.wikipedia.org/w/index.php?title=Parsing&redirect=no"><em>parser</em></a> gestisce le interruzioni di riga inserite all'interno delle stringhe in una riga, che è la ragione per la quale una riga elaborata non sempre è identica a quella di partenza
+</testo_normale>
+<py_output>
+"Titolo 1","Titolo 2","Titolo 3"
+1,"prima riga
+seconda riga",08/18/07
+</py_output>
+<testo_normale>
+I campi in input con interruzioni di riga mantengono le interruzioni di riga interne quando sono restituite dal <em>parser</em>
+</testo_normale>
+<py_output>
+$ python3 csv_reader.py  testlinebreak.csv
+
+['Titolo 1', 'Titolo 2', 'Titolo 3']
+['1', 'prima riga\nseconda riga', '08/18/07']
+</py_output>
+<titolo_2>
+Scrittura
+</titolo_2>
+<testo_normale>
+Scrivere file CSV è tanto facile quanto leggerli. Si utilizza <code>writer()</code> per creare un oggetto  per la scrittura, poi si itera sulle righe, utilizzando <code>writerow()</code> per scriverle.
+</testo_normale>
+<py_code>
+# csv_writer.py
+
+import csv
+import sys
+
+unicode_chars = 'å∫ç'
+
+with open(sys.argv[1], 'wt') as f:
+    writer = csv.writer(f)
+    writer.writerow(('Titolo 1', 'Titolo 2', 'Titolo 3', 'Titolo 4'))
+    for i in range(3):
+        row = (
+            i + 1,
+            chr(ord('a') + i),
+            '08/{:02d}/07'.format(i + 1),
+            unicode_chars[i],
+        )
+        writer.writerow(row)
+
+print(open(sys.argv[1], 'rt').read())
+</py_code>
+<testo_normale>
+L'output non sembra esattamente uguale a quello dei dati esportati usati nell'esempio di lettura in quanto mancano degli apici attorno a qualche valore.
+</testo_normale>
+<py_output>
+$ python3 csv_writer.py testout.csv
+
+Titolo 1,Titolo 2,Titolo 3,Titolo 4
+1,a,08/01/07,å
+2,b,08/02/07,∫
+3,c,08/03/07,ç
+</py_output>
+<titolo_2>
+Racchiudere tra Apici
+</titolo_2>
+<testo_normale>
+Il comportamento predefinito per racchiudere i dati tra apici è diverso per la scrittura, quindi i valori delle seconde e terze colonne nell'esempio precedente non sono racchiusi tra apici. Per inserirle si imposta l'argomento <em>quoting</em> ad uno dei quattro differenti tipi:
+</testo_normale>
+<deflist>
+QUOTE_ALL|Racchiude tutto, a prescindere dal tipo.
+QUOTE_MINIMAL|Racchiude tra apici i campi con caratteri speciali (qualsiasi cosa che potrebbe confondere il <em>parser</em> configurato con lo stesso dialetto ed opzioni). Questa è l'opzione predefinita
+QUOTE_NONNUMERIC|Racchiude tra apici tutti i campi che non sono interi o float. Quando viene usato in lettura, i campi in input che non sono racchiusi tra apici vengono convertiti in float.
+QUOTE_NONE|Non racchiude nulla tra apici in scrittura. Quando usato in lettura, i caratteri apici vengono inclusi nei valori di campo (in genere sono invece trattati come delimitatori ed eliminati).
+</deflist>
+<py_code>
+writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+</py_code>
+<testo_normale>
+In questo caso, <code>QUOTE_NONNUMERIC</code> aggiunge apici attorno alle colonne che contengono valori che non sono numeri.
+</testo_normale>
+<py_output>
+$ python3 csv_writer_quoted.py testout_quoted.csv
+
+"Titolo 1","Titolo 2","Titolo 3","Titolo 4"
+1,"a","08/01/07","å"
+2,"b","08/02/07","∫"
+3,"c","08/03/07","ç"
+</py_output>
+<titolo_2>
+Dialetti
+</titolo_2>
+<testo_normale>
+Non esiste uno standard ben definito per i file CSV, quindi il <em>parser</em> deve essere flessibile. Il che significa che si sono molti parametri che controllano come il modulo <strong>csv</strong> elabora o scrive i dati. Piuttosto che passare ognuno di questi parametri al lettore ed allo scrittore separatamente, essi sono raggruppati convenientemente in un oggetto <em>dialetto</em> (dialect).
+</testo_normale>
+<testo_normale>
+Le classi dialetto possono essere registrate per nome, quindi i chiamanti del modulo <strong>csv</strong> non hanno bisogno di conoscere in anticipo le impostazioni dei parametri. La lista completa dei dialetti registrati può essere ottenuta con <code>list_dialects()</code>
+</testo_normale>
+<py_code>
+#csv_list_dialects.py
+import csv
+
+print(csv.list_dialects())
+</py_code>
+<testo_normale>
+La libreria standard include 3 dialetti: <code>excel</code>, <code>excel-tabs</code> e <code>unix</code>. Il dialetto <code>excel</code> funziona con dati esportati nel formato predefinito per Microsoft Excel, e funziona anche con <a href="http://www.libreoffice.org/">LibreOffice</a>. Il dialetto <code>unix</code> utilizza doppi apici per racchiudere tutti i campi e <code>\n</code> come separatore di record.
+</testo_normale>
+<py_output>
+$ python3 csv_list_dialects.py
+
+['excel-tab', 'unix', 'excel']
+</py_output>
+<titolo_2>
+Creare un Dialetto
+</titolo_2>
+<testo_normale>
+Si supponga che, invece di usare le virgole per delimitare i campi, il file di input usi il carattere <code>|</code> , tipo questo:
+</testo_normale>
+<py_code>
+"Titolo 1"|"Titolo 2"|"Titolo 3"
+1|"prima riga
+seconda riga"|08/18/07
+</py_code>
+<testo_normale>
+un nuovo dialetto può essere registrato, utilizzando il delimitatore appropriato.
+</testo_normale>
+<py_code>
+# csv_dialect.py
+
+import csv
+
+csv.register_dialect('pipes', delimiter='|')
+
+with open('testdata.pipes', 'r') as f:
+    reader = csv.reader(f, dialect='pipes')
+    for row in reader:
+        print(row)
+
+</py_code>
+<testo_normale>
+Utilizzando il dialetto "pipes", si può leggere il file allo stesso modo di uno delimitato da virgole.
+</testo_normale>
+<py_output>
+$ python3 csv_dialect.py
+
+['Titolo 1', 'Titolo 2', 'Titolo 3']
+['1', 'prima riga\nseconda riga', '08/18/07']
+</py_output>
+<titolo_2>
+Parametri del Dialetto
+</titolo_2>
+<testo_normale>
+Un dialetto specifica tutti i <a href="https://it.wikipedia.org/wiki/Token_(testo)"><em>token</em></a>  utilizzati
+per la lettura e scrittura di un file. La tabella seguente elenca gli aspetti del formato del file che possono essere specificati, dal modo in cui le colonne sono delimitate al carattere di escape utilizzato per un token.
+</testo_normale>
+<tabella_semplice>
+ATTRIBUTO;PREDEFINITO;DESCRIZIONE
+<em>delimiter</em>;<code>,</code>;Separatore di campo (un carattere).
+<em>doublequote</em>;<code>True</code>;Flag che controlla se le istanze di <em>quotechar</em> debbano essere raddoppiate.
+<em>escapechar</em>;<code>None</code>;Carattere utilizzato per indicare una sequenza di escape.
+<em>lineterminator</em>;<code>\r\n</code>;Stringa utilizzata dal <em>writer</em> per terminare una riga
+<em>quotechar</em>;<code>"</code>;Stringa con la quale racchiudere i campi che contengono valori speciali (un carattere).
+<em>quoting</em>;<code>QUOTE_MINIMAL</code>;Controlla il comportamento di utilizzo del carattere utilizzato per racchiudere i campi descritto in precedenza.
+<em>skipinitialspace</em>;<code>False</code>;Ignora lo spazio dopo il delimitatore di campo.
+</tabella_semplice>
+<py_code>
+# csv_dialect_variations.py
+
+import csv
+import sys
+
+csv.register_dialect('escaped',
+                     escapechar='\\',
+                     doublequote=False,
+                     quoting=csv.QUOTE_NONE,
+                     )
+csv.register_dialect('singlequote',
+                     quotechar="'",
+                     quoting=csv.QUOTE_ALL,
+                     )
+
+quoting_modes = {
+    getattr(csv, n): n
+    for n in dir(csv)
+    if n.startswith('QUOTE_')
+}
+
+TEMPLATE = '''\
+Dialetto: "{name}"
+
+  delimiter   = {dl!r:<6}    skipinitialspace = {si!r}
+  doublequote = {dq!r:<6}    quoting          = {qu}
+  quotechar   = {qc!r:<6}    lineterminator   = {lt!r}
+  escapechar  = {ec!r:<6}
+'''
+
+for name in sorted(csv.list_dialects()):
+    dialect = csv.get_dialect(name)
+
+    print(TEMPLATE.format(
+        name=name,
+        dl=dialect.delimiter,
+        si=dialect.skipinitialspace,
+        dq=dialect.doublequote,
+        qu=quoting_modes[dialect.quoting],
+        qc=dialect.quotechar,
+        lt=dialect.lineterminator,
+        ec=dialect.escapechar,
+    ))
+
+    writer = csv.writer(sys.stdout, dialect=dialect)
+    writer.writerow(
+        ('col1', 1, '10/01/2010',
+         'Caratteri speciali: " \' {} da elaborare'.format(
+             dialect.delimiter))
+    )
+    print()
+
+</py_code>
+<testo_normale>
+Il programma mostra come gli stessi dati appaiono quando sono formattati utilizzando diversi dialetti differenti.
+</testo_normale>
+<py_output>
+$ python3 csv_dialect_variations.py
+
+Dialetto: "escaped"
+
+  delimiter   = ','       skipinitialspace = 0
+  doublequote = 0         quoting          = QUOTE_NONE
+  quotechar   = '"'       lineterminator   = '\r\n'
+  escapechar  = '\\'
+
+col1,1,10/01/2010,Caratteri speciali: \" ' \, da elaborare
+
+Dialetto: "excel"
+
+  delimiter   = ','       skipinitialspace = 0
+  doublequote = 1         quoting          = QUOTE_MINIMAL
+  quotechar   = '"'       lineterminator   = '\r\n'
+  escapechar  = None
+
+col1,1,10/01/2010,"Caratteri speciali: "" ' , da elaborare"
+
+Dialetto: "excel-tab"
+
+  delimiter   = '\t'      skipinitialspace = 0
+  doublequote = 1         quoting          = QUOTE_MINIMAL
+  quotechar   = '"'       lineterminator   = '\r\n'
+  escapechar  = None
+
+col1    1   10/01/2010  "Caratteri speciali: "" '    da elaborare"
+
+Dialetto: "singlequote"
+
+  delimiter   = ','       skipinitialspace = 0
+  doublequote = 1         quoting          = QUOTE_ALL
+  quotechar   = "'"       lineterminator   = '\r\n'
+  escapechar  = None
+
+'col1','1','10/01/2010','Caratteri speciali: " '' , da elaborare'
+
+Dialetto: "unix"
+
+  delimiter   = ','       skipinitialspace = 0
+  doublequote = 1         quoting          = QUOTE_ALL
+  quotechar   = '"'       lineterminator   = '\n'
+  escapechar  = None
+
+"col1","1","10/01/2010","Caratteri speciali: "" ' , da elaborare"
+</py_output>
+<titolo_3>
+Rilevare Automaticamente i Dialetti
+</titolo_3>
+<testo_normale>
+Il modo migliore di configurare un dialetto per l'elaborazione di un file in input è sapere le corrette impostazioni in anticipo. Per dati dove i parametri del dialetto sono sconosciuti, si può usare la classe <code>Sniffer</code> per fare un'ipotesi plausibile. Il metodo <code>sniff()</code> ottiene un campione dei dati in input ed un argomento opzionale che fornisce i possibili caratteri di delimitazione.
+</testo_normale>
+<py_code>
+# csv_dialect_sniffer.py
+
+import csv
+from io import StringIO
+import textwrap
+
+csv.register_dialect('escaped',
+                     escapechar='\\',
+                     doublequote=False,
+                     quoting=csv.QUOTE_NONE)
+csv.register_dialect('singlequote',
+                     quotechar="'",
+                     quoting=csv.QUOTE_ALL)
+
+# Genera dati campione per tutti i dialetti conosciuti
+samples = []
+for name in sorted(csv.list_dialects()):
+    buffer = StringIO()
+    dialect = csv.get_dialect(name)
+    writer = csv.writer(buffer, dialect=dialect)
+    writer.writerow(
+        ('col1', 1, '10/01/2010',
+         'Caratteri speciali " \' {} da elaborare'.format(
+             dialect.delimiter))
+    )
+    samples.append((name, dialect, buffer.getvalue()))
+
+# Indovina il dialetto per un dato campione, quindi utilizza i risultati per
+# elaborare i dati.
+sniffer = csv.Sniffer()
+for name, expected, sample in samples:
+    print('Dialetto: "{}"'.format(name))
+    print('In: {}'.format(sample.rstrip()))
+    dialect = sniffer.sniff(sample, delimiters=',\t')
+    reader = csv.reader(StringIO(sample), dialect=dialect)
+    print('Elaborati:\n  {}\n'.format(
+          '\n  '.join(repr(r) for r in next(reader))))
+</py_code>
+<testo_normale>
+Il metodo <code>sniff()</code> ritorna una istanza di <code>Dialect</code> con le impostazioni da utilizzare per elaborare i dati. I risultati non sono sempre perfetti, come dimostrato dal dialetto "escaped" nell'esempio.
+</testo_normale>
+<py_output>
+$ python3 csv_dialect_sniffer.py
+
+Dialetto: "escaped"
+In: col1,1,10/01/2010,Caratteri speciali \" ' \, da elaborare
+Elaborati:
+  'col1'
+  '1'
+  '10/01/2010'
+  'Caratteri speciali \\" \' \\'
+  ' da elaborare'
+
+Dialetto: "excel"
+In: col1,1,10/01/2010,"Caratteri speciali "" ' , da elaborare"
+Elaborati:
+  'col1'
+  '1'
+  '10/01/2010'
+  'Caratteri speciali " \' , da elaborare'
+
+Dialetto: "excel-tab"
+In: col1    1   10/01/2010  "Caratteri speciali "" '     da elaborare"
+Elaborati:
+  'col1'
+  '1'
+  '10/01/2010'
+  'Caratteri speciali " \' \t da elaborare'
+
+Dialetto: "singlequote"
+In: 'col1','1','10/01/2010','Caratteri speciali " '' , da elaborare'
+Elaborati:
+  'col1'
+  '1'
+  '10/01/2010'
+  'Caratteri speciali " \' , da elaborare'
+
+Dialetto: "unix"
+In: "col1","1","10/01/2010","Caratteri speciali "" ' , da elaborare"
+Elaborati:
+  'col1'
+  '1'
+  '10/01/2010'
+  'Caratteri speciali " \' , da elaborare'
+</py_output>
+<titolo_3>
+Utilizzare Nomi di Campo
+</titolo_3>
+<testo_normale>
+Oltre a lavorare con sequenze di dati, il modulo <strong>csv</strong> include classi per lavorare con righe come dizionari in modo che si possa attribuire un nome ai campi. Le classi <code>DictReader</code> e <code>DictWriter</code> trascodificano le righe in dizionari invece che in liste. Le chiavi per il dizionario possono essere passate oppure ricavate per inferenza dalla prima riga dell'input (quando la riga contiene le intestazioni di colonna).
+</testo_normale>
+<py_code>
+# csv_dictreader.py
+
+import csv
+import sys
+
+with open(sys.argv[1], 'rt') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row)
+</py_code>
+<testo_normale>
+Gli oggetti di lettura e scrittura basati sul dizionario sono implementati come <a href="https://it.wikipedia.org/wiki/Wrapper"><em>wrapper</em></a>  attorno alle classi corrispondenti basate sui dati in sequenza, ed usano gli stessi argomenti e metodi. L'unica differenza è che le righe sono dizionari invece che liste di tuple nell'<a href="https://it.wikipedia.org/wiki/API">API</a> di lettura.
+</testo_normale>
+<py_output>
+$ python3 csv_dictreader.py testdata.csv
+
+{'Titolo 4': 'å', 'Titolo 1': '1', 'Titolo 3': '08/18/07', 'Titolo 2': 'a'}
+{'Titolo 4': '∫', 'Titolo 1': '2', 'Titolo 3': '08/19/07', 'Titolo 2': 'b'}
+{'Titolo 4': 'ç', 'Titolo 1': '3', 'Titolo 3': '08/20/07', 'Titolo 2': 'c'}
+</py_output>
+<testo_normale>
+Si devono passare a <code>DictWriter</code> un elenco di nomi di campo così che possa conoscere come ordinare le colonne nella scrittura del file.
+</testo_normale>
+<py_code>
+#csv_dictwriter.py
+
+import csv
+import sys
+
+fieldnames = ('Titolo 1', 'Titolo 2', 'Titolo 3', 'Titolo 4')
+headers = {
+    n: n
+    for n in fieldnames
+}
+unicode_chars = 'å∫ç'
+
+with open(sys.argv[1], 'wt') as f:
+
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+
+    for i in range(3):
+        writer.writerow({
+            'Titolo 1': i + 1,
+            'Titolo 2': chr(ord('a') + i),
+            'Titolo 3': '08/{:02d}/07'.format(i + 1),
+            'Titolo 4': unicode_chars[i],
+        })
+
+print(open(sys.argv[1], 'rt').read())
+</py_code>
+<testo_normale>
+I nomi dei campi non sono scritti automaticamente nel file, ma possono essere scritti esplicitamente utilizzando il metodo <code>writeheader()</code>.
+</testo_normale>
+<py_output>
+$ python3 csv_dictwriter.py testout.csv
+Titolo 1,Titolo 2,Titolo 3,Titolo 4
+1,a,08/01/07,å
+2,b,08/02/07,∫
+3,c,08/03/07,ç
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/csv.html|csv|La documentazione della libreria standard per questo modulo.
+http://www.python.org/dev/peps/pep-0305|PEP 305|L'API per i file CSV
+riferimenti_moduli_modificati.html#csv|Note di portabilità|
+</vedi_anche>
+</documento_tradotto>

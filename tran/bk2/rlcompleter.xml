@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di sistema operativo opzionali </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+rlcompleter - Aggiunge il completamento tramite tabulazione all'interprete interattivo
+</titolo_1>
+<descrizione>
+Aggiunge il completamento tramite tabulazione all'interprete interattivo
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>rlcompleter</strong> aggiunge il completamento tramite tabulazione per i simboli Pyhton all'interprete interattivo. L'Importazione del modulo genera la configurazione di una funzione di completamento per <a href='readline.html'>readline</a>. L'unico altro passo richiesto è di configurare il tasto di tabulazione per far scattare la funzione di completamento. Tutto questo può essere fatto in un file <a href='http://docs.python.org/2/using/cmdline.html#envvar-PYTHONSTARTUP'>PYTHONSTARTUP</a> in modo che venga eseguito ogni volta che viene fatto partire l'interprete interattivo.
+</testo_normale>
+<testo_normale>
+Ad esempio si crea un file <code>~/.pythonrc</code> che contiene:
+</testo_normale>
+<py_code>
+try:
+    import readline
+except ImportError:
+    # Si ignora silenziosamente la mancanza del modulo readline
+    pass
+else:
+    import rlcompleter
+    readline.parse_and_bind("tab: complete")        
+</py_code>        
+<testo_normale>
+Quindi si imposta PYTHONSTARTUP a "<code>~/.pythonrc</code>". Quando viene fatto partire l'interprete interattivo, viene attivato il completamento con il tasto di tabulazione traendo i nomi dal contenuto di moduli o di attibuti di oggetti.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/rlcompleter.html|rlcompleter|La documentazione della libreria standard per questo modulo.
+readline.html|readline|Il modulo <strong>readline</strong>
+</vedi_anche>
+</documento_tradotto>

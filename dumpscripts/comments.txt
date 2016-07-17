@@ -1,0 +1,3 @@
+Questa riga viene riconosciuta
+# Ma quest'altra viene ignorata.
+Questa linea viene elaborata.

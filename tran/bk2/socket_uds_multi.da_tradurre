@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<titolo_2>
+Unix Domain Sockets
+</titolo_2>
+<testo_normale>
+Dalla prospettiva del programmatore ci sono due differenze essenziali rispetto all'uso di un socket Unix Domain e di un socket TCP/IP. Primo, l'indirizzo del socket è un percorso nel filesystem, invece che una tupla che contiene il nome del server e la porta. Secondo, il nodo creato nel filesystem per rappresentare il socket persiste anche dopo che il socket viene chiuso, ed occorre eliminarlo ogni volta che il server viene fatto partire. L'esempio di eco dal server può essere aggiornato per usarlo con UDS facendo alcuni cambiamenti nella sezione di impostazione
+</testo_normale>
+<py_code>
+mport socket
+import sys
+import os
+
+server_address = './uds_socket'
+
+# Ci si assicura che il socket non esista
+try:
+    os.unlink(server_address)
+except OSError:
+    if os.path.exists(server_address):
+        raise
+</py_code>
+<testo_normale>
+Il <a href='${baseurl}/pymotw-it/socket.html'>socket</a> deve essere creato con la famiglia di indirizzo ${sev}AF_UNIX${eev}.
+</testo_normale>
+<py_code>
+# Crea un socket UDS
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+</py_code>
+<testo_normale>
+L'aggancio del socket e la gestione delle connessioni in entrata funziona allo stesso modo dei socket TCP/IP.
+</testo_normale>
+<py_code>
+# Collega il socket alla porta
+print >>sys.stderr, 'in avvio su %s porta %s' % server_address
+sock.bind(server_address)
+
+# In ascolto per una connessione in entrata
+sock.listen(1)
+
+while True:
+    # Attende una connessione
+    print >>sys.stderr, 'in attesa di una connessione'
+    connection, client_address = sock.accept()
+    try:
+        print >>sys.stderr, 'connessione da', client_address
+    
+        # Riceve i dati in piccoli segmenti e li ritrasmette
+        while True:
+            data = connection.recv(16)
+            print >>sys.stderr, 'ricevuto "%s"' % data
+            if data:
+                print >>sys.stderr, 'reinvio dei dati al client'
+                connection.sendall(data)
+            else:
+                print >>sys.stderr, 'non ci sono più dati da', client_address
+                break
+            
+    finally:
+        # Pulisce la connessione
+        connection.close()    
+</py_code>
+<testo_normale>
+Anche l'impostazione del client deve essere modificata per funzionare con UDS. Dovrebbe presupporre che il nodo per il socket esista, visto che il server lo crea attaccandolo all'indirizzo.
+</testo_normale>
+<py_code>
+mport socket
+import sys
+
+# Crea un socket UDP
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+# Connette il socket alla porta dove è il ascolot il server
+server_address = './uds_socket'
+print >>sys.stderr, 'connessione a %s' % server_address
+try:
+    sock.connect(server_address)
+except socket.error, msg:
+    print >>sys.stderr, msg
+    sys.exit(1)
+</py_code>
+<testo_normale>
+L'invio e la ricezione dei dati nel client UDS funzionano allo stesso modo del client TCP/IP dell'esempio precedente
+</testo_normale>
+<py_code>
+
+try:
+
+    # Invio dati
+    message = 'Questo è il messaggio. Verrà ripetuto'
+    print >>sys.stderr, 'in invio "%s"' % message
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+    
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)    
+        print >>sys.stderr, 'ricevuto "%s"' % data
+
+finally:
+    print >>sys.stderr, 'chiusura del socket'
+    sock.close()
+</py_code>
+<testo_normale>
+L'output del programma è pressochè lo stesso, con gli aggiornamenti appropriati delle informazioni dell'indirizzo. Per quanto riguarda il server:
+</testo_normale>
+<py_output>
+$ python socket_echo_server_uds.py 
+in avvio su ./uds_socket 
+in attesa di una connessione
+connessione da 
+ricevuto "Questo è il mes"
+reinvio dei dati al client
+ricevuto "saggio. Verrà r"
+reinvio dei dati al client
+ricevuto "ipetuto"
+reinvio dei dati al client
+ricevuto ""
+non ci sono più dati da 
+in attesa di una connessione
+</py_output>
+<testo_normale>
+e dal client:
+</testo_normale>
+<py_output>
+$ python socket_echo_client_uds.py 
+connessione a ./uds_socket
+in invio "Questo è il messaggio. Verrà ripetuto"
+ricevuto "Questo è il mes"
+ricevuto "saggio. Verrà r"
+ricevuto "ipetuto"
+chiusura del socket
+</py_output>
+<titolo_2>
+Permessi
+</titolo_2>
+<testo_normale>
+Visto che il socket UDS viene rappresentato da un nodo nel filesystem, si possono usare i permessi standard per il filesystem per controllare l'accesso al server 
+</testo_normale>
+<py_output>
+$ ls -l ./uds_socket 
+srwxr-xr-x 1 robby robby 0 2011-01-08 17:28 ./uds_socket
+
+$ sudo chown root ./uds_socket
+
+$ ls -l ./uds_socket 
+srwxr-xr-x 1 root robby 0 2011-01-08 17:28 ./uds_socket
+</py_output>
+<testo_normale>
+Ora l'esecuzione del client come utente diverso da ${sev}root${eev} ora genera un errore visto che il processo non ha il permesso di aprire il socket.
+</testo_normale>
+<py_output>
+$ python socket_echo_client_uds.py 
+
+connessione a ./uds_socket
+[Errno 13] Permission denied
+</py_output>
+<titolo_2>
+Comunicazione tra i Processi Padre e Figlio
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}socketpair()${ebk} è utile per impostare i socket UDS per l'intercomunicazione dei processi sotto Unix. Crea una coppia di socket connessi che possono essere usati per conunicare tra processo padre e processo figlio dopo che viene eseguito il fork sul figlio.
+</testo_normale>
+<py_code>
+import socket
+import os
+
+parent, child = socket.socketpair()
+
+pid = os.fork()
+
+if pid:
+    print 'nel padre, invio messaggio'
+    child.close()
+    parent.sendall('ping')
+    response = parent.recv(1024)
+    print 'risposta dal figlio:', response
+    parent.close()
+
+else:
+    print 'nel figlio, in attesa del messaggio'
+    parent.close()
+    message = child.recv(1024)
+    print 'messaggio dal padre:', message
+    child.sendall('pong')
+    child.close()
+</py_code>
+<testo_normale>
+In modo predefinito, un socket UDS viene creato, ma il chiamante può anche passare una famiglia di indirizzo, tipo di socket ed anche delle opzioni di protocollo per controllare come sono creati i socket.
+</testo_normale>
+<py_output>
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ python socket_socketpair.py 
+
+nel padre, invio messaggio
+nel figlio, in attesa del messaggio
+messaggio dal padre: ping
+risposta dal figlio: pong
+</py_output>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

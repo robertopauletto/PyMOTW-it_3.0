@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>protocolli internet e supporto </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+SocketServer - Creazione di server di rete 
+</titolo_1>
+<descrizione>
+Creazione di server di rete 
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>SocketServer</strong> è una infrastruttura per la creazione di server di rete. Definisce le classi per la gestione di richieste di rete sincrone (il gestore della richiesta del server si blocca fino al completamento di una richiesta) su TCP, UDP, flussi Unix e <a href='http://it.wikipedia.org/wiki/Pacchetto_(reti)'>datagrammi</a> Unix. Può anche fornire classi mix-in per convertire facilmente i server all'uso di un thread o processo separato per ogni richiesta, a seconda di quello che è più appropriato per le proprie esigenze.
+</testo_normale>
+<testo_normale>
+La responsabilità per l'elaborazione di una richiesta viene condivisa da una classe per il server e da un classe per la gestione della richiesta. Il server si occupa degli aspetti della comunicazione (stare in ascolto su di un socket, accettare connessioni, ecc.) ed il gestore di richiesta  si occupa degli aspetti del "protocollo" (interpretazione dei dati in ricezione, elaborazione, re-invio dei dati al client). Questa divisione di responsabilità comporta che in molti casi si può semplicemente usare una delle classi server esistenti senza ulteriori modifiche, e fornire una classe per la gestione della richiesta che possa lavorare con il proprio protocollo.
+</testo_normale>
+<titolo_2>
+Tipi di Server
+</titolo_2>
+<testo_normale>
+Ci sono cinque diverse classi server definite in <strong>SocketServer</strong>. <strong>BaseServer</strong> definisce l'API, e non è concepita per essere istanziata ed usata direttamente. <strong>TCPServer</strong> usa i socket TCP/IP per comunicare. <strong>UDPServer</strong> usa i socket datagramma. <strong>UnixStreamServer</strong> e <strong>UnixDatagramServer</strong> usano i socket domain di Unix sono sono disponibili solo su piattaforme Unix.
+</testo_normale>
+<titolo_2>
+Oggetti server
+</titolo_2>
+<testo_normale>
+Per costruire un server, si passa un indirizzo al quale si ascoltano le richieste ed una <i>classe</i> (non una istanza) di un gestore di richiesta. Il formato dell'indirizzo dipende dal tipo di server e dalla famiglia di socket usati. Si faccia riferimento alla documentazione del modulo <a href='http://www.doughellmann.com/PyMOTW/socket/index.html#module-socket'>socket</a> per i dettagli.
+</testo_normale>
+<<testo_normale>
+Una volta l'oggetto server è stato istanziato, si usa ${sbk}handle_request()${ebk} oppure ${sbk}serve_forever()${ebk} per elaborare le richieste. Il metodo ${sbk}serve_forever()${ebk} chiama semplicemente  ${sbk}handle_request()${ebk} in un ciclo infinito, quindi se si vuole intergrare il server con un altro ciclo di eventi oppure usare select() per monitorare socket diversi per server diversi so potrebbe chiamare ${sbk}handle_request()${ebk} personalmente. Si veda l'esempio qui sotto per maggiori dettagli.
+</testo_normale>
+<titolo_2>
+Implementare un server
+</titolo_2>
+<testo_normale>
+Se si sta creando un server, in genere è possibile riutilizzare una delle classi esistenti e fornire semplicemnte un classe per la gestione della richiesta personalizzata. Se questo non fa al caso proprio, ci sono diversi metodi di <strong>BaseServer</strong> a disposizione per eseguire la riscrittura in una sotto classe:
+</testo_normale>
+<lista>
+${sbk}verify_request(request, client_address)${ebk} - Restituisce True per elaborare la richiesta o False per ignorarla. Si potrebbe, ad esempio, rifiutare richieste provenienti da un ventaglio di indirizzi IP se si vuole bloccare l'accesso al server a client particolari.
+${sbk}process_request(request, client_address)${ebk} - In genere la semplice chiamata di ${sbk}finish_request()${ebk} svolge il lavoro necessario. Si può anche creare un thread o processo separato, come fanno le classi mix-in (vedere sotto).
+${sbk}finish_request(request, client_address)${ebk} - Crea una istanza di un gestore di richiesta che usa la classe fornita al costruttore del server. Si chiama ${sbk}handle()${ebk} sul gestore di richiesta per elaborare la richiesta.
+</lista>
+<titolo_2>
+Gestori di richiesta
+</titolo_2>
+<testo_normale>
+Essi svolgono la maggior parte del lavoro di ricezione delle richieste in arrivo e decidono quale azione intraprendere. Il gestore è responsabile dell'implementazione del "protocollo" alla sommità del socket layer (ad esempio HTTP oppure XML-RPC). Il gestore di richiesta legge la richiesta dal canale dati in arrivo, lo elabora e invia la risposta. Ci sono 3 metodi disponibili per la riscrittura.
+</testo_normale>
+<lista>
+${sbk}setup()${ebk} - Prepara il gestore di richiesta la richiesta. Ad esempio in <strong>StreamRequestHandler</strong>, il metodo ${sbk}setup()${ebk} crea oggetti di tipo file per la lettura dal socket e per la scrittura verso il medesimo.
+${sbk}handle()${ebk} - Svolge l'effettivo lavoro per la richiesta. Analizza la richiesta in arrivo, elabora i dati ed invia la risposta.
+${sbk}finish()${ebk} - Pulisce tutto quanto creato durante ${sbk}setup()${ebk}.
+</lista>
+<testo_normale>
+Nella maggior parte dei casi si può semplicemente fornire un metodo ${sbk}handle()${ebk}.
+</testo_normale>
+<titolo_2>
+Esempio di Eco
+</titolo_2>
+<testo_normale>
+Si esamina una semplice coppia server/gestore di richiesta che accetta connessioni TCP e ritorna gli stessi dati inviati dal client. Il solo metodo che occorre fornire nel codice di esempio è ${sbk}EchoRequestHandler.handle()${ebk} , ma tutti i metodi sopra descritti sono riscritti per inserire delle chiamate a <a href='logging.html' title='Il modulo logging'>logging</a> in modo che l'output del programma di esempio possa illustrare la sequenza delle chiamate fatte.
+</testo_normale>
+<testo_normale>
+La sola cosa rimasta da fare è quella di avere un semplice programma che crea il server, lo esegue in un thread, e si connette ad esso per illustrare quali metodi sono stati chiamati mentre i dati sono restituiti
+</testo_normale>
+<py_code>
+import logging
+import sys
+import SocketServer
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s: %(message)s',
+                    )
+
+class EchoRequestHandler(SocketServer.BaseRequestHandler):
+    
+    def __init__(self, request, client_address, server):
+        self.logger = logging.getLogger('EchoRequestHandler')
+        self.logger.debug('__init__')
+        SocketServer.BaseRequestHandler.__init__(self, request, client_address, server)
+        return
+
+    def setup(self):
+        self.logger.debug('setup')
+        return SocketServer.BaseRequestHandler.setup(self)
+
+    def handle(self):
+        self.logger.debug('handle')
+
+        # Restituisce i dati ricevuti al client
+        data = self.request.recv(1024)
+        self.logger.debug('recv()->"%s"', data)
+        self.request.send(data)
+        return
+
+    def finish(self):
+        self.logger.debug('finish')
+        return SocketServer.BaseRequestHandler.finish(self)
+
+class EchoServer(SocketServer.TCPServer):
+    
+    def __init__(self, server_address, handler_class=EchoRequestHandler):
+        self.logger = logging.getLogger('EchoServer')
+        self.logger.debug('__init__')
+        SocketServer.TCPServer.__init__(self, server_address, handler_class)
+        return
+
+    def server_activate(self):
+        self.logger.debug('server_activate')
+        SocketServer.TCPServer.server_activate(self)
+        return
+
+    def serve_forever(self):
+        self.logger.debug('In attesa della richiesta')
+        self.logger.info('Elaborazione delle richieste, prmere <Ctrl-C> per abbandonare')
+        while True:
+            self.handle_request()
+        return
+
+    def handle_request(self):
+        self.logger.debug('handle_request')
+        return SocketServer.TCPServer.handle_request(self)
+
+    def verify_request(self, request, client_address):
+        self.logger.debug('verify_request(%s, %s)', request, client_address)
+        return SocketServer.TCPServer.verify_request(self, request, client_address)
+
+    def process_request(self, request, client_address):
+        self.logger.debug('process_request(%s, %s)', request, client_address)
+        return SocketServer.TCPServer.process_request(self, request, client_address)
+
+    def server_close(self):
+        self.logger.debug('server_close')
+        return SocketServer.TCPServer.server_close(self)
+
+    def finish_request(self, request, client_address):
+        self.logger.debug('finish_request(%s, %s)', request, client_address)
+        return SocketServer.TCPServer.finish_request(self, request, client_address)
+
+    def close_request(self, request_address):
+        self.logger.debug('close_request(%s)', request_address)
+        return SocketServer.TCPServer.close_request(self, request_address)
+
+if __name__ == '__main__':
+    import socket
+    import threading
+
+    address = ('localhost', 0) # si ottiene una porta dal kernel 
+    server = EchoServer(address, EchoRequestHandler)
+    ip, port = server.server_address # si trova quale porta si è ottenuto
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # non rimane appeso in uscita
+    t.start()
+
+    logger = logging.getLogger('client')
+    logger.info('Server on %s:%s', ip, port)
+
+    # Connessione al server
+    logger.debug('creating socket')
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    logger.debug('connecting to server')
+    s.connect((ip, port))
+
+    # Invio dei dati
+    message = 'Hello, world'
+    logger.debug('sending data: "%s"', message)
+    len_sent = s.send(message)
+
+    # Ricezione della risposta
+    logger.debug('waiting for response')
+    response = s.recv(len_sent)
+    logger.debug('response from server: "%s"', response)
+
+    # Pulizia
+    logger.debug('closing socket')
+    s.close()
+    logger.debug('done')
+    server.socket.close()
+</py_code>
+<testo_normale>
+Il risultato dell'esecuzione del programma dovrebbe essere circa questo:
+</testo_normale>
+<py_output>
+$ python SocketServer_echo.py 
+EchoServer: __init__
+EchoServer: server_activate
+EchoServer: In attesa della richiesta
+client: Server on 127.0.0.1:48661
+client: creating socket
+client: connecting to server
+client: sending data: "Hello, world"
+EchoServer: Elaborazione delle richieste, prmere <Ctrl-C> per abbandonare
+client: waiting for response
+EchoServer: handle_request
+EchoServer: verify_request(<socket._socketobject object at 0x8ab04c4>, ('127.0.0.1', 51950))
+EchoServer: process_request(<socket._socketobject object at 0x8ab04c4>, ('127.0.0.1', 51950))
+EchoServer: finish_request(<socket._socketobject object at 0x8ab04c4>, ('127.0.0.1', 51950))
+EchoRequestHandler: __init__
+EchoRequestHandler: setup
+EchoRequestHandler: handle
+EchoRequestHandler: recv()->"Hello, world"
+EchoRequestHandler: finish
+client: response from server: "Hello, world"
+EchoServer: close_request(<socket._socketobject object at 0x8ab04c4>)
+client: closing socket
+EchoServer: handle_request
+client: done
+</py_output>
+<testo_normale>
+Il numero della porta usata cambierà ogni volta che il programma viene eseguito, visto che il kernel alloca automaticamente una porta disponibile. Se si vuole che il server sia in ascolto su di una specifica porta ogni volta che si esegue, allora si fornisce il numero di porta desiderato nella tupla dell'indirizzo invece che 0.
+</testo_normale>
+<testo_normale>
+Ecco una versione semplificata dello stesso programma, senza <a href='logging.html' title='Il modulo logging'>logging</a>:
+</testo_normale>
+<py_code>
+import SocketServer
+
+class EchoRequestHandler(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        # Restituisce i dati ricevuti al client
+        data = self.request.recv(1024)
+        self.request.send(data)
+        return
+
+if __name__ == '__main__':
+    import socket
+    import threading
+
+    address = ('localhost', 0) # si ottiene una porta dal kernel 
+    server = SocketServer.TCPServer(address, EchoRequestHandler)
+    ip, port = server.server_address # si trova quale porta si è ottenuto
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # non rimane appeso in uscita
+    t.start()
+
+    # Connessione al server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Invio dei dati
+    message = 'Hello, world'
+    print 'In invio: "%s"' % message
+    len_sent = s.send(message)
+
+    # Ricezione della risposta
+    response = s.recv(len_sent)
+    print 'Ricevuti: "%s"' % response
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<testo_normale>
+In questo caso non serve alcuna classe speciale per il server visto che <strong>TCPServer</strong> gestisce tutte le esigenze del server.
+</testo_normale>
+<py_output>
+$ python SocketServer_echo_simple.py 
+In invio: "Hello, world"
+Ricevuti: "Hello, world"
+</py_output>
+<titolo_2>
+Threading e Forking
+</titolo_2>
+<testo_normale>
+Aggiungere il supporto al threading ed al forking è tanto semplice quanto l'includere l'appropriato mix-in nella gerarchia di classe per il server. Le classi mix-in riscrivono ${sbk}process_request()${ebk} per iniziare un nuovo thread o processo quando una richiesta è pronta per essere gestita, ed il lavoro viene effettuato nel nuovo figlio.
+</testo_normale>
+<testo_normale>
+Per i thread si usa <strong>ThreadingMixIn</strong>:
+</testo_normale>
+<py_code>
+import threading
+import SocketServer
+
+class ThreadedEchoRequestHandler(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        # Restituisce i dati ricevuti al client
+        data = self.request.recv(1024)
+        cur_thread = threading.currentThread()
+        response = '%s: %s' % (cur_thread.getName(), data)
+        self.request.send(response)
+        return
+
+class ThreadedEchoServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
+
+if __name__ == '__main__':
+    import socket
+    import threading
+
+    address = ('localhost', 0) # si ottiene una porta dal kernel 
+    server = ThreadedEchoServer(address, ThreadedEchoRequestHandler)
+    ip, port = server.server_address # si trova quale porta si è ottenuto
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # non rimane appeso in uscita
+    t.start()
+    print 'Server loop running in thread:', t.getName()
+
+    # Connessione al server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Invio dei dati
+    message = 'Hello, world'
+    print 'In invio: "%s"' % message
+    len_sent = s.send(message)
+
+    # Ricezione della risposta
+    response = s.recv(1024)
+    print 'Ricevuti: "%s"' % response
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<testo_normale>
+La risposta dal server comprende l'identificativo del thread dove la richiesta viene gestita.
+</testo_normale>
+<py_output>
+s$ python SocketServer_threaded.py 
+Server loop running in thread: Thread-1
+In invio: "Hello, world"
+Ricevuti: "Thread-2: Hello, world"
+</py_output>
+<testo_normale>
+Per usare processi separati si usa <strong>ForkingMixIn</strong>:
+</testo_normale>
+<py_code>
+import os
+import SocketServer
+
+class ForkingEchoRequestHandler(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        # Echo the back to the client
+        data = self.request.recv(1024)
+        cur_pid = os.getpid()
+        response = '%s: %s' % (cur_pid, data)
+        self.request.send(response)
+        return
+
+class ForkingEchoServer(SocketServer.ForkingMixIn, SocketServer.TCPServer):
+    pass
+
+
+if __name__ == '__main__':
+    import socket
+    import threading
+
+    address = ('localhost', 0) # si ottiene una porta dal kernel 
+    server = ForkingEchoServer(address, ForkingEchoRequestHandler)
+    ip, port = server.server_address # si trova quale porta si è ottenuto
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # non rimane appeso in uscita
+    t.start()
+    print 'Server loop running in process:', os.getpid()
+
+
+    # Connessione al server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, port))
+
+    # Invio dei dati
+    message = 'Hello, world'
+    print 'In invio: "%s"' % message
+    len_sent = s.send(message)
+
+    # Ricezione della risposta
+    response = s.recv(1024)
+    print 'Ricevuti: "%s"' % response
+
+    # Pulizia
+    s.close()
+    server.socket.close()
+</py_code>
+<testo_normale>
+In questo caso l'identificativo del processo viene incluso nella risposta del server:
+</testo_normale>
+<py_output>
+$ python SocketServer_forking.py 
+Server loop running in process: 7443
+In invio: "Hello, world"
+Ricevuti: "7445: Hello, world"
+</py_output>
+
+<vedi_anche>
+http://docs.python.org/lib/module-SocketServer.html|SocketServer|La documentazione della libreria standard per questo modulo
+http://www.doughellmann.com/PyMOTW/asyncore/index.html#module-asyncore|asyncore|Si usa asyncore per creare server asincroni che non si bloccano durante l'elaborazione di una richiesta.
+http://www.doughellmann.com/PyMOTW/SimpleXMLRPCServer/index.html#module-SimpleXMLRPCServer|SimpleXMLRPCServer|Server XML-RPC costruito usando SocketServer.
+</vedi_anche>
+</documento_tradotto>

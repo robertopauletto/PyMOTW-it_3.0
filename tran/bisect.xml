@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Strutture Dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+bisect - Mantiene l'ordinamento nelle liste
+</titolo_1>
+<descrizione>
+Mantiene una lista ordinata senza dover chiamare una operazione di ordinamento ogni volta che un elemento viene aggiunto alla lista
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>bisect</strong> implementa un algoritmo per l'inserimento di elementi in una lista mantenedo la lista ordinata.
+</testo_normale>
+<titolo_2>
+Inserire con Ordinamento
+</titolo_2>
+<testo_normale>
+Ecco un semplice esempio utilizzando <code>insort()</code> per inserire elementi in una lista mantenendo l'ordinamento.
+</testo_normale>
+<py_code>
+# bisect_example.py
+
+import bisect
+
+# UNa serie casuale di numeri
+values = [14, 85, 77, 26, 50, 45, 66, 79, 10, 3, 84, 77, 1]
+
+print('Nuovi Posizione Contenuto')
+print('----- --------- ---------')
+
+l = []
+for i in values:
+    position = bisect.bisect(l, i)
+    bisect.insort(l, i)
+    print('{:5}     {:5}'.format(i, position), l)
+</py_code>
+<testo_normale>
+La prima colonna dell'output mostra il nuovo numero casuale. La seconda colonna mostra la posizione dove il numero verrà inserito nella lista. Il resto di ogni riga rappresenta l'attuale lista ordinata.
+</testo_normale>
+<py_output>
+$ python3 bisect_example.py
+
+Nuovi Posizione Contenuto
+----- --------- ---------
+   14         0 [14]
+   85         1 [14, 85]
+   77         1 [14, 77, 85]
+   26         1 [14, 26, 77, 85]
+   50         2 [14, 26, 50, 77, 85]
+   45         2 [14, 26, 45, 50, 77, 85]
+   66         4 [14, 26, 45, 50, 66, 77, 85]
+   79         6 [14, 26, 45, 50, 66, 77, 79, 85]
+   10         0 [10, 14, 26, 45, 50, 66, 77, 79, 85]
+    3         0 [3, 10, 14, 26, 45, 50, 66, 77, 79, 85]
+   84         9 [3, 10, 14, 26, 45, 50, 66, 77, 79, 84, 85]
+   77         8 [3, 10, 14, 26, 45, 50, 66, 77, 77, 79, 84, 85]
+    1         0 [1, 3, 10, 14, 26, 45, 50, 66, 77, 77, 79, 84, 85]
+</py_output>
+<testo_normale>
+Questo è un semplice esempio, e per l'ammontare dei dati che si stanno manipolando potrebbe essere più veloce costruire semplicemente la lista, per poi ordinarla una sola volta. Tuttavia, per liste lunghe, significativi risparmi di tempo e memoria possono essere raggiunti utilizzando un algoritmo di inserimento ordianto tipo questo.
+</testo_normale>
+<titolo_2>
+Gestire Duplicati
+</titolo_2>
+<testo_normale>
+Il risultato mostrato precedentemente comprende un valore ripetuto, 77. Il modulo <strong>bisect</strong> fornisce due modi per gestire le ripetizioni. I nuovi valori possono essere inseriti alla sinistra di quelli esistenti, oppure alla destra. La funzione <code>insort()</code> è in realtà un alias per <code>insort_right()</code>, che inserisce il valore dopo quello esistente. La funzione corrispondente <code>insort_left()</code> inserisce il valore prima di quello esistente.
+</testo_normale>
+<py_code>
+# bisect_example2.py
+
+import bisect
+
+# UNa serie casuale di numeri
+values = [14, 85, 77, 26, 50, 45, 66, 79, 10, 3, 84, 77, 1]
+
+print('Nuovi Posizione Contenuto')
+print('----- --------- ---------')
+
+# Utilizzo bisect_left ed insort_left.
+l = []
+for i in values:
+    position = bisect.bisect_left(l, i)
+    bisect.insort_left(l, i)
+    print('{:5}     {:5}'.format(i, position), l)
+</py_code>
+<testo_normale>
+Qunado gli stessi dati vengono manipolati utilizzando <code>bisect_left()</code> ed <code>insort_left()</code>, il risultato è la stessa lista ordinata ma le posizioni di inserimento sono diverse per i valori duplicati.
+</testo_normale>
+<py_output>
+$ python3 bisect_example2.py
+
+Nuovi Posizione Contenuto
+----- --------- ---------
+   14         0 [14]
+   85         1 [14, 85]
+   77         1 [14, 77, 85]
+   26         1 [14, 26, 77, 85]
+   50         2 [14, 26, 50, 77, 85]
+   45         2 [14, 26, 45, 50, 77, 85]
+   66         4 [14, 26, 45, 50, 66, 77, 85]
+   79         6 [14, 26, 45, 50, 66, 77, 79, 85]
+   10         0 [10, 14, 26, 45, 50, 66, 77, 79, 85]
+    3         0 [3, 10, 14, 26, 45, 50, 66, 77, 79, 85]
+   84         9 [3, 10, 14, 26, 45, 50, 66, 77, 79, 84, 85]
+   77         7 [3, 10, 14, 26, 45, 50, 66, 77, 77, 79, 84, 85]
+    1         0 [1, 3, 10, 14, 26, 45, 50, 66, 77, 77, 79, 84, 85]
+</py_output>
+<testo_normale>
+Oltre all'implementazione Python, è disponibile una implementazione in C più veloce. Se la versione C è presente, essa sovrascrive quella in puro Python automaticamente quando viene importato <strong>bisect</strong>.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/3.5/library/bisect.html|bisect|La documentazione della libreria standard per questo modulo.
+http://it.wikipedia.org/wiki/Insertion_sort|Wikipedia: Insertion sort|Una descrizione dell'ordinamento ad inserimento
+</vedi_anche>
+</documento_tradotto>

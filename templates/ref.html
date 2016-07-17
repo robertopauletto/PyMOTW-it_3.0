@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+            <p class="pull-right visible-xs">
+            </p>
+            <!-- <div class="jumbotron" >
+                <h3>{{ modulo.titolo|safe }}</h3>
+                <table class="pymotwit-jumbo">
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Scopo</td>
+                        <td>{{ modulo.descrizione|safe }}</td>
+                    </tr>
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Versione Python</td>
+                        <td>{{ modulo.versione }}</td>
+                    </tr>
+
+                </table>
+            </div> -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                <h3>{{ modulo.titolo_ref|safe }}</h3>
+                {{ modulo.main_content|safe }}
+
+                </div><!--/span-->
+            </div><!--/row-->
+            <p>
+                <hr />
+            </p>
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="well sidebar-nav" style='position: fixed;' >
+                <ul class="nav">
+                    {% for voce in modulo.indice_laterale %}
+                        <li>{{ voce|safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div><!--/.well -->
+        </div><!--/span-->
+    </div><!--/row-->
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted">{{ modulo.footer.nome_sito }} {{ modulo.footer.periodo }} / Documento aggiornato il: {{ modulo.footer.data_agg }}
+            - Contatto: pymotw-it(at)robyp.x10host.com</p>
+        </div>
+    </div
+
+
+{% endblock %}
+

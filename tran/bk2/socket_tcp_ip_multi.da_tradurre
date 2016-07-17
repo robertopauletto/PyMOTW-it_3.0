@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<titolo_2>
+Client e Server TCP/IP
+</titolo_2>
+<testo_normale>
+I socket possono essere configurati per agire come <i>server</i> mettendosi in ascolto per messaggi in arrivo, oppure possono essere connessi ad altre applicazioni come <i>client</i>. Dopo che entrambe le estremità di un socket TCP/IP sono connesse, la comunicazione è bi-direzionale.
+</testo_normale>
+<titolo_3>
+Echo del Server
+</titolo_3>
+<testo_normale>
+Il programma di esempio, basato su quello nella documentazione della libreria standard, riceve messaggi in arrivo e li rimanda al mittente. Inizia con la creazione di un socket TCP/IP.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+</py_code>
+<testo_normale>
+Poi viene usato ${sbk}bind()${ebk} per associare il socket all'indirizzo del server. In questo caso l'indirizzo è ${sev}localhost${eev}, in riferimento al server corrente, ed il numero di porta è 10000.
+</testo_normale>
+<py_code>
+# Collega il socket alla porta
+server_address = ('localhost', 10000)
+print >>sys.stderr, 'in avvio sulla porta %s  %s' % server_address
+sock.bind(server_address)
+</py_code>
+<testo_normale>
+La chiamata di ${sbk}listen()${ebk} pone il socket in modalità server, mentre ${sbk}accept()${ebk} attende una connessione in arrivo.
+</testo_normale>
+<py_code>
+# In ascolto per una connessione in arrivo
+sock.listen(1)
+
+while True:
+    # Attende una connessione
+    print >>sys.stderr, 'in attesa di una connessione'
+    connection, client_address = sock.accept()
+</py_code>
+<testo_normale>
+${sbk}accept()${ebk} restituisce una connessione aperta tra il server ed il client, assieme all'indirizzo del client. La connessione in realtà è un socket diverso su di un'altra porta (assegnata dal kernel). I dati vengono letti con ${sbk}recv()${ebk} e trasmessi con ${sbk}sendall()${ebk}.
+</testo_normale>
+<py_code>
+while True:
+    # Attende una connessione
+    print >>sys.stderr, 'in attesa di una connessione'
+    connection, client_address = sock.accept()
+    
+try:
+        print >>sys.stderr, 'connessione da', client_address
+
+        # Riceve i dati in piccoli segmenti e li ritrasmette
+        while True:
+            data = connection.recv(16)
+            print >>sys.stderr, 'ricevuto "%s"' % data
+            if data:
+                print >>sys.stderr, 'reinvio dei dati al client'
+                connection.sendall(data)
+            else:
+                print >>sys.stderr, 'non ci sono più dati da', client_address
+                break
+        
+finally:
+    # Pulisce la connessione
+    connection.close()    
+</py_code>
+<testo_normale>
+Quanto termina la comunicazione con un client, la connessione deve essere ripulita usando ${sbk}close()${ebk}. Questo esempio usa un blocco ${sev}try:finally${eev} per essere sicuri che ${sbk}close()${ebk} venga sempre chiamato, anche in caso di un errore.
+</testo_normale>
+<titolo_3>
+Client Echo
+</titolo_3>
+<testo_normale>
+Il programma client imposat l suo <strong>socket</strong> diversamente dal server. Invece che attaccarsi ad una porta e mettersi in ascolto, usa ${sbk}connect()${ebk} per attaccare direttamente il socket all'indirizzo remoto.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket TCP/IP 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connette il socket alla porta dove è in ascolto il  server
+server_address = ('localhost', 10000)
+print >>sys.stderr, 'connessionae a %s porta %s' % server_address
+sock.connect(server_address)
+</py_code>
+<testo_normale>
+Dopo che la connessione viene stabilita, i dati possono essere inviati tramite il <strong>socket</strong> con ${sbk}sendall()${ebk} e ricevuti con${sbk}recv()${ebk}, proprio come il server.
+</testo_normale>
+<py_code>
+try:
+    
+    # Invio dati
+    message = 'Questo è il messaggio. Verrà ripetuto.'
+    print >>sys.stderr, 'snvio "%s"' % message
+    sock.sendall(message)
+
+    # Cerca la risposta
+    amount_received = 0
+    amount_expected = len(message)
+    
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print >>sys.stderr, 'recevuto "%s"' % data
+
+finally:
+    print >>sys.stderr, 'chiusura del socket'
+    sock.close()
+</py_code>
+<testo_normale>
+Quando l'intero messaggio viene inviato ed una copia viene ricevuta, il socket viene chiuso per liberare la porta.
+</testo_normale>
+<titolo_3>
+Client e Server Insieme
+</titolo_3>
+<testo_normale>
+Il client ed il server dovrebbero essere eseguiti in sessioni di terminale separate, in modo che possano comunicare tra loro. L'output del server è:
+</testo_normale>
+<py_output>
+$ python ./socket_echo_server.py 
+in avvio su localhost porta 10000
+in attesa di una connessione
+connessione da ('127.0.0.1', 49511)
+ricevuto "Questo è il mes"
+reinvio dei dati al client
+ricevuto "saggio. Verrà r"
+reinvio dei dati al client
+ricevuto "ipetuto."
+reinvio dei dati al client
+ricevuto ""
+non ci sono più dati da ('127.0.0.1', 49511)
+in attesa di una connessione
+</py_output>
+<testo_normale>
+L'output del client è:
+</testo_normale>
+<py_output>
+$ python ./socket_echo_client.py 
+connessione a localhost porta 10000
+invio "Questo è il messaggio. Verrà ripetuto."
+ricevuto "Questo è il mes"
+ricevuto "saggio. Verrà r"
+ricevuto "ipetuto."
+chiusura del socket
+
+$
+</py_output>
+<titolo_2>
+Facili Connessioni per il Client
+</titolo_2>
+<testo_normale>
+I client TCP/IP possono rispamiarsi alcuni passi se usando la funzione di comodo ${sbk}create_connection()${ebk} per connettersi ad un server. Questa funzione riceve un parametro, una tupla composta da due valori, che contiene l'indirizzo del server, e ricava l'indirizzo migliore da usare per la connessione
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+def get_constants(prefix):
+    """Crea un dizonario che mappa le costanti del modulo socket ai loro nomi"""
+    return dict( (getattr(socket, n), n)
+                 for n in dir(socket)
+                 if n.startswith(prefix)
+                 )
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+# Crea un socket TCP/IP
+sock = socket.create_connection(('localhost', 10000))
+
+print >>sys.stderr, 'Famiglia  :', families[sock.family]
+print >>sys.stderr, 'Tipo      :', types[sock.type]
+print >>sys.stderr, 'Protocollo:', protocols[sock.proto]
+print >>sys.stderr
+
+try:
+    
+    # Invio data
+    message = 'Questo è il messaggio. Verrà ripetuto.'
+    print >>sys.stderr, 'invio "%s"' % message
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+    
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print >>sys.stderr, 'ricevuto "%s"' % data
+
+finally:
+    print >>sys.stderr, 'chiusura del socket'
+    sock.close()
+</py_code>
+<testo_normale>
+${sbk}create_connection()${ebk} usa ${sbk}getaddrinfo()${ebk} per trovare i parametri di connessione utilizzabili, e restituisce un <strong>socket</socket> aperto con la prima configurazione che crea una connessione con successo. Gli attributi <i>family</i>, <i>type</i> e <i>proto</i> possono essere esaminati per determinare che tipo di <strong>socket</strong> che si sta restituiendo.
+</testo_normale>
+<py_output>
+$ python socket_echo_client_easy.py 
+Famiglia  : AF_INET
+Tipo      : SOCK_STREAM
+Protocollo: IPPROTO_TCP
+
+invio "Questo è il messaggio. Verrà ripetuto."
+ricevuto "Questo è il mes"
+ricevuto "saggio. Verrà r"
+ricevuto "ipetuto."
+chiusura del socket
+</py_output>
+<titolo_2>
+Scegliere un Indirizzo per Mettersi in Ascolto
+</titolo_2>
+<testo_normale>
+E' importante attaccare il server all'indirizzo corretto, in modo che i client possano comunicare con esso. Tutti gli esempi precedente usavano ${sev}'localhost'${eev} come indirizzo IP, la qual cosa restringe le connessioni ai client in esecuzione sullo stesso server. L'uso di un indirizzo pubblico del server, tipo il valore restituito da ${sbk}gethostnome()${ebk}, consente la connessione ad altri host. Questo esempio modifica il server in modo che sia in ascolto su di un indirizzo specifico tramite un parametro da riga di comando.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Attacca il socket all'indirizzo ricevuto da riga di comando
+server_name = sys.argv[1]
+server_address = (server_name, 10000)
+print >>sys.stderr, 'in avvio su %s porta %s' % server_address
+sock.bind(server_address)
+sock.listen(1)
+
+while True:
+    print >>sys.stderr, ''in attesa di una connessione''
+    connection, client_address = sock.accept()
+    try:
+        print >>sys.stderr, 'client connesso:', client_address
+        while True:
+            data = connection.recv(16)
+            print >>sys.stderr, 'ricevuti "%s"' % data
+            if data:
+                connection.sendall(data)
+            else:
+                break
+    finally:
+        connection.close()
+</py_code>
+<testo_normale>
+Una modifica simile al programma client è necessaria prima che il server possa essere testato.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket TCP/IP 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connette il socket alla porta sul server passata dal chiamante caller
+server_address = (sys.argv[1], 10000)
+print >>sys.stderr, 'connessione a %s porta %s' % server_address
+sock.connect(server_address)
+
+try:
+    
+    message = 'Questo è il messaggio. Verrà ripetuto.'
+    print >>sys.stderr, 'invio "%s"' % message
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print >>sys.stderr, 'ricevuto "%s"' % data
+
+finally:
+    sock.close()
+</py_code>
+<testo_normale>
+Una volta fatto partire il server con il parametro ${sev}farnsworth.hellfly.net${eev}, il comando ${sbk}netstat${ebk} mostra che il server è in ascolto all'indirizzo dell'host di cui sopra.
+</testo_normale>
+<py_output>
+$ host farnsworth.hellfly.net
+
+farnsworth.hellfly.net has address 192.168.1.17
+
+$ netstat -an
+
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+...
+tcp4       0      0  192.168.1.17.10000     *.*                    LISTEN
+</py_output>
+<testo_normale>
+Eseguire il client da un altro host, passando ${sev}farnsworth.hellfly.net${eev} come host dove il server è in esecuzione, produce:
+</testo_normale>
+<py_output>
+$ hostname
+
+homer
+
+$ python socket_echo_client_explicit.py farnsworth.hellfly.net
+
+connecting to farnsworth.hellfly.net port 10000
+invio "Questo è il messaggio. Verrà ripetuto."
+ricevuto "Questo è il mes"
+ricevuto "saggio. Verrà r"
+ricevuto "ipetuto."
+chiusura del socket
+</py_output>
+<testo_normale>
+Mentre l'output del server è:
+</testo_normale>
+<py_output>
+$ python ./socket_echo_server_explicit.py farnsworth.hellfly.net
+
+in avvio su farnsworth.hellfly.net porta 10000
+in attesa di una connessione
+client connesso: ('192.168.1.8', 57471)
+ricevuto "Questo è il mes"
+ricevuto "saggio. Verrà r"
+ricevuto "ipetuto."
+ricevuto ""
+in attesa di una connessione
+</py_output>
+<testo_normale>
+Molti server hanno più di una interfaccia di rete, quindi più di un indirizzo IP. Invece che eseguire copie separate di un servizio attaccato ad ogni indirizzo IP, si usa l'indirizzo speciale ${sev}INADDR_ANY${eev} che mette in ascolto in comtemporanea su tutti gli indirizzi. Sebbene <strong>socket</strong> definisca una costante per ${sev}INADDR_ANY${eev}, si tratta di un valore intero e deve essere convertito in un indirizzo in formato stringa con punti prima di essere passato a ${sbk}bind()${ebk}. Come scorciatoia si usa una stringa vuota ${sev}''${eev} invece che eseguire la connessione.
+</testo_normale>
+<py_code>
+import socket
+import sys
+
+# Crea un socket TCP/IP 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Attacca il socket all'indirizzo ricevuto da riga di comando
+server_address = ('', 10000)
+sock.bind(server_address)
+print >>sys.stderr, 'in avvio su %s porta %s' % sock.getsockname()
+sock.listen(1)
+
+while True:
+    print >>sys.stderr, 'in attesa di una connessione'
+    connection, client_address = sock.accept()
+    try:
+        print >>sys.stderr, 'client connesso:', client_address
+        while True:
+            data = connection.recv(16)
+            print >>sys.stderr, 'ricevuto "%s"' % data
+            if data:
+                connection.sendall(data)
+            else:
+                break
+    finally:
+        connection.close()
+</py_code>
+<testo_normale>
+Per vedere l'indirizzo effettivo che sta usando un socket, si chiama il suo metodo ${sbk}getsocketname()${ebk}. Dopo che il servizio è stato fatto partire, una nuova esecuzione di ${sbk}netstat${ebk} lo mostra in ascolto per connessioni in arrivo su qualsiasi indirizzo.
+</testo_normale>
+<py_output>
+$ netstat -an
+
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+...
+tcp4       0      0  *.10000                *.*                    LISTEN
+...
+</py_output>
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

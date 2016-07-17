@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+ChainMap - ricerca su molteplici dizionari
+</titolo_1>
+<descrizione>
+La classe <code>ChainMap</code> gestisce una sequenza di dizionari, scorrendoli in ordine per cercare dei valori associati alle chiavi.
+
+</descrizione>
+<testo_normale>
+La classe <code>ChainMap</code> gestisce una sequenza di dizionari, scorrendoli in ordine per cercare dei valori associati alle chiavi. <code>ChainMap</code> è un buon contenitore di "contesto", visto che può essere trattato come uno <a href="https://it.wikipedia.org/wiki/Pila_(informatica)" target="_blank">stack</a> con le modifiche che si manifestano mentre lo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)" target="_blank">stack</a> cresce, poi si scaricano mentre lo <a href="https://it.wikipedia.org/wiki/Pila_(informatica)" target="_blank">stack</a> rimpicciolisce.
+</testo_normale>
+<titolo_2>
+Accesso ai Valori
+</titolo_2>
+<testo_normale>
+Per accedere ai valori, <code>ChainMap</code> supporta la stessa <a href="https://en.wikipedia.org/wiki/Application_programming_interface" target="_blank">API</a> di un normale dizionario.
+</testo_normale>
+<py_code>
+# collections_chainmap_read.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+
+m = collections.ChainMap(a, b)
+
+print('Valori individuali')
+print('a = {}'.format(m['a']))
+print('b = {}'.format(m['b']))
+print('c = {}'.format(m['c']))
+print()
+
+print('Chiavi = {}'.format(list(m.keys())))
+print('Valori = {}'.format(list(m.values())))
+print()
+
+print('Elementi:')
+for k, v in m.items():
+    print('{} = {}'.format(k, v))
+print()
+
+print('"d" in m: {}'.format(('d' in m)))
+</py_code>
+<testo_normale>
+La ricerca avviene sui singoli dizionari nell'ordine con il quale sono stati passati al costruttore, quindi il valore riportato per la chiave '<code>c</code>' proviene dal dizionario <code>a</code>
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_read.py
+
+Valori individuali
+a = A
+b = B
+c = C
+
+Chiavi = ['c', 'b', 'a']
+Valori = ['C', 'B', 'A']
+
+Elementi:
+c = C
+b = B
+a = A
+
+"d" in m: False
+</py_output>
+<titolo_2>
+Riordinare
+</titolo_2>
+<testo_normale>
+<strong>ChainMap</strong> conserva la lista delle mappature sulle quali esegue le ricerche in una lista nel suo attributo <code>maps</code>. La lista è modificabile, quindi è possibile aggiungere direttamente nuove mappature oppure modificare l'ordine degli elementi per controllare la ricerca ed aggiornare il comportamento.
+</testo_normale>
+<py_code>
+# collections_chainmap_reorder.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+
+m = collections.ChainMap(a, b)
+
+print(m.maps)
+print('c = {}\n'.format(m['c']))
+
+# inverte la lista
+m.maps = list(reversed(m.maps))
+
+print(m.maps)
+print('c = {}'.format(m['c']))
+</py_code>
+<testo_normale>
+Quando l'ordine nella lista delle mappature viene invertito, il valore associato a '<code>c</code>' cambia.
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_reorder.py
+
+[{'c': 'C', 'a': 'A'}, {'c': 'D', 'b': 'B'}]
+c = C
+
+[{'c': 'D', 'b': 'B'}, {'c': 'C', 'a': 'A'}]
+c = D
+</py_output>
+<titolo_2>
+Aggiornare Valori
+</titolo_2>
+<testo_normale>
+Un <code>ChainMap</code> non effettua una <a href="https://it.wikipedia.org/wiki/Cache" target="_blank">cache</a> dei valori di mappatura dei dizionari, quindi la modifica del loro contenuto si riflette sui risultati quando si accede a <code>ChainMap</code>.
+</testo_normale>
+<py_code>
+# collections_chainmap_update_behind.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+
+m = collections.ChainMap(a, b)
+print('Prima: {}'.format(m['c']))
+a['c'] = 'E'
+print('Dopo : {}'.format(m['c']))
+</py_code>
+<testo_normale>
+La modifica dei valori associati a chiavi esistenti e l'aggiunta di nuovi elementi funziona allo stesso modo.
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_update_behind.py
+
+Prima: C
+Dopo : E
+</py_output>
+<testo_normale>
+E' anche possibile impostare direttamente i valori tramite <code>ChainMap</code>, sebbene solo la prima mappatura nella catena è realmente modificata.
+</testo_normale>
+<py_code>
+# collections_chainmap_update_directly.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+
+m = collections.ChainMap(a, b)
+print('Prima:', m)
+m['c'] = 'E'
+print('Dopo :', m)
+print('a:', a)
+</py_code>
+<testo_normale>
+Quando il nuovo valore viene conservato utilizzando <code>m</code>, la mappatura di <code>a</code> viene aggiornata.
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_update_directly.py
+
+Prima: ChainMap({'a': 'A', 'c': 'C'}, {'c': 'D', 'b': 'B'})
+Dopo : ChainMap({'a': 'A', 'c': 'E'}, {'c': 'D', 'b': 'B'})
+a: {'a': 'A', 'c': 'E'}
+</py_output>
+<testo_normale>
+<code>ChainMap</code> fornisce un metodo di convenienza per la creazione di una nuova istanza con una mappatura supplementare all'inizio della lista in <code>maps</code> per evitare di dover modificare le struttura dati esistenti sottostanti.
+</testo_normale>
+<py_code>
+# collections_chainmap_new_child.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+
+m1 = collections.ChainMap(a, b)
+m2 = m1.new_child()
+
+print('m1 prima:', m1)
+print('m2 prima:', m2)
+
+m2['c'] = 'E'
+
+print('m1 dopo:', m1)
+print('m2 dopo:', m2)
+</py_code>
+<testo_normale>
+Il comportamento tipico delle strutture di <a href="https://it.wikipedia.org/wiki/Pila_(informatica)" target="_blank">stack</a> rende conveniente l'uso di istanze di <code>ChainMap</code> come modelli o contesti di applicazione, visto che è facile aggiungere od aggiornare valori in una iterazione, poi scaricare le modifiche per l'iterazione successiva.
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_new_child.py
+
+m1 prima: ChainMap({'c': 'C', 'a': 'A'}, {'c': 'D', 'b': 'B'})
+m2 prima: ChainMap({}, {'c': 'C', 'a': 'A'}, {'c': 'D', 'b': 'B'})
+m1 dopo: ChainMap({'c': 'C', 'a': 'A'}, {'c': 'D', 'b': 'B'})
+m2 dopo: ChainMap({'c': 'E'}, {'c': 'C', 'a': 'A'}, {'c': 'D', 'b': 'B'})
+</py_output>
+<testo_normale>
+Per situazioni dove il nuovo contesto è conosciuto o costruito in anticipo, è anche possibile passare una mappatura a <code>new_child()</code>.
+</testo_normale>
+<py_code>
+# collections_chainmap_new_child_explicit.py
+
+import collections
+
+a = {'a': 'A', 'c': 'C'}
+b = {'b': 'B', 'c': 'D'}
+c = {'c': 'E'}
+
+m1 = collections.ChainMap(a, b)
+m2 = m1.new_child(c)
+
+print('m1["c"] = {}'.format(m1['c']))
+print('m2["c"] = {}'.format(m2['c']))
+</py_code>
+<testo_normale>
+Questo è l'equivalente di
+</testo_normale>
+<py_code>
+m2 = collections.ChainMap(c, *m1.maps)
+</py_code>
+<testo_normale>
+e produce
+</testo_normale>
+<py_output>
+$ python3 collections_chainmap_new_child_explicit.py
+m1["c"] = C
+m2["c"] = E
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.ChainMap|ChainMap|La documentazione standard della libreria per questo modulo
+riferimenti_moduli_modificati.htm#pn_collections|Note di Portabilità|Note di portabilità per collections.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce l'accesso alla comunicazione di rete.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>socket</strong> espone l'API C di basso livello per la comunicazione attraverso una rete usando l'interfaccia socket BSD. Esso include la classe <strong>socket</strong> per gestire il canale dati reale, e funzioni per compiti relativi alla rete tipo la conversione di un nome di server in un indirizzo e la formattazione dei dati da inviare attraverso la rete
+</testo_normale>
+<lista>
+<a href=${baseurl}/pymotw-it/socket_addressing.html>Indirizzamento, Famiglie di Protocollo e Tipi di Socket</a>
+</lista>
+<vedi_anche>
+http://docs.python.org/library/socket.html|socket|La documenazione della libreria standard per questo modulo
+http://docs.python.org/howto/sockets.html|Socket Programming HOWTO|Un articolo didattico di Gordon McMillian, incluso nella documentazione della libreria standard.
+http://www.doughellmann.com/PyMOTW/select/index.html#module-select|select|Test di un socket per vedere se è pronto per la lettura o scrittura
+http://www.doughellmann.com/PyMOTW/SocketServer/index.html#module-SocketServer|SocketServer|Infrastruttura per la creazione di server di rete
+http://www.doughellmann.com/PyMOTW/asyncore/index.html#module-asyncore|asycore|Infrastruttura per la comunicazione asincrona
+http://www.doughellmann.com/PyMOTW/asynchat/index.html#module-asynchat|asynchat|Infrastruttura per la comunicazione asincrona
+http://www.doughellmann.com/PyMOTW/urllib/index.html#module-urllib|urllib|Molti client di rete dovrebbero usare le più convenienti librerie per l'accesso a risorse tramite URL
+|Unix Network Programming, Volume 1: The Sockets Networking API, 3/E|Di W. Richard Stevens, Bill Fenner, ed Andrew M. Rudoff. Pubblicato da Addison-Wesley Professional, 2004. ISBN-10: 0131411551
+</vedi_anche>
+
+<!--
+<avvertimento>
+</avvertimento>
+<descrizione>
+</descrizione>
+<lista>
+</lista>
+<lista_numerata>
+</lista_numerata>
+<note>
+</note>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<sottotitolo>
+</sottotitolo>
+<testo_normale>
+</testo_normale>
+<titolo_1>
+</titolo_1>
+<titolo_2>
+</titolo_2>
+<vedi_anche>
+</vedi_anche>
+
+-->
+</documento_tradotto>

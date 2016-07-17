@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<indicizza>no</indicizza>
+<categoria>riferimenti</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_4>
+Moduli rinominati
+</titolo_4>
+<testo_normale>
+Molti moduli della libreria standard sono stati rinominati in Python 3 rispetto a Python 2 come parte del <a href="https://www.python.org/dev/peps/pep-3108">PEP 3108</a> (Riorganizzazione della Libreria Standard). Tutti i nomi dei nuovi moduli utilizzano una consistente applicazione del minuscolo ed alcuni di essi sono stati spostati in pacchetti per meglio organizzare i moduli correlati. Una lista completa dei moduli rinominati si può trovare nel dizionario <code>lib2to3.fixes.fix_imports.MAPPING</code> (le chiavi sono i nomi in Python 2 ed i valori quelli in Python 3)
+</testo_normale>
+<tabella_semplice>
+Nome in Python 2;Nome in Python 3
+BaseHTTPServer;http.server
+CGIHTTPServer;http.server
+ConfigParser;configparser
+Cookie;http.cookies
+Dialog;tkinter.dialog
+DocXMLRPCServer;xmlrpc.server
+FileDialog;tkinter.filedialog
+HTMLParser;html.parser
+Queue;queue
+ScrolledText;tkinter.scrolledtext
+SimpleDialog;tkinter.simpledialog
+SimpleHTTPServer;http.server
+SimpleXMLRPCServer;xmlrpc.server
+SocketServer;socketserver
+StringIO;io
+Tix;tkinter.tix
+Tkconstants;tkinter.constants
+Tkdnd;tkinter.dnd
+Tkinter;tkinter
+UserList;collections
+UserString;collections
+__builtin__;builtins
+_winreg;winreg
+cPickle;pickle
+cStringIO;io
+commands;subprocess
+cookielib;http.cookiejar
+copy_reg;copyreg
+dbhash;dbm.bsd
+dbm;dbm.ndbm
+dumbdbm;dbm.dumb
+dummy_thread;_dummy_thread
+gdbm;dbm.gnu
+htmlentitydefs;html.entities
+httplib;http.client
+markupbase;_markupbase
+repr;reprlib
+robotparser;urllib.robotparser
+thread;_thread
+tkColorChooser;tkinter.colorchooser
+tkCommonDialog;tkinter.commondialog
+tkFileDialog;tkinter.filedialog
+tkFont;tkinter.font
+tkMessageBox;tkinter.messagebox
+tkSimpleDialog;tkinter.simpledialog
+ttk;tkinter.ttk
+urlparse;urllib.parse
+xmlrpclib;xmlrpc.client
+</tabella_semplice>

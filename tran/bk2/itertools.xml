@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>moduli numerici e matematici </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+itertools - Funzioni di iterazione per un looping efficace
+</titolo_1>
+<descrizione>
+Il modulo itertools comprende una serie di funzioni per lavorare con insiemi di dati iterabili (tipo sequenze).
+2.3
+</descrizione>
+<testo_normale>
+Le funzioni fornite sono ispirate da simili caratteristiche del "pigro linguaggio di programmazione funzionale" Haskell e SML. Esse sono concepite per essere veloci ed usare la memoria con efficienza, ma anche per essere agganciate insieme per esprimere algoritmi più complicati basati sull'iterazione.
+</testo_normale>
+<testo_normale>
+Il codice basato sull'iterazione potrebbe essere preferito al codice che usa le liste per parecchie ragioni. Visto che i dati non sono prodotti dall'iteratore fino a che non è necessario, tutti i dati non sono posti in memoria allo stesso tempo. La riduzione dell'uso di memoria può ridurre lo swapping ed altri effetti collaterali propri di grandi insiemi di dati, aumentando le prestazioni.  
+</testo_normale>
+<titolo_2>
+Unire e Dividere Iteratori
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}chain()${ebk} riceve diversi iteratori come parametro e restituisce un iteratore singolo che produce i contenuti di tutti quelli ricevuti come parametro come se si trattasse di una singola sequenza.
+</testo_normale>
+<py_code>
+from itertools import *
+
+for i in chain([1, 2, 3], ['a', 'b', 'c']):
+    print i
+</py_code>
+<py_output>
+$ python itertools_chain.py
+1
+2
+3
+a
+b
+c    
+</py_output>
+<testo_normale>
+${sbk}izip()${ebk} restituisce un iteratore che combina gli elementi di diversi iteratori in tuple. Funziona coma la funzione built-in ${sbk}zip()${ebk}, ad eccezione del fatto che restituisce un iteratore in luogo di una lista.
+</testo_normale>
+<py_code>
+from itertools import *
+
+for i in izip([1, 2, 3], ['a', 'b', 'c']):
+    print i
+</py_code>
+<py_output>
+$ python itertools_izip.py
+(1, 'a')
+(2, 'b')
+(3, 'c')
+</py_output>
+<testo_normale>
+La funzione ${sbk}islice()${ebk} restituisce un iteratore che ritorna gli elementi selezionati dall'iteratore in input, per indice. Richiede gli stessi parametri dell'operatore <em>slice</em> per le liste: <em>inizio</em>, <em>fine</em>, <em>incremento</em>. I parametri inizio ed incremento sono opzionali.
+</testo_normale>
+<py_code>
+from itertools import *
+
+print 'Fine a 5:'
+for i in islice(count(), 5):
+    print i
+
+print 'Inizio a 5, Fine a 10:'
+for i in islice(count(), 5, 10):
+    print i
+
+print 'Per incremento di decine fino a 100:'
+for i in islice(count(), 0, 100, 10):
+    print i
+</py_code>
+<py_output>
+$ python itertools_islice.py
+Fine a 5:
+0
+1
+2
+3
+4
+Inizio a 5, Fine a 10:
+5
+6
+7
+8
+9
+Per incremento di decine fino a 100:
+0
+10
+20
+30
+40
+50
+60
+70
+80
+90    
+</py_output>
+<testo_normale>
+La funzione ${sbk}tee()${ebk} restituisce diversi iteratori indipendenti (predefiniti 2) basati sull'input singolo originale. Ha semantiche simili all'utilità Unix tee, che ripete i valori letti dall'input e li scrive verso un file predeterminato e lo standard input.
+</testo_normale>
+<py_code>
+from itertools import *
+
+r = islice(count(), 5)
+i1, i2 = tee(r)
+
+for i in i1:
+    print 'i1:', i
+for i in i2:
+    print 'i2:', i
+</py_code>
+<py_output>
+$ python itertools_tee.py
+i1: 0
+i1: 1
+i1: 2
+i1: 3
+i1: 4
+i2: 0
+i2: 1
+i2: 2
+i2: 3
+i2: 4
+</py_output>
+<testo_normale>
+Visto che i nuovi iteratori creati da ${sbk}tee()${ebk} condividono l'input, non si dovrebbe più usare l'iteratore originale. Se si consumano valori dall'input originale, essi non saranno prodotti dai nuovi iteratori.
+</testo_normale>
+<py_code>
+from itertools import *
+
+r = islice(count(), 5)
+i1, i2 = tee(r)
+
+for i in r:
+    print 'r:', i
+    if i > 1:
+        break
+
+for i in i1:
+    print 'i1:', i
+for i in i2:
+    print 'i2:', i
+</py_code>
+<py_output>
+$ python itertools_tee_error.py
+r: 0
+r: 1
+r: 2
+i1: 3
+i1: 4
+i2: 3
+i2: 4    
+</py_output>
+<titolo_2>
+Convertire input    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}imap()${ebk} restituisce un iteratore che chiama una funzione sui valori degli iteratori in input, e restituisce i risultati. Funziona come la funzione built-in ${sbk}map()${ebk}, eccetto che si ferma quando un qualsiasi iteratore in input è esaurito (invece che inserire valori None per consumare completamente tutti gli iteratori in input).
+</testo_normale>
+<testo_normale>
+Nel primo esempio, la funzione lambda moltiplica i valori in input per 2. In un secondo esempio, la funzione lambda moltiplica due parametri, presi da iteratori separati, e restituisce una tuple con i parametri originali ed il valore calcolato.    
+</testo_normale>
+<py_code>
+from itertools import *
+
+print 'Doppi:'
+for i in imap(lambda x:2*x, xrange(5)):
+    print i
+
+print 'Multipli:'
+for i in imap(lambda x,y:(x, y, x*y), xrange(5), xrange(5,10)):
+    print '%d * %d = %d' % i
+</py_code>
+<py_output>
+$ python itertools_imap.py
+Doppi:
+0
+2
+4
+6
+8
+Multipli:
+0 * 5 = 0
+1 * 6 = 6
+2 * 7 = 14
+3 * 8 = 24
+4 * 9 = 36
+</py_output>
+<testo_normale>
+La funzione ${sbk}starmap()${ebk} è simile ad ${sbk}imap()${ebk}, ma in luogo di costruire una tuple da iteratori multipli, divide gli elementi in un singolo iteratore come parametri della funzione mappatrice usando la sintassi ${sbk}*${ebk}. Dove la funzione mappatrice verso ${sbk}imap()${ebk} viene chiamata f(i1, i2)${sbk}f(i1, i2)${ebk}, la funzione mappatrice verso startmap() viene chiamata ${sbk}f(*i)${ebk}
+</testo_normale>
+<py_code>
+from itertools import *
+
+values = [(0, 5), (1, 6), (2, 7), (3, 8), (4, 9)]
+for i in starmap(lambda x,y:(x, y, x*y), values):
+    print '%d * %d = %d' % i
+</py_code>
+<py_output>
+$ python itertools_starmap.py
+0 * 5 = 0
+1 * 6 = 6
+2 * 7 = 14
+3 * 8 = 24
+4 * 9 = 36    
+</py_output>
+<titolo_2>
+Produrre Nuovi Valori    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}count()${ebk} restituisce un iteratore che produce interi consecutivi, indefinitivamente. Il primo numero può essere fornito come parametro, il predefinito è zero. Non ci sono parametri per il limite superiore (vedere la funzione built-in xrange() per un maggior controllo sull'insieme dei risultati). In questo esempio, l'iterazione si interrompe perchè la list passata come parametro viene consumata.
+</testo_normale>
+<py_code>
+from itertools import *
+
+for i in izip(count(1), ['a', 'b', 'c']):
+    print i
+</py_code>
+<py_output>
+$ python itertools_count.py
+(1, 'a')
+(2, 'b')
+(3, 'c')    
+</py_output>
+<testo_normale>
+La funzione ${sbk}cycle()${ebk} restituisce un iteratore che ripete il contenuto dei parametri ricevuti indefinitivamente. Visto che deve ricordare l'intero contenuto dell'iteratore in input, potrebbe utilizzare un grande quantitativo di memoria se l'iteratore è lungo. In questo esempio una variabile contatore viene usata per interrompere ed uscire dal loop dopo pochi cicli.
+</testo_normale>
+<py_code>
+from itertools import *
+
+i = 0
+for item in cycle(['a', 'b', 'c']):
+    i += 1
+    if i == 10:
+        break
+    print (i, item)
+</py_code>
+<py_output>
+$ python itertools_cycle.py
+(1, 'a')
+(2, 'b')
+(3, 'c')
+(4, 'a')
+(5, 'b')
+(6, 'c')
+(7, 'a')
+(8, 'b')
+(9, 'c')    
+</py_output>
+<testo_normale>
+La funzione ${sbk}repeat()${ebk} restituisce un iteratore che produce lo stesso valore ogni volta che viene elaborato. Continua per sempre, a meno che non venga passato il parametro di numero volte opzionale che limita l'esecuzione dello stesso.
+</testo_normale>
+<py_code>
+from itertools import *
+
+for i in repeat('ancora-una-volta', 5):
+    print i
+</py_code>
+<py_output>
+$ python itertools_repeat.py
+ancora-una-volta
+ancora-una-volta
+ancora-una-volta
+ancora-una-volta
+ancora-una-volta
+</py_output>
+<testo_normale>
+E' utile combinare repeat() con izip() od imap() quando è necessario includere dei valori fissi con i valori dagli altri iteratori
+</testo_normale>
+<py_code>
+from itertools import *
+
+for i, s in izip(count(), repeat('ancora-una-volta', 5)):
+    print i, s
+</py_code>
+<py_output>
+$ python itertools_repeat_izip.py
+0 ancora-una-volta
+1 ancora-una-volta
+2 ancora-una-volta
+3 ancora-una-volta
+4 ancora-una-volta
+</py_output>
+<py_code>
+from itertools import *
+
+for i in imap(lambda x,y:(x, y, x*y), repeat(2), xrange(5)):
+    print '%d * %d = %d' % i
+</py_code>
+<py_output>
+$ python itertools_repeat_imap.py
+2 * 0 = 0
+2 * 1 = 2
+2 * 2 = 4
+2 * 3 = 6
+2 * 4 = 8
+</py_output>
+<titolo_2>
+Filtrare    
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}dropwhile()${ebk} restituisce un iteratore che ritorna elementi dall'iteratore in input dopo che una condizione diventa falsa o vera per la prima volta. Non filtra ogni elemento dell'input; dopo che la condizione è vera/falsa per la prima volta, vengono ritornati tutti gli elementi restanti dell'input.
+</testo_normale>
+<py_code>
+from itertools import *
+
+def should_drop(x):
+    print 'Testing:', x
+    return (x<1)
+
+for i in dropwhile(should_drop, [ -1, 0, 1, 2, 3, 4, 1, -2 ]):
+    print 'Trattengo:', i
+</py_code>
+<py_output>
+$ python itertools_dropwhile.py
+Testing: -1
+Testing: 0
+Testing: 1
+Trattengo: 1
+Trattengo: 2
+Trattengo: 3
+Trattengo: 4
+Trattengo: 1
+Trattengo: -2
+</py_output>
+<testo_normale>
+L'opposto di dropwhile() è ${sbk}takewhile()${ebk} che restituisce un iteratore che ritorna elementi dall'iteratore di input fintanto che la funzione di test ritorna vero.
+</testo_normale>
+<py_code>
+from itertools import *
+
+def should_take(x):
+    print 'Testing:', x
+    return (x<2)
+
+for i in takewhile(should_take, [ -1, 0, 1, 2, 3, 4, 1, -2 ]):
+    print 'Trattengo:', i
+</py_code>
+<py_output>
+$ python itertools_takewhile.py
+Testing: -1
+Trattengo: -1
+Testing: 0
+Trattengo: 0
+Testing: 1
+Trattengo: 1
+Testing: 2
+</py_output>
+<testo_normale>
+${sbk}ifilter()${ebk}  restituisce un iteratore che funziona come la funzione built-in filter() per le liste, includendo solo gli elementi per i quali la funzione di test restituisce vero. E' diversa da dropwhile() nel senso che ogni elemento viene testato prima di essere restituito.
+</testo_normale>
+<py_code>
+from itertools import *
+
+def check_item(x):
+    print 'Testing:', x
+    return (x<1)
+
+for i in ifilter(check_item, [ -1, 0, 1, 2, 3, 4, 1, -2 ]):
+    print 'Trattengo:', i
+</py_code>
+<py_output>
+$ python itertools_ifilter.py
+Testing: -1
+Trattengo: -1
+Testing: 0
+Trattengo: 0
+Testing: 1
+Testing: 2
+Testing: 3
+Testing: 4
+Testing: 1
+Testing: -2
+Trattengo: -2
+</py_output>
+<testo_normale>
+Opposto di ifilter() è ${sbk}ifilterfalse()${ebk} che restituisce un iteratore che include solo gli elementi per i queli la funzione di test ritorna falso.
+</testo_normale>
+<py_code>
+from itertools import *
+
+def check_item(x):
+    print 'Testing:', x
+    return (x<1)
+
+for i in ifilterfalse(check_item, [ -1, 0, 1, 2, 3, 4, 1, -2 ]):
+    print 'Trattengo:', i
+</py_code>
+<py_output>
+$ python itertools_ifilterfalse.py
+Testing: -1
+Testing: 0
+Testing: 1
+Trattengo: 1
+Testing: 2
+Trattengo: 2
+Testing: 3
+Trattengo: 3
+Testing: 4
+Trattengo: 4
+Testing: 1
+Trattengo: 1
+Testing: -2
+</py_output>
+<titolo_2>
+Raggruppare Dati
+</titolo_2>
+<testo_normale>
+La funzione ${sbk}groupby()${ebk} restituisce un iteratore che produce insiemi di valori raggruppati secondo una chiave comune.
+</testo_normale>
+<testo_normale>
+Questo esempio dalla documentazione della libreria standard mostra come raggruppare le chiavi in un dizionario che hanno lo stesso valore.
+</testo_normale>
+<py_code>
+from itertools import *
+from operator import itemgetter
+
+d = dict(a=1, b=2, c=1, d=2, e=1, f=2, g=3)
+di = sorted(d.iteritems(), key=itemgetter(1))
+for k, g in groupby(di, key=itemgetter(1)):
+    print k, map(itemgetter(0), g)
+</py_code>
+<py_output>
+$ python itertools_groupby.py
+1 ['a', 'c', 'e']
+2 ['b', 'd', 'f']
+3 ['g']
+</py_output>
+<testo_normale>
+Questo esempio più complicato illustra un raggruppamento di valori in relazione ad un qualche attributo. Si noti che la sequenza di input deve essere ordinata sulla chiave per fare sì che il raggruppamento funzioni come ci si aspetta.    
+</testo_normale>
+<py_code>
+from itertools import *
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __repr__(self):
+        return 'Point(%s, %s)' % (self.x, self.y)
+    def __cmp__(self, other):
+        return cmp((self.x, self.y), (other.x, other.y))
+
+# Crea un insieme di dati di istanze di Point 
+data = list(imap(Point, 
+                 cycle(islice(count(), 3)), 
+                 islice(count(), 10),
+                 )
+            )
+print 'Dati:', data
+print
+
+# Tenta di raggruppare i dati non ordinati in base ai valori di X
+print 'Raggruppati, non ordinati:'
+for k, g in groupby(data, lambda o:o.x):
+    print k, list(g)
+print
+
+# Ordina i dati
+data.sort()
+print 'Ordinati:', data
+print
+
+# Raggruppa i dati ordinati in base ai valori di X
+print 'Raggruppati, ordinati:'
+for k, g in groupby(data, lambda o:o.x):
+    print k, list(g)
+print
+</py_code>
+<py_output>
+Dati: [Point(0, 0), Point(1, 1), Point(2, 2), Point(0, 3), Point(1, 4), Point(2, 5), Point(0, 6), Point(1, 7), Point(2, 8), Point(0, 9)]
+
+Raggruppati, non ordinati:
+0 [Point(0, 0)]
+1 [Point(1, 1)]
+2 [Point(2, 2)]
+0 [Point(0, 3)]
+1 [Point(1, 4)]
+2 [Point(2, 5)]
+0 [Point(0, 6)]
+1 [Point(1, 7)]
+2 [Point(2, 8)]
+0 [Point(0, 9)]
+
+Ordinati: [Point(0, 0), Point(0, 3), Point(0, 6), Point(0, 9), Point(1, 1), Point(1, 4), Point(1, 7), Point(2, 2), Point(2, 5), Point(2, 8)]
+
+Raggruppati, ordinati:
+0 [Point(0, 0), Point(0, 3), Point(0, 6), Point(0, 9)]
+1 [Point(1, 1), Point(1, 4), Point(1, 7)]
+2 [Point(2, 2), Point(2, 5), Point(2, 8)]
+</py_output>
+
+<vedi_anche>
+http://docs.python.org/library/itertools.html|itertools|La documentazione della libreria standard per questo modulo.
+http://www.standardml.org/Basis/|La libreria Standard ML Basis|La libreria per SML
+http://www.haskell.org/definition/|Definizione di Haskell e delle Librerie Standard|Specifiche della libreria standard per il linguaggio funzionale Haskell.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Strutture Dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+copy - Duplica Oggetti
+</titolo_1>
+<descrizione>
+Fornisce funzioni per la duplicazione di oggetti utilizzando la semantica <em>shallow</em> (<a href="https://it.wikipedia.org/wiki/Copia_di_un_oggetto#Copia_per_indirizzo_o_Shallow_copy">Copia per Indirizzo</a>) oppure <em>deep</em> (<a href="https://it.wikipedia.org/wiki/Copia_di_un_oggetto#Copia_in_profondit.C3.A0_o_Deep_copy">Copia in Profondità</a>)
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>copy</strong> include due funzioni, <code>copy()</code> e <code>deepcopy()</code> per la duplicazione di oggetti esistenti.
+</testo_normale>
+<titolo_2>
+Copia per Indirizzo (Shallow)
+</titolo_2>
+<testo_normale>
+La copia  <em>shallow</em> creata da <code>copy()</code> è un nuovo contenitore popolato con riferimenti al contenuto dell'oggetto originale. Quando si esegue una copia <em>shallow</em> di un oggetto <code>list</code>, viene costruito un nuovo oggetto <code>list</code>, che viene popolato con gli elementi dell'oggetto originale.
+</testo_normale>
+<py_code>
+# copy_shallow.py
+
+import copy
+import functools
+
+
+@functools.total_ordering
+class MyClass:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+
+a = MyClass('a')
+my_list = [a]
+dup = copy.copy(my_list)
+
+print('             my_list:', my_list)
+print('                 dup:', dup)
+print("      dup e' my_list:", (dup is my_list))
+print('      dup == my_list:', (dup == my_list))
+print("dup[0] e' my_list[0]:", (dup[0] is my_list[0]))
+print('dup[0] == my_list[0]:', (dup[0] == my_list[0]))
+</py_code>
+<testo_normale>
+Per una copia <em>shallow</em>, l'istanza di <code>MyClass</code> non viene duplicata, quindi il riferimento nella lista duplicata <code>dup</code> è allo stesso oggetto referenziato da <code>my_list</code>.
+</testo_normale>
+<py_output>
+$ python3 copy_shallow.py
+
+             my_list: [<__main__.MyClass object at 0x7f81e6b81be0>]
+                 dup: [<__main__.MyClass object at 0x7f81e6b81be0>]
+      dup e' my_list: False
+      dup == my_list: True
+dup[0] e' my_list[0]: True
+dup[0] == my_list[0]: True
+</py_output>
+<titolo_2>
+Copie in Profondità (Deep)
+</titolo_2>
+<testo_normale>
+La copia <em>deep</em> creata da <code>deepcopy()</code> è un nuovo contenitore popolato con copia del contenuto dell'oggetto originale. Per effettuare una copia <em>deep</em> di una <code>list</code>, viene costruito un nuovo oggetto <code>list</code> e gli elementi della lista originale vengono copiati, poi dette copie vengono aggiunte alla nuova <code>list</code>.
+</testo_normale>
+<testo_normale>
+La sostituzione della chiamata a <code>copy()</code> con <code>deepcopy()</code> rende evidente la differenza nell'output.
+</testo_normale>
+<py_code>
+# copy_deep.py
+
+import copy
+import functools
+
+
+@functools.total_ordering
+class MyClass:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+
+a = MyClass('a')
+my_list = [a]
+dup = copy.deepcopy(my_list)
+
+print('             my_list:', my_list)
+print('                 dup:', dup)
+print("      dup e' my_list:", (dup is my_list))
+print('      dup == my_list:', (dup == my_list))
+print("dup[0] e' my_list[0]:", (dup[0] is my_list[0]))
+print('dup[0] == my_list[0]:', (dup[0] == my_list[0]))
+</py_code>
+<testo_normale>
+Il primo elemento della lista non rappresenta più lo stesso riferimento all'oggetto tuttavia quando i due oggetti vengono confrontati vengono ancora considerati come uguali.
+</testo_normale>
+<py_output>
+$ python3 copy_deep.py
+
+             my_list: [<__main__.MyClass object at 0x7f0542029be0>]
+                 dup: [<__main__.MyClass object at 0x7f0542029cf8>]
+      dup e' my_list: False
+      dup == my_list: True
+dup[0] e' my_list[0]: False
+dup[0] == my_list[0]: True
+</py_output>
+<titolo_2>
+Personalizzare il Comportamento di Copia
+</titolo_2>
+<testo_normale>
+Per controllare come vengono effettuate le copie si utilizzano i metodi speciali <code>__copy__()</code> e <code>__deepcopy__()</code>.
+</testo_normale>
+<lista>
+<code>__copy()</code> viene chiamato senza argomenti a dovrebbe ritornare una copia <em>shallow</em> dell'oggetto.
+<code>__deepcopy()__</code> viene chiamato con un dizionario memo, e dovrebbe ritornare una copia <em>deep</em> dell'oggetto. Qualsiasi attributo membro che si vuole copiare dovrebbe essere passato a <code>copy.deepcopy()</code> assieme al dizionario memo, per controllare la ricorsione. (Il dizionario memo viene spiegato successivamente con maggior dettaglio).
+</lista>
+<testo_normale>
+Questo esempio illustra come i metodi vengono chiamati:
+</testo_normale>
+<py_code>
+# copy_hooks.py
+
+import copy
+import functools
+
+
+@functools.total_ordering
+class MyClass:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+    def __copy__(self):
+        print('__copy__()')
+        return MyClass(self.name)
+
+    def __deepcopy__(self, memo):
+        print('__deepcopy__({})'.format(memo))
+        return MyClass(copy.deepcopy(self.name, memo))
+
+
+a = MyClass('a')
+
+sc = copy.copy(a)
+dc = copy.deepcopy(a)
+</py_code>
+<testo_normale>
+Il dizionario memo viene utilizzato per tenere traccia dei valori che sono già stati copiati, per evitare una ricorsione infinita.
+</testo_normale>
+<py_output>
+$ python3 copy_hooks.py
+
+__copy__()
+__deepcopy__({})
+</py_output>
+<titolo_2>
+Ricorsione nella Copia Profonda (Deep)
+</titolo_2>
+<testo_normale>
+Per evitare problemi che possono verificarsi nella copia di strutture dati ricorsive, <code>deepcopy()</code> utilizza un dizionario per tracciare gli oggetti che sono già stati copiati. Questo dizionario viene passato al metodo <code>__deepcopy__()</code> in modo che possa essere esaminato.
+</testo_normale>
+<testo_normale>
+L'esempio seguente mostra come una struttura dati interconnessa come un <a href="https://it.wikipedia.org/wiki/Digrafo_(matematica)">Grafo diretto</a> possa contribuire alla protezione contro la ricorsione implementando un metodo <code>__deepcopy__()</code>.
+</testo_normale>
+<py_code>
+# copy_recursion.py
+
+import copy
+
+
+class Graph:
+
+    def __init__(self, name, connections):
+        self.name = name
+        self.connections = connections
+
+    def add_connection(self, other):
+        self.connections.append(other)
+
+    def __repr__(self):
+        return 'Graph(name={}, id={})'.format(
+            self.name, id(self))
+
+    def __deepcopy__(self, memo):
+        print('\nChiamata di __deepcopy__ per {!r}'.format(self))
+        if self in memo:
+            existing = memo.get(self)
+            print('  Già copiato in {!r}'.format(existing))
+            return existing
+        print('  Dizionario Memo:')
+        if memo:
+            for k, v in memo.items():
+                print('    {}: {}'.format(k, v))
+        else:
+            print('    (vuoto)')
+        dup = Graph(copy.deepcopy(self.name, memo), [])
+        print('  In copia al nuovo oggetto {}'.format(dup))
+        memo[self] = dup
+        for c in self.connections:
+            dup.add_connection(copy.deepcopy(c, memo))
+        return dup
+
+
+root = Graph('root', [])
+a = Graph('a', [root])
+b = Graph('b', [a, root])
+root.add_connection(a)
+root.add_connection(b)
+
+dup = copy.deepcopy(root)
+</py_code>
+<testo_normale>
+La classe <code>Graph</code> include due metodi basici per un grafo diretto. Una istanza può essere inizializzata con un nome ed una lista di nodi esistenti ai quali è connesso. Il metodo <code>add_connection()</code> viene usato per impostare connessioni bidirezionali. Viene anche usato dall'operatore di copia profonda.
+</testo_normale>
+<testo_normale>
+Il metodo <code>__deepcopy__()</code> stampa messaggi per mostrare come esso viene chiamato, e gestisce i contenuti del dizionario memo alla bisogna. Invece di copiare la lista di connessioni brutalmente, crea una nuova lista ed aggiunge ad essa copie delle connessioni individuali. Questo assicura che il dizionario memo venga aggiornato mano a mano che un nuovo nodo viene duplicato, ed evita di incoorere in ricorsioni o copie supplementari dei nodi. Come in precedenza, ritorna l'oggetto copiato quando ha finito.
+</testo_normale>
+<testo_normale>
+  <img class='img-responsive' src='img/grafo_diretto.png' alt='Grafo diretto'/>
+</testo_normale>
+<testo_normale>
+Ci sono parecchi cicli nel grafo mostrato nella figura qui sopra, ma la gestione della ricorsione con il dizionario memo previene l'attraversamento dal generare un errore di <a href="https://it.wikipedia.org/wiki/Stack_overflow">stack overflow</a>. Quando il nodo <em>root</em> viene copiato, l'output è:
+</testo_normale>
+<py_output>
+$ python3 copy_recursion.py
+
+Chiamata di __deepcopy__ per Graph(name=root, id=140049081420824)
+  Dizionario Memo:
+    (vuoto)
+  In copia al nuovo oggetto Graph(name=root, id=140049081420936)
+
+Chiamata di __deepcopy__ per Graph(name=a, id=140049081420880)
+  Dizionario Memo:
+    Graph(name=root, id=140049081420824): Graph(name=root, id=140049081420936)
+  In copia al nuovo oggetto Graph(name=a, id=140049081530128)
+
+Chiamata di __deepcopy__ per Graph(name=root, id=140049081420824)
+  Già  copiato in Graph(name=root, id=140049081420936)
+
+Chiamata di __deepcopy__ per Graph(name=b, id=140049081421048)
+  Dizionario Memo:
+    140049081420824: Graph(name=root, id=140049081420936)
+    Graph(name=root, id=140049081420824): Graph(name=root, id=140049081420936)
+    140049059317640: [Graph(name=root, id=140049081420824), Graph(name=a, id=140049081420880)]
+    140049081420880: Graph(name=a, id=140049081530128)
+    Graph(name=a, id=140049081420880): Graph(name=a, id=140049081530128)
+  In copia al nuovo oggetto Graph(name=b, id=140049081530240)
+</py_output>
+<testo_normale>
+La seconda volta che il nodo <em>root</em> viene incontrato, mentre il nodo <em>a</em> viene copiato, <code>__deepcopy__()</code> rileva la ricorsione e riutilizza il valore esistente recuperandolo dal dizionario memo invece di creare un nuovo oggetto.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/3.5/library/copy.html|copy|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

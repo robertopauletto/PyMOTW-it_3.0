@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>comunicazione interprocesso e networking </categoria>
+<inserito_il>
+    2014-05-10
+</inserito_il>
+<titolo_1>
+asyncore - Gestore di I/O Asincrono
+</titolo_1>
+<descrizione>
+Gestore di I/O Asincrono
+1.5.2 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>asyncore</strong> include strumenti per lavorare con oggetti I/O tipo socket in modo che essi possano essere gestiti in modo asincrono (invece che, ad esempio, usando dei thread). La classe principale fornita è <code>dispatcher</code>, un wrapper attorno ad un socket che fornisce agganci per gestire eventi tipo connessioni, lettura e scrittura quando chiamati dalla funzione del ciclo principale, <code>loop()</code>.
+</testo_normale>
+<titolo_2>
+Client
+</titolo_2>
+<testo_normale>
+Per creare un client basato su asyncore, si deriva da <code>dispatcher</code> e si fornisce l'implementazione per creare il socket, leggere e scrivere. Si esamina ora il seguente client HTTP, basato su quello dalla  documentazione della libreria standard.
+</testo_normale>
+<py_code>
+import asyncore
+import logging
+import socket
+from cStringIO import StringIO
+import urlparse
+
+class HttpClient(asyncore.dispatcher):
+
+    def __init__(self, url):
+        self.url = url
+        self.logger = logging.getLogger(self.url)
+        self.parsed_url = urlparse.urlparse(url)
+        asyncore.dispatcher.__init__(self)
+        self.write_buffer = 'GET %s HTTP/1.0\r\n\r\n' % self.url
+        self.read_buffer = StringIO()
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        address = (self.parsed_url.netloc, 80)
+        self.logger.debug('connessione a %s', address)
+        self.connect(address)
+
+    def handle_connect(self):
+        self.logger.debug('handle_connect()')
+
+    def handle_close(self):
+        self.logger.debug('handle_close()')
+        self.close()
+
+    def writable(self):
+        is_writable = (len(self.write_buffer) > 0)
+        if is_writable:
+            self.logger.debug('writable() -> %s', is_writable)
+        return is_writable
+    
+    def readable(self):
+        self.logger.debug('readable() -> True')
+        return True
+
+    def handle_write(self):
+        sent = self.send(self.write_buffer)
+        self.logger.debug('handle_write() -> "%s"', self.write_buffer[:sent])
+        self.write_buffer = self.write_buffer[sent:]
+
+    def handle_read(self):
+        data = self.recv(8192)
+        self.logger.debug('handle_read() -> %d bytes', len(data))
+        self.read_buffer.write(data)
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(name)s: %(message)s',
+                        )
+
+    clients = [
+        HttpClient('http://www.python.org/'),
+        HttpClient('http://www.doughellmann.com/PyMOTW/contents.html'),
+        ]
+
+    logging.debug('STA INIZIANDO IL CICLO')
+
+    asyncore.loop()
+
+    logging.debug('CICLO TERMINATO')
+
+    for c in clients:
+        response_body = c.read_buffer.getvalue()
+        print c.url, 'ottenuti', len(response_body), 'byte'    
+</py_code>        
+<testo_normale>
+Per cominciare viene creato il socket in <span class='snip'>__init__()</span> usando il metodo della classe base <code>create_socket()</code>. Possono essere fornite implementazioni alternative del metodo, ma in questo caso si vuole un socket TCP/IP, quindi la versione della classe base è sufficiente.
+</testo_normale>
+<testo_normale>
+L'aggancio <code>handle_connect()</code> è presente semplicemente per illustrare quando viene chiamato. Altri tipi di client che deveno effettuare una qualche sorta di <a href="http://it.wikipedia.org/wiki/Handshake">handshake</a> o negoziazione di protocollo dovrebbero svolgere il compito in <code>handle_connect()</code>.
+</testo_normale>
+<testo_normale>
+<code>handle_close()</code> è alla stessa stregua presentato allo scopo di mostrare quando il metodo viene chiamato. La versione della classe base chiude correttamente il socket, quindi se non si necessita di una pulizia supplementare in chiusura si può ignorare il metodo.
+</testo_normale>
+<testo_normale>
+Il ciclo di <strong>asyncore</strong> utilizza il metodo <code>writable()</code> ed il suo fratello <code>readable()</code> per decidere quali azioni intraprendere con ogni dispatcher. L'effettivo uso di <code>poll()</code> o <code>select()</code> sui socket o sui descrittori di file gestiti da ciascun dispatcher viene gestito all'ìnterno del codice di <strong>asyncore</strong>, quindi non occorre che lo faccia il programmatore. Basta semplicemente indicare se il dispatcher debba occuparsi di lettura o scrittura. Nel caso di questo client HTTP, <code>writable()</code> ritorna <span class='snip'>True</span> fintanto che ci sono dati provenienti dalla richiesta da inviare al server. <code>readable()</code> ritorna sempre <span class='snip'>True</span> visto che si vuole leggere tutti i dati.
+</testo_normale>
+<testo_normale>
+Ogni volta che <code>writable()</code> risponde positivamente durante ogni ciclo, viene chiamato <code>handle_write()</code>. In questa versione, la stringa di richiesta HTTP immessa in <span class='snip'>__init__()</span> viene inviata al server ed il buffer di scrittura viene ridotto della parte inviata con successo.
+</testo_normale>
+<testo_normale>
+In modo simile, quando <code>readable()</code> risponde positivamente e ci sono dati da leggere, viene chiamato <code>handle_read()</code>.
+</testo_normale>
+<testo_normale>
+Il codice di prova scritto dopop <span class='snip'>__main__</span> configura un <a href='logging.html' title='Vai al modulo logging'>logging</a> per il debug quindi crea due client per scaricare due pagine web distinte. La creazione dei client genera la loro registrazione in una mappatura tenuta internamente da <strong>asyncore</strong>. Lo scaricamento viene eseguito non appena il ciclo itera sui client. Quando il clent legge 0 byte da un socket che sembra leggibile, la condizione viene interpretata come una connessione chiusa e viene chiamato <code>handle_close()</code>
+</testo_normale>
+<testo_normale>
+Un esempio di come questa applicazione client possa essere eseguita è:
+</testo_normale>
+<py_output>
+$ python asyncore_http_client.py 
+
+http://www.python.org/: connessione a ('www.python.org', 80)
+http://www.doughellmann.com/PyMOTW/contents.html: connessione a ('www.doughellmann.com', 80)
+root: STA INIZIANDO IL CICLO
+http://www.python.org/: readable() -> True
+http://www.python.org/: writable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.python.org/: handle_connect()
+http://www.python.org/: handle_write() -> "GET http://www.python.org/ HTTP/1.0
+
+"
+http://www.python.org/: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.python.org/: handle_read() -> 318 bytes
+http://www.python.org/: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.python.org/: handle_close()
+http://www.python.org/: handle_read() -> 0 bytes
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_connect()
+http://www.doughellmann.com/PyMOTW/contents.html: handle_write() -> "GET http://www.doughellmann.com/PyMOTW/contents.html HTTP/1.0
+
+"
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_read() -> 481 bytes
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_close()
+http://www.doughellmann.com/PyMOTW/contents.html: handle_read() -> 0 bytes
+root: CICLO TERMINATO
+http://www.python.org/ ottenuti 318 byte
+http://www.doughellmann.com/PyMOTW/contents.html ottenuti 481 byte
+</py_output>
+<titolo_2>
+Server
+</titolo_2>
+<testo_normale>
+L'esempio sottostante illustra l'uso di <strong>asyncore</strong> sul server reimplementando EchoServer dagli esempi di <a href='socketserver.html' title='Modulo SocketServer'>SocketServer</a>. Ci sono tre classi: <code>EchoServer</code> che riceve le connessioni in arrivo dai client e crea istanze di <code>EchoHandler</code> per gestirne ognuna. <code>EchoClient</code> è un dispatcher asyncore simile al sopra definito HttpClient.
+</testo_normale>
+<py_code>
+import asyncore
+import logging
+
+class EchoServer(asyncore.dispatcher):
+    """Riceve connessione ed imposta handler per ogni  client.
+    """
+    
+    def __init__(self, address):
+        self.logger = logging.getLogger('EchoServer')
+        asyncore.dispatcher.__init__(self)
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.bind(address)
+        self.address = self.socket.getsockname()
+        self.logger.debug('attaccato a %s', self.address)
+        self.listen(1)
+        return
+
+    def handle_accept(self):
+        # Chiamato quando un client si connette al nostro socket
+        client_info = self.accept()
+        self.logger.debug('handle_accept() -> %s', client_info[1])
+        EchoHandler(sock=client_info[0])
+        # Si vuole gestire un solo client alla volta,
+        # quindi chiudiamo non appena viene impostato l'handler.
+        # Normalmente non si dovrebbe fare così ed il server
+        # rimaarrebbe in esecuzione per sempre o fino a che non riceve
+        # istruzioni di arresto.
+        self.handle_close()
+        return
+    
+    def handle_close(self):
+        self.logger.debug('handle_close()')
+        self.close()
+        return
+
+class EchoHandler(asyncore.dispatcher):
+    """Gestisce i messaggi di echoing da un singolo client.
+    """
+    
+    def __init__(self, sock, chunk_size=256):
+        self.chunk_size = chunk_size
+        self.logger = logging.getLogger('EchoHandler%s' % str(sock.getsockname()))
+        asyncore.dispatcher.__init__(self, sock=sock)
+        self.data_to_write = []
+        return
+    
+    def writable(self):
+        """Se abbiamo ricevuto dati li scriviamo."""
+        response = bool(self.data_to_write)
+        self.logger.debug('writable() -> %s', response)
+        return response
+    
+    def handle_write(self):
+        """Scriviamo quanto più possibile del messaggio più recente ricevuto."""
+        data = self.data_to_write.pop()
+        sent = self.send(data[:self.chunk_size])
+        if sent < len(data):
+            remaining = data[sent:]
+            self.data.to_write.append(remaining)
+        self.logger.debug('handle_write() -> (%d) "%s"', sent, data[:sent])
+        if not self.writable():
+            self.handle_close()
+
+    def handle_read(self):
+        """Legge un messaggio in arrivo dal client e lo mette nella coda in uscita."""
+        data = self.recv(self.chunk_size)
+        self.logger.debug('handle_read() -> (%d) "%s"', len(data), data)
+        self.data_to_write.insert(0, data)
+    
+    def handle_close(self):
+        self.logger.debug('handle_close()')
+        self.close()
+
+
+class EchoClient(asyncore.dispatcher):
+    """Invia messaggi al server e riceve risposte
+    """
+    
+    def __init__(self, host, port, message, chunk_size=512):
+        self.message = message
+        self.to_send = message
+        self.received_data = []
+        self.chunk_size = chunk_size
+        self.logger = logging.getLogger('EchoClient')
+        asyncore.dispatcher.__init__(self)
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.logger.debug('connessione a %s', (host, port))
+        self.connect((host, port))
+        return
+        
+    def handle_connect(self):
+        self.logger.debug('handle_connect()')
+    
+    def handle_close(self):
+        self.logger.debug('handle_close()')
+        self.close()
+        received_message = ''.join(self.received_data)
+        if received_message == self.message:
+            self.logger.debug('RECEVUTA COPIA DEL MESSAGGIO')
+        else:
+            self.logger.debug('ERRORE IN TRASMISSIONE')
+            self.logger.debug('ATTESI   "%s"', self.message)
+            self.logger.debug('RICEVUTI "%s"', received_message)
+        return
+    
+    def writable(self):
+        self.logger.debug('writable() -> %s', bool(self.to_send))
+        return bool(self.to_send)
+
+    def handle_write(self):
+        sent = self.send(self.to_send[:self.chunk_size])
+        self.logger.debug('handle_write() -> (%d) "%s"', sent, self.to_send[:sent])
+        self.to_send = self.to_send[sent:]
+
+    def handle_read(self):
+        data = self.recv(self.chunk_size)
+        self.logger.debug('handle_read() -> (%d) "%s"', len(data), data)
+        self.received_data.append(data)
+        
+
+if __name__ == '__main__':
+    import socket
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(name)s: %(message)s',
+                        )
+
+    address = ('localhost', 0) # let the kernel give us a port
+    server = EchoServer(address)
+    ip, port = server.address # find out what port we were given
+
+    client = EchoClient(ip, port, message=open('lorem.txt', 'r').read())
+
+    asyncore.loop()
+</py_code>        
+<testo_normale>
+EchoServer ed EchoHandler sono definiti in classi separate in quanto fanno cose diverse. Quando EchoServer accetta una connessione, viene impostato un nuovo socket. Piuttosto che cercare di inviare ai singoli client all'interno di EchoServer, viene creato un EchoHandler per trarre vantaggio dalla mappatura del socket mantenuta da <strong>asyncore</strong>.
+</testo_normale>
+<py_output>
+$ python asyncore_echo_server.py 
+
+EchoServer: attaccato a ('127.0.0.1', 39188)
+EchoClient: connessione a ('127.0.0.1', 39188)
+EchoClient: writable() -> True
+EchoServer: handle_accept() -> ('127.0.0.1', 46729)
+EchoServer: handle_close()
+EchoClient: handle_connect()
+EchoClient: handle_write() -> (512) "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Curabitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"
+EchoClient: writable() -> True
+EchoHandler('127.0.0.1', 39188): writable() -> False
+EchoHandler('127.0.0.1', 39188): handle_read() -> (256) "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"
+EchoClient: handle_write() -> (189) "s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+EchoClient: writable() -> False
+EchoHandler('127.0.0.1', 39188): writable() -> True
+EchoHandler('127.0.0.1', 39188): handle_read() -> (256) "bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"
+EchoHandler('127.0.0.1', 39188): handle_write() -> (256) "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"
+EchoHandler('127.0.0.1', 39188): writable() -> True
+EchoClient: writable() -> False
+EchoHandler('127.0.0.1', 39188): writable() -> True
+EchoClient: handle_read() -> (256) "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"
+EchoHandler('127.0.0.1', 39188): handle_read() -> (189) "s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+EchoHandler('127.0.0.1', 39188): handle_write() -> (256) "bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"
+EchoHandler('127.0.0.1', 39188): writable() -> True
+EchoClient: writable() -> False
+EchoHandler('127.0.0.1', 39188): writable() -> True
+EchoClient: handle_read() -> (256) "bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"
+EchoHandler('127.0.0.1', 39188): handle_write() -> (189) "s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+EchoHandler('127.0.0.1', 39188): writable() -> False
+EchoHandler('127.0.0.1', 39188): handle_close()
+EchoClient: writable() -> False
+EchoClient: handle_read() -> (189) "s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+EchoClient: writable() -> False
+EchoClient: handle_close()
+EchoClient: RECEVUTA COPIA DEL MESSAGGIO
+EchoClient: handle_read() -> (0) ""
+</py_output>
+<testo_normale>
+In questo esempio gli oggetti server, l'handler e client sono tutti mantenuti nella stessa mappatura di socket da <strong>asyncore</strong> in un singolo processo. Per separare il server dal client, basta istanziarli da script separati ed eseguire <code>aysncore.loop()</code> in entrambi. Quando viene chiuso un dispatcher, esso viene rimosso dalla mappatura di <strong>asyncore</strong> ed il ciclo termina quando la mappatura è vuota.
+</testo_normale>
+<titolo_2>
+Lavorare con altri Cicli di Eventi
+</titolo_2>
+<testo_normale>
+Talvolta è necessario integrare il ciclo di eventi di <strong>asyncore</strong> con un ciclo di eventi dall'applicazione genitrice. Ad esempio una applicazione con interfaccia grafica (GUI) potrebbe non volere che la sua interfaccia utente resti bloccata fino a quando tutti i trasferimenti asincroni siano gestiti - la qual cosa sarebbe in contrasto con il renderli asincroni. Per facilitare questa specie di integrazione, <code>asyncore.loop()</code> accetta degli argomenti per impostare un timeout e per limitare il numero di volte nelle quali viene eseguito il ciclo. Possiamo vederne gli effetti sul client riutilizzando HttpClient dal primo esempio.
+</testo_normale>
+<py_code>
+import asyncore
+import logging
+
+from asyncore_http_client import HttpClient
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s: %(message)s',
+                    )
+
+clients = [
+    HttpClient('http://www.doughellmann.com/PyMOTW/contents.html'),
+    HttpClient('http://www.python.org/'),
+    ]
+
+loop_counter = 0
+while asyncore.socket_map:
+    loop_counter += 1
+    logging.debug('loop_counter (contatore cicli)=%s', loop_counter)
+    asyncore.loop(timeout=1, count=1)
+</py_code>        
+<testo_normale>
+Qui si vede che al client viene chiesto di leggere i dati una volta per chiamata all'interno di <code>asyncore.loop()</code>. In luogo del nostro proprio ciclo <span class='snip'>while</span> si potrebbe chiamare <code>asyncore.loop()</code> in questo modo da un gestore dell'inattività dell'interfaccia grafica od altro meccanismo per eseguire una limitata mole di lavoro quando l'interfaccia utente non è impegnata con altri gestori di eventi.
+</testo_normale>
+<py_output>
+$ python asyncore_loop.py 
+
+http://www.doughellmann.com/PyMOTW/contents.html: connessione a ('www.doughellmann.com', 80)
+http://www.python.org/: connessione a ('www.python.org', 80)
+root: loop_counter (contatore cicli)=1
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.python.org/: readable() -> True
+http://www.python.org/: writable() -> True
+http://www.python.org/: handle_connect()
+http://www.python.org/: handle_write() -> "GET http://www.python.org/ HTTP/1.0
+
+"
+root: loop_counter (contatore cicli)=2
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: writable() -> True
+http://www.python.org/: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_connect()
+http://www.doughellmann.com/PyMOTW/contents.html: handle_write() -> "GET http://www.doughellmann.com/PyMOTW/contents.html HTTP/1.0
+
+"
+root: loop_counter (contatore cicli)=3
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.python.org/: readable() -> True
+http://www.python.org/: handle_read() -> 318 bytes
+root: loop_counter (contatore cicli)=4
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.python.org/: readable() -> True
+http://www.python.org/: handle_close()
+http://www.python.org/: handle_read() -> 0 bytes
+root: loop_counter (contatore cicli)=5
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_read() -> 481 bytes
+root: loop_counter (contatore cicli)=6
+http://www.doughellmann.com/PyMOTW/contents.html: readable() -> True
+http://www.doughellmann.com/PyMOTW/contents.html: handle_close()
+http://www.doughellmann.com/PyMOTW/contents.html: handle_read() -> 0 bytes
+</py_output>
+<titolo_2>
+Lavorare con i File
+</titolo_2>
+<testo_normale>
+In genere, si dovrebbe utilizzare <strong>asyncore</strong> con i socket, ma ci sono situazioni nelle quali è utile leggere anche i file in modo asincrono. (per usare file quando si testano server di rete senza che serva impostarli, oppure leggere o scrivere file molto grandi in parti). Per queste situazioni <strong>asyncore</strong> fornisce le classi <code>file_dispatcher</code> e <code>file_wrapper</code>.
+</testo_normale>
+<py_code>
+import asyncore
+import os
+
+class FileReader(asyncore.file_dispatcher):
+    
+    def writable(self):
+        return False
+    
+    def handle_read(self):
+        data = self.recv(256)
+        print 'READ: (%d) "%s"' % (len(data), data)
+        
+    def handle_expt(self):
+        # Ignora eventi che sembrano dati fuori banda
+        pass
+    
+    def handle_close(self):
+        self.close()
+
+lorem_fd = os.open('lorem.txt', os.O_RDONLY)
+reader = FileReader(lorem_fd)
+asyncore.loop()
+</py_code>        
+<testo_normale>
+Se si esegue il codice sotto Python 2.5.2 od inferiore si usa (come nell'esempio) <code>os.open()</code> per ottenere un descrittore di file per il file. Se si usa Python 2.6 o superiore <code>file_dispatcher</code> converte automaticamente qualsiasi cosa con un metodo <code>fileno()</code> in un descrittore di file
+</testo_normale>
+<py_output>
+$ python asyncore_file_dispatcher.py 
+
+READ: (256) "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"
+READ: (256) "bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"
+READ: (189) "s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"
+READ: (0) ""
+
+</py_output>
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/asyncore.html|asyncore|La documentazione della libreria standard per questo modulo
+asynchat.html|asynchat|Il modulo asynchat utilizza asyncore per facilitare la creazione di comunicazione tra client e server passando i messaggi avanti ed indietro tramite un protocollo impostato
+socketserver.html|SocketServer|L'articolo sul modulo SocketServer include un altro esempio di EchoServer con varianti di <em>threading</em> e <em>forking</em>
+</vedi_anche>
+</documento_tradotto>

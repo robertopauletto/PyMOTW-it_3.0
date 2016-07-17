@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<indicizza>no</indicizza>
+<categoria>riferimenti</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<testo_normale>
+Di seguito i documenti "What's new" (Cosa c'è di nuovo - n.d.t) preparati della squadra di sviluppo e gestione dei rilasci di Python per ogni rilascio.
+</testo_normale>
+<lista>
+<a href='https://docs.python.org/3.0/whatsnew/3.0.html'>What's New in Python 3.0</a>
+<a href='https://docs.python.org/3.1/whatsnew/3.1.html'>What's New in Python 3.1</a>
+<a href='https://docs.python.org/3.2/whatsnew/3.2.html'>What's New in Python 3.2</a>
+<a href='https://docs.python.org/3.3/whatsnew/3.3.html'>What's New in Python 3.3</a>
+<a href='https://docs.python.org/3.4/whatsnew/3.4.html'>What's New in Python 3.4</a>
+<a href='https://docs.python.org/3.5/whatsnew/3.5.html'>What's New in Python 3.5</a>
+<a href='https://docs.python.org/3.5/whatsnew/3.6.html'>What's New in Python 3.6</a>
+</lista>
+<testo_normale>
+Per ulteriori informazioni circa la <a href="https://it.wikipedia.org/wiki/Portabilit%C3%A0">portabilità</a> verso Python 3, fare riferimento a:
+</testo_normale>
+<lista>
+<a href='https://docs.python.org/3/howto/pyporting.html'>Porting Python 2 Code to Python 3</a>
+<a href='http://python3porting.com/'>Porting to Python 3</a>, di Lennart Regebro
+La mailing-list di <a href="http://mail.python.org/mailman/listinfo/python-porting">python-porting</a>
+</lista>

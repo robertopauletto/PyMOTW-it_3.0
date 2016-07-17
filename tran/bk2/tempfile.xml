@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+tempfile - Creare risorse temporanee nel filesystem
+</titolo_1>
+<descrizione>
+Creare risorse temporanee nel filesystem
+Dalla 1.4 con importanti revisioni di sicurezza nella 2.3
+</descrizione>
+<testo_normale>
+Molti programmi devono creare dei file per scrivere dati intermedi. Creare in sicurezza questi file con nomi univoci, in modo che nessuno possa identificarli nel tentativo di forzare l'applicazione è impegnativo. Il modulo <strong>tempfile</strong> fornisce parecchie funzioni per creare risorse nel filesystem in sicurezza. ${sbk}TemporaryFile()${ebk} apre e restituisce un file non-nominato, ${sbk}NamedTemporaryFile()${ebk} apre e restituisce un file con un nome, mentre ${sbk}mkdtemp()${ebk} crea una directory temporanea e ne restituisce il nome.
+</testo_normale>
+<titolo_2>
+TemporaryFile
+</titolo_2>
+<testo_normale>
+Se un'applicazione necessita di un file temporaneo per salvare dei dati, ma non deve dividere quel file con altri programmi, la scelta migliore è quella di creare il file con la funzione ${sbk}TemporaryFile()${ebk}. Essa crea un file e, nelle piattaforme in cui è possibile, esegue immediatamente un <em>unlink</em>. Questo rende impossibile ad un altro programma di trovare od aprire il file, visto che non esiste nessun riferimento ad esso nella tabella del filesystem. Il file creato da TemporaryFile() viene eliminato automaticamente quando viene chiuso.
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+print 'Creazione di un nome di file:'
+filename = '/tmp/indovina_il_nome.%s.txt' % os.getpid()
+temp = open(filename, 'w+b')
+try:
+    print 'temp:', temp
+    print 'temp.name:', temp.name
+finally:
+    temp.close()
+    # Elimina espressamente il file temporaneo
+    os.remove(filename)
+
+print
+print 'TemporaryFile:'
+temp = tempfile.TemporaryFile()
+try:
+    print 'temp:', temp
+    print 'temp.name:', temp.name
+finally:
+    # Elimina il file automaticamente
+    temp.close()
+</py_code>
+<testo_normale>
+L'esempio illustra la differenza tra il creare un file temporaneo usando una operatività comune per impostarne il nome, e l'usare la funzione TemporaryFile(). Si noti che il file restituito da TemporaryFile non ha un nome.    
+</testo_normale>
+<py_output>
+$ python tempfile_TemporaryFile.py
+Creazione di un nome di file:
+temp: <open file '/tmp/indovina_il_nome.19029.txt', mode 'w+b' at 0x9448890>
+temp.name: /tmp/indovina_il_nome.19029.txt
+
+TemporaryFile:
+temp: <open file '<fdopen>', mode 'w+b' at 0x94488e0>
+temp.name: <fdopen>
+</py_output>
+<testo_normale>
+In modalità predefinita, l'handle del file viene creato con modalità 'w+b', in modo che si comporti consistentemente su tutte le piattaforme ed un programma possa scrivere o leggere da esso.
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+temp = tempfile.TemporaryFile()
+try:
+    temp.write('Qualche dato')
+    temp.seek(0)
+    
+    print temp.read()
+finally:
+    temp.close()
+
+</py_code>
+<testo_normale>
+Dopo la scrittura si deve 'riavvolgere' l'handle del file usando ${sbk}seek()${ebk} per potere leggere di nuovo i dati da esso.
+</testo_normale>
+<py_output>
+$ python tempfile_TemporaryFile_binary.py
+Qualche dato
+</py_output>
+<testo_normale>
+Se si vuole che il file lavori in formato testo, si passa mode='w+t' quando lo si crea:
+</testo_normale>
+<py_code>
+import tempfile
+
+f = tempfile.TemporaryFile(mode='w+t')
+try:
+    f.writelines(['primo\n', 'secondo\n'])
+    f.seek(0)
+
+    for line in f:
+        print line.rstrip()
+finally:
+    f.close()
+</py_code>
+<testo_normale>
+L'handle del file considera i dati come testo:    
+</testo_normale>
+<py_output>
+$ python tempfile_TemporaryFile_text.py
+primo
+secondo
+</py_output>
+<titolo_2>
+NamedTemporaryFile    
+</titolo_2>
+<testo_normale>
+Ci sono situazioni, comunque, dove avere un file temporaneo con un nome è importante. Se una applicazione sviluppa processi multipli, od anche host, nominare il file diventa il modo più semplice per passarlo tra le parti dell'applicazione. La funzione ${sbk}NamedTemporaryFile()${ebk} crea un file con un nome, al quale si accede con l'attributo <em>name</em>.    
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+temp = tempfile.NamedTemporaryFile()
+try:
+    print 'temp:', temp
+    print 'temp.name:', temp.name
+finally:
+    # Elimina il file automaticamente
+    temp.close()
+print 'Esiste dopo la chiusura:', os.path.exists(temp.name)
+</py_code>
+<testo_normale>
+Anche se il file ha un nome viene comunque rimosso non appena l'handle viene chiuso.
+</testo_normale>
+<py_output>
+$ python tempfile_NamedTemporaryFile.py
+temp: <open file '<fdopen>', mode 'w+b' at 0x9756890>
+temp.name: /tmp/tmpLQ53Av
+Esiste dopo la chiusura: False
+</py_output>
+<titolo_2>
+mkdtemp    
+</titolo_2>
+<testo_normale>
+Se occorrono diversi file temporanei, potrebbe essere molto più conveniente creare una singola direcotry temporanea, qundi aprire tutti i file in essa. Per creare una directory temporanea si usa ${sbk}mkdtemp()${ebk}.
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+directory_name = tempfile.mkdtemp()
+print directory_name
+# Lo script elimina la directory
+os.removedirs(directory_name)
+</py_code>
+<testo_normale>
+Visto che la directory non è "aperta" di per sè, occorre occuparsi della rimozione quando non serve più.
+</testo_normale>
+<py_output>
+$ python tempfile_mkdtemp.py
+/tmp/tmpzi5Mcm
+</py_output>
+<titolo_2>
+Predire i nomi    
+</titolo_2>
+<testo_normale>
+Per scopi di debug, potrebbe essere utile includere qualche indicazione circa l'origine dei file temporanei. Sebbene ovviamente sia meno sicuro rispetto ai file temporanei strettamente anonimi, includere una porzione prevedibile nel nome consente di trovare il file da esaminare mentre il programma lo sta usando. Tutte le funzioni fin qui descritte ricevono tre parametri per consentire il controllo dei nomi dei file fino ad un certo punto. I nomi sono generati usando la formula:    
+</testo_normale>
+<py_code>
+dir + prefix + random + suffix    
+</py_code>
+<testo_normale>
+dove tutti i valori tranne 'random' possono essere passati come parametro a TemporaryFile(), NamedTemporaryFIle() e mkdtemp(). Ad esempio:
+</testo_normale>
+<py_code>
+import tempfile
+
+temp = tempfile.NamedTemporaryFile(suffix='_suffisso', 
+                                   prefix='prefisso_', 
+                                   dir='/tmp',
+                                   )
+try:
+    print 'temp:', temp
+    print 'temp.name:', temp.name
+finally:
+    temp.close()
+</py_code>
+<testo_normale>
+I parametri <em>prefix</em> e <em>suffix</em> sono combinati assieme ad una stringa casuale di caratteri per costruire il nome del file, ed il parametro <em>dir</em> viene ricevuto così com'è ed usato come locazione del nuovo file.
+</testo_normale>
+<py_output>
+$ python tempfile_NamedTemporaryFile_args.py
+temp: <open file '<fdopen>', mode 'w+b' at 0x9ed2890>
+temp.name: /tmp/prefisso_35K6h5_suffisso
+</py_output>
+<titolo_2>
+Locazione dei file temporanei    
+</titolo_2>
+<testo_normale>
+Se non viene specificata esplicitamente una destinazione attraverso il parametro <em>dir</em>, il percorso usato per i file temporanei assumerà valori diversi a seconda della piattaforma di esecuzione e delle impostazioni. Il modulo <strong>tempfile</strong> include due fuzioni per interrogare le impostazioni che sono usate in fase di esecuzione.
+</testo_normale>
+<py_code>
+import tempfile
+
+print 'gettempdir():', tempfile.gettempdir()
+print 'gettempprefix():', tempfile.gettempprefix()
+</py_code>
+<testo_normale>
+gettempdir() restituisce la directory predefinita che conterrà tutti i file temporanei e gettempprefix() ritorna la stringa del prefisso  per i nomi del nuovo file e directory. 
+</testo_normale>
+<py_output>
+$ python tempfile_settings.py
+gettempdir(): /tmp
+gettempprefix(): tmp
+</py_output>
+<testo_normale>
+Il valore restituito da gettempdir() viene impostato in base ad un algoritmo che cerca attraverso un elenco di locazioni il primo posto nel quale il processo corrente può creare un file. Dalla documentazione della libreria:    
+</testo_normale>
+<testo_normale>
+Python cerca in una lista standard di directory ed imposta tempdir come la prima nella quale l'utente chiamante può creare il file. La lista comprende:
+</testo_normale>
+<lista>
+La directory abbinata alla variabile di ambiente TMPDIR
+La directory abbinata alla variabile di ambiente TEMP
+La directory abbinata alla variabile di ambiente TMP
+Una locazione specifica rispetto alla piattaforma
+Su RiscOS, la directory abbinata alla variabile di ambiente Wimp$ScrapDir.
+Su Windows, le directory:C:TEMP, C:TMP, TEMP, and TMP, in questo ordine.
+Su tutte le altre piattaforme, le directory /tmp, /var/tmp, and /usr/tmp, in quest'ordine
+Come ultima risorsa, la directory corrente.
+</lista>
+<testo_normale>
+Se il programma deve usare un locazione globale per tutti i file temporanei che deve essere creata esplicitamente ma non lo si vuole fare attraverso una di queste variabili di ambiente, si può impostare <em>tempfile.tempdir</em> direttamente.    
+</testo_normale>
+<py_code>
+import tempfile
+
+tempfile.tempdir = '/Ho/cambiato/questo/percorso'
+print 'gettempdir():', tempfile.gettempdir()
+</py_code>
+<py_output>
+$ python tempfile_tempdir.py
+gettempdir(): /Ho/cambiato/questo/percorso
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-tempfile.html|tempfile|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Il modulo Python della settimana, traduzione autorizzata di PyMOTW"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>PyMOTW-it</title>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <!-- Custom styles for this template -->
+    <link href="css/offcanvas.css" rel="stylesheet">
+    <link href="css/my.css" rel="stylesheet">
+
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="../assets/js/html5shiv.js"></script>
+    <script src="../assets/js/respond.min.js"></script>
+    <![endif]-->
+
+    <!--
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>      -->
+</head>
+<body>
+<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">PyMOTW-it</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div><!-- /.nav-collapse -->
+    </div><!-- /.container -->
+</div><!-- /.navbar -->
+
+<div class="container">
+
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+            <p class="pull-right visible-xs">
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+            </p>
+            <div class="jumbotron" >
+                <h3>Codecs - Codifica e Decodifica di Stringhe</h3>
+                <table class="pymotwit-jumbo">
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Scopo</td>
+                        <td>Codificatori e decodificatori per convertire testo tra diverse rappresentazioni</td>
+                    </tr>
+                    <tr>
+                        <td class="pymotwit-jumbo-key">Versione Python</td>
+                        <td>2.1 e superiore</td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <!-- template: Intro -->
+                    <p>
+                        Il modulo codecs fornisce interfacce ai flussi ed ai file per trascodificare dati nel proprio
+                        programma. E' più comunemente usato per lavorare con testo Unicode, ma sono disponibili
+                        altre codifiche per altri scopi.
+                    </p>
+
+                    <!-- template: Titolo ? -->
+                    <h3>Nozioni di Unicode</h3>
+
+                    <p>
+                        CPython 2.x supporta due tipi di stringhe per lavorare con dati testuali. Le istanze
+                        "vecchio stile" str usano un singolo byte composto da 8 bit per rappresentare ciascun carattere
+                        della stringa utilizzando il suo codice ASCII. Di contro, le stringhe unicode sono gestite internamente
+                        come sequenze di cosiddetti code point Unicode. I valori di un code point sono salvati come
+                        sequenze di 2 o 4 byte ciascuno, a seconda delle opzioni fornite quando Python è stato compilato.
+                        Sia unicode che str sono derivate da una classe base comune e supportano una API similare.
+                    </p>
+
+                    <p>
+                        Quando le stringhe unicode sono richieste, esse sono codificate usando uno dei parecchi schemi
+                        standard, in modo che la sequenza di byte possa essere ricostruita tale e quale successivamente.
+                        I byte del valore codificato non sono necessariamente uguali ai valori di code point e la
+                        codifica definisce un modo per trascodificare tra i due insiemi di valori. Per
+                        leggere dati Unicode occorre anche sapere la codifica in modo che i byte in arrivo
+                        possano essere convertiti nella loro rappresentazione interna usata dalla classe unicode.
+                    </p>
+                    <p>
+                        Le codifiche più comuni per i linguaggi occidentali sono
+                        <span class="pymotwit-ev_rosa">UTF-8</span> e <span class="pymotwit-ev_rosa">UTF-16</span>, che usano rispettivamente
+                        sequenze di valori di uno e due byte per rappresentare ciascun carattere.
+                        Altre codifiche possono essere più efficaci per linguaggi per i quali la maggior parte dei
+                        caratteri sono rappresentati da code point che non rientrano nei due byte.
+                    </p>
+                    <div class="alert alert-info">
+                        <p>
+                            <strong>Nota:</strong> Per maggiori informazioni introduttive circa Unicode, fare riferimento all'elenco di
+                            risorse alla fine dell'articolo. Il documento Python
+                            <a href="http://docs.python.org/howto/unicode">Unicode HOWTO</a> è particolarmente utile.
+                        </p>
+                    </div>
+                    <h3>Encoding</h3>
+                    <p>
+                        Il modo migliore per comprendere l'encoding è di osservare le diverse serie di byte prodotte
+                        codificando la stessa stringa di modi diversi. Gli esempi che seguono usano questa funzione
+                        per formattare la stringa di byte per facilitarne la <span class="pymotwit-ev_giallo">lettura</span>
+                    </p>
+                    <div class="well">
+<pre><span class="kn">import</span> <span class="nn">binascii</span>
+
+<span class="k">def</span> <span class="nf">to_hex</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Formattazione del testo t come sequenza valori lunghi nbyte separati da spazi.&quot;&quot;&quot;</span>
+    <span class="n">chars_per_item</span> <span class="o">=</span> <span class="n">nbytes</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">hex_version</span> <span class="o">=</span> <span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">num_chunks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_version</span><span class="p">)</span> <span class="o">/</span> <span class="n">chars_per_item</span>
+    <span class="k">def</span> <span class="nf">chunkify</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_version</span><span class="p">),</span> <span class="n">chars_per_item</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">hex_version</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">start</span> <span class="o">+</span> <span class="n">chars_per_item</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunkify</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">to_hex</span><span class="p">(</span><span class="s">&#39;abcdef&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">to_hex</span><span class="p">(</span><span class="s">&#39;abcdef&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+</pre>
+
+                    </div>
+                    <!-- Tabella normale -->
+                    <table class="table table-condensed">
+                        <tr>
+                            <th>Modalità errore</th>
+                            <th>Descrizione</th>
+                        </tr>
+                        <tr class="active">
+                            <td>strict</td>
+                            <td>Solleva una eccezione se i dati non possono essere convertiti</td>
+                        </tr>
+                        <tr class="active">
+                            <td>replace</td>
+                            <td>I dati che non possono essere codificati vengono sostituiti da carattere marcatore speciale</td>
+                        </tr>
+                    </table>
+
+                </div><!--/span-->
+            </div><!--/row-->
+            <p>
+                <hr />
+            </p>
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="well sidebar-nav">
+                <ul class="nav">
+                    <li>Sidebar</li>
+                    <li class="active"><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li>Sidebar</li>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li>Sidebar</li>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                </ul>
+            </div><!--/.well -->
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+
+    <footer>
+        <p>ultimo aggiornamento: 12.12.2013</p>
+    </footer>
+
+</div><!--/.container-->
+
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="assets/js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="assets/js/offcanvas.js"></script>
+</body>
+</html>
+

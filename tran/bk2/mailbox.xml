@@ -1,0 +1,443 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>gestione dati internet </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+mailbox - Accede e manipola archivi email
+</titolo_1>
+<descrizione>
+Lavora con i messaggi email in diversi formati di file locali.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>mailbox</strong> definisce una API comune per accedere a messaggi email salvati in formati di disco locale inclusi:
+</testo_normale>
+<testo_normale>
+<lista>
+    Maildir
+    mbox
+    MH
+    Babyl
+    MMDF
+</lista>
+<testo_normale>
+Ci sono classi base per <strong>Mailbox</strong>  e <strong>Message</strong>, ed ogni formato di mailbox comprende una corrispondente coppia di sottoclassi per implementare il dettaglio per quel formato.
+</testo_normale>
+<titolo_2>
+mbox
+</titolo_2>
+<testo_normale>
+Il formato mbox è il più semplice da illustrare nella documentazione, visto che è interamente in testo semplice. Ogni mailbox viene salvata come singolo file, con tutti i messaggi concatenati assieme. Ogni volta che viene rilevata una riga che inizia con "From " (${sbk}From${ebk} seguito da un singolo spazio), essa viene trattata come l'inizio di un nuovo messaggio. Ogni volta che questi caratteri appaiono all'inizio di una riga nel corpo del messaggio, ad essi viene fatto precedere il prefisso "&gt;".
+</testo_normale>
+<titolo_2>
+Creare una mailbox mbox    
+</titolo_2>
+<testo_normale>
+Si istanzia la classe ${sbk}email.mbox${ebk} passando il nome del file al costruttore. Se il file non esiste, viene creato quando ad esso si aggiungono messaggi usando ${sbk}add()${ebk}.
+</testo_normale>
+<py_code>
+import mailbox
+import email.utils
+
+from_addr = email.utils.formataddr(('Author', 'author@example.com'))
+to_addr = email.utils.formataddr(('Recipient', 'recipient@example.com'))
+
+mbox = mailbox.mbox('example.mbox')
+mbox.lock()
+try:
+    msg = mailbox.mboxMessage()
+    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'Messaggio di prova n. 1'
+    msg.set_payload('Questo è il corpo del messaggio.\nFrom (dovrebbe essere prefissato con >).\nCi sono 3 righe.\n')
+    mbox.add(msg)
+    mbox.flush()
+
+    msg = mailbox.mboxMessage()
+    msg.set_unixfrom('author')
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'Messaggio di prova n. 2'
+    msg.set_payload('Questo è il corpo del secondo messaggio.\n')
+    mbox.add(msg)
+    mbox.flush()
+finally:
+    mbox.unlock()
+
+print open('example.mbox', 'r').read()
+</py_code>
+<testo_normale>
+Il risultato di questo script è un nuovo file mailbox con 2 messaggi.    
+</testo_normale>
+<py_output>
+$ python mailbox_mbox_create.py
+From MAILER-DAEMON Fri Jan  1 10:45:21 2010
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 1
+
+Questo è il corpo del messaggio.
+>From (dovrebbe essere prefissato da >).
+Ci sono 3 righe.
+
+From MAILER-DAEMON Fri Jan  1 10:45:21 2010
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 2
+
+Questo è il corpo del secondo messaggio.
+
+</py_output>
+<titolo_2>
+Leggere una Mailbox mbox
+</titolo_2>
+<testo_normale>
+Per leggere una mailbox esistente, aprirla, quindi trattare l'oggetto mbox come un dizionario. Le chiavi sono valori arbitrari definiti dall'istanza di mailbox e non hanno necessariamente un particolare significato se non come identificatori interni per gli oggetti messaggio.
+</testo_normale>
+<py_code>
+import mailbox
+
+mbox = mailbox.mbox('example.mbox')
+for message in mbox:
+    print message['subject']
+</py_code>
+<testo_normale>
+Si può iterare attraverso la mailbox aperta ma si tenga presente che, al contrario dei dizionari, l'iteratore predefinito per una mailbox lavora con i <em>valori</em> e non con le <em>chiavi</em>.
+</testo_normale>
+<py_output>
+$ python mailbox_mbox_read.py
+Messaggio di prova n. 1
+Messaggio di prova n. 2
+</py_output>
+<titolo_2>
+Eliminare Messaggi da una Mailbox mbox    
+</titolo_2>
+<testo_normale>
+Per rimuovere un messaggio esistente da un file mbox si usa la sua chiave con ${sbk}remove()${ebk} oppure si usa ${sbk}del()${ebk}.
+</testo_normale>
+<py_code>
+import mailbox
+
+mbox = mailbox.mbox('example.mbox')
+to_remove = []
+for key, msg in mbox.iteritems():
+    if '2' in msg['subject']:
+        print 'Rimuovo:', key
+        to_remove.append(key)
+mbox.lock()
+try:
+    for key in to_remove:
+        mbox.remove(key)
+finally:
+    mbox.flush()
+    mbox.close()
+
+print open('example.mbox', 'r').read()
+</py_code>
+<testo_normale>
+Si noti l'uso di ${sbk}lock()${ebk} ed ${sbk}unlock()${ebk} per evitare problemi di accesso simultaneo al file, e ${sbk}flush()${ebk} per forzare la scrittura su disco delle modifiche.
+</testo_normale>
+<py_output>
+Rimuovo: 1
+From MAILER-DAEMON Fri Jan  1 10:45:21 2010
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 1
+
+Questo è il corpo del messaggio.
+>From (dovrebbe essere prefissato da >).
+Ci sono 3 righe.
+</py_output>
+<titolo_2>
+Maildir    
+</titolo_2>
+<testo_normale>
+Il formato Maildir fu creato per eliminare il problema di modifiche simultanee in un file mbox. Invece che usare un singolo file, ogni mailbox è una directory ed ogni messaggio è contenuto in un suo proprio file. Questo consente alle mailbox di essere nidificate, e quindi anche la API per la mailbox MailDir è estesa con metodi che lavorano con le sottodirectory.    
+</testo_normale>
+<titolo_2>
+Creare una Mailbox Maildir    
+</titolo_2>
+<testo_normale>>
+L'unica vera differenza tra l'usare Maildir e mbox è che per istanziare l'oggetto ${sbk}email.Maildir${ebk} si deve passare la directory che contiene la mailbox al costruttore. Come detto prima, se non esiste, la mailbox viene creata quando si aggiungono ad essa dei messaggi usando ${sbk}add()${ebk}.
+</testo_normale>
+<py_code>
+import mailbox
+import email.utils
+import os
+
+from_addr = email.utils.formataddr(('Author', 'author@example.com'))
+to_addr = email.utils.formataddr(('Recipient', 'recipient@example.com'))
+
+mbox = mailbox.Maildir('Example')
+mbox.lock()
+try:
+    msg = mailbox.mboxMessage()
+    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'Messaggio di prova n. 1'
+    msg.set_payload('Questo è il corpo del messaggio.\nFrom (dovrebbe essere prefissato da >).\nCi sono 3 righe.\n')
+    mbox.add(msg)
+    mbox.flush()
+
+    msg = mailbox.mboxMessage()
+    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Subject'] = 'Messaggio di prova n. 2'
+    msg.set_payload('Questo è il corpo del secondo messaggio.\n')
+    mbox.add(msg)
+    mbox.flush()
+finally:
+    mbox.unlock()
+
+for dirname, subdirs, files in os.walk('Example'):
+    print dirname
+    print '\tDirectories:', subdirs
+    for name in files:
+        fullname = os.path.join(dirname, name)
+        print
+        print '***', fullname
+        print open(fullname).read()
+        print '*' * 20
+    
+</py_code>
+<testo_normale>
+Visto che sono stati aggiunti messaggi alla mailbox, essi vanno nella "nuova" sottodirectory. Una volta "letti", un client potrebbe spostarli nella sottodirectory "cur".
+</testo_normale>
+<avvertimento>
+Sebbene sia sicuro scrivere verso la stessa maildir da processi multipli, add() non è thread-safe, quindi ci si deve assicurare di usare un semaforo o qualche altro dispositivo di blocco per prevenire modifiche simultanee alla mailbox da thread multipli dello stesso processo.    
+</avvertimento>
+<py_output>
+Example
+	Directories: ['new', 'cur', 'tmp']
+Example/new
+	Directories: []
+
+*** Example/new/1262343445.M330873P12060Q2.robby-desktop
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 2
+
+Questo è il corpo del secondo messaggio.
+
+********************
+
+*** Example/new/1262343445.M328864P12060Q1.robby-desktop
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 1
+
+Questo è il corpo del messaggio.
+From (dovrebbe essere prefissato da >).
+Ci sono 3 righe.
+
+********************
+Example/cur
+	Directories: []
+Example/tmp
+	Directories: []
+</py_output>
+<titolo_2>
+Leggere una Mailbox Maildir    
+</titolo_2>
+<testo_normale>
+La lettura da una mailbox Maildir esistente funziona come con mbox.    
+</testo_normale>
+<py_code>
+import mailbox
+
+mbox = mailbox.Maildir('Example')
+for message in mbox:
+    print message['subject']
+</py_code>
+<testo_normale>
+Si noti che non c'è garanzia che i messaggi siano letti in un qualche ordine particolare.    
+</testo_normale>
+<py_output>
+$ python mailbox_maildir_read.py
+Messaggio di prova n. 1
+Messaggio di prova n. 2
+</py_output>
+<titolo_2>
+Rimuovere Messaggi da una Mailbox Maildir    
+</titolo_2>
+<testo_normale>
+Per rimuovere un messaggio esistente da una mailbox Maildir si usa la sua chiave con ${sbk}remove()${ebk} oppure si usa ${sbk}del${ebk}.
+</testo_normale>
+<py_code>
+import mailbox
+import os
+
+mbox = mailbox.Maildir('Example')
+to_remove = []
+for key, msg in mbox.iteritems():
+    if '2' in msg['subject']:
+        print 'Rimuovo:', key
+        to_remove.append(key)
+mbox.lock()
+try:
+    for key in to_remove:
+        mbox.remove(key)
+finally:
+    mbox.flush()
+    mbox.close()
+
+for dirname, subdirs, files in os.walk('Example'):
+    print dirname
+    print '\tDirectory:', subdirs
+    for name in files:
+        fullname = os.path.join(dirname, name)
+        print
+        print '***', fullname
+        print open(fullname).read()
+        print '*' * 20
+</py_code>
+<py_output>
+$ python mailbox_maildir_remove.py
+Rimuovo: 1262429441.M698437P6782Q2.robby-desktop
+Example
+	Directory: ['new', 'cur', 'tmp']
+Example/new
+	Directory: []
+
+*** Example/new/1262429441.M690618P6782Q1.robby-desktop
+From: Author <author@example.com>
+To: Recipient <recipient@example.com>
+Subject: Messaggio di prova n. 1
+
+Questo è il corpo del messaggio.
+From (dovrebbe essere prefissato da >).
+Ci sono 3 righe.
+
+********************
+Example/cur
+	Directory: []
+Example/tmp
+	Directory: []
+</py_output>
+<titolo_3>
+Cartelle Maildir    
+</titolo_3>
+<testo_normale>
+Le sottodirectory o <em>cartelle</em> di una mailbox Maildir possono essere gestite direttamente tramite i metodi della classe Maildir. I chiamanti possono elencare, recuperare, creare e rimuovere sottocartelle per una mailbox specifica.
+</testo_normale>
+<py_code>
+import mailbox
+import os
+
+def show_maildir(name):
+    os.system('find %s -print' % name)
+
+mbox = mailbox.Maildir('Example')
+print 'Prima:', mbox.list_folders()
+show_maildir('Example')
+
+print
+print '#' * 30
+print
+
+mbox.add_folder('sottocartella')
+print 'creata sottocartella:', mbox.list_folders()
+show_maildir('Example')
+
+subfolder = mbox.get_folder('sottocartella')
+print 'sottocartella contiene:', subfolder.list_folders()
+
+print
+print '#' * 30
+print
+
+subfolder.add_folder('secondo_livello')
+print 'creato secondo_livello:', subfolder.list_folders()
+show_maildir('Example')
+
+print
+print '#' * 30
+print
+
+subfolder.remove_folder('secondo_livello')
+print 'secondo_livello rimosso:', subfolder.list_folders()
+show_maildir('Example')
+</py_code>
+<testo_normale>
+Il nome della directory per una cartella viene costruito prefissando il nome della cartella con ${sbk}.${ebk} .
+</testo_normale>
+<py_output>
+$ python mailbox_maildir_folders.py
+Prima: []
+Example
+Example/new
+Example/new/1262429441.M690618P6782Q1.robby-desktop
+Example/cur
+Example/tmp
+
+##############################
+
+creata sottocartella: ['sottocartella']
+Example
+Example/new
+Example/new/1262429441.M690618P6782Q1.robby-desktop
+Example/cur
+Example/tmp
+Example/.sottocartella
+Example/.sottocartella/new
+Example/.sottocartella/maildirfolder
+Example/.sottocartella/cur
+Example/.sottocartella/tmp
+sottocartella contiene: []
+
+##############################
+
+creato secondo_livello: ['secondo_livello']
+Example
+Example/new
+Example/new/1262429441.M690618P6782Q1.robby-desktop
+Example/cur
+Example/tmp
+Example/.sottocartella
+Example/.sottocartella/.secondo_livello
+Example/.sottocartella/.secondo_livello/new
+Example/.sottocartella/.secondo_livello/maildirfolder
+Example/.sottocartella/.secondo_livello/cur
+Example/.sottocartella/.secondo_livello/tmp
+Example/.sottocartella/new
+Example/.sottocartella/maildirfolder
+Example/.sottocartella/cur
+Example/.sottocartella/tmp
+
+##############################
+
+secondo_livello rimosso: []
+Example
+Example/new
+Example/new/1262429441.M690618P6782Q1.robby-desktop
+Example/cur
+Example/tmp
+Example/.sottocartella
+Example/.sottocartella/new
+Example/.sottocartella/maildirfolder
+Example/.sottocartella/cur
+Example/.sottocartella/tmp
+</py_output>
+<titolo_3>
+Altri formati    
+</titolo_3>
+<testo_normale>
+MH è un altro formato mailbox multi file, usato da alcuni gestori di mail. Babyl e MMDF sono formati a file singolo con   separatori dei messaggi diversi rispetto a mbox. Nessuno di essi sembra essere altrettanto popolare di mbox o Maildir. I formati a file singolo supportano al stessa API di mbox, e MH include i metodi legati alle cartelle che si trovano nella classe Maildir.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/mailbox.html|maildir|La documentazione della libreria standard per questo modulo.
+http://www.qmail.org/man/man5/mbox.html|qmail mbox manpage|La pagina di manuale di mbox da qmail
+http://www.qmail.org/man/man5/maildir.html|qmail maildir manpage|La pagina di manuale di maildir da qmail
+http://docs.python.org/library/email.html#module-email|email|Il modulo email
+http://www.doughellmann.com/PyMOTW/mhlib/index.html#module-mhlib|mhlib|il modulo mhlib
+</vedi_anche>
+</documento_tradotto>

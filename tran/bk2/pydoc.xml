@@ -1,0 +1,77 @@
+﻿f<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti di sviluppo </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+pydoc - Documentazione in linea per i moduli Python
+</titolo_1>
+<descrizione>
+Genera aiuto per i moduli Python e le classi dal codice
+2.1 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>pydoc</strong> importa un modulo Python e ne usa il contenuto per generare un testo di aiuto in fase di esecuzione. L'output include le stringhe di documentazione per qualsiasi oggetto che ne sia dotato, e la descrizione di tutto il contenuto documentabile del modulo.
+</testo_normale>
+<titolo_2>
+Aiuto In Testo Semplice
+</titolo_2>
+<testo_normale>
+Lanciando: 
+</testo_normale>
+<py_output>
+$ pydoc atexit
+</py_output>
+<testo_normale>
+Si ottiene un aiuto in testo semplice sulla console, usando il proprio pager (less, more o simili - n.d.t.), se configurato.
+</testo_normale>
+<titolo_2>
+Aiuto HTML    
+</titolo_2>
+<testo_normale>
+Si può anche far sì che pydoc generi un output HTML, sia scrivendo un file statico in una directory locale, che lanciando un web server per scorrere la documentazione in linea.    
+</testo_normale>
+<py_output>
+$ pydoc -w atexit    
+</py_output>
+<testo_normale>
+Crea ${sbk}atexit.html${ebk} nella directory corrente.
+</testo_normale>
+<py_output>
+$ pydoc -p 5000    
+</py_output>
+<testo_normale>
+Lancia un web server che ascolta <a href='http://localhost:5000/'>${sbk}http://localhost:5000/${ebk}</a>. Il server genera la documentazione mentre si scorrono i moduli disponibili.
+</testo_normale>
+<titolo_2>
+Aiuto Interattivo    
+</titolo_2>
+<testo_normale>
+pydoc aggiunge anche una funzione ${sbk}help()${ebk} a ${sbk}__builtins__${ebk} cosi' che si possa avere accesso alle stesse informazioni dal prompt dell'interprete Python.
+</testo_normale>
+<py_output>
+$ python
+Python 2.6.2 (r262:71600, Apr 16 2009, 09:17:39)
+[GCC 4.0.1 (Apple Computer, Inc. build 5250)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> help('atexit')
+Help on module atexit:
+
+NAME
+    atexit
+
+FILE
+    /Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/atexit.py
+...    
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/pydoc.html|pydoc|La documentazione della libreria standard per questo modulo.
+http://www.doughellmann.com/PyMOTW/about.html#motw-cli|L'interfaccia alla riga comandi di motw|Accedere agli articoli di Module Of The Week dalla riga comandi.
+http://www.doughellmann.com/PyMOTW/about.html#motw-interactive|Usare PyMOTW con l'interprete interattivo|Accedere agli articoli di Module Of The Week dall'interprete interattivo
+</vedi_anche>
+</documento_tradotto>

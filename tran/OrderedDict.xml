@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+OrderedDict - ricorda l'ordine con il quale si aggiungono chiavi ad un dizionario
+</titolo_1>
+<descrizione>
+Un <code>OrderedDict</code> è una sottoclasse di <code>dict</code> che ricorda l'ordine nel quale sono aggiunti i propri contenuti.
+
+</descrizione>
+<testo_normale>
+Un <code>OrderedDict</code> è una sottoclasse di <code>dict</code> che ricorda l'ordine nel quale sono aggiunti i propri contenuti.
+</testo_normale>
+<py_code>
+# collections_ordereddict_iter.py
+
+import collections
+
+print('Dizionario Normale:')
+d = {}
+d['a'] = 'A'
+d['b'] = 'B'
+d['c'] = 'C'
+
+for k, v in d.items():
+    print(k, v)
+
+print('\nOrderedDict:')
+d = collections.OrderedDict()
+d['a'] = 'A'
+d['b'] = 'B'
+d['c'] = 'C'
+
+for k, v in d.items():
+    print(k, v)
+
+</py_code>
+<testo_normale>
+Un normale <code>dict</code> non tiene traccia dell'ordine di inserimento, e l'iterazione sull'oggetto produce i valori nell'ordine basato su come le chiavi sono conservate nella <a href="https://it.wikipedia.org/wiki/Hash_table">tabella hash</a>; detto ordine è a sua volta influenzato da un valore casuale utilizzato per ridurre collisioni. Al contrario, in un <code>OrderedDict</code> l'ordine nel quale gli elementi sono inseriti viene conservato ed utilizzato quando si crea un iteratore.
+</testo_normale>
+<py_output>
+$ python3 collections_ordereddict_iter.py
+Dizionario Normale:
+c C
+b B
+a A
+
+OrderedDict:
+a A
+b B
+c C
+</py_output>
+<titolo_2>
+Uguaglianza
+</titolo_2>
+<testo_normale>
+Un normale <code>dict</code> cerca il suo contenuto quando deve verificare una uguaglianza. Un <code>OrderedDict</code> considera anche l'ordine nel quale sono stati aggiunti gli elementi.
+</testo_normale>
+<py_code>
+# collections_ordereddict_equality.py
+
+import collections
+
+print('dict       :',)
+d1 = {}
+d1['a'] = 'A'
+d1['b'] = 'B'
+d1['c'] = 'C'
+
+d2 = {}
+d2['c'] = 'C'
+d2['b'] = 'B'
+d2['a'] = 'A'
+
+print(d1 == d2)
+
+print('OrderedDict:',)
+
+d1 = collections.OrderedDict()
+d1['a'] = 'A'
+d1['b'] = 'B'
+d1['c'] = 'C'
+
+d2 = collections.OrderedDict()
+d2['c'] = 'C'
+d2['b'] = 'B'
+d2['a'] = 'A'
+
+print(d1 == d2)
+</py_code>
+<testo_normale>
+In questo caso, visto che i due <code>OrderedDict</code> sono creati da valori immessi in diverso ordine, sono considerati diversi.
+</testo_normale>
+<py_output>
+$ python3 collections_ordereddict_equality.py
+
+dict       :
+True
+OrderedDict:
+False
+</py_output>
+<titolo_2>
+Riordinare
+</titolo_2>
+<testo_normale>
+E' possibile modificare l'ordine delle chiavi in un <code>OrderedDict</code> spostandole all'inizio od alla fine della sequenza utilizzando <code>move_to_end()</code>.
+</testo_normale>
+<py_code>
+# collections_ordereddict_move_to_end.py
+import collections
+
+d = collections.OrderedDict(
+    [('a', 'A'), ('b', 'B'), ('c', 'C')]
+)
+
+print('Prima:')
+for k, v in d.items():
+    print(k, v)
+
+d.move_to_end('b')
+
+print('\nmove_to_end():')
+for k, v in d.items():
+    print(k, v)
+
+d.move_to_end('b', last=False)
+
+print('\nmove_to_end(last=False):')
+for k, v in d.items():
+    print(k, v)
+</py_code>
+<testo_normale>
+L'argomento <code>last</code> indica a <code>move_to_end()</code> la direzione di spostamento dell'elemento che sarà l'ultimo nella sequenza se <code>True</code> oppure il primo se <code>False</code>.
+</testo_normale>
+<py_output>
+3 collections_ordereddict_move_to_end.py
+
+Prima:
+a A
+b B
+c C
+
+move_to_end():
+a A
+c C
+b B
+
+move_to_end(last=False):
+b B
+a A
+c C
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/collections.html#collections.OrderedDict|OrderedDict|La documentazione standard della libreria per questo modulo
+https://docs.python.org/3.5/using/cmdline.html#envvar-PYTHONHASHSEED|PYTHONHASHSEED|Variabile di ambiente per controllare il seme del valore casuale aggiunto all'algoritomo di hash per la locazione delle chiavi nel dizionario.
+</vedi_anche>
+</documento_tradotto>

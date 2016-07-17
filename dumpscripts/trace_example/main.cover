@@ -1,0 +1,12 @@
+       #!/usr/bin/env python
+       # -*- coding: UTF-8 -*-
+       
+    1: from recurse import recurse
+       
+    1: def main():
+    1:     print 'Questo è il programma principale.'
+    1:     recurse(2)
+    1:     return
+       
+    1: if __name__ == '__main__':
+    1:     main()

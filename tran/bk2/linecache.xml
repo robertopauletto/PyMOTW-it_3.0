@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>accedere a file e directory </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+linecache - Leggere con efficacia i file di testo
+</titolo_1>
+<descrizione>
+Recupera righe di testo da file o da moduli python importati, mantenendo una cache dei risultati per rendere la lettura di molte righe dallo stesso file più efficiente.
+1.4
+</descrizione>
+<testo_normale>
+Il modulo <strong>linecache</strong> viene usato estensivamente attraverso la libreria standard di Python quando occorre trattare file sorgente di Python. L'implementazione della cache mantiene semplicemente il contenuto dei file, elaborati in righe separate, in un dizionario in memoria. L'API restituisce le righe richieste indicizzate in una lista. Il tempo risparmiato è quello che occorrerebbe per leggere (ripetutamente) il file ed elaborare le righe per trovare quella richiesta. Questo è particolarmente utile quando occorre trovare righe multiple nello stesso file, come ad esempio per produrre una traccia dello stack per una rapporto di errore.
+</testo_normale>
+<titolo_2>
+Dati per il Test
+</titolo_2>
+<testo_normale>
+Si usa del testo prodotto dal generatore Lorem Ipsum come input di esempio.
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+lorem = '''Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Curabitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauris vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.'''
+
+def make_tempfile():
+    fd, temp_file_name = tempfile.mkstemp()
+    os.close(fd)
+    f = open(temp_file_name, 'wt')
+    try:
+        f.write(lorem)
+    finally:
+        f.close()
+    return temp_file_name
+
+def cleanup(filename):
+    os.unlink(filename)
+
+</py_code>
+<titolo_2>
+Leggere Righe Specifiche    
+</titolo_2>
+<testo_normale>
+Per leggere la quinta riga dal file basta una riga di codice. Si noti che i numeri di riga nel modulo <strong>linecache</strong> iniziano da 1, ma se le righe vengono divise tramite codice l'array viene indicizzato a partire da 0. Occorre anche eliminare il carattere di ritorno a capo a fine riga restituito dalla cache.
+</testo_normale>
+<py_code>
+import linecache
+from linecache_data import *
+
+filename = make_tempfile()
+
+# Estrazione della stessa riga dalla sorgente e dalla cache.
+# (Notare che linecache conta da 1)
+print 'SORGENTE: ', lorem.split('\n')[4]
+print 'CACHE   : ', linecache.getline(filename, 5).rstrip()
+
+cleanup(filename)
+</py_code>
+<py_output>
+$ python linecache_getline.py
+
+SORGENTE:  eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+CACHE   :  eros pede, egestas at, ultricies ac, pellentesque eu, tellus.
+</py_output>
+<titolo_2>
+Gestire le Righe Vuote    
+</titolo_2>
+<testo_normale>
+Ecco cosa accade se la riga desiderata è vuota:
+</testo_normale>
+<py_code>
+import linecache
+from linecache_data import *
+
+filename = make_tempfile()
+
+# Le righe vuote includono un ritorno a capo
+print '\nVUOTA : "%s"' % linecache.getline(filename, 6)
+
+cleanup(filename)
+</py_code>
+<py_output>
+$ python linecache_out_of_range.py
+
+VUOTA : "
+"
+</py_output>
+<titolo_2>
+Gestire gli Errori
+</titolo_2>
+<testo_normale>
+Se il numero della riga richiesta è fuori dall'intervallo delle righe valide nel file, <strong>linecache</strong> ritorna una stringa vuota.
+</testo_normale>
+<py_code>
+import linecache
+from linecache_data import *
+
+filename = make_tempfile()
+
+# La cache ritorna sempre una stringa, ed usa
+# una stringa vuota per indicare una riga che
+# non esiste.
+non_qui = linecache.getline(filename, 500)
+print "\nNON QUI: '%s' comprende %d caratteri" %  (non_qui, len(non_qui))
+
+cleanup(filename)
+</py_code>
+<py_output>
+$ python linecache_empty_line.py
+
+NON QUI: '' comprende 0 caratteri
+</py_output>
+<testo_normale>
+Il modulo non solleva mai una eccezione, anche se il file non esiste:
+</testo_normale>
+<py_code>
+import linecache
+
+# Gli errori sono nascosti anche se linecache non trova il file
+no_such_file = linecache.getline('this_file_does_not_exist.txt', 1)
+print '\nNESSUN FILE: ', no_such_file
+</py_code>
+<py_output>
+$ python linecache_missing_file.py
+
+NESSUN FILE:  
+</py_output>
+<titolo_2>
+Sorgenti Python
+</titolo_2>
+<testo_normale>
+Visto che <strong>linecache</strong> viene usato così frequentemente per produrre tracce dello stack, una della caratteristiche chiave è la capacità di trovare i sorgenti dei moduli Python inclusi in <em>sys.path</em> specificando il nome base del modulo. Il codice che serve per riempire la cache in <strong>linecache</strong> cerca il modulo in <em>sys.path</em> se non riesce a trovare il file direttamente.
+</testo_normale>
+<py_code>
+import linecache
+
+# Cerca il modulo linecache, usando
+# la ricerca built-in in sys.path
+module_line = linecache.getline('linecache.py', 3)
+print '\nMODULO : ', module_line
+</py_code>
+<py_output>
+$ python linecache_path_search.py
+
+MODULO :  This is intended to read lines from modules imported -- hence if a filename
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/linecache.html|linecache|La documentazione della libreria standard per questo modulo.
+http://www.ipsum.com/|http://www.ipsum.com|Il generatore Lorem Ipsum.
+</vedi_anche>
+</documento_tradotto>

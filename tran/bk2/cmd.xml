@@ -1,0 +1,571 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strutture di programma </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+cmd - Crea processori di riga di comando
+</titolo_1>
+<descrizione>
+Crea processori di riga di comando.
+1.4 e successive, con aggiunte nella 2.3
+</descrizione>
+<testo_normale>
+Il modulo <strong>cmd</strong> contiene una sola classe pubblica: ${sbk}Cmd${ebk}, progettata per l'uso come classe base per processori di comando tipo shell interattive ed altri interpreti di comando. Nella modalità predefinita la classe usa <a href=readline.html>readline</a> per la gestione del prompt interattivo, per la modifica della riga di comando e per il completamento del comando.
+</testo_normale>
+<titolo_2>
+Elaborazione dei Comandi
+</titolo_2>
+<testo_normale>
+L'interprete usa un ciclo per leggere tutte le righe dal suo input, analizzarle, quindi inviare il comando all'appropriato gestore di comando. Le righe in input sono elaborate in due parti. Il comando, quindi qualsiasi altro testo nella riga. Se si digita il comando ${sev}foo bar${eev}, e la propria classe comprende un metodo chiamato ${sev}do_foo()${eev}, esso viene chiamato con ${sev}"bar"${eev} come unico parametro.
+</testo_normale>
+<testo_normale>
+Il marcatore di fine file viene inviato a ${sbk}do_EOF()${ebk}. Se un gestore di comando restituisce un valore True. il programma uscirà in modo pulito. Quindi per fare sì che il proprio interprete esca in modo pulito, ci si deve assicurare di implementare ${sbk}do_EOF()${ebk} in modo che restituisca True
+</testo_normale>
+<testo_normale>
+Questo semplice programma di esempio supporta il comando "greet":
+</testo_normale>
+<py_code>
+import cmd
+
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    def do_greet(self, line):
+        print "Salve"
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    HelloWorld().cmdloop()
+</py_code>
+<testo_normale>
+Eseguendolo interattivamente,si può dimostrare come i comandi vengano inviati così come si può mostrare qualcuna delle caratteristiche di cui Cmd è già dotato.
+</testo_normale>
+<py_output>
+$ python cmd_simple.py
+(Cmd)
+</py_output>
+<testo_normale>
+La prima cosa da notare è il prompt di comando, ${sev}(Cmd)${eev}. Il prompt può essere configurato attraverso l'attributo <i>prompt</i>. Se il prompt cambia per il risultato di un elaborazione di comando, il nuovo valore viene usato per la richiesta del prossimo comando.
+</testo_normale>
+<py_output>
+(Cmd) help
+
+Undocumented commands:
+======================
+EOF  greet  help
+</py_output>
+<testo_normale>
+Il comando ${sev}help${eev} è costruito dentro ${sbk}Cmd${ebk}. Senza parametri, mostra l'elenco dei comandi disponibili. Se si aggiunge il nome di un comando per il quale si vuole aiuto, il risultato è più particolareggiato e confinato ai dettagli di quel comando, se disponibili.
+</testo_normale>
+<testo_normale>
+Se si usa il comando greet, viene chiamato ${sbk}do_greet()${ebk} per gestirlo:
+</testo_normale>
+<py_output>
+(Cmd) greet
+Salved
+</py_output>
+<testo_normale>
+Se la propria classe non include uno specifico processore di comando per un comando, viene chiamato il metodo ${sbk}default()${ebk} con l'intero input della riga come parametro. L'implementazione built-in di ${sbk}default()${ebk} segnala un errore.
+</testo_normale>
+<py_output>
+(Cmd) foo *** Unknown syntax: foo
+</py_output>
+<testo_normale>
+Visto che ${sbk}do_EOF()${ebk} restituisce True, se si digita Ctrl-D si esce dall'interprete.
+</testo_normale>
+<py_output>
+(Cmd) ^D$
+</py_output>
+<testo_normale>
+Si noti che non viene stampato un ritorno a capo su di una nuova riga, quindi il risultato è un poco confuso.
+</testo_normale>
+<titolo_2>
+Parametri di Comando
+</titolo_2>
+<testo_normale>
+Questa versione dell'esempio comprende qualche miglioria per eliminare qualche fasitdio ed aggiungere un aiuto per il comando greet.
+</testo_normale>
+<py_code>
+import cmd
+
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    def do_greet(self, person):
+        """greet [persona]
+        Saluta la persona"""
+        if person:
+            print "ciao,", person
+        else:
+            print 'ciao'
+
+    def do_EOF(self, line):
+        return True
+
+    def postloop(self):
+        print
+
+if __name__ == '__main__':
+    HelloWorld().cmdloop()
+</py_code>
+<testo_normale>
+Per prima cosa, si chiede aiuto. La <i>docstring</i> aggiunta a ${sbk}do_greet${ebk} diventa il testo di aiuto per il comando:
+</testo_normale>
+<py_output>
+$ python  cmd_arguments.py
+(Cmd) help
+
+Documented commands (type help <topic>):
+========================================
+greet
+
+Undocumented commands:
+======================
+EOF  help
+
+(Cmd) help greet
+greet [persona]
+        Saluta la persona
+</py_output>
+<testo_normale>
+L'output mostra un parametro opzionale per il comando greet: <i>persona</i>. Sebbene il parametro sia opzionale per il comando c'è distinzione tra il comando ed il metodo di <i>callback</i>. Il metodo riceve sempre un parametro, ma talvolta il valore è una stringa vuota. E' compito del processore di comando determinare se un parametro vuoto sia valido, oppure se occorre eseguire una ulteriore analisi ed elaborazione del comando. In questo esempio, se il nome di una persona viene fornito, allora il saluto viene personalizzato.
+</testo_normale>
+<py_output>
+(Cmd) greet Alice
+ciao, Alice
+(Cmd) greet
+ciao
+</py_output>
+<testo_normale>
+A prescindere dal fatto che un parametro sia fornito dall'utente o meno, il valore passato al processore di comando non comprende il comando stesso. Questo semplifica l'analisi al processore di comando, nel caso siano necessari parametri multipli.
+</testo_normale>
+<titolo_2>
+Aiuto in Diretta
+</titolo_2>
+<testo_normale>
+Nell'esempio precedente, la formattazione del testo di aiuto lascia un poco a desiderare. Visto che viene ricavato dalla <i>docstring</i> mantiene l'indentazione della sorgente. Si potrebbe modificare la sorgente togliendo qualche spazio extra, tuttavia l'applicazione rimarrebbe comunque formattata male. Una soluzione alternativa è implementare un gestore di aiuto per il comando greet, chiamato ${sbk}help_greet()${ebk}. Se presente il gestore di aiuto viene chiamato per produrre un testo di aiuto per il comando specificato.
+</testo_normale>
+<py_code>
+import cmd
+
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    def do_greet(self, person):
+        if person:
+            print "salve,", person
+        else:
+            print 'salve'
+
+    def help_greet(self):
+        print '\n'.join([ 'greet [persona]',
+                           'Saluta la persona',
+                           ])
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    HelloWorld().cmdloop()
+</py_code>
+<testo_normale>
+In questo semplice esempio, il testo è statico ma la formattazione è migliore. Sarebbe stato anche possibilie usare lo stato del comando precedente per modellare il contenuto del testo di aiuto sul contesto corrente.
+</testo_normale>
+<py_output>
+$ python cmd_do_help.py
+(Cmd) help greet
+greet [persona]
+Saluta la persona
+</py_output>
+<testo_normale>
+Tocca al gestore di aiuto la stampa del messaggio di aiuto, che non deve semplicemente restituire del testo per essere gestito altrove.
+</testo_normale>
+<titolo_2>
+Auto completamento
+</titolo_2>
+<testo_normale>
+<strong>Cmd</strong> include il supporto per completamento del comando in base ai nomi dei comandi. L'utente attiva li completamento tramite la pressione del tasto <i>tab</i> al prompt. Se ci sono opzioni multiple di completamento, premendo <i>tab</i> due volte si stampa un elenco di opzioni.
+</testo_normale>
+<py_output>
+$ python cmd_do_help.py
+(Cmd) <tab><tab>
+EOF    greet  help
+(Cmd) h<tab>
+(Cmd) help
+</py_output>
+<testo_normale>
+Una volta che il comando viene riconosciuto, il completamento del parametro viene gestita dai metodi il cui nome inizia per ${sev}complete_${eev}. In questo modo si può assemblare un elenco di possibili completamenti usando un proprio criterio (interrogare un database, cercare in un file o directory nel filesystem, ecc.). In questo caso, il programma ha scritto al suo interno un gruppo di "amici" che ricevono un saluto meno formale rispetto a nomi di sconosciuti. Un vero programma probabilmente salvebbero l'elenco da qualche parte, per leggerlo tutto in un colpo, quindi conservare quanto letto per poterlo scorrere se necessario.
+</testo_normale>
+<py_code>
+import cmd
+
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    FRIENDS = [ 'Alice', 'Adam', 'Barbara', 'Bob' ]
+
+    def do_greet(self, person):
+        "Saluta la persona"
+        if person and person in self.FRIENDS:
+            greeting = 'Ciao, %s!' % person
+        elif person:
+            greeting = "Salve, " + person
+        else:
+            greeting = 'Salve'
+        print greeting
+
+    def complete_greet(self, text, line, begidx, endidx):
+        if not text:
+            completions = self.FRIENDS[:]
+        else:
+            completions = [ f
+                            for f in self.FRIENDS
+                            if f.startswith(text)
+                            ]
+        return completions
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    HelloWorld().cmdloop()
+</py_code>
+<testo_normale>
+Se c'è un testo in input, ${sbk}complete_greet()${ebk} restituisce un elenco di amici che corrispondono. Altrimenti viene restituita l'intera lista di amici.
+</testo_normale>
+<py_output>
+$ python cmd_arg_completion.py
+(Cmd) greet<tab><tab>
+Adam     Alice    Barbara  Bob
+(Cmd) greet A<tab><tab>
+Adam   Alice
+(Cmd) greet Ad<tab>
+Ciao, Adam!
+</py_output>
+<testo_normale>
+Se il testo passato non è nell'elenco di amici viene fornita la formula di saluto formale
+</testo_normale>
+<py_output>
+(Cmd)greet Joe
+Salve, Joe
+</py_output>
+<titolo_2>
+Riscrittura dei Metodi Base della Classe
+</titolo_2>
+<testo_normale>
+<strong>Cmd</strong> comprende parecchi metodi che possono essere riscritti come agganci per compiere azioni o per alterare il comportamento della classe base. Questo esempio non è esaustivo, ma contiene molti dei metodi che sono utili nell'uso comune.
+</testo_normale>
+<py_code>
+import cmd
+
+class Illustrate(cmd.Cmd):
+    "Illustra l'uso dei metodi base della classe."
+
+    def cmdloop(self, intro=None):
+        print 'cmdloop(%s)' % intro
+        return cmd.Cmd.cmdloop(self, intro)
+
+    def preloop(self):
+        print 'preloop()'
+
+    def postloop(self):
+        print 'postloop()'
+
+    def parseline(self, line):
+        print 'parseline(%s) =>' % line,
+        ret = cmd.Cmd.parseline(self, line)
+        print ret
+        return ret
+
+    def onecmd(self, s):
+        print 'onecmd(%s)' % s
+        return cmd.Cmd.onecmd(self, s)
+
+    def emptyline(self):
+        print 'emptyline()'
+        return cmd.Cmd.emptyline(self)
+
+    def default(self, line):
+        print 'default(%s)' % line
+        return cmd.Cmd.default(self, line)
+
+    def precmd(self, line):
+        print 'precmd(%s)' % line
+        return cmd.Cmd.precmd(self, line)
+
+    def postcmd(self, stop, line):
+        print 'postcmd(%s, %s)' % (stop, line)
+        return cmd.Cmd.postcmd(self, stop, line)
+
+    def do_greet(self, line):
+        print 'Salve,', line
+
+    def do_EOF(self, line):
+        "Exit"
+        return True
+
+if __name__ == '__main__':
+    Illustrate().cmdloop('Illustrazione dei metodi di cmd.Cmd')
+</py_code>
+<testo_normale>
+${sbk}cmdloop()${ebk} è il ciclo principale di elaborazione dell'interprete. Si può riscrivere, ma in genere non è necessario, visto che sono disponibili gli agganci con ${sbk}preloop()${ebk} e ${sbk}postloop()${ebk}.
+</testo_normale>
+<testo_normale>
+Ogni iterazione attraverso ${sbk}cmdloop()${ebk} chiama ${sbk}onecmd()${ebk} per inviare il comando al suo processore. L'effettiva riga di input viene elaborata da ${sbk}parseline()${ebk} per creare una tupla contenente il comando e la parte rimasta della riga.
+</testo_normale>
+<testo_normale>
+Se la riga è vuota, viene chiamato ${sbk}emptyline()${ebk}. L'implementazione predefinita esegue nuovamente il comando precedente. Se la riga contiene un comando, prima viene chiamato ${sbk}precmd()${ebk}, quindi viene cercato il processore e chiamato. Se non si trova nulla, viene chiamato ${sbk}default()${ebk}.
+</testo_normale>
+<testo_normale>
+Ecco una sessione di esempio nella quale sono state aggiunte delle istruzioni ${sev}print${eev}:
+</testo_normale>
+<py_output>
+$ python cmd_illustrate_methods.py
+cmdloop(Illustra l'uso dei metodi base della classe.)
+preloop()
+Illustra l'uso dei metodi base della classe.
+(Cmd) greet Bob
+precmd(greet Bob)
+onecmd(greet Bob)
+parseline(greet Bob) => ('greet', 'Bob', 'greet Bob')
+Salve, Bob
+postcmd(None, greet Bob)
+(Cmd) ^Dprecmd(EOF)
+onecmd(EOF)
+parseline(EOF) => ('EOF', '', 'EOF')
+postcmd(True, EOF)
+postloop()
+</py_output>
+<titolo_2>
+Configurare Cmd Tramite Attributi
+</titolo_2>
+<testo_normale>
+Oltre ai metodi sopra descritti, ci sono parecchi attributi per controllare gli interpreti di comando.
+</testo_normale>
+<testo_normale>
+${sev}prompt${eev} può essere impostato come stringa da stamparsi ogni volta che l'utente richiede un nuovo comando.
+</testo_normale>
+<testo_normale>
+${sev}intro${eev} è il messaggio di benvenuto stampato all'inizio del programma. cmdloop() ottiene un parametro per questo valore, oppure si può impostarlo direttamente nelle classe.
+</testo_normale>
+<testo_normale>
+Quando si stampa l'aiuto, gli attributi ${sev}doc header${eev}, ${sev}misc header${eev}, ${sev}undoc header${eev} e ${sev}ruler${eev} vengono usati per formattare l'output.
+</testo_normale>
+<testo_normale>
+Questa classe di esempio mostra un processore di comando che consente all'utente di controllare il prompt per la  sessione interattiva.
+</testo_normale>
+<py_code>
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    prompt = 'prompt: '
+    intro = "Semplice esempio di processore di comando."
+
+    doc_header = 'doc_header'
+    misc_header = 'misc_header'
+    undoc_header = 'undoc_header'
+
+    ruler = '-'
+
+    def do_prompt(self, line):
+        "Cambia il prompt interattivo"
+        self.prompt = line + ': '
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    HelloWorld().cmdloop()
+</py_code>
+<py_output>
+$ python cmd_attributes.py
+Semplice esempio di processore di comando.
+prompt: prompt hello
+hello: help
+
+doc_header
+----------
+prompt
+
+undoc_header
+------------
+EOF  help
+
+hello:
+</py_output>
+<titolo_2>
+Uscire dalla Shell
+</titolo_2>
+<testo_normale>
+Per integrare l'elaborazione standard del comando, <strong>Cmd</strong> comprende due prefissi speciali di comando. Un punto interrogativo (${sev}?${eev}) equivale al comando built-in di aiuto, e può essere usato allo stesso modo. Un punto esclamativo (${sev}!${eev}) è collegato a ${sbk}do_shell()${ebk}, ed è concepito per eseguire altri comandi al di fuori della shell, come in questo esempio.
+</testo_normale>
+<py_code>
+import cmd
+import os
+
+class ShellEnabled(cmd.Cmd):
+
+    last_output = ''
+
+    def do_shell(self, line):
+        "Esegue un comando di shell"
+        print "esecuzione di un comando di shell:", line
+        output = os.popen(line).read()
+        print output
+        self.last_output = output
+
+    def do_echo(self, line):
+        "Stampa l'input, sostituendo '$out' con l'output dell'ultimo comando di shell"
+        # Ovviamente non robusto
+        print line.replace('$out', self.last_output)
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    ShellEnabled().cmdloop()
+</py_code>
+<py_output>
+$ python cmd_do_shell.py
+(Cmd) ?
+
+Documented commands (type help <topic>):
+========================================
+echo  shell
+
+Undocumented commands:
+======================
+EOF  help
+
+(Cmd) ? shell
+Esegue un comando di shell
+(Cmd) ? echo
+Stampa l'input, sostituendo '$out' con l'output dell'ultimo comando di shell
+(Cmd) shell pwd
+esecuzione di un comando di shell: pwd
+/home/robby/pydev/pymotw-it/dumpscripts
+
+(Cmd) !pwd
+esecuzione di un comando di shell: pwd
+/home/robby/pydev/pymotw-it/dumpscripts
+
+(Cmd) echo $out
+/home/robby/pydev/pymotw-it/dumpscripts
+
+(Cmd)
+</py_output>
+<titolo_2>
+Input Alternativi
+</titolo_2>
+<testo_normale>
+Sebbene la modalità predefinita per ${sbk}Cmd()${ebk} sia l'interazione con l'utente attraverso la libreria <a href='readline.html'>readline</a> è tuttavia possibile passare una serie di comandi verso lo  standard input usando la redirezione standard della shell Unix.
+</testo_normale>
+<py_output>
+pydev/pymotw-it/dumpscripts/
+robby@robby-desktop:~/pydev/pymotw-it/dumpscripts$ echo help | python cmd_do_help.py
+(Cmd)
+Documented commands (type help <topic>):
+========================================
+greet
+
+Undocumented commands:
+======================
+EOF  help
+
+(Cmd)
+</py_output>
+<testo_normale>
+Se si preferisce che sia il proprio programma a leggere il file script direttamente, allora potrebbe servire qualche altra modifica. Visto che <a href='readline.html'>readline</a>  interagisce con il dispositivo <i>termnal/tty</i> piuttosto che con il flusso standard di input, si dovrebbe disabilitarlo se si sa che il proprio script sarà letto da un file. Inotre, per evitare la stampa di prompt supreflui, si può impostare il prompt ad una stringa vuota. Questo esempio mostra come aprire un file e passarlo come input ad una versione modificata dell'esempio HelloWorld:
+</testo_normale>
+<py_code>
+import cmd
+
+class HelloWorld(cmd.Cmd):
+    """Semplice esempio di processore di comando."""
+
+    # Disabilita l'uso del modulo rawinput module
+    use_rawinput = False
+
+    # Non mostra il prompt dopo ogni lettura di comando
+    prompt = ''
+
+    def do_greet(self, line):
+        print "Salve,", line
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    import sys
+    input = open(sys.argv[1], 'rt')
+    try:
+        HelloWorld(stdin=input).cmdloop()
+    finally:
+        input.close()
+</py_code>
+<testo_normale>
+Con <i>use_rawinput</i> impostato a False e <i>prompt</i> impostato ad una stringa vuota, si può chiamare lo script su questo file di input:
+</testo_normale>
+<py_output>
+greet
+greet Alice e Bob
+</py_output>
+<testo_normale>
+per produrre un output tipo:
+</testo_normale>
+<py_output>
+$ python cmd_file.py cmd_file.txt
+Salve,
+Salve, Alice e Bob
+</py_output>
+<titolo_2>
+Comandi da sys.argv
+</titolo_2>
+<testo_normale>
+Si possono anche elaborare dei parametri da riga di comando di un programma come comandi per la propria classe di interprete, invece che leggere comandi da <i>stdin</i> o da un file. Per usare i parametri di riga di comando, occorre chiamare ${sbk}onecmd()${ebk} direttamente, come nell'esempio seguente:
+</testo_normale>
+<py_code>
+import cmd
+
+class InteractiveOrCommandLine(cmd.Cmd):
+    """Accetta comandi tramite il normale prompt interattivo o da riga di comando"""
+
+    def do_greet(self, line):
+        print 'Salve,', line
+
+    def do_EOF(self, line):
+        return True
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        InteractiveOrCommandLine().onecmd(' '.join(sys.argv[1:]))
+    else:
+        InteractiveOrCommandLine().cmdloop()
+</py_code>
+<testo_normale>
+Visto che ${sbk}onecmd()${ebk} riceve una singola stringa come input, i parametri per il programma devono essere uniti prima di essere passati.
+</testo_normale>
+<py_output>
+$ python cmd_argv.py greet Utente di Riga di Comando
+Salve, Utente di Riga di Comando
+$ python cmd_argv.py
+(Cmd) greet Utente Interattivo
+Salve, Utente Interattivo
+(Cmd)
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/cmd.html|cmd|La documentazione della libreria standard per questo modulo.
+http://pypi.python.org/pypi/cmd2|cmd2|Rimpiazzo drop-in per cmd con funzionalità aggiuntive.
+http://tiswww.case.edu/php/chet/readline/rltop.html|GNU readline|La libreria GNU Readline fornisce funzioni che consentono all'utente di modificare le righe di input mentre vengono digiate.
+${baseurl}/pymotw-it/readline.html|readline|Libreria per la modifica del prompt interattivo
+</vedi_anche>
+</documento_tradotto>

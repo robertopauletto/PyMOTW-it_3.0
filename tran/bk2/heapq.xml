@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>tipi di dato </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+heapq - Algoritmo di ordinamento sul posto dell'heap	
+</titolo_1>
+<descrizione>
+heapq implementa un algoritmo di ordinamento sul min-heap adatto all'uso con le liste di Python
+Nuovo nella 2.3 con aggiunte nella 2.5
+</descrizione>
+<testo_normale>
+Un heap è una struttura dati a forma di albero dove i nodi figli hanno una relazione di ordinamento con i genitori. Gli heap binari possono essere rappresentati usando una lista di array organizzati in modo che l figli dell'elemento N siano alle posizioni 2*N+1 e 2*N+2 (per indici a base zero). Questa caratteristica rende possibile riorganizzare gli heap sul posto, così che non sia necessario riallocare  tanta memoria quando si aggiungono ed eliminano elementi.
+</testo_normale>
+<testo_normale>
+Un max-heap assicura che il genitore sia più largo od uguale ad entrambi i suoi figli. Un min-heap richiede che il genitore sia minore od uguale ai suoi figli. Il modulo Python heapq implementa un min-heap.
+</testo_normale>
+<titolo_2>
+Dati di esempio
+</titolo_2>
+<testo_normale>
+L'esempio seguente usa questi dati campione:
+</testo_normale>
+<py_code>
+# Questi dati sono stati generati con il modulo random.
+
+data = [19, 9, 4, 10, 11, 8, 2]
+</py_code>
+<titolo_2>
+Creare un Heap
+</titolo_2>
+<testo_normale>
+Ci sono due metodi base per creare un heap, ${sbk}heappush()${ebk} ed ${sbk}heapify()${ebk}.
+</testo_normale>
+<testo_normale>
+Usando heappush(), l'ordinamento degli elementi viene mantenuto mentre i nuovi elementi sono aggiunti da una sorgente di dati.
+</testo_normale>
+<py_code>
+import heapq
+from heapq_showtree import show_tree
+from heapq_heapdata import data
+
+heap = []
+print 'random :', data
+print
+
+for n in data:
+    print 'aggiungo %3d:' % n
+    heapq.heappush(heap, n)
+    show_tree(heap)
+</py_code>
+<py_output>
+$ python heapq_heappush.py
+random : [19, 9, 4, 10, 11, 8, 2]
+
+aggiungo  19:
+
+                 19
+------------------------------------
+
+aggiungo   9:
+
+                 9
+        19
+------------------------------------
+
+aggiungo   4:
+
+                 4
+        19                9
+------------------------------------
+
+aggiungo  10:
+
+                 4
+        10                9
+    19
+------------------------------------
+
+aggiungo  11:
+
+                 4
+        10                9
+    19       11
+------------------------------------
+
+aggiungo   8:
+
+                 4
+        10                8
+    19       11       9
+------------------------------------
+
+aggiungo   2:
+
+                 2
+        10                4
+    19       11       9        8
+    
+</py_output>
+<testo_normale>
+Se i dati sono già in memoria, è più efficiente usare heapify() per risistemare gli elementi della lista sul posto.    
+</testo_normale>
+<py_code>
+import heapq
+from heapq_showtree import show_tree
+from heapq_heapdata import data
+
+print 'random    :', data
+heapq.heapify(data)
+print 'heapified :'
+show_tree(data)
+</py_code>
+<py_output>
+$ python heapq_heapify.py
+random    : [19, 9, 4, 10, 11, 8, 2]
+heapified :
+
+                 2
+        9                 4
+    10       11       8        19
+------------------------------------    
+</py_output>
+<titolo_2>
+Accedere al Contenuto di un Heap
+</titolo_2>
+<testo_normale>
+Una volta che l'heap è organizzato correttamente, si usa ${sbk}heappop()${ebk} per togliere l'elemento con il valore più basso. In questo esempio, adattato dalla documentazione della stdlib, ${sbk}heapify()${ebk} e ${sbk}heappop()${ebk} sono usati per ordinare una lista di numeri.
+</testo_normale>
+<py_code>
+import heapq
+from heapq_showtree import show_tree
+from heapq_heapdata import data
+
+print 'random    :', data
+heapq.heapify(data)
+print 'heapified :'
+show_tree(data)
+print
+
+inorder = []
+while data:
+    smallest = heapq.heappop(data)
+    print 'pop    %3d:' % smallest
+    show_tree(data)
+    inorder.append(smallest)
+print 'ordinati   :', inorder
+</py_code>
+<py_output>
+$ python heapq_heappop.py
+random    : [19, 9, 4, 10, 11, 8, 2]
+heapified :
+
+                 2
+        9                 4
+    10       11       8        19
+------------------------------------
+
+
+pop      2:
+
+                 4
+        9                 8
+    10       11       19
+------------------------------------
+
+pop      4:
+
+                 8
+        9                 19
+    10       11
+------------------------------------
+
+pop      8:
+
+                 9
+        10                19
+    11
+------------------------------------
+
+pop      9:
+
+                 10
+        11                19
+------------------------------------
+
+pop     10:
+
+                 11
+        19
+------------------------------------
+
+pop     11:
+
+                 19
+------------------------------------
+
+pop     19:
+
+------------------------------------
+
+ordinati   : [2, 4, 8, 9, 10, 11, 19]
+</py_output>
+<testo_normale>
+Per togliere elementi esistenti e sostituirli con  nuovi valori in una sola operazione si usa ${sbk}heapreplace()${ebk}
+</testo_normale>
+<py_code>
+import heapq
+from heapq_showtree import show_tree
+from heapq_heapdata import data
+
+heapq.heapify(data)
+print 'inizio:'
+show_tree(data)
+
+for n in [0, 7, 13, 9, 5]:
+    smallest = heapq.heapreplace(data, n)
+    print 'sostituzione di %2d con %2d:' % (smallest, n)
+    show_tree(data)
+</py_code>
+<testo_normale>
+Questa tecnica consente di mantenere uno heap a dimensione fissa, come una coda di attività ordinate per priorità
+</testo_normale>
+<py_output>
+$ python heapq_heapreplace.py
+inizio:
+
+                 2
+        9                 4
+    10       11       8        19
+------------------------------------
+
+sostituzione di  2 con  0:
+
+                 0
+        9                 4
+    10       11       8        19
+------------------------------------
+
+sostituzione di  0 con  7:
+
+                 4
+        9                 7
+    10       11       8        19
+------------------------------------
+
+sostituzione di  4 con 13:
+
+                 7
+        9                 8
+    10       11       13       19
+------------------------------------
+
+sostituzione di  7 con  9:
+
+                 8
+        9                 9
+    10       11       13       19
+------------------------------------
+
+sostituzione di  8 con  5:
+
+                 5
+        9                 9
+    10       11       13       19
+------------------------------------
+</py_output>
+<titolo_2>
+Estremi dei dati
+</titolo_2>
+<testo_normale>
+heapq comprende anche 2 funzioni per esaminare un iterabile per trovare un intervallo dei valori più grandi o più piccoli che esso contiene. L'uso di ${sbk}nlargest()${ebk} e ${sbk}nsmallest()${ebk} è veramente efficace per valori relativamente piccoli di n>1, ma può comunque tornare comodo in qualche caso.
+</testo_normale>
+<py_code>
+import heapq
+from heapq_heapdata import data
+
+print 'tutti          :', data
+print 'maggiori 3     :', heapq.nlargest(3, data)
+print 'da ordinamento :', list(reversed(sorted(data)[-3:]))
+print 'minori 3       :', heapq.nsmallest(3, data)
+print 'da ordinamento :', sorted(data)[:3]
+
+</py_code>
+<py_output>
+$ python heapq_extremes.py
+tutti          : [19, 9, 4, 10, 11, 8, 2]
+maggiori 3     : [19, 11, 10]
+da ordinamento : [19, 11, 10]
+minori 3       : [2, 4, 8]
+da ordinamento : [2, 4, 8]
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/heapq.html|heapq|La documentazione della libreria standard per questo modulo.
+http://it.wikipedia.org/wiki/Heap|WikiPedia: Heap|Una generica descrizione delle strutture dati heap
+http://www.doughellmann.com/PyMOTW/articles/data_structures.html#article-data-structures|Strutture di dati in memoria|
+</vedi_anche>
+</documento_tradotto>

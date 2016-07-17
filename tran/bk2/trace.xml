@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi python in fase di esecuzione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+trace - Segue le istruzioni Python mentre sono eseguite
+</titolo_1>
+<descrizione>
+Monitora quali istruzioni e funzioni sono eseguite mentre un programma &egrave; in esecuzione per produrre informazioni di <em>code coverage</em>  e <a href='http://en.wikipedia.org/wiki/Call_graph'>grafici di chiamata</a>
+2.3 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>trace </strong> aiuta nel comprendere in che modo viene eseguito un proprio programma. Si possono tracciare le istruzioni eseguite, produrre rapporti di coverage, ed investigare sulle relazioni tra le funzioni che si chiamano vicendevolmente.
+</testo_normale>
+<note>
+Code coverage &egrave; una misura usata nel test dei software. Descrive il grado di test a cui &egrave; stato sottoposto il codice sorgente di un programma. E' una forma di test che ispeziona il codice direttamente, quindi si tratta di una forma di <a href='http://it.wikipedia.org/wiki/Test_strutturale'>test strutturale</a>.
+In breve riguarda in quale misura i propri test utilizzano la propria base di codice. Lo scopo dei test, naturalmente, &egrave; di veriicare che il proprio codice faccia quello che ci si aspetti che faccia, ma anche per documentare quello che ci si aspetta dal codice. Pi&ugrave; estensivamente il code coverage pu&ograve; essere considerata una indiretta misura della qualit&agrave;, indiretta in quanto si tratta di quanto i test coprano il proprio codice, o semplicemente, la qualit&agrave; dei test. In altre parole il code coverage non si usa per verificare la qualit&agrave; del prodotto finale.
+</note>
+<titolo_2>
+Interfaccia da Riga di Comando
+</titolo_2>
+<testo_normale>
+E' facile usare <strong>trace</strong> direttamente dalla riga di comando. Dati i seguenti script Python come input:
+</testo_normale>
+<py_code>
+from recurse import recurse
+
+def main():
+    print 'Questo è il programma principale.'
+    recurse(2)
+    return
+
+if __name__ == '__main__':
+    main()
+</py_code>
+<py_code>
+def recurse(level):
+    print 'ricorsione(%s)' % level
+    if level:
+        recurse(level-1)
+    return
+
+def not_called():
+    print 'Questa funzione non è mai chiamata.'
+</py_code>
+<titolo_3>
+Esecuzione della tracciatura
+</titolo_3>
+<testo_normale>
+Si pu&ograve; vedere quali istruzioni sono esegute mentre il programma &egrave; in esecuzione usando l'opzione ${sev}--trace${eev}.
+</testo_normale>
+<py_output>
+$ python -m trace --trace  trace_example/main.py 
+ --- modulename: threading, funcname: settrace
+threading.py(90):     _trace_hook = func
+ --- modulename: main, funcname: <module>
+main.py(4): from recurse import recurse
+ --- modulename: recurse, funcname: <module>
+recurse.py(4): def recurse(level):
+recurse.py(10): def not_called():
+main.py(6): def main():
+main.py(11): if __name__ == '__main__':
+main.py(12):     main()
+ --- modulename: main, funcname: main
+main.py(7):     print 'Questo &egrave; il programma principale.'
+Questo &egrave; il programma principale.
+main.py(8):     recurse(2)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(2)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(1)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(0)
+recurse.py(6):     if level:
+recurse.py(8):     return
+recurse.py(8):     return
+recurse.py(8):     return
+main.py(9):     return
+</py_output>
+<testo_normale>
+La prima parte del risultato mostra alcune operazioni di impostazione eseguite da <strong>trace</strong>. Il resto del risultato mostra l'entrata in ogni funzione, compreso il modulo dove la funzione si trova, quindi le righe del file sorgente, mentre vengono eseguite. Si pu&ograve; notare che in ${sbk}recurse()${ebk} si entra per tre volte, proprio come ci si aspetta, visto come &egrave; stata chiamata in ${sbk}main()${ebk}.
+</testo_normale>
+<titolo_3>
+Code Coverage
+</titolo_3>
+<testo_normale>
+L'esecuzione di <strong>trace</strong> da riga di comando con l'opzione ${sev}--count${eev} produrr&agrave; un rapporto informativo di <em>code coverage</em> , in modo che si possa vedere quali righe sono state eseguite e quali sono state saltate. Visto che un programma in genere &egrave; composto da file multipli l'informativa viene prodotta per ognuno. In modalit&agrave; predefinita i file contenenti l'informativa sono scritti nella stessa directory del modulo, e si chiamano con il nome del modulo, ma con una estensione ${sev}.cover${eev} in luogo di ${sev}.py${eev}
+</testo_normale>
+<py_output>
+$ python -m trace --count trace_example/main.py 
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+</py_output>
+<testo_normale>
+Ecco i due file .cover, ${sev}trace_example/main.cove${eev}:
+</testo_normale>
+<py_output>
+    1: from recurse import recurse
+       
+    1: def main():
+    1:     print 'Questo &egrave; il programma principale.'
+    1:     recurse(2)
+    1:     return
+       
+    1: if __name__ == '__main__':
+    1:     main()
+</py_output>
+<testo_normale>
+e ${sev}${sev}trace_example/recurse.cove${eev}:${eev}
+</testo_normale>
+<py_output>
+    1: def recurse(level):
+    3:     print 'ricorsione(%s)' % level
+    3:     if level:
+    2:         recurse(level-1)
+    3:     return
+       
+    1: def not_called():
+           print 'Questa funzione non &egrave; mai chiamata.'
+</py_output>
+<note>
+Sebbene la riga ${sev}def recurse(level):${eev} abbia il conteggio di ${sev}1${eev}, non vuole dire che la funzione &egrave; stata eseguita una sola volta. Significa che la <em>definizione</em> della funzione &egrave; stata eseguita una sola volta.
+</note>
+<testo_normale>
+E' anche possibile eseguire il programma diverse volte, magari con opzioni differenti, per salvare i dati di coverage e produrre un rapporto combinato.
+</testo_normale>
+<py_output>
+$ python -m trace --coverdir coverdir1 --count --file coverdir1/coverage_report.dat trace_example/main.py
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+Skipping counts file 'coverdir1/coverage_report.dat': [Errno 2] No such file or directory: 'coverdir1/coverage_report.dat'
+
+$ python -m trace --coverdir coverdir1 --count --file coverdir1/coverage\
+> _report.dat trace_example/main.py
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+
+$ python -m trace --coverdir coverdir1 --count --file coverdir1/coverage\
+> _report.dat trace_example/main.py
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+</py_output>
+<testo_normale>
+Una volta che l'informativa di coverage &egrave; stata registrata nei file ${sev}.cover${eev}, si possono produrre dei rapporti con l'opzione ${sev}--report${eev}
+</testo_normale>
+<py_output>
+$ python -m trace --coverdir coverdir1 --report --summary --missing --file coverdir1/coverage_report.dat trace_example/main.py
+lines   cov%   module   (path)
+  607     0%   threading   (/usr/lib/python2.6/threading.py)
+    7   100%   trace_example.main   (trace_example/main.py)
+    7    85%   trace_example.recurse   (trace_example/recurse.py)
+</py_output>
+<testo_normale>
+Visto che il programma viene eseguito tre volte, il rapporto di coverage mostra valori tre volte pi&ugrave; alti rispetto al primo rapporto. L'opzione ${sev}--summary${eev} aggiunge la percentuale di informazioni di coverage (il codice coperto) al risultato di cui sopra. Il modulo  ${sev}recurse${eev} ha una percentuale di copertura (coverage) del solo 87%. Una rapida occhiata al file .cover per recurse mostra che il corpo di ${sev}not_called()${eev} non viene in effetti mai eseguito, indicato dal prefisso ${sev}>>>>>>${eev}.
+</testo_normale>
+<py_outpu>
+    4: def recurse(level):
+   12:     print 'ricorsione(%s)' % level
+   12:     if level:
+    8:         recurse(level-1)
+   12:     return
+       
+    4: def not_called():
+>>>>>>     print 'Questa funzione non &egrave; mai chiamata.'
+</py_output>
+<titolo_3>
+Relazioni di Chiamata
+</titolo_3>
+<testo_normale>
+Oltre alle informazioni di coverage, <strong>trace</strong> raccoglie e riporta le relazioni tra le funzioni che si chiamano l'una con l'altra.
+</testo_normale>
+<testo_normale>
+Per una semplice lista delle funzioni chiamate si usa ${sev}--listfuncs${eev}:
+</testo_normale>
+<py_output>
+£ python -m trace --listfuncs trace_example/main.py 
+
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+
+functions called:
+filename: /usr/lib/python2.6/threading.py, modulename: threading, funcname: settrace
+filename: trace_example/main.py, modulename: main, funcname: <module>
+filename: trace_example/main.py, modulename: main, funcname: main
+filename: trace_example/recurse.py, modulename: recurse, funcname: <module>
+filename: trace_example/recurse.py, modulename: recurse, funcname: recurse
+</py_output>
+<testo_normale>
+Per maggiori dettagli su chi sta eseguendo la chiamata si usa ${sev}--trackcalls${eev}.
+</testo_normale>
+<py_output>
+$ python -m trace --listfuncs --trackcalls trace_example/main.py 
+
+Questo &egrave; il programma principale.
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+
+calling relationships:
+
+*** /usr/lib/python2.6/trace.py ***
+  --> /usr/lib/python2.6/threading.py
+    trace.Trace.runctx -> threading.settrace
+  --> trace_example/main.py
+    trace.Trace.runctx -> main.<module>
+
+*** trace_example/main.py ***
+    main.<module> -> main.main
+  --> trace_example/recurse.py
+    main.<module> -> recurse.<module>
+    main.main -> recurse.recurse
+
+*** trace_example/recurse.py ***
+    recurse.recurse -> recurse.recurse
+</py_output>
+<titolo_2>
+Programmare l'Interfaccia
+</titolo_2>
+<testo_normale>
+Per un maggiore controllo sull'interfaccia di trace, si pu&ograve; chiamare all'interno del proprio programma usando un oggetto ${sbk}Trace${ebk}, che consente di impostare degli impianti ed altre dipendenze prima di eseguire una singola funzione od un comando Python da tracciare.
+</testo_normale>
+<py_code>
+import trace
+from trace_example.recurse import recurse
+
+tracer = trace.Trace(count=False, trace=True)
+tracer.run('recurse(2)')
+</py_code>
+<testo_normale>
+Visto che l'esempio traccia solo all'interno della funzione ${sbk}recurse()${ebk}, nel risultato non sono incluse le informazioni circa ${sev}main.py${eev}
+</testo_normale>
+<py_output>
+$ python trace_run.py
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(2)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(1)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(0)
+recurse.py(6):     if level:
+recurse.py(8):     return
+recurse.py(8):     return
+recurse.py(8):     return
+</py_output>
+<testo_normale>
+Si sarebbe potuto produrre lo stesso risultato anche con il metodo ${sbk}runfunc()${ebk}. Questo metodo accetta parametri posizionali e con parola chiave, i quali sono passati alla funzione quanto viene chiamata dal tracciatore.
+</testo_normale>
+<py_code>
+import trace
+from trace_example.recurse import recurse
+
+tracer = trace.Trace(count=False, trace=True)
+tracer.runfunc(recurse, 2)
+</py_code>
+<py_output>
+$ python trace_runfunc.py
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(2)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(1)
+recurse.py(6):     if level:
+recurse.py(7):         recurse(level-1)
+ --- modulename: recurse, funcname: recurse
+recurse.py(5):     print 'ricorsione(%s)' % level
+ricorsione(0)
+recurse.py(6):     if level:
+recurse.py(8):     return
+recurse.py(8):     return
+recurse.py(8):     return
+</py_output>
+<titolo_3>
+Salvare i Dati Ottenuti
+</titolo_3>
+<testo_normale>
+Anche le informazioni su conteggi e coverage possono essere registrate, prooprio come con l'interfaccia da riga di comando. I dati devono essere esplicitamente salvati, usando una istanza di ${sbk}CoveragaResults${ebk} dall'oggetto ${sbk}Trace${ebk}-
+</testo_normale>
+<py_code>
+mport trace
+from trace_example.recurse import recurse
+
+tracer = trace.Trace(count=True, trace=False)
+tracer.runfunc(recurse, 2)
+
+results = tracer.results()
+results.write_results(coverdir='coverdir2')
+</py_code>
+<py_output>
+$ python trace_CoverageResults.py 
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+
+$ find coverdir2
+coverdir2
+coverdir2/trace_example.recurse.cover
+</py_output>
+<testo_normale>
+Ecco il contenuto di ${sev}coverdir2/trace_example.recurse.cover${eev}:
+</testo_normale>
+<py_output>
+       #!/usr/bin/env python
+       # -*- coding: UTF-8 -*-
+       
+>>>>>> def recurse(level):
+    3:     print 'ricorsione(%s)' % level
+    3:     if level:
+    2:         recurse(level-1)
+    3:     return
+       
+>>>>>> def not_called():
+>>>>>>     print 'Questa funzione non &egrave; mai chiamata.'
+</py_output>
+<testo_normale>
+Per salvare i dati di conteggio per la generazione di rapporti, si usano i parametri di ${sbk}Trace${ebk} <em>infile</em> ed <em>outfile</em>
+</testo_normale>
+<py_code>
+import trace
+from trace_example.recurse import recurse
+
+tracer = trace.Trace(count=True, trace=False, outfile='trace_report.dat')
+tracer.runfunc(recurse, 2)
+
+report_tracer = trace.Trace(count=False, trace=False, infile='trace_report.dat')
+results = tracer.results()
+results.write_results(summary=True, coverdir='/tmp')
+</py_code>
+<testo_normale>
+Si passa un nome di file a <em>infile</em> per leggere dati precedentemente salvati, ed un nome di file a <em>outfile</em> per scrivere i nuovi risultati dopo la tracciatura. Se <em>infile</em> ed <em>outfile</em> sono uguali, si ottiene l'effetto di aggiornamento del file con dati comulativi.
+</testo_normale>
+<py_output>
+$ python trace_report..py 
+ricorsione(2)
+ricorsione(1)
+ricorsione(0)
+lines   cov%   module   (path)
+    7    57%   trace_example.recurse   (/home/robby/pydev/pymotw-it/dumpscripts/trace_example/recurse.py)
+</py_output>
+<titolo_3>
+Opzioni di Trace
+</titolo_3>
+<testo_normale>
+Il cotruttore di <strong>Trace</strong> riceve parecchi diversi parametri opzionali per controllare il comportamento in fase di esecuzione.
+</testo_normale>
+<deflist>
+count|Booleano. Attiva il conteggio del numero della riga, Predefinito: True.
+countfuncs|Booleano. Attiva una lista di funzioni chiamate durante l'esecuzione. Predefinito: False
+countcallers|Booleano. Attiva la tracciatura di chiamanti e chiamati. Predefinito: False
+ignoremods|Sequenza. Lista di moduli o pacchetti da ignorare nella raccolta di coverage durante la tracciatura. Predefinito: una tupla vuota
+ignoredirs|Sequenza. Lista di directory che contengono moduli o package da ignorare. Predefinito: Tupla vuota.
+infile|Nome del file che contiene i valori di conteggio recuperati. Predefinito: None
+outfile|Nome del file da usare per conservare i conteggi recuperati. Predefinito: None, ed i dati non sono salvati.
+</deflist>
+
+<vedi_anche>
+http://docs.python.org/lib/module-trace.html|trace|La documentazione della libreria standard per questo modulo
+http://www.doughellmann.com/PyMOTW/sys/tracing.html#sys-tracing|Tracing a Program As It Runs|Il modulo <strong>sys</strong> comprende delle strutture per aggiungere all'interprete le proprio funzioni di tracciatura all'interprete in fase di esecuzione.
+http://nedbatchelder.com/code/modules/coverage.html|coverage.py|Il modulo coverage di Ned Batchelder
+http://darcs.idyll.org/~t/projects/figleaf/doc/|flgleaf|L'applicazione di coverage di Titus Brown
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi di crittografia </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+hmac - Firma crittografica e controllo dei messaggi
+</titolo_1>
+<descrizione>
+Il modulo hmac implementa il keyed-hashing  per l'autenticazione dei messaggi, come descritto in <a href='http://tools.ietf.org/html/rfc2104.html'>RFC 2104</a>
+2.2
+</descrizione>
+<testo_normale>
+L'algoritmo HMAC Può essere usato per verificare l'intergrità delle informazioni passate tra applicazioni o salvate in un luogo potenzialmente vulnerabile. L'idea base è di generare un hash crittografico dei dati effettivi, combinato con una chiave segreta condivisa. L'hash che ne risulta può poi essere usato per controllare i messaggi trasmessi o salvati per determinare un livello di fiducia, senza trasmettere la chiave segreta.
+</testo_normale>
+<testo_normale>
+Disclaimer: non sono un esperto in sicurezza. Per i completi dettagli su HMAC, dare un'occhiata a <a href='http://tools.ietf.org/html/rfc2104.html'>RFC 2104</a>
+</testo_normale>
+<titolo_2>
+Esempio    
+</titolo_2>
+<testo_normale>
+La creazione dell'hash non è complicatat. Ecco un semplice esempio che usa l'algoritmo MD5 hash predefinito.    
+</testo_normale>
+<py_code>
+import hmac
+
+digest_maker = hmac.new('la-chiave-segreta-condivisa-va-qui')
+
+f = open('lorem.txt', 'rb')
+try:
+    while True:
+        block = f.read(1024)
+        if not block:
+            break
+        digest_maker.update(block)
+finally:
+    f.close()
+
+digest = digest_maker.hexdigest()
+print digest
+</py_code>
+<testo_normale>
+Quando eseguito, il codice legge il suo file sorgente e calcola la firma HMAC per esso:
+</testo_normale>
+<py_output>
+$ python hmac_simple.py
+4bcb287e284f8c21e87e14ba2dc40b16    
+</py_output>
+<titolo_2>
+SHA contro MD5
+</titolo_2>
+<testo_normale>
+Sebbene l'algoritmo di cifratura predefinito per hmac sia MD5, non è il metodo più sicuro da esare. Gli hash MD5 hanno qualche debolezza, tipo le collisioni (laddove due messaggi diversi producono lo stesso hash). L'algoritmo SHA-1 è considerato più robusto, e dovrebbe quindi essere usato al posto di MD5.
+</testo_normale>
+<py_code>
+import hmac
+import hashlib
+
+digest_maker = hmac.new('la-chiave-segreta-condivisa-va-qui', '', hashlib.sha1)
+
+f = open('hmac_sha.py', 'rb')
+try:
+    while True:
+        block = f.read(1024)
+        if not block:
+            break
+        digest_maker.update(block)
+finally:
+    f.close()
+
+digest = digest_maker.hexdigest()
+print digest
+</py_code>
+<testo_normale>
+${sbk}hmac.new()${ebk} richiede 3 parametri. Il primo è la chiave segreta, che dovrebbe essere condivisa tra gli estremi che stanno comunicando in modo che entrambi possano usare lo stesso valore. Il secondo parametro è un messaggio iniziale. Se il contenuto del messaggio che deve essere autenticato è di piccole dimensioni, tipo un timestamp oppure un HTTP POST, l'intero corpo del messaggio può essere passato a ${sbk}new()${ebk} invece che usare il metodo ${sbk}update()${ebk}. L'ultimo parametro è il modulo digest da usare. Il predefinito è ${sbk}hashlib.md5${ebk}. L'esempio di cui sopra lo sostituisce con ${sbk}hashlib.sha1${ebk}.
+</testo_normale>
+<py_output>
+$ python hmac_sha.py
+69b26d1731a0a5f0fc7a92fc6c540823ec210759
+</py_output>
+<titolo_2>
+Digest Binari
+</titolo_2>
+<testo_normale>
+I primi esempi usavano il metodo ${sbk}hexdigets()${ebk} per produrre un digest stampabile. hexdigest costituisce una diversa rappresentazione del valore calcolato dal metodo ${sbk}digest()${ebk}, il quale è un valore binario che potrebbe comprendere caratteri non stampabili o non ASCII, inclusi i caratteri NULL. Alcuni servizi web (Google checkout, Amazon S3) usano la versione codificata a base64 del digest binario invece che hexdigest.
+</testo_normale>
+<py_code>
+import base64
+import hmac
+import hashlib
+
+f = open('lorem.txt', 'rb')
+try:
+    body = f.read()
+finally:
+    f.close()
+
+digest = hmac.new('la-chiave-segreta-condivisa-va-qui', body, hashlib.sha1).digest()
+print base64.encodestring(digest)
+</py_code>
+<testo_normale>
+La stringa codificata in base64 termina con una riga vuota, che frequentemente deve essere eliminata quando la stringa viene incorporata in header HTTP od altri contesti sensitivi alla formattazione.
+</testo_normale>
+<py_output>
+$ python hmac_base64.py
+olW2DoXHGJEKGU0aE9fOwSVE/o4=    
+</py_output>
+<titolo_2>
+Applicazioni
+</titolo_2>
+<testo_normale>
+L'autenticazione HMAC dovrebbe essere usata per un qualsiasi servizio di network pubblico, ed ogniqualvolta che si debbano salvare dati per i quali la sicurezza è importante. Ad esempio quando si spediscono dati attraverso un socket od una pipe, essi dovrebbero essere firmati, quindi la firma dovrebbe essere verificata prima che i dati siano usati. L'ampio esempio qui sotto è a disposizione nel file hmac_pickle.py come parte del <a href='http://www.doughellmann.com/downloads/PyMOTW-1.112.tar.gz'>pacchetto dei sorgenti di PyMOTW</a> (e pertanto le stringhe ed i commenti del codice sono tradotti solo nella parte di codice esposta in questa pagina - n.d.t. -)
+</testo_normale>
+<testo_normale>
+Per prima cosa impostiamo una funzione per calcolare il digest di una stringa, ed una semplice classe da instanziare e passare attraverso un canale di comunicazione.
+</testo_normale>
+<py_code>
+import hashlib
+import hmac
+try:
+    import cPickle as pickle
+except:
+    import pickle
+import pprint
+from StringIO import StringIO
+
+
+def make_digest(message):
+    "Restituisce un messaggio per il digest."
+    return hmac.new('la-chiave-segreta-va-qui', message, hashlib.sha1).hexdigest()
+
+
+class SimpleObject(object):
+    "Una classe molto semplice per dimostrare la verifica dei digest prima dell'unpickling"
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+</py_code>
+<testo_normale>
+Successivamente creiamo un buffer StringIO per rappresentare un socket od una pipe. Useremo un formato piuttosto semplice, ma facile da elaborare, per il flusso di dati. Il digest e la lunghezza dei dati oggetto di pickle vengono scritti seguiti da una riga vuota. Poi segue la rappresentazione dell'oggetto sotto forma di pickle. In un sistema reale, non vogliamo dipendere da un valore di lunghezza, visto che se il digest è sbagliato probabilmente sarà errata anche la lunghezza. Un qualche tipo di sequenza di terminazione che sia improbabile che possa figurare anche come dato reale sarebbe stata molto più appropriata.
+</testo_normale>
+<testo_normale>
+Per questo esempio, verranno scritti due oggetti nel flusso. Il primo è scritto usando il valore di digest corretto.    
+</testo_normale>
+<py_code>
+# Simula un socket od una pipe scrivibile con StringIO
+out_s = StringIO()
+
+# Scrive un oggetto valido nel flusso:
+#  digest\nlength\npickle
+o = SimpleObject('digest corrispondono')
+pickled_data = pickle.dumps(o)
+digest = make_digest(pickled_data)
+header = '%s %s' % (digest, len(pickled_data))
+print '\nIN SCRITTURA:', header
+out_s.write(header + '\n')
+out_s.write(pickled_data)
+</py_code>
+<testo_normale>
+Il secondo oggetto viene scritto nel flusso con un digest non valido, prodotto calcolando il digest con altri dati invece del pickle.
+</testo_normale>
+<py_code>
+# Scrivo un oggetto non valido nel flusso:
+o = SimpleObject('digest non corrispondono')
+pickled_data = pickle.dumps(o)
+digest = make_digest('non sono i dati nella pickle')
+header = '%s %s' % (digest, len(pickled_data))
+print '\nIN SCRITTURA:', header
+out_s.write(header + '\n')
+out_s.write(pickled_data)
+
+out_s.flush()
+</py_code>
+<testo_normale>
+Adesso che i dati sono nel buffer StringIO, possiamo leggerli nuovamente. Il primo passo è leggere la riga di dati con il digest e la lunghezza dei dati. Quindi si leggono i dati restanti (usando il valore di lunghezza). Si sarebbe potuto usare picke.load() per leggere direttamente dal flusso, ma questo implica che ci sia un flusso di dati fidato ed invece i dati non sono sufficientemente sicuri per estrarli dal pickle. La lettura del pickle come stringa recupera i dati dal flusso, senza realmente eseguire l'unplicking del oggetto.
+</testo_normale>
+<py_code>
+# SImula un socket o pipe leggibile con StringIO
+in_s = StringIO(out_s.getvalue())
+
+# Legge i dati
+while True:
+    first_line = in_s.readline()
+    if not first_line:
+        break
+    incoming_digest, incoming_length = first_line.split(' ')
+    incoming_length = int(incoming_length)
+    print '\nIN LETTURA:', incoming_digest, incoming_length
+    incoming_pickled_data = in_s.read(incoming_length)
+</py_code>
+<testo_normale>
+Una volta che abbiamo i dati del pickle, si può ricalcolare il valore di digest e confrontarlo con quello che si è letto. Se il digest corrisponde, si presume che i dati siano fidati e quindi si esegue l'unpickle degli stessi.    
+</testo_normale>
+<py_code>
+actual_digest = make_digest(incoming_pickled_data)
+print 'EFFETTVI:', actual_digest
+
+if incoming_digest != actual_digest:
+    print 'ATTENZIONE: Dati corrotti'
+else:
+    obj = pickle.loads(incoming_pickled_data)
+    print 'OK:', obj
+</py_code>
+<testo_normale>
+Il risultato mostra che il primo oggetto è verificato ma il secondo viene considerato come "corrotto", come previsto.    
+</testo_normale>
+<py_output>
+$ python hmac_pickle.py
+
+IN SCRITTURA: 387632cfa3d18cd19bdfe72b61ac395dfcdc87c9 124
+
+IN SCRITTURA: b01b209e28d7e053408ebe23b90fe5c33bc6a0ec 131
+
+LETTI: 387632cfa3d18cd19bdfe72b61ac395dfcdc87c9 124
+REALI: 387632cfa3d18cd19bdfe72b61ac395dfcdc87c9
+OK: digest corrispondono
+
+LETTI: b01b209e28d7e053408ebe23b90fe5c33bc6a0ec 131
+REALI: dec53ca1ad3f4b657dd81d514f17f735628b6828
+ATTENZIONE: Dati corrotti
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/hmac.html|hmac|La documentazione della libreria standard per questo modulo.
+http://tools.ietf.org/html/rfc2104.html|RFC 2104|HMAC: Keyed-Hashing for Message Authentication
+hashlib.html|hashlib|Il modulo <strong>hashlib</strong>
+http://it.wikipedia.org/wiki/MD5|WikiPedia: MD5|La descrizione dell'algoritmo di hashing MD5
+http://docs.amazonwebservices.com/AmazonS3/2006-03-01/index.html?S3_Authentication.html|Autenticazione al Web Service Amazon S3|Istruzioni per autenticarsi ad S3 usando le credenziali firmate HMAC-SHA1
+</vedi_anche>
+</documento_tradotto>

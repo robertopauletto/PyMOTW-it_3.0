@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<indicizza>no</indicizza>
+<categoria>riferimenti</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+Moduli Modificati
+</titolo_1>
+<titolo_4>
+Moduli modificati rispetto alle controparti di Python 2
+abc <a name='abc_porting'></a>
+</titolo_4>
+<titolo_2>
+</titolo_2>
+<testo_normale>
+I decoratori <code>abstractproperty()</code>, <code>abstractclassmethod</code> e <code>abstractstaticmethod</code> sono deprecati. La combinazione di <code>abstractmethod()</code> con i decoratori <code>property()</code>, <code>classmethod()</code> e <code>staticmethod()</code> funziona come atteso (<a href="http://bugs.python.org/issue11610">Python issue 11610</a>).
+</testo_normale>
+<titolo_2>
+anydbm
+</titolo_2>
+<testo_normale>
+Il modulo è stato rinominato in dbm in Python 3
+</testo_normale>
+<titolo_2>
+argparse
+</titolo_2>
+<testo_normale>
+L'argomento di versione per <code>ArgumentParser</code> è stato rimosso in favore di un tipo speciale <code>action</code>  (<a href="http://bugs.python.org/issue13248">Ptyhon issue 13248</a>)
+</testo_normale>
+<testo_normale>
+Sostituire
+</testo_normale>
+<py_code>
+parser = argparse.ArgumentParser(version='1.0')
+</py_code>
+<testo_normale>
+con qualcosa tipo:
+</testo_normale>
+<py_code>
+parser = argparse.ArgumentParser(version='1.0')
+parser.add_argument('--version', action='version',
+                    version='%(prog)s 1.0')
+</py_code>
+<testo_normale>
+Il nome dell'opzione e la stringa del formato di versione possono essere modificate per adattarsi alle esigenze dell'applicazione.
+</testo_normale>
+<testo_normale>
+In Python 3.4, l'azione di versione è stata cambiata per stampare la stringa di versione a <em>stdout</em> invece che <em>stderr</em> (<a href="http://bugs.python.org/issue18920">Python issue 8990</a>).
+<a name='array'></a>
+</testo_normale>
+<titolo_2>
+array
+</titolo_2>
+<testo_normale>
+Il tipo <code>'c'</code> utilizzato per i byte carattere nelle prime versioni di Python 2 è stato rimosso. Utilizzare <code>'b'</code> o <code>'B'</code> per byte.
+</testo_normale>
+<testo_normale>
+Il tipo <code>'u</code> per i caratteri da stringhe unicode è stato deprecato e sarà rimosso in Python 4.0.
+</testo_normale>
+<testo_normale>
+I metodi <code>tostring()</code> e <code>fromstring()</code> sono stati rinominati <code>tobytes()</code> e <code>frombytes()</code> per eliminare una ambiguità (<a href="http://bugs.python.org/issue8990">Python issue 8990</a>)
+</testo_normale>
+<titolo_2>
+atexit
+</titolo_2>
+<testo_normale>
+Quando atexit venne aggiornato per includere l'implementazione in C (<a href="http://bugs.python.org/issue1680961">Python issue 1680961</a>) fu introdotta una regressione nella logica di gestione dell'errore che faceva sì che venisse mostrato solo il riepilogo della eccezione, senza il <em>traceback</em>. Questa regressione è stata corretta in Python 3.3 (<a href="http://bugs.python.org/issue18776">Python issue 18776</a>)
+</testo_normale>
+<titolo_2>
+base64
+</titolo_2>
+<testo_normale>
+<code>encodestring()</code> e <code>decodestring()</code> sono stati rispettivamente rinominati <code>encodebytes()</code> e <code>decodebytes()</code>. I vecchi nomi funzionano ancora come alias ma sono deprecati <a href="http://bugs.python.org/issue3613">Python issue 3613</a>.
+</testo_normale>
+<testo_normale>
+Due nuove codifiche che utilizzano alfabeti da 85 caratteri. <code>b85encode()</code> implementa una codifica utilizzata in Mercurial e git, mentre <code>a85encode()</code> implementa il formato <em>Ascii85</em> utilizzato nei file PDF (<a href="http://bugs.python.org/issue17618">Python issue 17618</a>)
+</testo_normale>
+<titolo_2>
+bz2
+</titolo_2>
+<testo_normale>
+Le istanze di <code>BZ2File</code> ora supportano il protocollo di gestore di contesto, e non serve incapsularle in <code>contextlib.closing()</code>.
+</testo_normale>
+<titolo_2>
+contextlib
+</titolo_2>
+<testo_normale>
+E' stato rimosso <code>contextlib.nested()</code>. Passare gestori di contesti multipli alla stessa istruzione <code>with</code>
+</testo_normale>
+<titolo_2>
+collections
+</titolo_2>
+<testo_normale>
+Le classi base astratte precedentemente definite in <code>collections</code> sono state spostate in <code>collections.abc</code>, con compatibilità all'indietro tramite import in <code>collections</code>, per ora (<a href="http://bugs.python.org/issue11085">Python issue 11085</a>)
+<a name='pn_collections'></a>
+</testo_normale>
+<titolo_2>
+configparser
+</titolo_2>
+<testo_normale>
+Il vecchio modulo <code>ConfigParser</code> è stato rinominato <code>configparser</code>.
+</testo_normale>
+<testo_normale>
+La vecchia classe <code>ConfigParser</code> è stata rimossa a favore di <code>SafeConfigParser</code> che a sua volta è stata rinominata in <code>ConfigParser</code>. Il comportamento deprecato di interpolazione è disponibile tramite <code>LegacyInterpolation</code>.
+</testo_normale>
+<testo_normale>
+Il metodo <code>read()</code> ora supporta un argomento <code>encoding</code>, in modo che non sia più necessario utilizzare <code>codecs</code> per leggere file di configurazione che hanno dei valori Unicode
+</testo_normale>
+<testo_normale>
+L'utilizzo del vecchio <code>RawConfigParser</code> è sconsigliato. I nuovi progetti dovrebbero utilizzare <code>ConfigParser(interpolation=None)</code> per ottenere lo stesso comportamento.
+<a name='csv'></a>
+</testo_normale>
+<titolo_2>
+csv
+</titolo_2>
+<testo_normale>
+Invece di utilizzare il metodo <code>next()</code> di un <em>reader</em> direttamente, utilizzare la funzione <em>built-in</em> per chiamare propriamente l'iteratore.
+<a name='datetime_porting'></a>
+</testo_normale>
+<titolo_2>
+datetime
+</titolo_2>
+<testo_normale>
+A partire da Python 3.3, i confronti di uguaglianza tra istanze di <code>datetime</code> consapevoli o meno del fuso orario ritornano <code>False</code> invece che sollevare una eccezione <code>TypeError</code> (<a href="http://bugs.python.org/issue15006">Python issue 15006</a>)
+</testo_normale>
+<testo_normale>
+Prima di Python 3.5 un oggetto <code>datetime.time</code> che rappresenta la mezzanotte ritornava <code>False</code> quando convertito in Booleano. Questo comportamento è stato rimosso in Python 3.5 (<a href="http://bugs.python.org/issue13936">Python issue 13936</a>).
+<a name='fractions_porting'></a>
+</testo_normale>
+<titolo_2>
+fractions
+</titolo_2>
+<testo_normale>
+I metodi di classe <code>from_float()</code> e <code>from_decimal()</code> non sono più necessari. I valori a virgola mobile e <code>Decimal</code> possono essere passati direttamente al costrutture <code>Fraction</code>
+</testo_normale>
+<titolo_2>
+gettext
+</titolo_2>
+<testo_normale>
+Tutte le funzioni di traduzione in <strong>gettext</strong> assumono che input ed output sia unicode, e le varianti unicode tipo <code>ugettext()</code> sono state rimosse
+</testo_normale>
+<titolo_2>
+glob
+</titolo_2>
+<testo_normale>
+La nuova funzione <code>escape()</code> implementa una soluzione per cercare file con meta-caratteri nel nome (<a href="http://bugs.python.org/issue8402">Python issue 9124</a>)
+</testo_normale>
+<titolo_2>
+mailbox
+</titolo_2>
+<testo_normale>
+mailbox legge e scrive i file mailbox in modalità binaria, affidandosi al pacchetto email per l'elaborazione dei messaggi. Input StringIO e file di testo sono deprecati (<a href="http://bugs.python.org/issue9124">Python issue 9124</a>)
+</testo_normale>
+<titolo_2>
+pdb
+</titolo_2>
+<testo_normale>
+L'alias di comando <code>print</code> è stato rimosso in modo che non si sovrapponga alla funzione <code>print()</code> (<a href="http://bugs.python.org/issue18764">Python issue 18764</a>). La scorciatoia <code>p</code> è contenuta.
+</testo_normale>
+<titolo_2>
+pipes
+</titolo_2>
+<testo_normale>
+<code>pipes.quote()</code> è stato spostao in <strong>shlex</strong> (<a href="http://bugs.python.org/issue9723"></a>).
+</testo_normale>
+<titolo_2>
+random
+</titolo_2>
+<testo_normale>
+La funzione <code>jumpahead()</code> è stata rimossa in Python 3.0
+</testo_normale>
+<titolo_2>
+shelve
+</titolo_2>
+<testo_normale>
+Il formato di output predefinito per <code>shelve</code> può creare un file con una estensione <em>.db</em> aggiunta al nome dato a <code>shelve.open()</code>.
+</testo_normale>
+<titolo_2>
+socketserver
+</titolo_2>
+<testo_normale>
+Sotto Python 2 il modulo <strong>socketserver</strong> è stato rinominato in <strong>SocketServer</strong>
+</testo_normale>
+<titolo_2>
+sys
+</titolo_2>
+<testo_normale>
+La variabile <code>sys.exitfunc</code> non viene più controllata per una azione di pulizia da eseguirsi quando il programma esce. Utilizzare <strong>atexit</strong>
+</testo_normale>
+<testo_normale>
+La variabile <code>sys.subversion</code> non è più definita.
+</testo_normale>
+<testo_normale>
+I flag <code>sys.flags.py3k_warning</code>, <code>sys.flags.division_warning</code>, <code>sys.flags.division_new</code>, <code>sys.flags.tabcheck</code>, e <code>sys.flags.unicode</code> non sono più definiti.
+</testo_normale>
+<testo_normale>
+La variabile <code>sys.maxint</code> non è più definita, utilizzare <code>sys.maxsize</code>. Si veda <a href="https://www.python.org/dev/peps/pep-0237">PEP 237 (unificare interi ed interi long)</a>.
+</testo_normale>
+<testo_normale>
+Le variabili che tracciano eccezioni globali <code>sys.exc_type</code>, <code>sys.exc_value</code> e <code>sys.exc_traceback</code> sono state rimosse. E' stata rimossa anche la funzione <code>sys.exc_clear()</code>
+</testo_normale>
+<testo_normale>
+La variabile <code>sys.version_info</code> è ora una istanza <code>namedtuple</code> con attributi <code>major</code>, <code>minor</code>, <code>micro</code>, <code>releaselevel</code> e <code>serial</code> (<a href="http://bugs.python.org/issue4285">Python issue 4285</a>).
+</testo_normale>
+<testo_normale>
+La caratteristica "check interval", che controlla il numero di <a href="https://it.wikipedia.org/wiki/Opcode">opcodes</a> da eseguire prima di consentire un passaggio di contesto di thread è stata rimpiazzata con un valore temporale assoluto, gestito da <code>sys.setswitchinterval()</code>. Le vecchie funzioni per gestire l'intervallo di verifica, <code>sys.getcheckinterval()</code> e <code>sys.setcheckinterval()</code> sono deprecate.
+</testo_normale>
+<testo_normale>
+Le variabili <code>sys.meta_path</code> e <code>sys.path_hooks</code> ora espongono tutti i rilevatori di percorso e voci di hook per importare moduli nelle versioni precedenti, erano esposti solo i rilevatori ed hooks esplicitamente aggiunti al percorso, e l'import C utilizzava valori nella sua implememntazione che non potevano essere modificati dall'esterno.
+</testo_normale>
+<testo_normale>
+Per sistemi Linux, <code>sys.platform</code> non comprende più il numero di versione. Il valore è ora semplicemente <em>linux</em> e non <em>linux2</em> o <em>linux3</em>
+</testo_normale>
+<titolo_2>
+threading
+</titolo_2>
+<testo_normale>
+Il modulo <strong>thread</strong> è deprecato in favore dell'API in threading
+</testo_normale>
+<testo_normale>
+Le caratteristiche di debug di threading, compreso l'argomento <em>verbose</em> sono state rimosse dalle API (<a href="http://bugs.python.org/issue13550">Python issue 13550</a>)
+</testo_normale>
+<testo_normale>
+Vecchie implementazioni di <strong>threading</strong> utilizzavano funzioni di factory per alcune delle classi poichè erano implementate in C come estensione dei tipi e non potevano essere subclassate. Questa limitazione del linguaggio è stata rimossa, e molte delle vecchie funzioni factory sono state convertite a classi standard, le quali consentono la <a href="https://it.wikipedia.org/wiki/Sottotipo_(informatica)">sottotipizzazione</a> (subclassing) - <a href="http://bugs.python.org/issue10968">Python issue 10968</a>
+</testo_normale>
+<testo_normale>I simboli pubblici esportati da <stong>threading</stong> sono stati rinominati per essere conformi a <a href="https://www.python.org/dev/peps/pep-0008">PEP 8</a>. I vecchi nomi sono stati conservati per retrocompatibilità, tuttavia saranno rimossi in un prossimo rilascio.
+</testo_normale>
+<titolo_2>
+UserDict, UserList, UserString
+</titolo_2>
+<testo_normale>
+Le classi UserDict, UserList, UserString sono state spostate dai loro propri moduli nel modulo <strong>collections</strong>. <code>dict</code>, <code>list</code> e <code>str</code> possono essere direttamente subclassate ma le classi in <strong>collections</strong> possono rendere l'implementazione della sottoclasse più semplice visto che il contenuto del contenitore è disponibile direttamente attraverso un attributo di istanza. Anche le classi astratte in <strong>collections.abc</strong> sono utili per creare contenitori personalizzati pche seguono le API dei tipi built-in.
+</testo_normale>
+<titolo_2>
+whichdb
+</titolo_2>
+<testo_normale>
+Le funzionalità di <strong>wichdb</strong> sono state spostate nel modulo <strong>anydbm</strong>.
+</testo_normale>

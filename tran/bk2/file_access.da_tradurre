@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+Accesso ai file
+</titolo_1>
+<testo_normale>
+La libreria standard di Python include un vasto gruppo di strumenti per lavorare con file, nomi di file e contenuto di file.
+</testo_normale>
+<titolo_2>
+Nomi di File    
+</titolo_2>
+<testo_normale>
+Il primo passo nel lavorare con i file è di ottenerne il nome in modo da poter operare su di essi. Python rappresenta i nomi di file come semplici stringhe, ma fornisce strumenti per costruirli da componenti standard ed indipendenti dalla piattaforma in os.path. Si elenca il contenuto di una directory con ${sbk}listdir${ebk} dal modulo os, o si usa glob per costruire un elenco di nomi di file da un modello. Un filtraggio più accurato dei nomi dei file è possibile con fnmatch
+</testo_normale>
+<titolo_2>
+Meta-dati
+</titolo_2>
+<testo_normale>
+Una volta conosciuto il nome del file, si possono verificare altre caratteristiche tipo i permessi o la dimensione dei file usando ${sbk}os.stat()${ebk} e le costanti in <strong>stat</strong>.
+</testo_normale>
+<titolo_2>
+Leggere File
+</titolo_2>
+<testo_normale>
+Se si sta scrivendo una applicazione che elabora un testo in input riga per riga, fileinput fornisce una semplice infrastruttura da cui partire. Le API di fileinput chiamano il generatore ${sbk}input()${ebk} per iterare, elaborando ciascuna riga mentre viene conservata. Il generatore gestisce il trattamento dei parametri da riga comandi per i nomi dei file, oppure legge direttamente da ${sbk}sys.stdin${ebk}. Il risultato è uno strumento flessibile che gli utenti potranno eseguire direttamente su di un file o come parte di una pipeline di redirezione.
+</testo_normale>
+<testo_normale>
+Se un'applicazione richiede un accesso casuale ad un file, linecache rende facile leggere le righe tramite il loro numero. IL contenuto del file viene mantenuto in una cache, quindi si presti attenzione al consumo di memoria.    
+</testo_normale>
+<titolo_2>
+File temporanei    
+</titolo_2>
+<testo_normale>
+Nei casi in cui si debba creare da zero dei file per conservare dei dati temporanei, oppure prima di spostarli in una locazione permamente, tempfile sarà molto utile. Fornisce le classi per creare file e directory temporanee in sicurezza. E' garantito che i nomi dei file non collideranno, e vengono inclusi dei componenti casuali in modo che il nome non sia facilmente intuibile.    
+</testo_normale>
+<titolo_2>
+File e Directory    
+</titolo_2>
+<testo_normale>
+Frequentemente occorre lavorare con un file senza preoccuparsi di quello che contiene. Il modulo shutil include operazioni di alto livello  sui file tipo copiare file e directory, impostare permessi ecc.
+</testo_normale>
+<py_code>
+import glob
+for name in glob.glob('dir/*'):
+    print name
+</py_code>
+<testo_normale>
+Il modello corrisponde ad ogni percorso (nome di file o directory) nella directory dir, senza ricorsione in sottodirectory.    
+</testo_normale>
+<py_output>
+$ python glob_asterisk.py
+dir/file.txt
+dir/file1.txt
+dir/file2.txt
+dir/filea.txt
+dir/fileb.txt
+dir/subdir    
+</py_output>
+<testo_normale>
+Per elencare i file in una sottodirectory, si deve includere nel modello la sottodirectory    
+</testo_normale>
+<py_code>
+import glob
+
+print 'Sottodirectory nominata esplicitamente:'
+for name in glob.glob('dir/subdir/*'):
+    print '\t', name
+
+print 'Sottodirectory nominata con caratteri jolly:'
+for name in glob.glob('dir/*/*'):
+    print '\t', name
+</py_code>
+<testo_normale>
+Nel primo caso dell'esempio di cui sopra il nome della sottodirectory viene scritto esplicitamente mentre nel secondo caso ci si affida ai caratteri jolly per trovare la directory.    
+</testo_normale>
+<py_output>
+Sottodirectory nominata esplicitamente:
+	dir/subdir/subfile.txt
+Sottodirectory nominata con caratteri jolly:
+	dir/subdir/subfile.txt
+</py_output>
+<testo_normale>
+I risultati, in questo caso, sono gli stessi: se ci fosse stata un'altra sottodirectory, i caratteri jolly avrebbero trovato corrispondenza in entrambe le sottodirectory ed avrebbero incluso i nomi dei file di entrambe.
+</testo_normale>
+<titolo_2>
+Carattere Jolly Singolo    
+</titolo_2>
+<testo_normale>
+L'altro carattere jolly supportato è il punto interrogativo (?). Corrisponde ad un qualsiasi singolo carattere in quella posizione nel nome. Ad sempio:
+</testo_normale>
+<py_code>
+import glob
+
+for name in glob.glob('dir/file?.txt'):
+    print name
+</py_code>
+<testo_normale>
+Corrisponde a tutti i nomi di file che iniziano per "file", hanno un ulteriore carattere di qualsiasi tipo, quindi terminano con ".txt".    
+</testo_normale>
+<py_output>
+$ python glob_question.py
+dir/file1.txt
+dir/file2.txt
+dir/filea.txt
+dir/fileb.txt
+</py_output>
+<testo_normale>
+In modalità predefinita, l'handle del file viene creato con modalità 'w+b', in modo che si comporti consistentemente su tutte le piattaforme ed un programma possa scrivere o leggere da esso.
+</testo_normale>
+<titolo_2>
+Intervallo di Caratteri    
+</titolo_2>
+<testo_normale>
+Quando serve trovare una corrispondenza con un carattere specifico si usa un intervallo di caratteri invece che il punto interrogativo. Ad esempio, per trovare tutti i file che hanno una cifra nel nome prima dell'estensione:
+</testo_normale>
+<py_code>
+import glob
+for name in glob.glob('dir/*[0-9].*'):
+    print name
+</py_code>
+<testo_normale>
+L'intervallo di caratteri [0-9] corrisponde ad ogni singola cifra. L'intervallo viene ordinato in base al codice del carattere di ogni lettera/cifra al suo interno, ed il trattino indica un intervallo continuo di caratteri sequenziali. Lo stesso valore dell'intervallo potrebbe essere scritto [0123456789] in questo caso.
+</testo_normale>
+<py_output>
+$ python glob_charrange.py
+dir/file1.txt
+dir/file2.txt
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/glob.html|glob|La documentazione della libreria standard per questo modulo.
+http://www.opengroup.org/onlinepubs/000095399/utilities/xcu_chap02.html#tag_02_13|Notazione per la corrispondenza dei modelli|Una spiegazione (in inglese) del globbing dalle specifiche de "The Open Group's Shell Command Language"
+http://www.doughellmann.com/PyMOTW/fnmatch/index.html#module-fnmatch|fnmatch|Implementazione della corrispondenza dei nomi di file
+http://www.doughellmann.com/PyMOTW/articles/file_access.html#article-file-access|Accesso ai file|
+</vedi_anche>
+<!--
+<titolo_2>
+</titolo_2>
+<testo_normale>
+</testo_normale>
+<py_code>
+</py_code>
+<py_output>
+</py_output>
+<vedi_anche>
+</vedi_anche>
+-->
+</documento_tradotto>

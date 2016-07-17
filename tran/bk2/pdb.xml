@@ -1,0 +1,1581 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti di sviluppo </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+pdb - Debugger Interattivo
+</titolo_1>
+<descrizione>
+Il debugger interattivo di Python
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>pdb</strong> implementa un ambiente di debug interattivo per i programmi Python. Tra le caratteristiche include la possibilità di mettere in pausa il proprio programma, guardare il valore delle variabili, ed osservare l'esecuzione del programma passo passo, in modo da comprendere cosa sta attualmente facendo il proprio programma per trovare bachi nella logica.
+</testo_normale>
+<titolo_2>
+Lanciare il Debugger
+</titolo_2>
+<testo_normale>
+Il primo passo per usare <strong>pdb </strong> è fare sì che l'interprete entri nel debugger quando lo si vuole. Ci sono alcuni modi diversi per farlo, a seconda delle condizioni di partenza e di quello che si deve sottoporre a debug.
+</testo_normale>
+<titolo_3>
+Da Riga di Comando
+</titolo_3>
+<testo_normale>
+Il modo più semplice per usare il debugger è quello di farlo partire dalla riga di comando, passando il nome del proprio programma come input, in modo che sappia cosa eseguire.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+class MyObj(object):
+
+    def __init__(self, num_loops):
+        self.count = num_loops
+
+    def go(self):
+        for i in range(self.count):
+            print i
+        return
+
+if __name__ == '__main__':
+    MyObj(5).go()
+</py_code_lineno>
+<testo_normale>
+L'esecuzione del debugger da riga di comando fa sì che esso carichi il proprio file sorgente e che l'esecuzione venga arrestata alla prima istruzione trovata. In questo casi si interrompe prima di valutare la definizione della classe ${sev}MyObj${eev} alla riga n. 7.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_script.py
+> .../pdb_script.py(7)<module>()
+-> """
+(Pdb)
+</py_output>
+<note>
+In genere <strong>pdb</strong> include il percorso completo di ogni modulo nell'output quando si stampa il nome di un file. Allo scopo di mantenere gli esempi più chiari, nella stampa dell'output in questa sezione il percorso viene sostituito da ${sev}...${eev}
+</note>
+<titolo_3>
+All'interno dell'Interprete
+</titolo_3>
+<testo_normale>
+Molti sviluppatori Python lavorano con l'interprete interattivo mentre sviluppano versioni preliminari di moduli perchè possono fare esperimenti in modo maggiormente interattivo senza il ciclo di salva/esegui/ripeti necessario quando si creano script a sè stanti. Per eseguire il debugger all'interno dell'interprete interattivo si usa ${sbk}run()${ebk} oppure ${sbk}runeval()${ebk}.
+</testo_normale>
+<py_output>
+$ python
+Python 2.6.6 (r266:84292, Sep 15 2010, 15:52:39) 
+[GCC 4.4.5] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pdb_script
+>>> import pdb
+>>> pdb.run('pdb_script.MyObj(5).go()')
+> <string>(1)<module>()
+(Pdb) 
+</py_output>
+<testo_normale>
+Il parametro di ${sbk}run()${ebk} è una espressione stringa che possa essere valutata dall'interprete Python. Il debugger la analizzerà, quindi metterà in pausa l'esecuzione appena prima che venga valutata la prima espressione. Si possono usare i comandi del debugger sotto descritti per spostarsi e controllare l'esecuzione.
+</testo_normale>
+<titolo_3>
+Dall'interno del Proprio Programma
+</titolo_3>
+<testo_normale>
+Entrambi gli esempi precedenti presumevano che si volesse far partire il debugger all'inizio del proprio programma. Per un processo di lunga esecuzione, dove il problema si manifesta molto più tardi nell'esecuzione del programma, sarebbe molto più conveniente far partire il debugger all'interno del proprio programma usando ${sbk}set_trace()${ebk}.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import pdb
+
+class MyObj(object):
+
+    def __init__(self, num_loops):
+        self.count = num_loops
+
+    def go(self):
+        for i in range(self.count):
+            pdb.set_trace()
+            print i
+        return
+
+if __name__ == '__main__':
+    MyObj(5).go()
+</py_code_lineno>
+<testo_normale>
+La riga 16 dello script di esempio fa attivare il debugger a quel punto dell'esecuzione
+</testo_normale>
+<py_output>
+$ python ./pdb_set_trace.py
+> .../pdb_set_trace.py(17)go()
+-> print i
+(Pdb)
+</py_output>
+<testo_normale>
+${sbk}set_trace()${ebk} è semplicemente una funzione di Python, quindi si può chiamare in qualsiasi punto del proprio programma. Questo fa sì che si possa entrare nel debugger in base a delle condizioni nel programma, anche da un gestore di eccezioni o attraverso uno specifico ramo di una istruzione di controllo.
+</testo_normale>
+<titolo_3>
+Dopo un Fallimento
+</titolo_3>
+<testo_normale>
+Eseguire il debug di un fallimento dopo che un programma termina viene chiamato debug <i>post-mortem</i>. <strong>pdb</strong> supporta questo tipo di debug tramite le funzioni ${sbk}pm()${ebk} e ${sbk}post_mortem()${ebk}.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+class MyObj(object):
+
+    def __init__(self, num_loops):
+        self.count = num_loops
+
+    def go(self):
+        for i in range(self.num_loops):
+            print i
+        return
+</py_code_lineno>
+<testo_normale>
+Ecco che il nome dell'attributo non corretto nella riga 13 provoca una eccezione <a href='eccezioni.html#attrerr'>AttributeError</a>, causando l'interruzione dell'esecuzione. ${sbk}pm()${ebk} cerca un traceback attivo e fa partire il debugger al punto nella chiamata dello stack laddove si è verificata l'eccezione.
+</testo_normale>
+<py_output>
+$ python
+Python 2.6.6 (r266:84292, Sep 15 2010, 15:52:39) 
+[GCC 4.4.5] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from pdb_post_mortem import MyObj
+>>> MyObj(5).go()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "pdb_post_mortem.py", line 13, in go
+    for i in range(self.num_loops):
+AttributeError: 'MyObj' object has no attribute 'num_loops'
+>>> import pdb
+>>> pdb.pm()
+> /home/robby/pydev/pymotw-it/dumpscripts/pdb_post_mortem.py(13)go()
+-> for i in range(self.num_loops):
+(Pdb) 
+</py_output>
+<titolo_2>
+Controllare il Debugger
+</titolo_2>
+<testo_normale>
+Si interagisce con il debugger usando un piccolo linguaggio di comando che consente di spostarsi attraverso le chiamate dello stack, esaminare e modificare i valori delle variabili, e controllare come il debugger esegue il proprio programma. Il debugger interattivo usa <a href='readline.html'>readline</a> per accettare comandi. Per rieseguire il comando precedente si batte Invio inserendo una riga vuota, a meno che non sia un comando ${sbk}list${ebk}.
+</testo_normale>
+<titolo_3>
+Spostarsi nello Stack di Esecuzione
+</titolo_3>
+<testo_normale>
+In qualsiasi punto mentre il debugger è in esecuzione, si può usare ${sbk}where${ebk} (forma abbreviata ${sbk}w${ebk}) per scoprire esattamente quale riga è in esecuzione e in che punto dello stack di chiamata ci si trova. In questo caso alla riga 17 nel metodo ${sev}go()${eev} del modulo ${sev}pdb_set_trace.py${eev}.
+</testo_normale>
+<py_output>
+$ python pdb_set_trace.py 
+> .../pdb_set_trace.py(17)go()
+-> print i
+(Pdb) where
+  .../pdb_set_trace.py(21)<module>()
+-> MyObj(5).go()
+> .../pdb_set_trace.py(17)go()
+-> print i
+(Pdb)  
+</py_output>
+<testo_normale>
+Per aggiungere ulteriore contesto attorno alla locazione corrente, si usa ${sbk}list${ebk} (${sbk}l${ebk}).
+</testo_normale>
+<py_output>
+(Pdb) list
+ 12             self.count = num_loops
+ 13
+ 14         def go(self):
+ 15             for i in range(self.count):
+ 16                 pdb.set_trace()
+ 17  ->             print i
+ 18             return
+ 19
+ 20     if __name__ == '__main__':
+ 21         MyObj(5).go()
+[EOF]
+(Pdb)
+</py_output>
+<testo_normale>
+Nella modalità predefinita vengono elencate 11 righe attorno a quella corrente (cinque prima e cinque dopo). L'uso di ${sbk}list${ebk} con un singolo parametro numerico fa visualizzare le 11 righe attorno alla riga passata come parametro invece che quella corrente.
+</testo_normale>
+<py_output>
+(Pdb) list 14
+  9     class MyObj(object):
+ 10
+ 11         def __init__(self, num_loops):
+ 12             self.count = num_loops
+ 13
+ 14         def go(self):
+ 15             for i in range(self.count):
+ 16                 pdb.set_trace()
+ 17  ->             print i
+ 18             return
+ 19
+</py_output>
+<testo_normale>
+Se ${sbk}list${ebk} riceve due parametri, essi vengono interpretati come la prima ed ultima riga da visualizzare.
+</testo_normale>
+<py_output>
+(Pdb) list 5, 19
+  5     #
+  6
+  7     import pdb
+  8
+  9     class MyObj(object):
+ 10
+ 11         def __init__(self, num_loops):
+ 12             self.count = num_loops
+ 13
+ 14         def go(self):
+ 15             for i in range(self.count):
+ 16                 pdb.set_trace()
+ 17  ->             print i
+ 18             return
+ 19
+</py_output>
+<testo_normale>
+Per spostarsi tra i <a href='http://books.google.it/books?id=BuW5EEIrSyIC&pg=PA153&lpg=PA153&dq=stack+frame&source=bl&ots=c_xONbyaOI&sig=Hgd0r9eOO3nLrlD6aPyVlXTJC-8&hl=it&ei=Ej_QTPf6M8-UOpid0OEE&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCsQ6AEwAA#v=onepage&q=stack%20frame&f=false' >frame all'interno dello stack</a> corrente si usa ${sbk}up${ebk} (abbreviato ${sbk}u${ebk}) per spostarsi verso i  frame più vecchi dello stack e ${sbk}down${ebk} (abbreviato ${sbk}d${ebk}) per spostarsi verso frame più recenti.
+</testo_normale>
+<py_output>
+(Pdb) up
+> .../pdb_set_trace.py(21)<module>()
+-> MyObj(5).go()
+
+(Pdb) down
+> .../pdb_set_trace.py(17)go()
+-> print i
+</py_output>
+<testo_normale>
+Ogni volta che ci si sposta su o giù il debugger stampa la locazione corrente con lo stesso formato del comando ${sbk}where${ebk}.
+</testo_normale>
+<titolo_3>
+Esaminare le Variabili nello Stack
+</titolo_3>
+<testo_normale>
+Ogni frame nello stack mantiene un insieme di variabili, compresi i valori locali alla funzione in esecuzione ed informazioni di stato globale. <strong>pdb</strong> fornisce diversi modi per esaminare il contenuto di queste variabili.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import pdb
+
+def recursive_function(n=5, output='to be printed'):
+    if n > 0:
+        recursive_function(n-1)
+    else:
+        pdb.set_trace()
+        print output
+    return
+
+if __name__ == '__main__':
+    recursive_function()
+</py_code_lineno>
+<testo_normale>
+Il comando ${sbk}args${ebk} (abbreviato ${sbk}a${ebk}) stampa tutti i parametri della funzione attiva nel frame corrente. Questo esempio usa anche una funzione ricorsiva per mostrare l'aspetto di uno stack più profondo quando viene stampato da ${sbk}where${ebk}
+</testo_normale>
+<py_output>
+$ python pdb_function_arguments.py
+> .../pdb_function_arguments.py(14)recursive_function()
+-> return
+(Pdb) where
+  .../pdb_function_arguments.py(17)<module>()
+-> recursive_function()
+  .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+  .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+  .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+  .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+  .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+> .../pdb_function_arguments.py(14)recursive_function()
+-> return
+
+(Pdb) args
+n = 0
+output = to be printed
+
+(Pdb) up
+> .../pdb_function_arguments.py(11)recursive_function()
+-> recursive_function(n-1)
+
+(Pdb) args
+n = 1
+output = to be printed
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il comando ${sbk}p${ebk} valuta una espressione passata come parametro e ne stampa il risultato. Si può anche usare l'istruzione Python ${sev}print${eev}, ma la stessa viene passata attraverso l'interprete per essere eseguita piuttosto che essere eseguita come comando nel debugger.
+</testo_normale>
+<py_output>
+(Pdb) p n
+1
+
+(Pdb) print n
+1
+</py_output>
+<testo_normale>
+Alla stessa stregua, quando si fa precedere una espressione con ${sbk}!${ebk} essa viene passata all'interprete Python per essere valutata. Si può usare questa caratteristica per eseguire istruzioni Python arbitrarie, incluso la modifica di variabili. Questo esempio modifica il valore di <i>output</i> prima di consentire al debugger di continuare l'esecuzione del programma. L'istruzione successiva dopo la chiamata di ${sbk}set_trace()${ebk} stampa il valore di <i>output</i>, mostrando il valore modificato.
+</testo_normale>
+<py_output>
+$ python pdb_function_arguments.py
+> .../pdb_function_arguments.py(14)recursive_function()
+-> print output
+
+(Pdb) !output
+'to be printed'
+
+(Pdb) !output='valore cambiato'
+
+(Pdb) continue
+valore cambiato
+</py_output>
+<testo_normale>
+Per valori più complessi tipo grandi strutture o strutture nidificate di dati, si usa ${sbk}pp${ebk} ("pretty print"). Questo programma legge parecchie righe di testo da un file.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import pdb
+
+with open('lorem.txt', 'rt') as f:
+    lines = f.readlines()
+
+pdb.set_trace()
+</py_code_lineno>
+<testo_normale>
+La stampa della variabile ${sev}lines${eev} con ${sbk}p${ebk} risulta difficile da leggere perchè le righe vanno a capo in modo poco lineare. ${sbk}pp${ebk} usa <a href='pprint.html'>pprint</a> per formattare il valore per una stampa pulita.
+</testo_normale>
+<py_output>
+$ python pdb_pp.py
+--Return--
+> .../pdb_pp.py(12)<module>()->None
+-> pdb.set_trace()
+(Pdb) p lines
+['Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec\n', 'egestas, enim
+et consectetuer ullamcorper, lectus ligula rutrum leo, a\n', 'elementum elit tortor
+eu quam.\n']
+
+(Pdb) pp lines
+['Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec\n',
+ 'egestas, enim et consectetuer ullamcorper, lectus ligula rutrum leo, a\n',
+ 'elementum elit tortor eu quam.\n']
+
+(Pdb)
+</py_output>
+<titolo_3>
+Passare Attraverso il Proprio Programma
+</titolo_3>
+<testo_normale>
+Oltre allo spostamento su e giù all'interno dello stack di chiamata quando il programma è in pausa, si può anche avanzare attraverso l'esecuzione del programma oltre il punto dove entra il debugger.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import pdb
+
+def f(n):
+    for i in range(n):
+        j = i * n
+        print i, j
+    return
+
+if __name__ == '__main__':
+    pdb.set_trace()
+    f(5)
+</py_code_lineno>
+<testo_normale>
+Si usa ${sbk}step${ebk} per eseguire la riga corrente, quindi interrompere al successivo punto di esecuzione - sia che si tratti della prima istruzione all'interno di una funzione che si sta chiamando oppure alla riga successiva della funzione corrente.
+</testo_normale>
+<py_output>
+$ python pdb_step.py
+> .../pdb_step.py(17)<module>()
+-> f(5)
+</py_output>
+<testo_normale>
+L'interprete va in pausa alla chiamata di ${sbk}set_trace()${ebk} e cede il controllo al debugger. Il primo ${sbk}step${ebk} fa sì che l'esecuzione entri in ${sbk}f()${ebk}.
+</testo_normale>
+<py_output>
+(Pdb) step
+--Call--
+> .../pdb_step.py(9)f()
+-> def f(n):
+</py_output>
+<testo_normale>
+Uno ${sbk}step${ebk} successivo sposta l'esecuzione all'interno di ${sbk}f()${ebk} ed inizia il ciclo.
+</testo_normale>
+<py_output>
+(Pdb) step
+> .../pdb_step.py(10)f()
+-> for i in range(n):
+</py_output>
+<testo_normale>
+Con un ulteriore ${sbk}step${ebk} ci si sposta alla prima riga all'interno del ciclo dove viene definita ${sev}j${eev}.
+</testo_normale>
+<py_output>
+(Pdb) step
+> .../pdb_step.py(11)f()
+-> j = i * n
+(Pdb) p i
+0
+</py_output>
+<testo_normale>
+Il valore di ${sev}i${eev} è ${sev}0${eev}, quindi dopo un ulteriore spostamento il valore di ${sev}j${eev} dovrebbe essere anch'esso ${sev}0${eev}.
+</testo_normale>
+<py_output>
+(Pdb) step
+> .../pdb_step.py(12)f()
+-> print i, j
+
+(Pdb) p j
+0
+
+(Pdb)
+</py_output>
+<testo_normale>
+Procedendo di una riga alla volta in questo modo diventa noioso se il codice da coprire prima di arrivare al punto in cui si  verifica l'errore è molto, oppure se la stessa funzione viene chiamata ripetutamente.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import pdb
+
+def calc(i, n):
+    j = i * n
+    return j
+
+def f(n):
+    for i in range(n):
+        j = calc(i, n)
+        print i, j
+    return
+
+if __name__ == '__main__':
+    pdb.set_trace()
+    f(5)
+</py_code_lineno>
+<testo_normale>
+In questo esempio, non c'è nulla di sbagliato in ${sbk}calc()${ebk}, quindi passarci attraverso ogni volta che viene chiamata nel ciclo in ${sbk}f()${ebk} oscura l'output utile mostrando tutte le righe di calc() così come sono eseguite.
+</testo_normale>
+<py_output>
+$ python pdb_next.py
+> .../pdb_next.py(21)<module>()
+-> f(5)
+(Pdb) step
+--Call--
+> .../pdb_next.py(13)f()
+-> def f(n):
+
+(Pdb) step
+> .../pdb_next.py(14)f()
+-> for i in range(n):
+
+(Pdb) step
+> .../pdb_next.py(15)f()
+-> j = calc(i, n)
+
+(Pdb) step
+--Call--
+> .../pdb_next.py(9)calc()
+-> def calc(i, n):
+
+(Pdb) step
+> .../pdb_next.py(10)calc()
+-> j = i * n
+
+(Pdb) step
+> .../pdb_next.py(11)calc()
+-> return j
+
+(Pdb) step
+--Return--
+> .../pdb_next.py(11)calc()->0
+-> return j
+
+(Pdb) step
+> .../pdb_next.py(16)f()
+-> print i, j
+
+(Pdb) step
+0 0
+</py_output>
+<testo_normale>
+Il comando ${sbk}next${ebk} è come step, ma non entra nelle funzioni chiamate dall'istruzione in esecuzione. In effetti passa direttamente attraverso la chiamata della funzione fino alla prossima istruzione nella funzione corrente in una singola operazione
+</testo_normale>
+<py_output>
+> .../pdb_next.py(14)f()
+-> for i in range(n):
+(Pdb) step
+> .../pdb_next.py(15)f()
+-> j = calc(i, n)
+
+(Pdb) next
+> .../pdb_next.py(16)f()
+-> print i, j
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il comando ${sbk}until${ebk} è come ${sbk}next${ebk}, eccetto che continua esplicitamente fino a che l'esecuzione raggiunge una riga nella stessa funzione il cui numero è più alto del valore corrente. Significa che, ad esempio, ${sbk}until${ebk} può essere usato per passare oltre la fine di un ciclo.
+</testo_normale>
+<py_output>
+$ python pdb_next.py
+> .../pdb_next.py(21)<module>()
+-> f(5)
+(Pdb) step
+--Call--
+> .../pdb_next.py(13)f()
+-> def f(n):
+
+(Pdb) step
+> .../pdb_next.py(14)f()
+-> for i in range(n):
+
+(Pdb) step
+> .../pdb_next.py(15)f()
+-> j = calc(i, n)
+
+(Pdb) next
+> .../pdb_next.py(16)f()
+-> print i, j
+
+(Pdb) until
+0 0
+1 5
+2 10
+3 15
+4 20
+> .../pdb_next.py(17)f()
+-> return
+
+(Pdb)
+
+
+</py_output>
+<testo_normale>
+Prima che fosse eseguito ${sbk}until${ebk}, la riga corrente era 16, l'ultima riga del ciclo. Dopo until, l'esecuzione era sulla riga 17, ed il ciclo è stato esaurito.
+</testo_normale>
+<testo_normale>
+${sbk}return${ebk} è un'altra scorciatoia per superare parti di una funzione. Continua l'esecuzione fino a che la funzione sta per eseguire una istruzione ${sev}return${eev}, quindi va in pausa. Questo dà il tempo di verificare il valore da restituire prima che la funzioni termini.
+</testo_normale>
+<py_output>
+$ python pdb_next.py
+> .../pdb_next.py(21)<module>()
+-> f(5)
+(Pdb) step
+--Call--
+> .../pdb_next.py(13)f()
+-> def f(n):
+
+(Pdb) step
+> .../pdb_next.py(14)f()
+-> for i in range(n):
+
+(Pdb) return
+0 0
+1 5
+2 10
+3 15
+4 20
+--Return--
+> .../pdb_next.py(17)f()->None
+-> return
+
+(Pdb)
+</py_output>
+<titolo_2>
+Punti di Interruzione (Breakpoint)
+</titolo_2>
+<testo_normale>
+La dimensione dei programmi può raggiungere un livello oltre il quale anche l'uso di ${sbk}next${ebk} e ${sbk}until${ebk} diventa lento e macchinoso. Una migliore soluzione rispetto al passare attraverso sezioni di programma manualmente, è quella di lasciare che il programma venga eseguito normalmente fino al punto in cui si vuole che il debugger lo interrompa. Si può usare ${sbk}set_trace()${ebk} per far partire il debugger, ma la cosa funziona solo se c'è un solo punto nel quale si vuole che il programma venga interrotto. E' più conveniente eseguire il programma tramite il debugger, indicando anticipatamente al debugger dove si vuole che il programma venga interrotto con i punti di interruzione (<i>breakpoint</i>). Il debugger monitorizza il programma, e ne mette in pausa l'esecuzione quando raggiunge la locazione descritta da un punto di interruzione, prima che la riga di codice venga eseguita.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+def calc(i, n):
+    j = i * n
+    print 'j =', j
+    if j > 0:
+        print 'Positive!'
+    return j
+
+def f(n):
+    for i in range(n):
+        print 'i =', i
+        j = calc(i, n)
+    return
+
+if __name__ == '__main__':
+    f(5)
+</py_code_lineno>
+<testo_normale>
+Ci sono parecchie opzioni per il comando ${sbk}break${ebk} che si usa per impostare i punti di interruzione. Si può specificare il numero di riga, file e funzione dove l'esecuzione dovrebbe essere messa in pausa. Per impostare un punto di interruzione in una specifica riga del file corrente, si usa ${sev}break numero_riga:${eev}
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 11
+Breakpoint 1 at .../pdb_break.py:11
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+j = 5
+> .../pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il comando ${sbk}continue${ebk} dice al debugger di riprendere l'esecuzione del programma fino al successivo punto di interruzione. In questo caso il programma viene eseguito fino alla prima iterazione del ciclo ${sev}for${eev} in ${sbk}f()${ebk}, e viene messo in pausa all'interno di ${sbk}calc()${ebk} durante la seconda iterazione.
+</testo_normale>
+<testo_normale>
+I punti di interruzione possono anche essere impostati alla prima riga di una funzione specificando il nome della funzione invece che un numero di riga. Questo esempio mostra cosa succede se un punto di interruzione viene aggiunto alla funzione ${sbk}calc()${ebk}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break calc
+Breakpoint 1 at .../pdb_break.py:7
+
+(Pdb) continue
+i = 0
+> .../pdb_break.py(8)calc()
+-> j = i * n
+
+(Pdb) where
+  .../pdb_break.py(21)<module>()
+-> f(5)
+  .../pdb_break.py(17)f()
+-> j = calc(i, n)
+> .../pdb_break.py(8)calc()
+-> j = i * n
+
+(Pdb)
+</py_output>
+<testo_normale>
+Per specificare un punto di interruzione in un altro file, si prefissa il parametro di riga o funzione con un nome di file.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+from pdb_break import f
+
+f(5)
+</py_code_lineno>
+<testo_normale>
+Qui viene impostato un punto di interruzione per la riga 11 di ${sev}pdb_break.py${eev} dopo aver fatto partire il programma principale ${sev}pdb_break_remote.py${eev}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break_remote.py
+> .../pdb_break_remote.py(7)<module>()
+-> from pdb_break import f
+(Pdb) break pdb_break.py:11
+Breakpoint 1 at .../pdb_break.py:11
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+j = 5
+> .../pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il nome del file può essere un nome completo del file sorgente oppure un percorso relativo ad un file disponibile in ${sev}sys.path${eev}.
+</testo_normale>
+<testo_normale>
+Per elencare i punti di interruzione attualmente impostati, si usa ${sbk}break${ebk} senza parametri. L'output comprende il nome del file e d il numero riga di ogni punto di interruzione, insieme al numero di volte in cui esso è stato rilevato.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 11
+Breakpoint 1 at .../pdb_break.py:11
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:11
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+j = 5
+> .../pdb/pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb) continue
+Positive!
+i = 2
+j = 10
+> .../pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:11
+        breakpoint already hit 2 times
+
+(Pdb)
+</py_output>
+<titolo_3>
+Gestire i Punti di Interruzione
+</titolo_3>
+<testo_normale>
+Ad ogni nuovo punto di interruzione aggiunto, viene assegnato un identificatore numerico. Questi identificatori sono usati per abilitare, disabilitare e rimuovere interattivamente i punti di interruzione.
+</testo_normale>
+<testo_normale>
+Per disabilitare un punto di interruzione si usa ${sbk}disable${ebk} che indica al debugger di non fermarsi quando quella riga viene raggiunta. Il punto di interruzione non viene dimenticato, ma viene ignorato.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break calc
+Breakpoint 1 at .../pdb_break.py:7
+
+(Pdb) break 11
+Breakpoint 2 at .../pdb_break.py:11
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:7
+2   breakpoint   keep yes   at .../pdb_break.py:11
+
+(Pdb) disable 1
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep no    at .../pdb_break.py:7
+2   breakpoint   keep yes   at .../pdb_break.py:11
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+j = 5
+> .../pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb)
+</py_output>
+<testo_normale>
+Le sessione di debug che segue imposta due punti di interruzione nel programma, poi ne disabilita uno. Il programma viene eseguito fino a che viene rilevato il punto di interruzione rimanente, successivamente l'altro punto di interruzione viene riattivato con ${sbk}enable${ebk} prima di riprendere l'esecuzione.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break calc
+Breakpoint 1 at .../pdb_break.py:7
+
+(Pdb) break 16
+Breakpoint 2 at .../pdb_break.py:16
+
+(Pdb) disable 1
+
+(Pdb) continue
+> .../pdb_break.py(16)f()
+-> print 'i =', i
+
+(Pdb) list
+ 11             print 'Positive!'
+ 12         return j
+ 13
+ 14     def f(n):
+ 15         for i in range(n):
+ 16 B->         print 'i =', i
+ 17             j = calc(i, n)
+ 18         return
+ 19
+ 20     if __name__ == '__main__':
+ 21         f(5)
+
+(Pdb) continue
+i = 0
+j = 0
+> .../pdb_break.py(16)f()
+-> print 'i =', i
+
+(Pdb) list
+ 11             print 'Positive!'
+ 12         return j
+ 13
+ 14     def f(n):
+ 15         for i in range(n):
+ 16 B->         print 'i =', i
+ 17             j = calc(i, n)
+ 18         return
+ 19
+ 20     if __name__ == '__main__':
+ 21         f(5)
+
+(Pdb) p i
+1
+
+(Pdb) enable 1
+
+(Pdb) continue
+i = 1
+> .../pdb_break.py(8)calc()
+-> j = i * n
+
+(Pdb) list
+  3     #
+  4     # Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+  5     #
+  6
+  7 B   def calc(i, n):
+  8  ->     j = i * n
+  9         print 'j =', j
+ 10         if j > 0:
+ 11             print 'Positive!'
+ 12         return j
+ 13
+
+(Pdb)
+</py_output>
+<testo_normale>
+Le righe prefissate da ${sev}B${eev} nell'output di ${sbk}list${ebk} mostrano dove sono impostati i punti di interruzione nel programma (alle righe 9 e 18).
+</testo_normale>
+<testo_normale>
+Per eliminare definitivamente un punto di interruzione si usa ${sbk}clear${ebk}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break calc
+Breakpoint 1 at .../pdb_break.py:7
+
+(Pdb) break 11
+Breakpoint 2 at .../pdb_break.py:11
+
+(Pdb) break 16
+Breakpoint 3 at .../pdb_break.py:16
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:7
+2   breakpoint   keep yes   at .../pdb_break.py:11
+3   breakpoint   keep yes   at .../pdb_break.py:16
+
+(Pdb) clear 2
+Deleted breakpoint 2
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:7
+3   breakpoint   keep yes   at .../pdb_break.py:16
+
+(Pdb)
+</py_output>
+<testo_normale>
+I punti di interruzione rimanenti mantengono i loro identificativi originali e non sono rinumerati.
+</testo_normale>
+<titolo_3>
+Punti di Interruzione Temporanei
+</titolo_3>
+<testo_normale>
+Un punto di interruzione temporaneo viene automaticamente eliminato dopo che viene raggiunto la prima volta. L'uso di un punto di interruzione temporaneo consente di raggiungere rapidamente un punto specifico nel flusso del programma, proprio come un normale punto di interruzione, ma, visto che viene immediatamente eliminato non interferirà qualora quella parte del programma venga eseguita ripetutamente.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) tbreak 11
+Breakpoint 1 at .../pdb_break.py:11
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+j = 5
+Deleted breakpoint 1
+> .../pdb_break.py(11)calc()
+-> print 'Positive!'
+
+(Pdb) break
+
+(Pdb) continue
+Positive!
+i = 2
+j = 10
+Positive!
+i = 3
+j = 15
+Positive!
+i = 4
+j = 20
+Positive!
+The program finished and will be restarted
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+
+(Pdb)
+</py_output>
+<testo_normale>
+Dopo che il programma raggiunge la riga 11 la prima volta, il punto di interruzione viene eliminato e l'esecuzione non viene più interrotta fino alla fine del programma.
+</testo_normale>
+<titolo_3>
+Punti di Interruzione Condizionali
+</titolo_3>
+<testo_normale>
+Si possono applicare regole ai punti di interruzione in modo che l'esecuzione venga messa in pausa solo al verificarsi di certe condizioni. L'uso di punti di interruzione condizionali consente di avere un controllo più rifinito su come il debugger mette in pausa il proprio programma, rispetto all'abilitare e disabilitare manualmente i punti di interruzione.
+</testo_normale>
+<testo_normale>
+I punti di interruzione condizionali possono essere impostati in due modi. Il primo è specificare la condizione quando si imposta il punto di interruzione usando ${sbk}break${ebk}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 9, j>0
+Breakpoint 1 at .../pdb_break.py:9
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:9
+        stop only if j>0
+
+(Pdb) continue
+i = 0
+j = 0
+i = 1
+> .../pdb_break.py(9)calc()
+-> print 'j =', j
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il parametro della condizione deve essere una espressione che usi valori visibili nello stack frame dove viene definito il punto di interruzione. Se l'espressione valutata è vera, l'esecuzione viene messa in pausa al punto di interruzione.
+</testo_normale>
+<testo_normale>
+Una condizione può anche applicarsi ad un punto di interruzione esistente tramite il comando ${sbk}condition${ebk}. I parametri sono l'identificativo del punto di interruzione e l'espressione.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 9
+Breakpoint 1 at .../pdb_break.py:9
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:9
+
+(Pdb) condition 1 j>0
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:9
+        stop only if j>0
+
+(Pdb)
+</py_output>
+<titolo_3>
+Ignorare i Punti di Interruzione
+</titolo_3>
+<testo_normale>
+Per i programmi che hanno molti cicli o chiamate ricorsive alla stessa funzione il debug è spesso facilitato "saltando avanti" nell'esecuzione, invece di guardare tutte le chiamate o punti di interruzione. Il comando ${sbk}ignore${ebk} indica al debugger di superare un punto di interruzione senza fermarsi. Ogni volta che l'esecuzione rileva il punto di interruzione, decrementa il contatore di ${sbk}ignore${ebk}. Quando il contatore raggiunge lo zero, il punto di interruzione viene riattivato.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 17
+Breakpoint 1 at .../pdb_break.py:17
+
+(Pdb) continue
+i = 0
+> .../pdb_break.py(17)f()
+-> j = calc(i, n)
+
+(Pdb) next
+j = 0
+> .../pdb_break.py(15)f()
+-> for i in range(n):
+
+(Pdb) ignore 1 2
+Will ignore next 2 crossings of breakpoint 1.
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:17
+        ignore next 2 hits
+        breakpoint already hit 1 time
+
+(Pdb) continue
+i = 1
+j = 5
+Positive!
+i = 2
+j = 10
+Positive!
+i = 3
+> .../pdb_break.py(17)f()
+-> j = calc(i, n)
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:17
+        breakpoint already hit 4 times
+</py_output>
+<testo_normale>
+Il punto di interruzione viene riattivato immediatamente se si reimposta esplicitamente il contatore di ignore a zero.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 17
+Breakpoint 1 at .../pdb_break.py:17
+
+(Pdb) ignore 1 2
+Will ignore next 2 crossings of breakpoint 1.
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:17
+        ignore next 2 hits
+
+(Pdb) ignore 1 0
+Will stop next time breakpoint 1 is reached.
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_break.py:17
+</py_output>
+<titolo_3>
+Attivare Azioni in un Punto di Interruzione
+</titolo_3>
+<testo_normale>
+Oltre al modo puramente interattivo, <strong>pdb</strong> supporta un basico sistema di scripting. Tramite ${sbk}commands${ebk}, si può definire una serie di comandi dell'interprete, comprese istruzioni Python, da eseguire quando uno specifico punto di interruzione viene raggiunto. Dopo l'esecuzione di ${sbk}commands${ebk} con il numero del punto di interruzione come parametro, il prompt del debugger cambia in ${sev}(com)${eev}. I comandi si digitano uno alla volta, quindi si termina l'elenco con ${sev}end${eev} per salvare lo script e ritornare al prompt principale del debugger.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_break.py
+> .../pdb_break.py(7)<module>()
+-> def calc(i, n):
+(Pdb) break 9
+Breakpoint 1 at .../pdb_break.py:9
+
+(Pdb) commands 1
+(com) print 'debug i =', i
+(com) print 'debug j =', j
+(com) print 'debug n =', n
+(com) end
+
+(Pdb) continue
+i = 0
+debug i = 0
+debug j = 0
+debug n = 5
+> .../pdb_break.py(9)calc()
+-> print 'j =', j
+
+(Pdb) continue
+j = 0
+i = 1
+debug i = 1
+debug j = 5
+debug n = 5
+> .../pdb_break.py(9)calc()
+-> print 'j =', j
+
+(Pdb)
+</py_output>
+<testo_normale>
+Questa caratteristica è utile in particolar modo per il debug di codice che usa molte variabili e strutture dati, visto che si può far stampare al debugger tutti i valori automaticamente, invece di farlo manualmente ogni volta che si raggiunge il punto di interruzione.
+</testo_normale>
+<titolo_2>
+Modificare il Flusso di Esecuzione
+</titolo_2>
+<testo_normale>
+Il comando ${sbk}jump${ebk} consente di alterare il flusso del proprio programma in fase di esecuzione, senza modificare il codice. Si può saltare avanti per evitare l'esecuzione di una parte di codice, o indietro per rieseguirlo. Il programma di esempio genera un elenco di numeri.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+def f(n):
+    result = []
+    j = 0
+    for i in range(n):
+        j = i * n + j
+        j += n
+        result.append(j)
+    return result
+
+if __name__ == '__main__':
+    print f(5)
+</py_code_lineno>
+<testo_normale>
+Quando lo script viene eseguito senza interferenze, il suo output è una sequenza di numeri crescenti divisibili per ${sev}5${eev}.
+</testo_normale>
+<py_output>
+$ python pdb_jump.py
+
+[5, 15, 30, 50, 75]
+</py_output>
+<titolo_3>
+Saltare Avanti
+</titolo_3>
+<testo_normale>
+Il salto in avanti sposta il punto di  esecuzione oltre la locazione corrente senza valutare alcuna delle istruzioni in mezzo. Il saltare la riga 13 nell'esempio seguente, non fa incrementare il valore di ${sev}j${eev} e tutti i valori successivi che dipendono da esso sono più piccoli.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_jump.py
+> .../pdb_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 12
+Breakpoint 1 at .../pdb_jump.py:12
+
+(Pdb) continue
+> .../pdb_jump.py(12)f()
+-> j += n
+
+(Pdb) p j
+0
+
+(Pdb) step
+> .../pdb_jump.py(13)f()
+-> result.append(j)
+
+(Pdb) p j
+5
+
+(Pdb) continue
+> .../pdb_jump.py(12)f()
+-> j += n
+
+(Pdb) jump 13
+> .../pdb_jump.py(13)f()
+-> result.append(j)
+
+(Pdb) p j
+10
+
+(Pdb) disable 1
+
+(Pdb) continue
+[5, 10, 25, 45, 70]
+
+The program finished and will be restarted
+> .../pdb_jump.py(7)<module>()
+-> def f(n):
+(Pdb)
+</py_output>
+<titolo_3>
+Saltare Indietro
+</titolo_3>
+<testo_normale>
+Con jump si può spostare l'esecuzione del programma anche ad un istruzione che è già stata eseguita, per rieseguirla. Qui il valore di ${sev}j${eev} viene incrementato una volta in più, quindi i numeri nella sequenza risultante sono tutti più grandi di quello che avrebbero dovuto essere altrimenti.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_jump.py
+> .../pdb_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 13
+Breakpoint 1 at .../pdb_jump.py:13
+
+(Pdb) continue
+> .../pdb_jump.py(13)f()
+-> result.append(j)
+
+(Pdb) p j
+5
+
+(Pdb) jump 12
+> .../pdb_jump.py(12)f()
+-> j += n
+
+(Pdb) continue
+> .../pdb_jump.py(13)f()
+-> result.append(j)
+
+(Pdb) p j
+10
+
+(Pdb) disable 1
+
+(Pdb) continue
+[10, 20, 35, 55, 80]
+
+The program finished and will be restarted
+> .../pdb_jump.py(7)<module>()
+-> def f(n):
+(Pdb)
+</py_output>
+<titolo_3>
+Salti Illegali
+</titolo_3>
+<testo_normale>
+Saltare dentro o fuori da certe istruzioni di controllo di flusso è pericoloso o indefinito, quindi il debugger non lo consente.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+def f(n):
+    if n < 0:
+        raise ValueError('Invalid n: %s' % n)
+    result = []
+    j = 0
+    for i in range(n):
+        j = i * n + j
+        j += n
+        result.append(j)
+    return result
+
+
+if __name__ == '__main__':
+    try:
+        print f(5)
+    finally:
+        print 'Always printed'
+
+    try:
+        print f(-5)
+    except:
+        print 'There was an error'
+    else:
+        print 'There was no error'
+
+    print 'Last statement'
+</py_code_lineno>
+<testo_normale>
+Si può saltare all'interno di una funzione, ma in questo caso i parametri non sono definiti ed è improbabile che il codice funzioni.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_no_jump.py
+> .../pdb_no_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 21
+Breakpoint 1 at .../pdb_no_jump.py:21
+
+(Pdb) jump 8
+> .../pdb_no_jump.py(8)<module>()
+-> if n < 0:
+
+(Pdb) p n
+*** NameError: NameError("name 'n' is not defined",)
+
+(Pdb) args
+
+(Pdb)
+</py_output>
+<testo_normale>
+Non si può saltare nel mezzo di un blocco di codice tipo un ciclo ${sev}for${eev} od una istruzione ${sev}try:except${eev}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_no_jump.py
+> .../pdb_no_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 21
+Breakpoint 1 at .../pdb_no_jump.py:21
+
+(Pdb) continue
+> .../pdb_no_jump.py(21)<module>()
+-> print f(5)
+
+(Pdb) jump 26
+*** Jump failed: can't jump into the middle of a block
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il codice in un blocco ${sev}finally${eev} deve essere esguito per intero, quindi non si può saltare fuori da quel blocco.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_no_jump.py
+> .../pdb_no_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 23
+Breakpoint 1 at .../pdb_no_jump.py:23
+
+(Pdb) continue
+[5, 15, 30, 50, 75]
+> .../pdb_no_jump.py(23)<module>()
+-> print 'Always printed'
+
+(Pdb) jump 25
+*** Jump failed: can't jump into or out of a 'finally' block
+
+(Pdb)
+</py_output>
+<testo_normale>
+La restrizione base è che il salto è confinato al frame inferiore della chiamata dello stack. Se ci si sposta in su nello stack per esaminare le variabili, a quel punto non si può modificare il flusso di esecuzione.
+
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_no_jump.py
+> .../pdb_no_jump.py(7)<module>()
+-> def f(n):
+(Pdb) break 11
+Breakpoint 1 at .../pdb_no_jump.py:11
+
+(Pdb) continue
+> .../pdb_no_jump.py(11)f()
+-> j = 0
+
+(Pdb) where
+  /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/bdb.py(379)run()
+-> exec cmd in globals, locals
+  <string>(1)<module>()
+  .../pdb_no_jump.py(21)<module>()
+-> print f(5)
+> .../pdb_no_jump.py(11)f()
+-> j = 0
+
+(Pdb) up
+> .../pdb_no_jump.py(21)<module>()
+-> print f(5)
+
+(Pdb) jump 25
+*** You can only jump within the bottom frame
+
+(Pdb)
+</py_output>
+<titolo_3>
+Riavviare il programma
+</titolo_3>
+<testo_normale>
+Quando il debugger raggiunge la fine del proprio programma, lo fa ripartire automaticamente, ma si può farlo ripartire esplicitamente senza lasciare il debugger e perdere i propri punti di interruzione od altre impostazioni.
+</testo_normale>
+<py_code_lineno>
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# Copyright (c) 2010 Doug Hellmann.  All rights reserved.
+#
+
+import sys
+
+def f():
+    print 'Command line args:', sys.argv
+    return
+
+if __name__ == '__main__':
+    f()
+</py_code_lineno>
+<testo_normale>
+Se si esegue il programma di cui sopra fino alla fine all'interno del debugger viene stampato il nome del file di script, visto che non sono stati forniti altri parametri da riga di comando.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_run.py
+> .../pdb_run.py(7)<module>()
+-> import sys
+(Pdb) continue
+
+Command line args: ['pdb_run.py']
+The program finished and will be restarted
+> .../pdb_run.py(7)<module>()
+-> import sys
+
+(Pdb)
+</py_output>
+<testo_normale>
+Il programma può essere riavviato usando ${sbk}run${ebk}. I parametri passati a ${sbk}run${ebk} sono analizzati con shlex e passati al programma  come se fossero parametri da riga di comando, in modo che si possa riavviare il programma con parametri differenti.
+</testo_normale>
+<py_output>
+(Pdb) run a b c "this is a long value"
+Restarting pdb_run.py with arguments:
+        a b c this is a long value
+> .../pdb_run.py(7)<module>()
+-> import sys
+
+(Pdb) continue
+Command line args: ['pdb_run.py', 'a', 'b', 'c', 'this is a long value']
+The program finished and will be restarted
+> .../pdb_run.py(7)<module>()
+-> import sys
+
+(Pdb)
+</py_output>
+<testo_normale>
+${sbk}run${ebk} può essere usato anche in qualsiasi altro punto per riavviare il programma-
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_run.py
+> .../pdb_run.py(7)<module>()
+-> import sys
+(Pdb) break 10
+Breakpoint 1 at .../pdb_run.py:10
+
+(Pdb) continue
+> .../pdb_run.py(10)f()
+-> print 'Command line args:', sys.argv
+
+(Pdb) run one two three
+Restarting pdb_run.py with arguments:
+        one two three
+> .../pdb_run.py(7)<module>()
+-> import sys
+
+(Pdb)
+</py_output>
+<titolo_2>
+Personalizzare il Debugger con Alias
+</titolo_2>
+<testo_normale>
+Si può evitare di digitare comandi complessi ripetutamente usando ${sbk}alias${ebk} per definire una scorciatoia. L'espansione dell'alias si applica alla prima parola di ogni comando. Il corpo dell'alias può essere costituito da qualsiasi comando che sia legale digirare al prompt del debugger, inclusi altri comandi del debugger ed espressioni Python pure. E' concessa che la recursione nella definizione degli alias, quindi un alias ne può chiamare un altro.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_function_arguments.py
+> .../pdb_function_arguments.py(7)<module>()
+-> import pdb
+(Pdb) break 10
+Breakpoint 1 at .../pdb_function_arguments.py:10
+
+(Pdb) continue
+> .../pdb_function_arguments.py(10)recursive_function()
+-> if n > 0:
+
+(Pdb) pp locals().keys()
+['output', 'n']
+
+(Pdb) alias pl pp locals().keys()
+
+(Pdb) pl
+['output', 'n']
+</py_output>
+<testo_normale>
+Eseguire ${sbk}alias${ebk} senza parametri mostra l'elenco degli alias definiti. Un parametro singolo viene considerato come il nome dell'alias e la sua definizione viene stampata.
+</testo_normale>
+<py_output>
+(Pdb) alias
+pl = pp locals().keys()
+
+(Pdb) alias pl
+pl = pp locals().keys()
+(Pdb)
+</py_output>
+<testo_normale>
+I parametri per gli alias sono referenziati con ${sev}%n${eev}, dove <i>n</i> rappresenta un numero che indica la posizione del parametro, a partire da ${sev}1${eev}. Per utilizzare tutti i parametri si usa ${sev}%*${eev}.
+</testo_normale>
+<py_output>
+$ python -m pdb pdb_function_arguments.py
+> .../pdb_function_arguments.py(7)<module>()
+-> import pdb
+(Pdb) alias ph !help(%1)
+
+(Pdb) ph locals
+Help on built-in function locals in module __builtin__:
+
+locals(...)
+    locals() -> dictionary
+
+    Update and return a dictionary containing the current scope's local variables.
+</py_output>
+<testo_normale>
+Si elimina la definizione di un alias con ${sbk}unalias${ebk}.
+</testo_normale>
+<py_output>
+(Pdb) unalias ph
+
+(Pdb) ph locals
+*** SyntaxError: invalid syntax (<stdin>, line 1)
+
+(Pdb)
+</py_output>
+<titolo_2>
+Salvare le Impostazioni di Configurazione
+</titolo_2>
+<testo_normale>
+Il debug di un programma consta di molte ripetizioni; eseguire il codice, osservarne il risultato, aggiustare il codice o gli input, e rieseguirlo. <strong>pdb</strong> tenta di abbattere il numero di ripetizioni che occorrono per controllare il debug, per consentire al programmatore di concentrarsi sul codice, invece che sul debugger. Per aiutare a ridurre il numero di volte nelle quali si impartiscono gli stessi comandi al debugger <strong>pdb</strong> consente di salvare la configurazione usando file di testo letti ed interpretati in partenza.
+</testo_normale>
+<testo_normale>
+Il file ${sev}~/.pdbrc${eev} viene letto per primo, consentendo all'utente di impostare le preferenze globali personali per tutte le sue sessioni di debug. Poi ${sev}./.pdbrc${eev} viene letto dalla directory di lavoro corrente, in modo che si possano impostare preferenze locali per un particolare progetto.
+</testo_normale>
+<py_output>
+$ cat ~/.pdbrc
+# Show python help
+alias ph !help(%1)
+# Overridden alias
+alias redefined p 'home definition'
+
+$ cat .pdbrc
+# Breakpoints
+break 10
+# Overridden alias
+alias redefined p 'local definition'
+
+$ python -m pdb pdb_function_arguments.py
+Breakpoint 1 at .../pdb_function_arguments.py:10
+> .../pdb_function_arguments.py(7)<module>()
+-> import pdb
+(Pdb) alias
+ph = !help(%1)
+redefined = p 'local definition'
+
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at .../pdb_function_arguments.py:10
+
+(Pdb)
+</py_output>
+<py_output>
+<testo_normale>
+Qualsiasi configurazione di comandi che possono essere digitati al prompt del debugger può essere salvata in uno dei file di startup, ma con la maggior parte dei comandi che controllano l'esecuzione (${sbk}continue${ebk}, ${sbk}jump${ebk}. ecc.) non è possibile. L'eccezione è ${sbk}run${ebk}, il che vuole dire che si possono impostare i parametri di riga di comando per una sessione di debug in ${sbk}./.pdbrc${ebk} in modo che siano consistenti attraverso diverse esecuzioni.
+</testo_normale>
+
+<vedi_anche>
+http://docs.python.org/library/pdb.html|pdb|La documentazione della libreria standard per questo modulo.
+readline.html|readline|Libreria per la modifica del prompt interattivo
+cmd.html|cmd|Costruisce programmi interattivi
+shlex.html|shlex|Analizzatore della riga di comando della shell
+</vedi_anche>
+</documento_tradotto>

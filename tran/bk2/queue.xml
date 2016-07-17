@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>tipi di dato</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+Queue - Una implementazione FIFO thread-safe
+</titolo_1>
+<descrizione>
+Fornisce una implementazione FIFO thread-safe
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>Queue</strong> fornisce una implementazione <a href='http://it.wikipedia.org/wiki/FIFO'>FIFO</a> adatta per la programmazione <a href='http://it.wikipedia.org/wiki/Multithreading'>multithread</a>. Può essere usato per passare messaggi od altri dati tra il produttore ed il consumatore in modo <a href='http://it.wikipedia.org/wiki/Thread_safety'>thread safely</a>. Viene gestito il bloccaggio per il chiamante, quindi è semplice avere tanti thread quanti se ne vogliono che lavorano con la stessa istanza di <strong>Queue</strong>. La dimensione (il numero di elementi) di <strong>Queue</strong> può essere ristretta per regolamentare l'utilizzo della memoria o l'elaborazione.
+</testo_normale>
+<note>
+Questo articolo assume che sia già nota la natura di una <a href='http://it.wikipedia.org/wiki/Coda_(informatica)'>coda</a>. Se non si conosce, meglio consultare qualcuno dei riferimenti prima di continuare.
+</note>
+<titolo_2>
+Queue FIFO base
+</titolo_2>
+<testo_normale>
+La classe <strong>Queue</strong> implementa un contenitore base primo-che-entra, primo-che-esce. Gli elementi sono aggiunti ad un estremo della sequenza usando <code>put()</code> e rimossi dall'altro tramite <code>get()</code>.
+</testo_normale>
+<py_code>
+import Queue
+
+q = Queue.Queue()
+
+for i in range(5):
+    q.put(i)
+
+while not q.empty():
+    print q.get()
+
+</py_code>
+<testo_normale>
+Questo esempio utilzza un singolo thread per illustrare che gli elementi sono rimossi dalla coda nello stesso ordine con il quale sono stati inseriti.
+</testo_normale>
+<py_output>
+$ python Queue_fifo.py
+0
+1
+2
+3
+4
+</py_output>
+<titolo_2>
+Coda <a href='http://it.wikipedia.org/wiki/LIFO'>LIFO</a>
+</titolo_2>
+<testo_normale>
+Al contrario dell'implementazione FIFO standard di <strong>Queue</strong>, <code>LifoQueue</code> utilizza un ordinamento ultimo-che-entra, primo-che-esce (in genere associato con una struttura dati <a href='http://it.wikipedia.org/wiki/Stack'>stack</a>).
+</testo_normale>
+<py_code>
+import Queue
+
+q = Queue.LifoQueue()
+
+for i in range(5):
+    q.put(i)
+
+while not q.empty():
+    print q.get()
+</py_code>
+<testo_normale>
+L'elemento inserito più di recente nella coda, tramite <code>put()</code>,  viene rimosso da <code>get()</code>.
+</testo_normale>
+<py_output>
+$ python Queue_lifo.py
+
+4
+3
+2
+1
+0
+</py_output>
+<titolo_2>
+Priorità di Queue
+</titolo_2>
+<testo_normale>
+Talvolta l'ordine di elaborazione degli elementi in una coda deve basarsi sulle caratteristiche degli elementi stessi, invece del mero ordine nel quale sono stati creati od aggiunti alla coda. Ad esempio, i lavori di stampa da un ufficio paghe, potrebbero avere la precedenza su di un listato di codice stampato da uno sviluppatore. <code>PriorityQueue</code> uilizza l'ordinamento del contenuto della coda per decidere cosa recuperare.
+</testo_normale>
+<py_code>
+import Queue
+
+class Job(object):
+    def __init__(self, priority, description):
+        self.priority = priority
+        self.description = description
+        print 'Nuovo Lavoro:', description
+        return
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+
+q = Queue.PriorityQueue()
+
+q.put( Job(3, 'Lavoro Normale') )
+q.put( Job(10, 'Lavoro non significativo') )
+q.put( Job(1, 'Lavoro importante') )
+
+while not q.empty():
+    next_job = q.get()
+    print 'Elaborazione dei lavori:', next_job.description
+</py_code>
+<testo_normale>
+In questo esempio a thread singolo, i lavori sono estratti dalla coda in  stretto ordine di priorità. Se ci fossero thread multipli a consumare i lavori, essi sarebbero stati elaborati in base alla priorità degli elementi nella coda al tempo in cui viene chiamato <code>get()</code>.
+</testo_normale>
+<py_output>
+$ python Queue_priority.py
+
+Nuovo Lavoro: Lavoro Normale
+Nuovo Lavoro: Lavoro non significativo
+Nuovo Lavoro: Lavoro importante
+Elaborazione dei lavori: Lavoro importante
+Elaborazione dei lavori: Lavoro Normale
+Elaborazione dei lavori: Lavoro non significativo
+</py_output>
+<titolo_2>
+Usare Queue con i Thread
+</titolo_2>
+<testo_normale>
+Come esempio di come usare la classe <strong>Queue</strong> con thread multipli si può creare un client di podcasting molto semplice. Il client legge uno o più feed RSS, mette in coda le richieste di scaricamento ed elabora parecchi scaricamenti in parallelo tramite i thread. E' semplice ed inutilizzabile per una vera applicazione, ma l'implementazione base fornisce sufficiente codice da utilizzare per fornire un esempio dell'uso del modulo <strong>Queue</strong>.
+</testo_normale>
+<note>
+Il codice dello script che segue è stato modificato dal traduttore in quanto la risorsa originariamente utilizzata per recuperare i feed ('www.castsampler.com/cast/feed/rss/guest') non esiste più. Al suo posto è stato utilizzato il feed RSS di questo sito.
+</note>
+<py_code>
+# Moduli di sistem
+from Queue import Queue
+from threading import Thread
+import time
+
+# Mouli locali
+import feedparser
+
+# Impostazione di alcune variabili locali
+num_fetch_threads = 2
+enclosure_queue = Queue()
+
+# Una vera applicazione non utilizzerebbe dati hard-coded ...
+#feed_urls = [ 'http://www.castsampler.com/cast/feed/rss/guest',
+             #]
+
+# Il feed di esempio originale è stato commentato in quanto esso non esiste
+# più; al suo posto si utilizza il feed rss del sito PyMotw-it
+feed_urls = [ 'http://robyp.x10host.com/pymotw-it_feed.xml',
+              ]
+
+
+def downloadEnclosures(i, q):
+    """Questa è la funzione di lavoro del thread.
+    Elabora gli elementi nella coda uno dopo l'altro.
+    Questi deamon thread girano in un loop infinito,
+    ed escono solamente quando esce il thread principale
+    """
+    while True:
+        print '%s: Cerco la prossima richiesta' % i
+        url = q.get()
+        print '%s: Scaricamento:' % i, url
+        # invece di scaricare veramente l'URL
+        # si fa finta e si mette in pausa il programma
+        time.sleep(i + 2)
+        q.task_done()
+
+
+# Impostazione di alcuni thread per ottenere le richieste
+for i in range(num_fetch_threads):
+    worker = Thread(target=downloadEnclosures, args=(i, enclosure_queue,))
+    worker.setDaemon(True)
+    worker.start()
+
+# Scaricamento del/i feed ed inserimento dell'url da scaricare
+# nella coda.
+
+# Il ciclo seguente è stato modificato dal traduttore in quanto il
+# feed di esempio originale non è più disponibile
+# -------------- INIZIO CODICE MODIFICATO --------------------------
+for url in feed_urls:
+    response = feedparser.parse(url)
+    for i, entry in enumerate(response['entries']):
+        print 'Accodamento:', entry.link
+        enclosure_queue.put(entry.link)
+        if i == 9:  # Per semplicità prendo solo 10 elementi
+            break
+# -------------- FINE CODICE MODIFICATO ----------------------------
+
+
+
+# Ora si attende lo svuotamento della coda, che indica che abbiamo
+# elaborato tutti gli scaricamenti.
+print '*** Thread principale in attesa'
+enclosure_queue.join()
+print '*** Fatto'
+</py_code>
+<testo_normale>
+Per prima cosa si impostano alcuni parametri operativi. In genere questi proverrebbero da input utenti (preferenze, database, qualunque cosa). Per questo esempio si fissano i thread da usare e l'elenco degli URL da recuperare direttamente nel codice.
+</testo_normale>
+<testo_normale>
+Successivamente, occore definire la funzione <code>downloadEnclosures()</code> che verrà eseguita nel thread di lavoro, che elabora gli scaricamenti. Ancora una volta, a scopo di dimostrazione gli scaricamenti non vengono realmente effettuati. Per farlo veramente si sarebbe potuto usare <a href='urllib.html'>urllib</a> oppure <a href='urlimb2.html'>urllib2</a>. In questo esempio si simula il tempo di scaricamento tramite un tempo variabile di pausa, in base all'<em>id</em> del thread.
+</testo_normale>
+<testo_normale>
+Una volta che la funzione è definita, è possibile far partire i thread di lavoro. Si noti che <code>downloadEnclosures()</code> si fermerà all'istruzione <code>urls = q.get()</code> fino a che la coda ha qualcosa da restituire, quindi è sicuro far partire i thread prima che ci sia qualcosa in coda.
+</testo_normale>
+<testo_normale>
+Il passo successivo è recuperare i contenuti del feed, utilizzando il modulo di Mark Pilgrim <a href='http://code.google.com/p/feedparser/'>feedparser</a> accodando gli URL da scaricare. Non appena il primo URL è aggiunto alla coda, uno dei thread di lavoro dovrebbe recuperarlo ed iniziare lo scaricamento. Il ciclo continuerà ad aggiungere elementi fino a che il feed viene consumato, ed i thread di lavoro a turno recupereranno gli URL dalla coda per scaricarli.
+</testo_normale>
+<testo_normale>
+L'unica cosa rimasta da fare è attendere che la coda si svuoti ancora, utilizzando <code>join()</code>.
+</testo_normale>
+<testo_normale>
+Se si esegue lo script di esempio si dovrebbe ottenere un output tipo questo:
+</testo_normale>
+<py_output>
+0: Cerco la prossima richiesta
+1: Cerco la prossima richiesta
+Accodamento: http://robyp.x10host.com/collections.html
+Accodamento: http://robyp.x10host.com/dis.html
+Accodamento: http://robyp.x10host.com/profile.html
+1: Scaricamento: http://robyp.x10host.com/collections.html
+0: Scaricamento: http://robyp.x10host.com/dis.html
+Accodamento: http://robyp.x10host.com/contextlib.html
+Accodamento: http://robyp.x10host.com/atexit.html
+Accodamento: http://robyp.x10host.com/compileall.html
+Accodamento: http://robyp.x10host.com/urlparse.html
+Accodamento: http://robyp.x10host.com/dis.html
+Accodamento: http://robyp.x10host.com/urllib2.html
+Accodamento: http://robyp.x10host.com/socketserver.html
+*** Thread principale in attesa
+0: Cerco la prossima richiesta
+0: Scaricamento: http://robyp.x10host.com/profile.html
+1: Cerco la prossima richiesta
+1: Scaricamento: http://robyp.x10host.com/contextlib.html
+0: Cerco la prossima richiesta
+0: Scaricamento: http://robyp.x10host.com/atexit.html
+1: Cerco la prossima richiesta
+1: Scaricamento: http://robyp.x10host.com/compileall.html
+0: Cerco la prossima richiesta
+0: Scaricamento: http://robyp.x10host.com/urlparse.html
+0: Cerco la prossima richiesta
+0: Scaricamento: http://robyp.x10host.com/dis.html
+1: Cerco la prossima richiesta
+1: Scaricamento: http://robyp.x10host.com/urllib2.html
+0: Cerco la prossima richiesta
+0: Scaricamento: http://robyp.x10host.com/socketserver.html
+1: Cerco la prossima richiesta
+0: Cerco la prossima richiesta
+*** Fatto
+</py_output>
+<vedi_anche>
+https://docs.python.org/2.7/library/queue.html?highlight=queue|Queue|La documentazione della libreria standard per questo modulo.
+collections.html#deque|Deque da collections|collections comprende una classe deque (una coda a due estremi)
+http://it.wikipedia.org/wiki/Coda_(informatica)|Coda Informatica|Pagina Wikipedia
+http://it.wikipedia.org/wiki/FIFO|FIFO|Pagina Wikipedia
+http://code.google.com/p/feedparser/|feedparser|Il modulo feedparser di Mark Pilgrim
+http://pymotw.com/2/articles/data_structures.html#article-data-structures|Strutture dati in-memoria|Altre complesse strutture dati nella libreria standard. (in inglese)
+</vedi_anche>
+</documento_tradot

@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+dbm - Semplice Interfaccia di Database
+</titolo_1>
+<descrizione>
+Fornisce una interfaccia alla libreria Unix (n)dbm.
+1.4 e superiore
+</descrizione>
+<testo_normale>
+Il modulo <strong>dbm</strong> fornisce una interfaccia ad una delle librerie dbm, a seconda di come il modulo sia stato configurato durante la compilazione.
+</testo_normale>
+<titolo_2>
+Esempi    
+</titolo_2>
+<testo_normale>
+L'attributo <em>library</em> identifica la libreria che viene usata, per nome.
+</testo_normale>
+<py_code>
+import dbm
+
+print dbm.library
+</py_code>
+<testo_normale>
+Naturalmente i propri risultati dipenderanno da quale libreria ${sbk}configure${ebk} è stato in grado di trovare quando l'interprete è stato costruito
+</testo_normale>
+<py_output>
+$ python dbm_library.py 
+Berkeley DB
+</py_output>
+<testo_normale>
+La funzione ${sbk}open()${ebk} segue le stesse semantiche di quelle del modulo <a href='anydbm.html'>anydbm</a>.
+</testo_normale>
+<vedi_anche>
+http://docs.python.org/library/dbm.html|dbm|La documentazione della libreria standard per questo modulo.
+anydbm.html|anydbm|Il modulo anydbm
+</vedi_anche>
+</documento_tradotto>

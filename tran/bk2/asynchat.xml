@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>comunicazione interprocesso e networking </categoria>
+<inserito_il>
+    2014-05-10
+</inserito_il>
+<titolo_1>
+asynchat - Gestore di Protocollo Asincrono
+</titolo_1>
+<descrizione>
+Gestore di protocollo asincrono per la comunicazione in rete
+1.5.2 e successivo
+</descrizione>
+<testo_normale>
+Il modulo <strong>asynchat</strong> è costruito su <a href='asyncore.html'>asyncore</a> per facilitare l'implementazione di protocolli basati sul passaggio da/per server e client in entrambe le direzioni. La classe <code>async_chat</code> è una sottoclasse di <code>asyncore.dispatcher</code> che riceve dati e cerca un terminatore di messaggio. La propria sottoclasse deve specificare cosa fare quando arrivano dati e come rispondere una volta che il terminatore è stato trovato. I dati in uscita sono accodati per la trasmissione via oggetti <a href="http://it.wikipedia.org/wiki/FIFO">FIFO</a> gestiti da <code>async_chat</code>.
+</testo_normale>
+<titolo_2>
+Terminatori di Messaggio
+</titolo_2>
+<testo_normale>
+I messaggi in arrivo sono divisi in base a <em>terminatori</em>, ogni istanza dei quali viene controllata da <code>set_terminator()</code>. Ci sono tre configurazioni possibili:
+</testo_normale>    
+<lista_ordinata>
+    Se viene passato un argomento stringa  a <code>set_terminator()</code> il messaggio viene considerato completo quando quella stringa compare nei dati in input.
+    Se viene passato un argomento numerico, il messaggio viene considerato completo quando quel numero di byte sono stati letti.
+    Se viene passato <code>None</code>, la determinazione della fine del messaggio non viene gestita da <code>async_chat</code>.
+</lista_ordinata>
+<testo_normale>
+L'esempio <code>Echoserver</code> qui sotto utilizza sia un semplice terminatore stringa che un terminatore a lunghezza, in base al contesto dei dati in input. L'esempio per il gestore della richiesta HTTP nella documentazione della libreria standard offre un altro esempio di come modificare il terminatore in base al contesto per differenziare tra header HTTP e corpo di richieste HTTP POST.
+</testo_normale>
+<titolo_2>
+Server e Gestore
+</titolo_2>
+<testo_normale>
+Per facilitare la comprensione di come <strong>asynchat</strong> sia diverso da <a href="asyncore.html">asyncore</a>, gli esempi in questa pagina duplicano la funzionalità dell'esempio <strong>Echoserver</strong> nella pagina di <a href="asyncore.html">asyncore</a>. Sono necessari gli stessi strumenti: un oggetto server per accettare connessioni, oggetti gestori per lavorare con la comunicazione con ogni client, ed oggetti client per avviare la conversazione.
+</testo_normale>
+<testo_normale>
+<strong>Echoserver</strong> che serve  per lavorare con <strong>asynchat</strong> è essenzialmente lo stesso rispetto a quello creato per l'esempio di <a href="asyncore.html">asyncore</a>, con meno chiamate a <a href="asyncore.html">logging</a> in quanto in questo caso hanno meno interesse:
+</testo_normale>
+<py_code>
+import asyncore
+import logging
+import socket
+
+from asynchat_echo_handler import EchoHandler
+
+class EchoServer(asyncore.dispatcher):
+    """Riceve connessioni ed imposta gestori per ogni client.
+    """
+    
+    def __init__(self, address):
+        asyncore.dispatcher.__init__(self)
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.bind(address)
+        self.address = self.socket.getsockname()
+        self.listen(1)
+        return
+
+    def handle_accept(self):
+        # Chiamato quando un client si connette al nostro socket
+        client_info = self.accept()
+        EchoHandler(sock=client_info[0])
+        # Si vuole avere a che fare con un solo client alla volta
+        # quindi si chiude non appena viene impostato il gestore
+        # Normalmente non si dovrebbe fare ciò ed il server
+        # rimarrebbe in esecuzione per sempre o fintanto che non
+        # riceve istruzioni per terminare.
+        self.handle_close()
+        return
+    
+    def handle_close(self):
+        self.close()
+</py_code>        
+<testo_normale>
+Questa volta <strong>EchoHandler</strong> è basato su <code>asynchat.async_chat</code> invece che su <code>asyncore.dispatcher</code>. Opera ad un livello di astrazione leggermente più elevato, in modo che la lettura e la scrittura siano gestite automaticamente. Il buffer deve sapere quattro cose:
+</testo_normale>
+<lista>
+    cosa fare con i dati in arrivo (sovrascrivendo <code>handle_incoming_data()</code>)
+    come riconoscere la fine di un messaggio in arrivo (tramite <code>set_terminator()</code>)
+    cosa fare quando viene ricevuto un messaggio completo (con <code>found_terminator()</code>)
+    quali dati inviare (tramite <code>push()</code>)
+</lista>
+<testo_normale>
+L'applicazione di esempio ha due modi operativi. Può attendere un comando nella forma <pre>ECHO length\n</pre>  oppure attendere per dati da ripetere. La modalità viene attivata alternativamente impostando una variabile <em>process_data</em> per il metodo che sarà chiamato quando viene trovato il terminatore, quindi modificando il terminatore nel modo appropriato.
+</testo_normale>    
+<py_code>
+import asynchat
+import logging
+
+
+class EchoHandler(asynchat.async_chat):
+    """Gestisce la riproduzione dei messaggi da un singolo client.
+    """
+
+    # La dimensione del buffer viene artificialmente ridotta per illustrare
+    # l'invio e la ricezione di messaggi parziali.
+    ac_in_buffer_size = 64
+    ac_out_buffer_size = 64
+    
+    def __init__(self, sock):
+        self.received_data = []
+        self.logger = logging.getLogger('EchoHandler')
+        asynchat.async_chat.__init__(self, sock)
+        # Si comincia cercando il comando ECHO
+        self.process_data = self._process_command
+        self.set_terminator('\n')
+        return
+
+    def collect_incoming_data(self, data):
+        """Legge un messaggio in arrivo dal client e lo mette nella coda in
+        uscita."""
+        self.logger.debug('collect_incoming_data() -> (%d bytes)\n"""%s"""', len(data), data)
+        self.received_data.append(data)
+
+    def found_terminator(self):
+        """E' stata trovata la fine di un comando o messaggio."""
+        self.logger.debug('found_terminator()')
+        self.process_data()
+    
+    def _process_command(self):        
+        """Abbiamo il comando ECHO completo"""
+        command = ''.join(self.received_data)
+        self.logger.debug('_process_command() "%s"', command)
+        command_verb, command_arg = command.strip().split(' ')
+        expected_data_len = int(command_arg)
+        self.set_terminator(expected_data_len)
+        self.process_data = self._process_message
+        self.received_data = []
+    
+    def _process_message(self):
+        """Abbiamo letto l'intero emssaggio da ritornare al client"""
+        to_echo = ''.join(self.received_data)
+        self.logger.debug('_process_message() echoing\n"""%s"""', to_echo)
+        self.push(to_echo)
+        # Disconnessione dopo avere inviato l'intera risposta
+        # visto che si vuole fare solo una cosa per volta
+        self.close_when_done()
+</py_code>        
+<testo_normale>
+Una volta che viene trovato il comando completo, il gestore passa alla modalità di elaborazione del messaggio ed attende che sia ricevuto  l'ìntero testo. Quando tutti i dati sono a disposizione, vengono spediti nel canale di uscita ed il gestore viene impostato in modo da chiudersi una volta che i dati sono stati spediti.
+</testo_normale>
+<titolo_2>
+Client
+</titolo_2>
+<testo_normale>
+Il client funziona pressochè alla stessa maniera del gestore. Nell'implementazione di <a href="asyncore.html">asyncore</a>, il messaggio da inviare è un argomento del costruttore del client. Quando la connessione socket è stabilita, <code>handle_connect()</code> viene chiamato in modo che il client possa inviare il comando ed i dati del messaggio.
+</testo_normale>
+<testo_normale>
+Il comando viene inviato direttamente, mentre una classe speciale "producer" viene usata per il testo del messaggio. Il producer viene interrogato per porzioni di dati da far uscire attraverso la rete. Quando il producer ritorna una stringa vuota, si assume che sia vuoto e che stia scrivendo stop.
+</testo_normale>
+<testo_normale>
+Il client attende semplicemente i dati del messaggio in risposta, quindi imposta un terminatore intero e raccoglie i dati in una lista fino a che l'intero messaggio viene ricevuto.
+</testo_normale>
+<py_code>
+import asynchat
+import logging
+import socket
+
+
+class EchoClient(asynchat.async_chat):
+    """Sends messages to the server and receives responses.
+    """
+
+    # La dimensione del buffer viene artificialmente ridotta per illustrare
+    # l'invio e la ricezione di messaggi parziali.
+    ac_in_buffer_size = 64
+    ac_out_buffer_size = 64
+    
+    def __init__(self, host, port, message):
+        self.message = message
+        self.received_data = []
+        self.logger = logging.getLogger('EchoClient')
+        asynchat.async_chat.__init__(self)
+        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.logger.debug('connecting to %s', (host, port))
+        self.connect((host, port))
+        return
+        
+    def handle_connect(self):
+        self.logger.debug('handle_connect()')
+        # Invia il comando
+        self.push('ECHO %d\n' % len(self.message))
+        # Invia i dati
+        self.push_with_producer(EchoProducer(self.message, buffer_size=self.ac_out_buffer_size))
+        # Ci si attende che i dati ritornino tali e quali 
+        # quindi si imposta un terminatore basato sulla lunghezza dei dati
+        self.set_terminator(len(self.message))
+    
+    def collect_incoming_data(self, data):
+        """Legge un messaggio in arrivo dal client e lo mette nella coda in
+        uscita."""
+        self.logger.debug('collect_incoming_data() -> (%d)\n"""%s"""', len(data), data)
+        self.received_data.append(data)
+
+    def found_terminator(self):
+        self.logger.debug('found_terminator()')
+        received_message = ''.join(self.received_data)
+        if received_message == self.message:
+            self.logger.debug('RICEVUTA COPIA DEL MESSAGGIO')
+        else:
+            self.logger.debug('ERRORE IN TRANSMISSIONE')
+            self.logger.debug('ATTESI   "%s"', self.message)
+            self.logger.debug('RICEVUTI "%s"', received_message)
+        return
+
+class EchoProducer(asynchat.simple_producer):
+
+    logger = logging.getLogger('EchoProducer')
+
+    def more(self):
+        response = asynchat.simple_producer.more(self)
+        self.logger.debug('more() -> (%s bytes)\n"""%s"""', len(response), response)
+        return response
+</py_code>        
+<titolo_2>
+Mettiamo Tutto Assieme
+</titolo_2>
+<testo_normale>
+Il programma principale per questo esempio imposta il client ed il server nello stesso ciclo principale di <a href="asyncore.html">asyncore</a>.
+</testo_normale>
+<py_code>
+import asyncore
+import logging
+import socket
+
+from asynchat_echo_server import EchoServer
+from asynchat_echo_client import EchoClient
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s: %(message)s',
+                    )
+
+address = ('localhost', 0) # lasciamo che sia il kernel a fornire una porta
+server = EchoServer(address)
+ip, port = server.address # scopriamo quale porta è stata assegnata
+
+message_data = open('lorem.txt', 'r').read()
+client = EchoClient(ip, port, message=message_data)
+
+asyncore.loop()    
+</py_code>
+<testo_normale>
+Normalmente si dovrebbero trovare in processi separati, ma in questo modo si facilita la presentazione dell'output combinato.
+</testo_normale>
+<py_output>
+$ python asynchat_echo_main.py 
+
+EchoClient: connecting to ('127.0.0.1', 35597)
+EchoClient: handle_connect()
+EchoHandler: collect_incoming_data() -> (8 bytes)
+"""ECHO 701"""
+EchoHandler: found_terminator()
+EchoHandler: _process_command() "ECHO 701"
+EchoProducer: more() -> (64 bytes)
+"""Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamu"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamu"""
+EchoProducer: more() -> (64 bytes)
+"""s eget elit. In posuere mi non risus. Mauris id quam posuere
+lec"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""s eget elit. In posuere mi non risus. Mauris id quam posuere
+lec"""
+EchoProducer: more() -> (64 bytes)
+"""tus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augu"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""tus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augu"""
+EchoProducer: more() -> (64 bytes)
+"""e
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""e
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"""
+EchoProducer: more() -> (64 bytes)
+"""bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tell"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tell"""
+EchoProducer: more() -> (64 bytes)
+"""us. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac aug"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""us. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac aug"""
+EchoProducer: more() -> (64 bytes)
+"""ue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum """
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""ue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum """
+EchoProducer: more() -> (64 bytes)
+"""nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"""
+EchoProducer: more() -> (64 bytes)
+"""s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac i"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac i"""
+EchoProducer: more() -> (64 bytes)
+"""mperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, e"""
+EchoHandler: collect_incoming_data() -> (64 bytes)
+"""mperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, e"""
+EchoProducer: more() -> (61 bytes)
+"""gestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"""
+EchoHandler: collect_incoming_data() -> (61 bytes)
+"""gestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"""
+EchoHandler: found_terminator()
+EchoHandler: _process_message() echoing
+"""Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamus eget elit. In posuere mi non risus. Mauris id quam posuere
+lectus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augue
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Curabitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tellus. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac augue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauris vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac imperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, egestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"""
+EchoProducer: more() -> (0 bytes)
+""""""
+EchoClient: collect_incoming_data() -> (64)
+"""Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vivamu"""
+EchoClient: collect_incoming_data() -> (64)
+"""s eget elit. In posuere mi non risus. Mauris id quam posuere
+lec"""
+EchoClient: collect_incoming_data() -> (64)
+"""tus sollicitudin varius. Praesent at mi. Nunc eu velit. Sed augu"""
+EchoClient: collect_incoming_data() -> (64)
+"""e
+massa, fermentum id, nonummy a, nonummy sit amet, ligula. Cura"""
+EchoClient: collect_incoming_data() -> (64)
+"""bitur
+eros pede, egestas at, ultricies ac, pellentesque eu, tell"""
+EchoClient: collect_incoming_data() -> (64)
+"""us. 
+
+Sed sed odio sed mi luctus mollis. Integer et nulla ac aug"""
+EchoClient: collect_incoming_data() -> (64)
+"""ue convallis
+accumsan. Ut felis. Donec lectus sapien, elementum """
+EchoClient: collect_incoming_data() -> (64)
+"""nec, condimentum ac,
+interdum non, tellus. Aenean viverra, mauri"""
+EchoClient: collect_incoming_data() -> (64)
+"""s vehicula semper porttitor,
+ipsum odio consectetuer lorem, ac i"""
+EchoClient: collect_incoming_data() -> (64)
+"""mperdiet eros odio a sapien. Nulla
+mauris tellus, aliquam non, e"""
+EchoClient: collect_incoming_data() -> (61)
+"""gestas a, nonummy et, erat. Vivamus
+sagittis porttitor eros.
+"""
+EchoClient: found_terminator()
+EchoClient: RICEVUTA COPIA DEL MESSAGGIO
+</py_output>
+<vedi_anche>
+http://docs.python.org/library/asynchat.html|asynchat|La documentazione della libreria standard per questo modulo
+asyncore.html|asyncore|Il modulo asyncore implementa un ciclo di eventi I/O asincroni
+</vedi_anche>
+</documento_tradotto>

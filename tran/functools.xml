@@ -1,0 +1,1028 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>algoritmi</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+functools - Strumenti per Manipolare Funzioni
+</titolo_1>
+<descrizione>
+Funzioni che operano su altre funzioni
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>functools</strong> fornisce strumenti per adattare od estendere funzioni ed altri oggetti chiamabili, senza riscriverli completamente.
+</testo_normale>
+<titolo_2>
+Decoratori
+</titolo_2>
+<testo_normale>
+Lo strumento primario fornito dal modulo <strong>functools</strong> è la classe <code>partial</code>, che può essere usata per "impacchettare" un oggetto chiamabile con argomenti predifiniti. L'oggetto risultante è a sua volta chiamabile e può essere trattato come se si trattasse della funzione originale. Richiede tutti gli stessi argomenti dell'originale e può anche essere chiamato con argomenti aggiuntivi sia posizionali che nominali. <code>partial</code> può anche essere usato al posto di una funzione <a href="https://it.wikipedia.org/wiki/Funzione_anonima">lambda</a> per fornire argomenti predefiniti ad una funzione, lasciandone alcuni non specificati.
+</testo_normale>
+<titolo_3>
+Oggetti partial
+</titolo_3>
+<testo_normale>
+Questo esempio mostra due semplici oggetti <code>partial</code> per la funzione <code>myfunc()</code>. Si noti che <code>show_details()</code> stampa gli attributi <code>func</code>, <code>args</code> e <code>keywords</code>  dell'oggetto partial.
+</testo_normale>
+<py_code>
+# functools_partial.py
+
+import functools
+
+
+def myfunc(a, b=2):
+    "Docstring per myfunc()."
+    print('  chiamata myfunc con:', (a, b))
+
+
+def show_details(name, f, is_partial=False):
+    "Mostra i dettagli di un oggetto chiamabile."
+    print('{}:'.format(name))
+    print('  oggetto:', f)
+    if not is_partial:
+        print('  __name__:', f.__name__)
+    if is_partial:
+        print('  func:', f.func)
+        print('  args:', f.args)
+        print('  keywords:', f.keywords)
+    return
+
+
+show_details('myfunc', myfunc)
+myfunc('a', 3)
+print()
+
+# Imposta un valore predefinito diverso per 'b' ma chiede al
+# chiamante di fornire 'a'.
+p1 = functools.partial(myfunc, b=4)
+show_details('partial con predefiniti determinati', p1, True)
+p1('passato a')
+p1('override di b', b=5)
+print()
+
+# Imposta valori predefiniti sia per 'a' che per 'b'.
+p2 = functools.partial(myfunc, 'predefinito a', b=99)
+show_details('partial con predefiniti', p2, True)
+p2()
+p2(b='override di b')
+print()
+
+print('Argomenti insufficienti:')
+p1()
+</py_code>
+<testo_normale>
+Alla fine dell'esempio, il primo <code>partial</code> creato viene chiamato senza passare un valore per <em>a</em>, provocando una eccezione.
+</testo_normale>
+<py_output>
+$ python3 functools_partial.py
+
+myfunc:
+  oggetto: <function myfunc at 0x7fdf665eec80>
+  __name__: myfunc
+  chiamata myfunc con: ('a', 3)
+
+partial con predefiniti determinati:
+  oggetto: functools.partial(<function myfunc at 0x7fdf665eec80>, b=4)
+  func: <function myfunc at 0x7fdf665eec80>
+  args: ()
+  keywords: {'b': 4}
+  chiamata myfunc con: ('passato a', 4)
+  chiamata myfunc con: ('override di b', 5)
+
+partial con predefiniti:
+  oggetto: functools.partial(<function myfunc at 0x7fdf665eec80>, 'predefinito a', b=99)
+  func: <function myfunc at 0x7fdf665eec80>
+  args: ('predefinito a',)
+  keywords: {'b': 99}
+  chiamata myfunc con: ('predefinito a', 99)
+  chiamata myfunc con: ('predefinito a', 'override di b')
+
+Argomenti insufficienti:
+Traceback (most recent call last):
+  File "functools_partial.py", line 44, in <module>
+    p1()
+TypeError: myfunc() missing 1 required positional argument: 'a'
+</py_output>
+<titolo_3>
+Acquisire Proprietà di Funzione
+</titolo_3>
+<testo_normale>
+L'oggetto partial non ha attributi <code>__name__</code> o <code>__doc__</code> predefiniti e, senza questi attributi, le funzioni decorate sono rese più difficili per il debug. Se si usa <code>update_wrapper()</code>, si possono copiare od aggiungere attributi dalla funzione originale all'oggetto <code>partial</code>.
+</testo_normale>
+<py_code>
+# functools_update_wrapper.py
+
+import functools
+
+
+def myfunc(a, b=2):
+    "Docstring per myfunc()."
+    print('  chiamata myfunc con:', (a, b))
+
+
+def show_details(name, f):
+    "Mostra i dettagli di un oggetto chiamabile."
+    print('{}:'.format(name))
+    print('  object:', f)
+    print('  __name__:', end=' ')
+    try:
+        print(f.__name__)
+    except AttributeError:
+        print('(no __name__)')
+    print('  __doc__', repr(f.__doc__))
+    print()
+
+
+show_details('myfunc', myfunc)
+
+p1 = functools.partial(myfunc, b=4)
+show_details('wrapper grezzo', p1)
+
+print('Wrapper in aggiornamento:')
+print('  assegnazione:', functools.WRAPPER_ASSIGNMENTS)
+print('  aggiornamento:', functools.WRAPPER_UPDATES)
+print()
+
+functools.update_wrapper(p1, myfunc)
+show_details('Wrapper aggiornato', p1)
+</py_code>
+<testo_normale>
+Gli attributi aggiunti al wrapper sono definiti in <code>WRAPPER_ASSIGNMENTS</code>, mentre <code>WRAPPER_UPDATES</code> elenca i valori da modificare.
+</testo_normale>
+<py_output>
+$ python3 functools_update_wrapper.py
+
+myfunc:
+  object: <function myfunc at 0x7f0158166c80>
+  __name__: myfunc
+  __doc__ 'Docstring per myfunc().'
+
+wrapper grezzo:
+  object: functools.partial(<function myfunc at 0x7f0158166c80>, b=4)
+  __name__: (no __name__)
+  __doc__ 'partial(func, *args, **keywords) - new function with partial application\n    of the given arguments and keywords.\n'
+
+Wrapper in aggiornamento:
+  assegnazione: ('__module__', '__name__', '__qualname__', '__doc__', '__annotations__')
+  aggiornamento: ('__dict__',)
+
+Wrapper aggiornato:
+  object: functools.partial(<function myfunc at 0x7f0158166c80>, b=4)
+  __name__: myfunc
+  __doc__ 'Docstring per myfunc().'
+</py_output>
+<titolo_2>
+Altri Chiamabili
+</titolo_2>
+<testo_normale>
+I partial lavorano con qualsiasi oggetto chiamabile, non solo con funzioni <a href="https://it.wikipedia.org/wiki/Stand-alone_(informatica)">stand-alone</a>
+</testo_normale>
+<py_code>
+#functools_method.py
+
+import functools
+
+
+class MyClass:
+    "Classe Demo per functools"
+
+    def method1(self, a, b=2):
+        "Docstring per method1()."
+        print('  chiamato method1 con:', (self, a, b))
+
+    def method2(self, c, d=5):
+        "Docstring per method2"
+        print('  chiamato method2 con:', (self, c, d))
+
+    wrapped_method2 = functools.partial(method2, 'wrapped c')
+    functools.update_wrapper(wrapped_method2, method2)
+
+    def __call__(self, e, f=6):
+        "Docstring per MyClass.__call__"
+        print('  chiamato object con:', (self, e, f))
+
+
+def show_details(name, f):
+    "Mostra dettagli di un oggetto chiamabile"
+    print('{}:'.format(name))
+    print('  oggetto:', f)
+    print('  __name__:', end=' ')
+    try:
+        print(f.__name__)
+    except AttributeError:
+        print('(no __name__)')
+    print('  __doc__', repr(f.__doc__))
+    return
+
+
+o = MyClass()
+
+show_details('chiamata di method1 direttamente', o.method1)
+o.method1('nessun predefinito per a', b=3)
+print()
+
+p1 = functools.partial(o.method1, b=4)
+functools.update_wrapper(p1, o.method1)
+show_details('chiamata di method1 wrapped', p1)
+p1('a va qui')
+print()
+
+show_details('chiamata di method2 direttamente', o.method2)
+o.method2('nessun predefinito per  c', d=6)
+print()
+
+show_details('chiamata di method2 wrapped', o.wrapped_method2)
+o.wrapped_method2('nessun predefinito per  c', d=7)
+print()
+
+show_details('instanza', o)
+o('nessun predefinito per  e')
+print()
+
+p2 = functools.partial(o, f=8)
+functools.update_wrapper(p2, o)
+show_details('wrapper di istanza', p2)
+p2('e va qui')
+</py_code>
+<testo_normale>
+Questo esempio crea dei partial da un istanza e metodi di una istanza
+</testo_normale>
+<py_output>
+$ python3 functools_method.py
+
+chiamata di method1 direttamente:
+  oggetto: <bound method MyClass.method1 of <__main__.MyClass object at 0x7f74d37fd3c8>>
+  __name__: method1
+  __doc__ 'Docstring per method1().'
+  chiamato method1 con: (<__main__.MyClass object at 0x7f74d37fd3c8>, 'nessun predefinito per a', 3)
+
+chiamata di method1 wrapped:
+  oggetto: functools.partial(<bound method MyClass.method1 of <__main__.MyClass object at 0x7f74d37fd3c8>>, b=4)
+  __name__: method1
+  __doc__ 'Docstring per method1().'
+  chiamato method1 con: (<__main__.MyClass object at 0x7f74d37fd3c8>, 'a va qui', 4)
+
+chiamata di method2 direttamente:
+  oggetto: <bound method MyClass.method2 of <__main__.MyClass object at 0x7f74d37fd3c8>>
+  __name__: method2
+  __doc__ 'Docstring per method2'
+  chiamato method2 con: (<__main__.MyClass object at 0x7f74d37fd3c8>, 'nessun predefinito per  c', 6)
+
+chiamata di method2 wrapped:
+  oggetto: functools.partial(<function MyClass.method2 at 0x7f74d1f08268>, 'wrapped c')
+  __name__: method2
+  __doc__ 'Docstring per method2'
+  chiamato method2 con: ('wrapped c', 'nessun predefinito per  c', 7)
+
+instanza:
+  oggetto: <__main__.MyClass object at 0x7f74d37fd3c8>
+  __name__: (no __name__)
+  __doc__ 'Classe Demo per functools'
+  chiamato object con: (<__main__.MyClass object at 0x7f74d37fd3c8>, 'nessun predefinito per  e', 6)
+
+wrapper di istanza:
+  oggetto: functools.partial(<__main__.MyClass object at 0x7f74d37fd3c8>, f=8)
+  __name__: (no __name__)
+  __doc__ 'Classe Demo per functools'
+  chiamato object con: (<__main__.MyClass object at 0x7f74d37fd3c8>, 'e va qui', 8)
+</py_output>
+<titolo_2>
+Metodi e Funzioni
+</titolo_2>
+<testo_normale>
+Mentre <code>partial()</code> ritorna un chiamabile pronto per essere usato direttamente, <code>particalmethod()</code> ritorna un chiamabile pronto per essere usato come metodo <em>unbound</em> di un oggetto. Nell'esempio seguente la stessa funzione <a href="https://it.wikipedia.org/wiki/Stand-alone_(informatica)">stand-alone</a> viene aggiunta per due volte come attributo di <code>MyClass</code>, una volta usando <code>partialmethod()</code> come <code>method1()</code>, l'altra utilizzando <code>partial()</code> come <code>method2()</code>
+</testo_normale>
+<py_code>
+# functools_partialmethod.py
+
+import functools
+
+
+def standalone(self, a=1, b=2):
+    "Funzione standalone"
+    print('  chiamata standalone con:', (self, a, b))
+    if self is not None:
+        print('  self.attr =', self.attr)
+
+
+class MyClass:
+    "Classe Demo per functools"
+
+    def __init__(self):
+        self.attr = 'attributo di istanza'
+
+    method1 = functools.partialmethod(standalone)
+    method2 = functools.partial(standalone)
+
+
+o = MyClass()
+
+print('standalone')
+standalone(None)
+print()
+
+print('method1 come partialmethod')
+o.method1()
+print()
+
+print('method2 come partial')
+try:
+    o.method2()
+except TypeError as err:
+    print('ERRORE: {}'.format(err))
+
+</py_code>
+<testo_normale>
+<code>method1()</code> può essere chiamato da una istanza di <code>MyClass</code>, e l'istanza viene passata come primo argomento come con i metodi definiti normalmente, <code>method2()</code> non viene impostato come metodo <em>bound</em>, quindi l'argomento <code>self</code> deve essere passato esplicitamente, altrimenti la chiamata genera un <code>TypeError</code>.
+</testo_normale>
+<py_output>
+$ python3 functools_partialmethod.py
+
+standalone
+  chiamata standalone con: (None, 1, 2)
+
+method1 come partialmethod
+  chiamata standalone con: (<__main__.MyClass object at 0x7fc1018ee320>, 1, 2)
+  self.attr = attributo di istanza
+
+method2 come partial
+ERRORE: standalone() missing 1 required positional argument: 'self'
+</py_output>
+<titolo_2>
+Acquisire Proprietà di Funzioni per i Decoratori
+</titolo_2>
+<testo_normale>
+Aggiornare le proprietà di un chiamabile impacchettato è particolarmente utile quando si usano in un decoratore, visto che la funzione trasformata finisce con l'avere le proprietà della funzione originale "nuda".
+</testo_normale>
+<py_code>
+# functools_wraps.py
+
+import functools
+
+
+def show_details(name, f):
+    "Mostra i dettagli di un oggetto chiamabile."
+    print('{}:'.format(name))
+    print('  oggetto:', f)
+    print('  __name__:', end=' ')
+    try:
+        print(f.__name__)
+    except AttributeError:
+        print('(no __name__)')
+    print('  __doc__', repr(f.__doc__))
+    print()
+
+
+def simple_decorator(f):
+    @functools.wraps(f)
+    def decorated(a='Predefiniti del decorato', b=1):
+        print('  decorato:', (a, b))
+        print('  ', end=' ')
+        f(a, b=b)
+        return
+    return decorated
+
+
+def myfunc(a, b=2):
+    "myfunc() non è complicata"
+    print('  myfunc:', (a, b))
+    return
+
+
+# La funzione grezza
+show_details('myfunc', myfunc)
+myfunc('unwrapped, predefinito b')
+myfunc('unwrapped, passggio di b', 3)
+print()
+
+# Wrap explicito
+wrapped_myfunc = simple_decorator(myfunc)
+show_details('wrapped_myfunc', wrapped_myfunc)
+wrapped_myfunc()
+wrapped_myfunc('args per wrapped', 4)
+print()
+
+
+# Wrap con la sintassi del decoratore
+@simple_decorator
+def decorated_myfunc(a, b):
+    myfunc(a, b)
+    return
+
+show_details('decorated_myfunc', decorated_myfunc)
+decorated_myfunc()
+decorated_myfunc('args per decorato', 4)
+</py_code>
+<testo_normale>
+<strong>functools</strong> fornisce un decoratore, <code>wraps()</code>, che applica <code>update_wrapper()</code> alla funzione decorata.
+</testo_normale>
+<py_output>
+$ python3 functools_wraps.py
+
+myfunc:
+  oggetto: <function myfunc at 0x7fce1907a158>
+  __name__: myfunc
+  __doc__ 'myfunc() non è complicata'
+
+  myfunc: ('unwrapped, predefinito b', 2)
+  myfunc: ('unwrapped, passggio di b', 3)
+
+wrapped_myfunc:
+  oggetto: <function myfunc at 0x7fce1907a1e0>
+  __name__: myfunc
+  __doc__ 'myfunc() non è complicata'
+
+  decorato: ('Predefiniti del decorato', 1)
+     myfunc: ('Predefiniti del decorato', 1)
+  decorato: ('args per wrapped', 4)
+     myfunc: ('args per wrapped', 4)
+
+decorated_myfunc:
+  oggetto: <function decorated_myfunc at 0x7fce1907a2f0>
+  __name__: decorated_myfunc
+  __doc__ None
+
+  decorato: ('Predefiniti del decorato', 1)
+     myfunc: ('Predefiniti del decorato', 1)
+  decorato: ('args per decorato', 4)
+     myfunc: ('args per decorato', 4)
+</py_output>
+<titolo_2>
+Confronto
+</titolo_2>
+<testo_normale>
+In Python 2, la classi possono definire un metodo <code>__cmp__()</code> che ritorna -1, 0 od 1 in base al fatto che l'oggetto sia minore, uguale o maggiore di quello con il quale viene confrontato. Python 2.1 introdusse delle <a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> per metodi di <em>confronto arricchito</em> (<code>__lt__()</code>, <code>__le__()</code>, <code>__eq__()</code>, <code>__ne__()</code>, <code>__gt__()</code> e <code>__ge__()</code>), i quali eseguono una singola operazione di confronto e ritornano un valore booleano. Python 3 ha deprecato <code>__cmp__()</code> in favore di questi nuovi metodi e <strong>functools</strong> fornisce gli strumenti per facilitare la scrittura di classi che aderiscono a questi nuovi requisiti di confronto in Python 3.
+</testo_normale>
+<titolo_3>
+Confronto Arricchito
+</titolo_3>
+<testo_normale>
+L'e '<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> per il confronto arricchito è progettata per consentire alle classi che effettuano confronti complessi di implementare ciascun test nel modo più efficiente possibile. Tuttavia, per classi che richiedono un confronto relativamente semplice, non c'è ragione nel creare manualmente ciascun metodo di confronto arricchito. Il decoratore di classe <code>total_ordering()</code> riceve una classe che fornisce qualcuno di quei metodi, ed aggiunge i rimanenti.
+</testo_normale>
+<py_code>
+# functools_total_ordering.py
+
+import functools
+import inspect
+from pprint import pprint
+
+
+@functools.total_ordering
+class MyObject:
+
+    def __init__(self, val):
+        self.val = val
+
+    def __eq__(self, other):
+        print('  test per __eq__({}, {})'.format(
+            self.val, other.val))
+        return self.val == other.val
+
+    def __gt__(self, other):
+        print('  test per __gt__({}, {})'.format(
+            self.val, other.val))
+        return self.val > other.val
+
+
+print('Metodi:\n')
+pprint(inspect.getmembers(MyObject, inspect.isfunction))
+
+a = MyObject(1)
+b = MyObject(2)
+
+print('\nConfronti:')
+for expr in ['a < b', 'a <= b', 'a == b', 'a >= b', 'a > b']:
+    print('\n{:<6}:'.format(expr))
+    result = eval(expr)
+    print('  risultato di {}: {}'.format(expr, result))
+</py_code>
+<testo_normale>
+La classe deve fornire l'implementazione di <code>__eq__()</code> ed un altro metodo di confronto arricchito. Il decoratore aggiunge le implementazioni per i restandi metodi che funzionano utilizzando i metodi di confronto forniti.
+</testo_normale>
+<py_output>s
+
+$ python3 functools_total_ordering.py
+Metodi:
+
+[('__eq__', <function MyObject.__eq__ at 0x7fe8271906a8>),
+ ('__ge__', <function _ge_from_gt at 0x7fe8274892f0>),
+ ('__gt__', <function MyObject.__gt__ at 0x7fe827190730>),
+ ('__init__', <function MyObject.__init__ at 0x7fe827190620>),
+ ('__le__', <function _le_from_gt at 0x7fe827489378>),
+ ('__lt__', <function _lt_from_gt at 0x7fe827489268>)]
+
+Confronti:
+
+a < b :
+  test per __gt__(1, 2)
+  test per __eq__(1, 2)
+  risultato di a < b: True
+
+a <= b:
+  test per __gt__(1, 2)
+  risultato di a <= b: True
+
+a == b:
+  test per __eq__(1, 2)
+  risultato di a == b: False
+
+a >= b:
+  test per __gt__(1, 2)
+  test per __eq__(1, 2)
+  risultato di a >= b: False
+
+a > b :
+  test per __gt__(1, 2)
+  risultato di a > b: False
+</py_output>
+<titolo_3>
+Ordine di Confronto
+</titolo_3>
+<testo_normale>
+Visto che le funzioni di confronto "vecchio stile" sono deprecate in  Python 3, l'argomento <code>cmp</code> per funzioni tipo <code>sort()</code> non viene supportato. Vecchi programmi che usano funzioni di confronto possono servirsi di <code>cmp_to_key()</code> per convertirle in una funzione che ritorna una chiave di confronto, che viene utilizzata per determinare la posizione nella sequenza finale.
+</testo_normale>
+<py_code>
+# functools_cmp_to_key.py
+
+import functools
+
+
+class MyObject:
+
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return 'MyObject({})'.format(self.val)
+
+
+def compare_obj(a, b):
+    """Funzione di confronto vecchio stile.
+    """
+    print('confronto tra {} e {}'.format(a, b))
+    if a.val < b.val:
+        return -1
+    elif a.val > b.val:
+        return 1
+    return 0
+
+# Genera una funzione chiave utilizzanod cmp_to_key()
+get_key = functools.cmp_to_key(compare_obj)
+
+
+def get_key_wrapper(o):
+    "Funzione wrapper per get_key per consentire le istruzioni print."
+    new_key = get_key(o)
+    print('key_wrapper({}) -> {!r}'.format(o, new_key))
+    return new_key
+
+objs = [MyObject(x) for x in range(5, 0, -1)]
+
+for o in sorted(objs, key=get_key_wrapper):
+    print(o)
+
+</py_code>
+<testo_normale>
+Normalmente <code>cmp_to_key()</code> verrebbe usato direttamente, ma in questo esempio viene introdotta una funzione wrapper extra per stampare maggiori informazioni mentre viene chiamta la funzione chiave.
+</testo_normale>
+<testo_normale>
+L'output mostra che <code>sorted()</code> inizia con il chiamare <code>get_key_wrapper()</code> per ciascun elemento nella sequenza per produrre una chiave. Le chiavi restituire da <code>comp_to_key()</code> sono istanze di una classe definita in <strong>functools</strong> che implementa le <a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> di confronto arricchito utilizzando la funzione di confronto "vecchio stile" che viene passata. Dopo che tutte le chiavi sono state create, la sequenza viene ordinata confrontando le chiavi.
+</testo_normale>
+<py_output>
+$ python3 functools_cmp_to_key.py.py
+
+key_wrapper(MyObject(5)) -> <functools.KeyWrapper object at 0x7fe69166a8f0>
+key_wrapper(MyObject(4)) -> <functools.KeyWrapper object at 0x7fe69166a8d0>
+key_wrapper(MyObject(3)) -> <functools.KeyWrapper object at 0x7fe69166a8b0>
+key_wrapper(MyObject(2)) -> <functools.KeyWrapper object at 0x7fe69166a890>
+key_wrapper(MyObject(1)) -> <functools.KeyWrapper object at 0x7fe69166a870>
+confronto tra MyObject(4) e MyObject(5)
+confronto tra MyObject(3) e MyObject(4)
+confronto tra MyObject(2) e MyObject(3)
+confronto tra MyObject(1) e MyObject(2)
+MyObject(1)
+MyObject(2)
+MyObject(3)
+MyObject(4)
+MyObject(5)
+</py_output>
+<titolo_2>
+Caching
+</titolo_2>
+<testo_normale>
+Il decoratore <code>lru_cache()</code> impacchetta una funzione in una <a href="https://it.wikipedia.org/wiki/Cache">cache</a> con algoritmo <em>least-recently-used</em> (vale a dire che vengono scaricati per primi dalla cache gli elementi meno recenti - n.d.t.). Gli argomenti della funzione sono utilizzati per costruire una chiave <a href="https://it.wikipedia.org/wiki/Hash#In_informatica">hash</a>, che viene poi abbinata al risultato. Chiamate successive effettuate con gli stessi argomenti recupereranno il valore dalla <a href="https://it.wikipedia.org/wiki/Cache">cache</a> invece di chiamare la funzione. Il decoratore aggiunge anche metodi alla funzione per esaminare la stato della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> (<code>cache_info()</code>) e per svuotarla (<code>cache_clear()</code>).
+</testo_normale>
+<py_code>
+# functools_lru_cache.py
+
+import functools
+
+
+@functools.lru_cache()
+def expensive(a, b):
+    print('expensive({}, {})'.format(a, b))
+    return a * b
+
+
+MAX = 2
+
+print('Primo insieme di chiamate:')
+for i in range(MAX):
+    for j in range(MAX):
+        expensive(i, j)
+print(expensive.cache_info())
+
+print('\nSecondo  insieme di chiamate:')
+for i in range(MAX + 1):
+    for j in range(MAX + 1):
+        expensive(i, j)
+print(expensive.cache_info())
+
+print('\nPulizia della cache:')
+expensive.cache_clear()
+print(expensive.cache_info())
+
+print('\nTerzo insieme di chiamate:')
+for i in range(MAX):
+    for j in range(MAX):
+        expensive(i, j)
+print(expensive.cache_info())
+</py_code>
+<testo_normale>
+Questo esempio effettua parecchie chiamate ad <code>expensive()</code> in un insieme di cicli annidati. La seconda volte che queste chiamate sono effettuate con gli stessi valori il risultato si trova nella <a href="https://it.wikipedia.org/wiki/Cache">cache</a>. Quando la <a href="https://it.wikipedia.org/wiki/Cache">cache</a> viene pulita ed i cicli vengono effettuati nuovamente i valori devono essere ricalcolati.
+</testo_normale>
+<py_output>
+$ python3 functools_lru_cache.py
+
+Primo insieme di chiamate:
+expensive(0, 0)
+expensive(0, 1)
+expensive(1, 0)
+expensive(1, 1)
+CacheInfo(hits=0, misses=4, maxsize=128, currsize=4)
+
+Secondo  insieme di chiamate:
+expensive(0, 2)
+expensive(1, 2)
+expensive(2, 0)
+expensive(2, 1)
+expensive(2, 2)
+CacheInfo(hits=4, misses=9, maxsize=128, currsize=9)
+
+Pulizia della cache:
+CacheInfo(hits=0, misses=0, maxsize=128, currsize=0)
+
+Terzo insieme di chiamate:
+expensive(0, 0)
+expensive(0, 1)
+expensive(1, 0)
+expensive(1, 1)
+CacheInfo(hits=0, misses=4, maxsize=128, currsize=4)
+</py_output>
+<testo_normale>
+Per prevenire la crescita incontrollata della dimensione della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> in processi in esecuzione per molto tempo, viene assegnata una dimensione massima. Il valore predefinito è di 128 elementi, che può essere cambiato per ciascuna <a href="https://it.wikipedia.org/wiki/Cache">cache</a> utilizzando l'argomento <code>maxsize</code>.
+</testo_normale>
+<py_code>
+# functools_lru_cache_expire.py
+
+import functools
+
+
+@functools.lru_cache(maxsize=2)
+def expensive(a, b):
+    print('chiamata di expensive({}, {})'.format(a, b))
+    return a * b
+
+
+def make_call(a, b):
+    print('({}, {})'.format(a, b), end=' ')
+    pre_hits = expensive.cache_info().hits
+    expensive(a, b)
+    post_hits = expensive.cache_info().hits
+    if post_hits > pre_hits:
+        print('utilizzo la cache')
+
+
+print('Impostazione della cache')
+make_call(1, 2)
+make_call(2, 3)
+
+print('\nUtilizzo di elementi in cache')
+make_call(1, 2)
+make_call(2, 3)
+
+print('\nCalcolo di un nuovo valore, provocando la scadenza della cache')
+make_call(3, 4)
+
+print('\nLa cache contiene ancora un vecchio elemento')
+make_call(2, 3)
+
+print('\nGli elementi più vecchi devono essere ricalcolati')
+make_call(1, 2)
+</py_code>
+<testo_normale>
+In questo esempio la dimensione della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> viene impostata a 2 elementi. Quando il terzo insieme di argomenti univoci (3, 4) viene utilizzato, il più vecchio elemento della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> viene eliminato per fare posto a quello nuovo.
+</testo_normale>
+<py_output>
+$ python3 functools_lru_cache_expire.py
+
+Impostazione della cache
+(1, 2) chiamata di expensive(1, 2)
+(2, 3) chiamata di expensive(2, 3)
+
+Utilizzo di elementi in cache
+(1, 2) utilizzo la cache
+(2, 3) utilizzo la cache
+
+Calcolo di un nuovo valore, provocando la scadenza della cache
+(3, 4) chiamata di expensive(3, 4)
+
+La cache contiene ancora un vecchio elemento
+(2, 3) utilizzo la cache
+
+Gli elementi più vecchi devono essere ricalcolati
+(1, 2) chiamata di expensive(1, 2)
+</py_output>
+<testo_normale>
+Le chiavi per la cache sono gestite da <code>lru_cache()</code> devono essere <em>hashable</em>, vale a dire che devono poter essere utilizzate in <a href="https://it.wikipedia.org/wiki/Hash#In_informatica">hash</a>, per questa ragione lo devono essere tutti gli argomenti della funzione impacchettata con la funzione di ricerca in <a href="https://it.wikipedia.org/wiki/Cache">cache</a>.
+</testo_normale>
+<py_code>
+# functools_lru_cache_arguments.py
+
+import functools
+
+
+@functools.lru_cache(maxsize=2)
+def expensive(a, b):
+    print('chiamata di expensive({}, {})'.format(a, b))
+    return a * b
+
+
+def make_call(a, b):
+    print('({}, {})'.format(a, b), end=' ')
+    pre_hits = expensive.cache_info().hits
+    expensive(a, b)
+    post_hits = expensive.cache_info().hits
+    if post_hits > pre_hits:
+        print('utilizzo la cache')
+
+
+make_call(1, 2)
+
+try:
+    make_call([1], 2)
+except TypeError as err:
+    print('ERRORE: {}'.format(err))
+
+try:
+    make_call(1, {'2': 'due'})
+except TypeError as err:
+    print('ERRORE: {}'.format(err))
+</py_code>
+<testo_normale>
+Se un qualsiasi oggetto passato alla funzione non può essere <em>hashable</em>, viene sollevata una eccezione <code>TypeError</code>.
+</testo_normale>
+<py_output>
+$ python3 functools_lru_cache_arguments.py
+
+(1, 2) chiamata di expensive(1, 2)
+([1], 2) ERRORE: unhashable type: 'list'
+(1, {'2': 'due'}) ERRORE: unhashable type: 'dict'
+</py_output>
+<titolo_2>
+Ridurre un Insieme di Dati
+</titolo_2>
+<testo_normale>
+La funzione <code>reduce()</code> ottiene un chiamabile ed una sequenza di dati in input e produce un singolo valore in uscita calcolato dall'esecuzione del chiamabile con i valori della sequenza, accumulandone il risultato in uscita.
+</testo_normale>
+<py_code>
+# functools_reduce.py
+
+import functools
+
+
+def do_reduce(a, b):
+    print('do_reduce({}, {})'.format(a, b))
+    return a + b
+
+
+data = range(1, 5)
+print(data)
+result = functools.reduce(do_reduce, data)
+print('risultato: {}'.format(result))
+</py_code>
+<testo_normale>
+In questo esempio si sommano i numeri della sequenza in input.
+</testo_normale>
+<py_output>
+$ python3 functools_reduce.py
+
+range(1, 5)
+do_reduce(1, 2)
+do_reduce(3, 3)
+do_reduce(6, 4)
+risultato: 10
+</py_output>
+<testo_normale>
+L'argomento opzionale <em>initializer</em> viene piazzato davanti alla sequenza ed elaborato assieme agli altri elementi. Si può utilizzare per aggiornare un valore calcolato precedentemente con nuovi valori in entrata.
+</testo_normale>
+<py_code>
+# functools_reduce_initializer.py
+
+import functools
+
+
+def do_reduce(a, b):
+    print('do_reduce({}, {})'.format(a, b))
+    return a + b
+
+
+data = range(1, 5)
+print(data)
+result = functools.reduce(do_reduce, data, 99)
+print('risultato: {}'.format(result))
+</py_code>
+<testo_normale>
+In questo esempio una precedente somma di 99 viene utilizzata per inizializzare il valore calcolato da <code>reduce()</code>.
+</testo_normale>
+<py_output>
+$ python3 functools_reduce_initializer.py
+
+range(1, 5)
+do_reduce(99, 1)
+do_reduce(100, 2)
+do_reduce(102, 3)
+do_reduce(105, 4)
+risultato: 109
+</py_output>
+<testo_normale>
+Le sequenze con un singolo elemento vengono automaticamente ridotte a quel valore se non è presente alcun inizializzatore. Sequenze vuote generano un errore a meno che non sia passato un inizializzatore.
+</testo_normale>
+<py_code>
+# functools_reduce_short_sequences.py
+
+import functools
+
+
+def do_reduce(a, b):
+    print('do_reduce({}, {})'.format(a, b))
+    return a + b
+
+
+print('Singolo elemento in sequenza:',
+      functools.reduce(do_reduce, [1]))
+
+print('Single elemento in sequenza con inizializzatore:',
+      functools.reduce(do_reduce, [1], 99))
+
+print('Sequenza vuota con inizializzatore:',
+      functools.reduce(do_reduce, [], 99))
+
+try:
+    print('Sequenza vuota:', functools.reduce(do_reduce, []))
+except TypeError as err:
+    print('ERRORE: {}'.format(err))
+</py_code>
+<testo_normale>
+Visto che l'argomento inizializzatore serve come valore predefinito, ma viene anche combinato con i nuovi valori della sequenza in input, è importante valutare con cura un eventuale utilizzo. Quando non ha senso combinare il valore predefinito con i nuovi valori, è meglio catturare l'errore <code>TypeError</code> piuttosto che passare un inizializzatore.
+</testo_normale>
+<py_output>
+$ python3 functools_reduce_short_sequences.py
+
+Singolo elemento in sequenza: 1
+do_reduce(99, 1)
+Single elemento in sequenza con inizializzatore: 100
+Sequenza vuota con inizializzatore: 99
+ERRORE: reduce() of empty sequence with no initial value
+</py_output>
+<titolo_2>
+Funzioni Generiche
+</titolo_2>
+<testo_normale>
+In un linguaggio dinamicamente tipizzato come Python è comune dover eseguire operazioni leggermente differenti basate sul tipo di un argomento, specialmente quando si ha a che fare con la differenza tra una lista di elementi ed un singolo elemento. E' abbastanza semplice verificare il tipo di un argomento direttamente, ma nei casi nei quali la differenza di comportamento può essere isolata in funzioni separate, <strong>functools</strong> fornisce il decoratore <code>singledispatch()</code> per registrare un insieme di <em>funzioni generiche</em> per una commutazione automatica in base al tipo del primo argomento di una funzione.
+</testo_normale>
+<py_code>
+# functools_singledispatch.py
+
+import functools
+
+
+@functools.singledispatch
+def myfunc(arg):
+    print('Predifinita myfunc({!r})'.format(arg))
+
+
+@myfunc.register(int)
+def myfunc_int(arg):
+    print('myfunc_int({})'.format(arg))
+
+
+@myfunc.register(list)
+def myfunc_list(arg):
+    print('myfunc_list()')
+    for item in arg:
+        print('  {}'.format(item))
+
+
+myfunc('argomento stringa')
+myfunc(1)
+myfunc(2.3)
+myfunc(['a', 'b', 'c'])
+</py_code>
+<testo_normale>
+L'attributo <code>register()</code> della nuova funzione serve come un altro decoratore per registrare implementazioni alternative. La prima funzione impacchettata con <code>signledispatch()</code> è l'implementazione predefinita se non viene trovata un'altra funzione per uno specifico tipo, come il caso di un <code>float</code> nell'esempio.
+</testo_normale>
+<py_output>
+$ python3 functools_singledispatch.py
+
+Predifinita myfunc('argomento stringa')
+myfunc_int(1)
+Predifinita myfunc(2.3)
+myfunc_list()
+  a
+  b
+  c
+</py_output>
+<testo_normale>
+Quando non viene trovata esatta corrispondenza per tipo, viene valutato l'ordine di ereditarietà, quindi si utilizza il tipo che più si avvicina.
+</testo_normale>
+<py_code>
+# functools_singledispatch_mro.py
+
+import functools
+
+
+class A:
+    pass
+
+
+class B(A):
+    pass
+
+
+class C(A):
+    pass
+
+
+class D(B):
+    pass
+
+
+class E(C, D):
+    pass
+
+
+@functools.singledispatch
+def myfunc(arg):
+    print('Predefinita myfunc({})'.format(arg.__class__.__name__))
+
+
+@myfunc.register(A)
+def myfunc_A(arg):
+    print('myfunc_A({})'.format(arg.__class__.__name__))
+
+
+@myfunc.register(B)
+def myfunc_B(arg):
+    print('myfunc_B({})'.format(arg.__class__.__name__))
+
+
+@myfunc.register(C)
+def myfunc_C(arg):
+    print('myfunc_C({})'.format(arg.__class__.__name__))
+
+
+myfunc(A())
+myfunc(B())
+myfunc(C())
+myfunc(D())
+myfunc(E())
+
+</py_code>
+<testo_normale>
+In questo esempio le classi <code>D</code> ed <code>E</code> non corrispondono esattamente ad alcuna funzione generica registrata, quindi la funzione selezionata dipende dalla gerarchia della classe.
+</testo_normale>
+<py_output>
+$ python3 functools_singledispatch_mro.py
+
+myfunc_A(A)
+myfunc_B(B)
+myfunc_C(C)
+myfunc_B(D)
+myfunc_C(E)
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/functools.html|functools|La documentazione della libreria standard per questo modulo.
+http://docs.python.org/reference/datamodel.html#object.__lt__|Metodi di confronto arricchito|Descrizione dei metodi di confronto arricchito tratto dalla Guida di Riferimento di Python.
+http://nedbatchelder.com/blog/201601/isolated_memoize.html|isolated @memoize|Un articolo sulla creazione di decoratori di <a href="https://it.wikipedia.org/wiki/Memoizzazione">memoizzazione</a> che funzionano bene con le unità di test, di Ned Batchelder.
+https://www.python.org/dev/peps/pep-0443|PEP 443|Funzioni generiche single-dispatch
+#|inspect|<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> di introspezione per oggetti vivi.
+</vedi_anche>
+</documento_tradotto>
