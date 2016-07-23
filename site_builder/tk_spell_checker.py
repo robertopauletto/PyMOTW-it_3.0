@@ -7,18 +7,26 @@ __doc__="""
 Interfaccia grafica per lo spell check di un articolo tradotto
 """
 
+import codecs
 from Tkinter import *
 import ttk
 from tkFileDialog import askopenfilename
 from tkMessageBox import askokcancel, askquestion, askyesno
+from tkMessageBox import showerror
 import os.path
+import spell_checker
+
+INIT_DIR = '../tran'
+INIT_DIR = '/home/robby'
+MYDICT = "/home/robby/ownCloud/spell_mywords.txt"
 
 
 class Gui(object):
 
     def __init__(self, root, geometry="800x600+100+200"):
 
-        self._new_word = StringVar()
+        self._pos = 0
+        self._sc = None
         self._txt = None
         self._lbhints = None
         self.root = root
@@ -27,8 +35,9 @@ class Gui(object):
         if geometry:
             self.root.geometry(geometry)
         self._file = StringVar(value='Scegliere il file da correggere')
+        self._new_word = StringVar()
+        self._err_word = StringVar()
         self._draw()
-        self._fill_hints(None)
 
     def _draw(self):
         fm = ttk.LabelFrame(self.root, text=" File da tradurre ")
@@ -36,7 +45,7 @@ class Gui(object):
             fm, textvariable=self._file
         ).grid(row=0, column=0, padx=5, pady=5, sticky=EW)
         Button(
-            fm, text='Sfoglia'
+            fm, text='Sfoglia', command=self._sfoglia
         ).grid(row=0, column=1, padx=5, pady=5, sticky=EW)
         fm.columnconfigure(0, weight=2)
         fm.grid(row=0, column=0, padx=8, pady=8, sticky=EW)
@@ -66,6 +75,9 @@ class Gui(object):
         Entry(
             fm_cmd, width=20, textvariable=self._new_word
         ).grid(row=0, column=0, padx=5, pady=5)
+        Entry(
+            fm_cmd, width=20, textvariable=self._err_word
+        ).grid(row=1, column=0, padx=5, pady=5)
         Button(
             fm_cmd, text='Correggi', command=self._correggi, width=10
         ).grid(row=0, column=1, padx=5, pady=5)
@@ -107,15 +119,57 @@ class Gui(object):
         ).grid(row=0, column=0, padx=5, pady=5, sticky=EW)
         fm_save.grid(row=3, column=0, padx=8, pady=8, sticky=EW)
 
-
         self.root.columnconfigure(0, weight=2)
+
+    def _sfoglia(self):
+        """Ottiene il nome del file .xml da elaborare e passa il contenuto
+        del file allo spell checker
+        """
+        ft = [("File xml", "*.xml")]
+        tran_file = askopenfilename(
+            initialdir=INIT_DIR,
+            filetypes=ft,
+            parent=self.root,
+            title='Scegliere il file di traduzione da correggere'
+        )
+        if not os.path.exists(tran_file):
+            showerror(title='Scelta file', msg='File non esiste o non selezionato')
+            return
+        self._file.set(tran_file)
+        text = codecs.open(tran_file, encoding="utf-8")
+        self._sc = spell_checker.SpellCheck(text, MYDICT)
+        self._sc.check()
+        self._show_error()
+
+    def _show_error(self):
+        error = self._sc.errors[self._pos]
+        isinstance(error, spell_checker.Error)
+        self._err_word.set(error._word)
+        self._fill_hints(error._hints)
+
+    def _nav_errors(self, goto):
+        if not self._sc.errors:
+            return
+        goto = goto.lower()
+        if goto == 'next':
+            self._pos += 1
+            if self._pos == len(self._sc.errors):
+                self._pos = 0
+        elif goto == 'prev':
+            self._pos -=1
+            if self._pos < 0:
+                self._pos = len(self._sc.errors)-1
+        elif goto == 'ff':
+            self._pos = len(self._sc.errors) - 1
+        elif goto == 'rw':
+            self._pos = 0
 
     def _correggi(self):
         pass
 
     def _fill_hints(self, hints):
-        for i in range(10):
-            self._lbhints.insert(END, "hint n. " + str(i))
+        for hint in hints:
+            self._lbhints.insert(END, hint)
 
 if __name__ == '__main__':
     root = Tk()
