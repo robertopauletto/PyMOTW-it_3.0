@@ -20,6 +20,37 @@ INIT_DIR = '../tran'
 INIT_DIR = '/home/robby'
 MYDICT = "/home/robby/ownCloud/spell_mywords.txt"
 
+class ContatoreErrori(object):
+
+    def __init__(self, errors):
+        self._errors = errors
+        self._ign = 0
+        self._chkd = 0
+        self._cust = 0
+        self._tot = len(errors)
+
+    @property
+    def custom(self):
+        return self._cust
+
+    @property
+    def ignored(self):
+        return self._ign
+
+    @property
+    def checked(self):
+        return self._chkd
+
+    @property
+    def tot(self):
+        return self._tot
+
+    def conta(self):
+        custom = len([e for e in self._errors if e.is_customized_word])
+        ignored = len([e for e in self._errors if e.ignore_word])
+        checked = len([e for e in self._errors if e.correct_word])
+
+
 
 class Gui(object):
 
@@ -37,6 +68,12 @@ class Gui(object):
         self._file = StringVar(value='Scegliere il file da correggere')
         self._new_word = StringVar()
         self._err_word = StringVar()
+        self._statusbar = StatusBar(self.root, 4)
+        self._statusbar.set_text(" " * 40, 0)
+        self._statusbar.set_text("   ", 1)
+        self._statusbar.set_text("   ", 2)
+        self._statusbar.set_text("   ", 3)
+        self._contaerr = None  # Contatore errori
         self._draw()
 
     def _draw(self):
@@ -56,16 +93,16 @@ class Gui(object):
 
         fm_nv = ttk.LabelFrame(fm_hud, text=' Navigazione ')
         Button(
-            fm_nv, text='<<'
+            fm_nv, text='<<', width=5, command=lambda: self._nav_errors('rw')
         ).grid(row=0, column=0, padx=5, pady=5)
         Button(
-            fm_nv, text='<'
+            fm_nv, text='<', command=lambda: self._nav_errors('prev'), width=5
         ).grid(row=0, column=1, padx=5, pady=5)
         Button(
-            fm_nv, text='>'
+            fm_nv, text='>', command=lambda: self._nav_errors('next'), width=5
         ).grid(row=0, column=2, padx=5, pady=5)
         Button(
-            fm_nv, text='>>'
+            fm_nv, text='>>', width=5, command=lambda: self._nav_errors('ff')
         ).grid(row=0, column=3, padx=5, pady=5)
         fm_nv.grid(row=0, column=0, ipady=17)
 
@@ -76,16 +113,18 @@ class Gui(object):
             fm_cmd, width=20, textvariable=self._new_word
         ).grid(row=0, column=0, padx=5, pady=5)
         Entry(
-            fm_cmd, width=20, textvariable=self._err_word
+            fm_cmd, width=20, textvariable=self._err_word, state=DISABLED
         ).grid(row=1, column=0, padx=5, pady=5)
         Button(
             fm_cmd, text='Correggi', command=self._correggi, width=10
         ).grid(row=0, column=1, padx=5, pady=5)
         Button(
-            fm_cmd, text='Ignora', command=self._correggi, width=10
+            fm_cmd, text='Ignora',
+            command=lambda: self._ignora(True), width=10
         ).grid(row=0, column=2, padx=5, pady=5)
         Button(
-            fm_cmd, text='Ignora Sempre', command=self._correggi, width=10
+            fm_cmd, text='Ignora Sempre', width=10,
+            command=lambda: self._ignora(False)
         ).grid(row=1, column=1, padx=5, pady=5, sticky=E)
         Button(
             fm_cmd, text='Aggiungi a diz.', command=self._correggi, width=10
@@ -106,6 +145,7 @@ class Gui(object):
 
         fm_hints = ttk.LabelFrame(fm_data, text=' Suggerimenti ')
         self._lbhints = Listbox(fm_hints, selectmode=SINGLE)
+        self._lbhints.bind('<<ListboxSelect>>', self._onlbselect)
         self._lbhints.grid(row=0, column=1, padx=8, pady=8, sticky=EW)
         fm_hints.grid(row=0, column=1, padx=8, pady=8, sticky=EW, ipady=8)
 
@@ -119,7 +159,43 @@ class Gui(object):
         ).grid(row=0, column=0, padx=5, pady=5, sticky=EW)
         fm_save.grid(row=3, column=0, padx=8, pady=8, sticky=EW)
 
-        self.root.columnconfigure(0, weight=2)
+        self.root.columnconfigure(0, weight=20)
+        self._statusbar.grid(row=99, column=0, sticky=EW, padx=8, pady=8)
+
+    def _onlbselect(self, event):
+        """Istanzia ``_new_word`` con il suggerimento selezionato nel listbox"""
+        w = self._lbhints.curselection()
+        if w:
+            self._new_word.set(self._lbhints.get(w))
+
+    def _correggi(self):
+        """Imposta la nuova parola nell'oggetto Error selezionato"""
+        if not self._new_word.get():
+            return
+        self._sc.errors[self._pos].correct_word = self._new_word.get()
+
+    def _ignora(self, single=False):
+        """Appone il contrassegno di errore da ignorare per
+        l'errore selezionato
+        """
+        if single:
+            self._sc.errors[self._pos].ignore_word
+            return
+        word = self._sc.errors[self._pos]
+        for error in self._sc.errors:
+            if not error.err_word == word:
+                continue
+            error.ignore_word
+
+    def _custom_word(self):
+        """Appone il contrassegno di parola da aggiungere al dizionario
+        personalizzato
+        """
+        word = self._sc.errors[self._pos]
+        for error in self._sc.errors:
+            if not error.err_word == word:
+                continue
+            error.add_to_dict(word)
 
     def _sfoglia(self):
         """Ottiene il nome del file .xml da elaborare e passa il contenuto
@@ -140,17 +216,60 @@ class Gui(object):
         self._sc = spell_checker.SpellCheck(text, MYDICT)
         self._sc.check()
         self._show_error()
+        self._contaerr = ContatoreErrori(self._sc.errors)
+        self._show_status_errors()
 
     def _show_error(self):
+        """Mostra la parola errata, il contesto in cui appare ed i
+        suggerimenti
+        """
         error = self._sc.errors[self._pos]
         isinstance(error, spell_checker.Error)
-        self._err_word.set(error._word)
-        self._fill_hints(error._hints)
+        self._err_word.set(error.err_word)
+        self._fill_hints(error.hints)
+        isinstance(self._txt, Text)
+        self._txt.delete(1.0, END)
+        self._txt.insert(1.0, error.context)
+
+
+    def _check_errors_to_go(self):
+        """Verifica se nella collezione di Error ce ne sono ancora da
+        esaminare e ne ritorna il numero
+        """
+        pass
+
+    def _show_status_errors(self):
+        self._contaerr.conta()
+        self._statusbar.set_text(
+            "%d errori rilevati" % self._contaerr.tot, 0
+        )
+        self._statusbar.set_text(
+            "%d errori corretti" % self._contaerr.checked, 1
+        )
+        self._statusbar.set_text(
+            "%d errori ignorati" % self._contaerr.ignored, 2
+        )
+        self._statusbar.set_text(
+            "%d aggiunti al dizionario" % self._contaerr.custom, 3
+        )
 
     def _nav_errors(self, goto):
+        """Imposta il puntatore della sequenza degli errori da elaborare in
+        base alla scelta di navigazione dell'utente e mostra l'errore
+        corrispondente
+
+        ``goto`` è una parola che indica il tipo di spostamento:
+        - next -> errore successivo (se fine sequenza va al primo)
+        - prev -> errore precedente (se inizio sequenza va all'ultimo)
+        - ff -> all'ultimo errore della sequenza
+        - rw -> al primo errore della sequenza
+        """
         if not self._sc.errors:
             return
         goto = goto.lower()
+        if not goto in ['next', 'prev', 'ff', 'rw']:
+            showerror("Navigazione", "Tipo di spostamento non riconosciuto")
+            return
         if goto == 'next':
             self._pos += 1
             if self._pos == len(self._sc.errors):
@@ -163,13 +282,32 @@ class Gui(object):
             self._pos = len(self._sc.errors) - 1
         elif goto == 'rw':
             self._pos = 0
-
-    def _correggi(self):
-        pass
+        self._show_error()
+        self._show_status_errors()
 
     def _fill_hints(self, hints):
+        self._lbhints.delete(0, END)
         for hint in hints:
             self._lbhints.insert(END, hint)
+
+
+class StatusBar(Frame):
+
+    def __init__(self, master, labels=1):
+        Frame.__init__(self, master)
+        self._svars = []
+        for i in range(labels):
+            self._svars.append(StringVar(value=''))
+            Label(
+                self, textvariable=self._svars[i], relief=SUNKEN
+            ).grid(row=0, column=i,  sticky=EW, padx=5, pady=5)
+        self.columnconfigure(0, weight=5)
+
+    def set_text(self, text, index):
+        self._svars[index].set(text)
+        self.update_idletasks()
+
+
 
 if __name__ == '__main__':
     root = Tk()
