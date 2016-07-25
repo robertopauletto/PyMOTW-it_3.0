@@ -46,9 +46,10 @@ class ContatoreErrori(object):
         return self._tot
 
     def conta(self):
-        custom = len([e for e in self._errors if e.is_customized_word])
-        ignored = len([e for e in self._errors if e.ignore_word])
-        checked = len([e for e in self._errors if e.correct_word])
+        z = [e for e in self._errors if e.is_customized_word]
+        self._cust = len([e for e in self._errors if e.is_customized_word])
+        self._ign = len([e for e in self._errors if e.is_ignored_word])
+        self._chckd = len([e for e in self._errors if e.correct_word])
 
 
 
@@ -179,13 +180,15 @@ class Gui(object):
         l'errore selezionato
         """
         if single:
-            self._sc.errors[self._pos].ignore_word
+            self._sc.errors[self._pos].ignore_word()
             return
-        word = self._sc.errors[self._pos]
+        word = self._sc.errors[self._pos].err_word
         for error in self._sc.errors:
             if not error.err_word == word:
                 continue
-            error.ignore_word
+            error.ignore_word()
+        self._show_status_errors()
+
 
     def _custom_word(self):
         """Appone il contrassegno di parola da aggiungere al dizionario
