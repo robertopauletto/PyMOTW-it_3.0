@@ -12,17 +12,24 @@ from Tkinter import *
 import ttk
 from tkFileDialog import askopenfilename
 from tkMessageBox import askokcancel, askquestion, askyesno
-from tkMessageBox import showerror
+from tkMessageBox import showerror, showinfo
+from shutil import copy
 import os.path
+import datetime
 import spell_checker
+
 
 INIT_DIR = '../tran'
 INIT_DIR = '/home/robby'
 MYDICT = "/home/robby/ownCloud/spell_mywords.txt"
 
 class ContatoreErrori(object):
-
+    """Rappresenta un riepilogo per tipologia di una collezione di Error"""
     def __init__(self, errors):
+        """(list of Error)
+
+        Ottiene una lista di oggetti Error
+        """
         self._errors = errors
         self._ign = 0
         self._chkd = 0
@@ -31,21 +38,28 @@ class ContatoreErrori(object):
 
     @property
     def custom(self):
+        """Numero di errori corretti aggiungendo la parola errata al dizionario
+        personalizzato
+        """
         return self._cust
 
     @property
     def ignored(self):
+        """Numero di errori da ignorare"""
         return self._ign
 
     @property
     def checked(self):
+        """Numero di errori verificati"""
         return self._chkd
 
     @property
     def tot(self):
+        """NUmero di errori totali"""
         return self._tot
 
     def conta(self):
+        """Ritorna una riepilogo per tipologia"""
         z = [e for e in self._errors if e.is_customized_word]
         self._cust = len([e for e in self._errors if e.is_customized_word])
         self._ign = len([e for e in self._errors if e.is_ignored_word])
@@ -54,7 +68,7 @@ class ContatoreErrori(object):
 
 
 class Gui(object):
-
+    """Interfaccia grafica per la gestione degli errori """
     def __init__(self, root, geometry="800x600+100+200"):
 
         self._pos = 0
@@ -62,13 +76,15 @@ class Gui(object):
         self._txt = None
         self._lbhints = None
         self.root = root
-        self.root.title("Spell Checker")
+        self.root.title("Correttore Ortografico")
         self.root.wm_iconbitmap('@spell_checking.xbm')
         if geometry:
             self.root.geometry(geometry)
         self._file = StringVar(value='Scegliere il file da correggere')
         self._new_word = StringVar()
         self._err_word = StringVar()
+        self._chk_pprint = StringVar(value='0')
+        self._chk_backup = StringVar(value='1')
         self._statusbar = StatusBar(self.root, 4)
         self._statusbar.set_text(" " * 40, 0)
         self._statusbar.set_text("   ", 1)
@@ -78,6 +94,7 @@ class Gui(object):
         self._draw()
 
     def _draw(self):
+        """Disegno dell'interfaccia"""
         fm = ttk.LabelFrame(self.root, text=" File da tradurre ")
         Entry(
             fm, textvariable=self._file
@@ -156,12 +173,54 @@ class Gui(object):
         # ------------------------------------------------------
         fm_save = ttk.LabelFrame(self.root, text=" Conferme ")
         Button(
-            fm_save, text='Salva Modifiche', command=self._correggi, width=10
+            fm_save, text='Salva Modifiche', command=self._salva, width=10
         ).grid(row=0, column=0, padx=5, pady=5, sticky=EW)
+        ttk.Checkbutton(
+            fm_save, text='Formatta', variable=self._chk_pprint
+        ).grid(row=0, column=1, padx=5, pady=5, sticky=EW)
+        ttk.Checkbutton(
+            fm_save, text='Salva Originale', variable=self._chk_backup
+        ).grid(row=0, column=2, padx=5, pady=5, sticky=EW)
+
         fm_save.grid(row=3, column=0, padx=8, pady=8, sticky=EW)
 
         self.root.columnconfigure(0, weight=20)
         self._statusbar.grid(row=99, column=0, sticky=EW, padx=8, pady=8)
+
+    def _conferma_salvataggio(self):
+        """"""
+        prompt = ["Confermi salvataggio di %s" % self._file.get()]
+        prompt.append(
+            "%s formattazione del file?" % "con" if self._chk_pprint else
+            "senza"
+        )
+        prompt.append("%s file originale" % (
+            "effettuando una copia del " if self._chk_backup.get() else
+            "sovrascrivendo il "
+        ))
+        return askokcancel("Salvataggio", "\n".join(prompt))
+
+    def _get_bk_filename(self):
+        folder, fn = os.path.split(self._file.get())
+        fn, ext = os.path.splitext(fn)
+        ts = datetime.datetime.now().strftime("-%Y%m%d-%H%M%S")
+        return os.path.join(folder, fn + ts + ext)
+
+    def _salva(self):
+        if not self._sc:
+            showinfo("Salvataggio", "Prima selezionare un file da correggere")
+            return
+        if not self._conferma_salvataggio():
+            return
+        or_file = self._file.get()
+        bk_file = self._get_bk_filename() if self._chk_backup.get() else ""
+        copy(or_file, bk_file)
+        text = self._sc.get_checked(bool(self._chk_pprint.get()))
+        codecs.open(or_file, mode='w', encoding="utf-8").write(text)
+        if
+        self._statusbar.set_text(bk_file, 1)
+        showinfo("Salvataggio", "Salvataggio eseguito")
+
 
     def _onlbselect(self, event):
         """Istanzia ``_new_word`` con il suggerimento selezionato nel listbox"""
@@ -212,7 +271,9 @@ class Gui(object):
             title='Scegliere il file di traduzione da correggere'
         )
         if not os.path.exists(tran_file):
-            showerror(title='Scelta file', msg='File non esiste o non selezionato')
+            showerror(
+                title='Scelta file', msg='File non esiste o non selezionato'
+            )
             return
         self._file.set(tran_file)
         text = codecs.open(tran_file, encoding="utf-8")
@@ -242,6 +303,7 @@ class Gui(object):
         pass
 
     def _show_status_errors(self):
+        """Visualizza lo stato della collezione di errori da gestire"""
         self._contaerr.conta()
         self._statusbar.set_text(
             "%d errori rilevati" % self._contaerr.tot, 0
@@ -261,7 +323,7 @@ class Gui(object):
         base alla scelta di navigazione dell'utente e mostra l'errore
         corrispondente
 
-        ``goto`` è una parola che indica il tipo di spostamento:
+        ``goto`` è una parola chiave che indica il tipo di spostamento:
         - next -> errore successivo (se fine sequenza va al primo)
         - prev -> errore precedente (se inizio sequenza va all'ultimo)
         - ff -> all'ultimo errore della sequenza
@@ -289,14 +351,16 @@ class Gui(object):
         self._show_status_errors()
 
     def _fill_hints(self, hints):
+        """Riempie il listbox dei suggerimenti per l'errore selezionato"""
         self._lbhints.delete(0, END)
         for hint in hints:
             self._lbhints.insert(END, hint)
 
 
 class StatusBar(Frame):
-
+    """Rappresenta una barra di stato"""
     def __init__(self, master, labels=1):
+        """``labels`` è il numero di etichette di stato da visualizzare"""
         Frame.__init__(self, master)
         self._svars = []
         for i in range(labels):
@@ -307,9 +371,9 @@ class StatusBar(Frame):
         self.columnconfigure(0, weight=5)
 
     def set_text(self, text, index):
+        """Assegna ``text`` all'etichetta identificata da ``index``"""
         self._svars[index].set(text)
         self.update_idletasks()
-
 
 
 if __name__ == '__main__':
