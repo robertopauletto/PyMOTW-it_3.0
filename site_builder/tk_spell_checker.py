@@ -58,6 +58,10 @@ class ContatoreErrori(object):
         """NUmero di errori totali"""
         return self._tot
 
+    @property
+    def togo(self):
+        return self.tot - self.ignored - self.checked - self.custom
+
     def conta(self):
         """Ritorna una riepilogo per tipologia"""
         z = [e for e in self._errors if e.is_customized_word]
@@ -215,12 +219,11 @@ class Gui(object):
         or_file = self._file.get()
         bk_file = self._get_bk_filename() if self._chk_backup.get() else ""
         copy(or_file, bk_file)
+
         text = self._sc.get_checked(bool(self._chk_pprint.get()))
         codecs.open(or_file, mode='w', encoding="utf-8").write(text)
-        if
         self._statusbar.set_text(bk_file, 1)
         showinfo("Salvataggio", "Salvataggio eseguito")
-
 
     def _onlbselect(self, event):
         """Istanzia ``_new_word`` con il suggerimento selezionato nel listbox"""
@@ -232,7 +235,12 @@ class Gui(object):
         """Imposta la nuova parola nell'oggetto Error selezionato"""
         if not self._new_word.get():
             return
-        self._sc.errors[self._pos].correct_word = self._new_word.get()
+        new_word = self._new_word.get()
+        err_word = self._err_word.get()
+        for error in self._sc.errors:
+            if error.err_word == err_word:
+                self._sc.errors[self._pos].correct_word = new_word
+                print "Corretta ", error.idx, new_word
 
     def _ignora(self, single=False):
         """Appone il contrassegno di errore da ignorare per
@@ -246,17 +254,18 @@ class Gui(object):
             if not error.err_word == word:
                 continue
             error.ignore_word()
+            print "Ignorata ", error.idx, word
         self._show_status_errors()
-
 
     def _custom_word(self):
         """Appone il contrassegno di parola da aggiungere al dizionario
         personalizzato
         """
-        word = self._sc.errors[self._pos]
+        word = self._err_word.get()
         for error in self._sc.errors:
             if not error.err_word == word:
                 continue
+            print "Personalizzata ", error.idx, word
             error.add_to_dict(word)
 
     def _sfoglia(self):
@@ -290,6 +299,7 @@ class Gui(object):
         error = self._sc.errors[self._pos]
         isinstance(error, spell_checker.Error)
         self._err_word.set(error.err_word)
+        self._new_word.set("")
         self._fill_hints(error.hints)
         isinstance(self._txt, Text)
         self._txt.delete(1.0, END)
@@ -306,7 +316,9 @@ class Gui(object):
         """Visualizza lo stato della collezione di errori da gestire"""
         self._contaerr.conta()
         self._statusbar.set_text(
-            "%d errori rilevati" % self._contaerr.tot, 0
+            "%d / %d errori da correggere/rilevati" % (
+                 self._contaerr.togo, self._contaerr.tot
+            ), 0
         )
         self._statusbar.set_text(
             "%d errori corretti" % self._contaerr.checked, 1
@@ -337,16 +349,28 @@ class Gui(object):
             return
         if goto == 'next':
             self._pos += 1
-            if self._pos == len(self._sc.errors):
-                self._pos = 0
+            while self._sc._errors[self._pos].is_checked:
+                self._pos += 1
+                if self._pos == len(self._sc.errors):
+                    showinfo("", "Fine archivio")
+                    self._pos -=1
+                    break
         elif goto == 'prev':
             self._pos -=1
-            if self._pos < 0:
-                self._pos = len(self._sc.errors)-1
+            while self._sc._errors[self._pos].is_checked:
+                if self._pos < 0:
+                    showinfo("", "Inizio archivio")
+                    self._pos +=1
+                    break
         elif goto == 'ff':
             self._pos = len(self._sc.errors) - 1
+            while self._sc._errors[self._pos].is_checked:
+                self._pos -= 1
         elif goto == 'rw':
             self._pos = 0
+            while self._sc._errors[self._pos].is_checked:
+                self._pos += 1
+
         self._show_error()
         self._show_status_errors()
 

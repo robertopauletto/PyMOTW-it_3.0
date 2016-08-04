@@ -70,7 +70,7 @@ $ python3 random_uniform.py
 Utilizzare un valore seme (Seeding)
 </titolo_2>
 <testo_normale>
-<code>random()</code> produce valori diversi ogni volta che viene invocato ed ha un periodo di tempo molto largo prima che un qualsiasi numero venga ripetuto. Questo è utilie per produrre valori univoci o variazioni, ma ci sono volte nelle quali è utile avere lo stesso insieme di dati a disposizione per essere elaborato in diversi modi. Una tecnica è quella di utilizzare un programma per generare valori casuali e salvarli per essere elaborati come passo separato; il che potrebbe non essere praticabile per  una vasta mole di dati, quindi <strong>random</strong> comprende la funzione <code>seed()</code> per inizializzare un generatore pseudocasuale in modo da produrre un insieme di valori atteso.
+<code>random()</code> produce valori diversi ogni volta che viene invocato ed ha un periodo di tempo molto largo prima che un qualsiasi numero venga ripetuto. Questo è utile per produrre valori univoci o variazioni, ma ci sono volte nelle quali è utile avere lo stesso insieme di dati a disposizione per essere elaborato in diversi modi. Una tecnica è quella di utilizzare un programma per generare valori casuali e salvarli per essere elaborati come passo separato; il che potrebbe non essere praticabile per  una vasta mole di dati, quindi <strong>random</strong> comprende la funzione <code>seed()</code> per inizializzare un generatore pseudocasuale in modo da produrre un insieme di valori atteso.
 </testo_normale>
 <py_code>
 # random_seed.py
@@ -421,7 +421,7 @@ Stesso seme:
 SystemRandom
 </titolo_2>
 <testo_normale>
-Alcuni sistemi operativi forniscono un generatore di numeri casuali che ha accesso ad ulteriori fonti di entropia che possono essere inserite nel generatore. <strong>random</strong> espone questa caratteristica tramite la classe <code>SystemRandom</code>, cha ha la stessa <a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> di <code>Random</code> ma utilizza <code>os.urandom()</code> per generare i valori che formano le basi di tutti gli altri algoritmi.
+Alcuni sistemi operativi forniscono un generatore di numeri casuali che ha accesso ad ulteriori fonti di entropia che possono essere inserite nel generatore. <strong>random</strong> espone questa caratteristica tramite la classe <code>SystemRandom</code>, che ha la stessa <a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> di <code>Random</code> ma utilizza <code>os.urandom()</code> per generare i valori che formano le basi di tutti gli altri algoritmi.
 </testo_normale>
 <py_code>
 # random_system_random.py
@@ -475,7 +475,7 @@ Mentre la distribuzione uniforme dei valori prodotta da <code>random()</code> è
 Normale
 </titolo_3>
 <testo_normale>
-La <a href="https://it.wikipedia.org/wiki/Distribuzione_normale">distribuzione normale</a> viene comunemente ustilizzata per valori ininterrotti non uniformi tipo voti, altezze, larghezze ecc. La curva prodotta dalla distribuzione ha una forma particolare che viene denominata &quot;curva a campana&quot;. <strong>random</strong> include due funzioni per generare valori con una distribuzione normale, <code>normalvariate()</code> e <code>gauss()</code> (leggermente più veloce) - la distribuzione normale viene anche chiamata distribuzione Gaussiana.
+La <a href="https://it.wikipedia.org/wiki/Distribuzione_normale">distribuzione normale</a> viene comunemente utilizzata per valori ininterrotti non uniformi tipo voti, altezze, larghezze ecc. La curva prodotta dalla distribuzione ha una forma particolare che viene denominata &quot;curva a campana&quot;. <strong>random</strong> include due funzioni per generare valori con una distribuzione normale, <code>normalvariate()</code> e <code>gauss()</code> (leggermente più veloce) - la distribuzione normale viene anche chiamata distribuzione Gaussiana.
 </testo_normale>
 <testo_normale>
 La funzione collegata <code>lognormvariate()</code> produce valori pseudocasuali dove il logaritmo dei valori è normalmente distribuito. Queste distribuzioni sono utili per valori che sono il prodotto di diverse variabili casuali che non interagiscono.

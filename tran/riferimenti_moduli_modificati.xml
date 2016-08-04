@@ -146,7 +146,9 @@ gettext
 <testo_normale>
 Tutte le funzioni di traduzione in <strong>gettext</strong> assumono che input ed output sia unicode, e le varianti unicode tipo <code>ugettext()</code> sono state rimosse
 </testo_normale>
-<titolo_2>
+<a name='glob'>
+
+</a><titolo_2>
 glob
 </titolo_2>
 <testo_normale>
