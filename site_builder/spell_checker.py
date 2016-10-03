@@ -4,10 +4,12 @@
 __date__='2016-07-17'
 __version__='0.1'
 __doc__="""
-Integrazione di uno spell checker per il file .xml di traduzione
+Integrazione di uno spell checker per il file .xml di traduzione del progetto
+pymotw-it
 """
 
 try:
+    import os.path
     from enchant import DictWithPWL
     from enchant.checker import SpellChecker
     from enchant.tokenize import URLFilter, EmailFilter
@@ -21,13 +23,15 @@ except ImportError as ierr:
 class SpellCheckError(Exception):
     pass
 
+
 class EnchantProxy(object):
     """Wrapper alla libreria enchant"""
     def __init__(self, mydict=None, lang='it_IT'):
-        """[str]
+        """[str] [,str]
 
         Ottiene l'eventuale elenco di parole personalizzate da integrare al
         dizionario ed il linguaggio da applicare - predefinito Italiano
+        Solleva una eccezione se `mydict` non è accessibile
         """
         self._lang = lang
         self._custom_dict = mydict
@@ -38,12 +42,13 @@ class EnchantProxy(object):
             raise SpellCheckError("Dizionario " + lang + " non trovato")
 
     def check(self, text, chunk_idx):
-        """(str) -> list of tuples
+        """(str, int) -> list of `Error`
 
-        Esegue il controllo per ``testo`` e ritorna una lista di oggetti
-        ``Errore`` con la parola errata e la lista dei suggerimenti.
+        Esegue il controllo per `testo` e ritorna una lista di oggetti
+        `Errore` con la parola errata e la lista dei suggerimenti.
         Se la parola non viene trovata viene effettuata una ricerca anche nel
-        dizionario personale (``self._pwl``) se definito
+        dizionario personale (`self._pwl`) se definito
+        `chunk_idx` è l'identificativo del testo da elaborare
         """
         errors = []
         self._chkr.set_text(text)
@@ -58,14 +63,20 @@ class EnchantProxy(object):
     def upd_mydict(self, word):
         """(str)
 
-        Aggiunge ``word`` al dizionario personalizzato (attiva per la
-        prossima chiamata a ``check``
+        Aggiunge la parola `word` al dizionario personalizzato (attiva per la
+        prossima chiamata a `check`.
+
+        **L'aggiunta viene fatta solo al dizionario personalizzato IN MEMORIA
+        Utilizzare `add_custom_word` per l'aggiornamento del dizionario
+        personalizzato su disco**
         """
         if not self._pwl:
             return
+        if self._pwl.is_added(word):
+            raise SpellCheckError("Parola già esistente")
         self._pwl.add(word)
 
-    def add_custom_word(self, words):
+    def add_custom_words(self, words):
         """(list of str)
 
         Aggiunge le parole in ``words`` al dizionario personalizzato
@@ -78,11 +89,12 @@ class EnchantProxy(object):
             self._custom_dict, mode='w', encoding='utf-8'
         ).write("\n".join(orig_words))
 
+
 class Error(object):
     """Rappresenta una parola ortograficamente non corretta oppure non
     compresa nel dizionario"""
     def __init__(self, word, hints, chunk_idx):
-        """(str, list of str
+        """(str, list of str, int)
 
         Imposta la parola errata ed i suggerimenti.
         ``chunk_idx`` è il progressivo di lista nel quale si trova il testo
@@ -99,9 +111,10 @@ class Error(object):
 
     @property
     def is_checked(self):
-        """Ritorna ``True`` se l'errore non è già stato trattato, vale a dire
-        se ``_ignore`` è ``False`` oppure se ``_add_to_dict è ``False``
-        oppure se `_replacement`` è `None``"""
+        """Ritorna `True` se l'errore  è già stato gestito, vale a dire
+        se `_ignore` è `True` (parola da ignorare) oppure se ``add_to_dict`
+        è `True` (parola da aggiungere al diz. personalizzato) oppure se
+        `_replacement` è una stringa (parola con correzione)"""
         if self._replacement:
             return True
         if self._add_to_dict:
@@ -111,11 +124,8 @@ class Error(object):
         return False
 
     @property
-    def replacement(self):
-        return self._replacement
-
-    @property
     def idx(self):
+        """Ottiene l'indice del testo trattato"""
         return self._chunk_idx
 
     @property
@@ -125,7 +135,7 @@ class Error(object):
 
     @property
     def is_ignored_word(self):
-        """Se true l'errore deve essere ignorato ignorato"""
+        """Se true l'errore deve essere ignorato"""
         return self._ignore
 
     @property
@@ -135,7 +145,7 @@ class Error(object):
 
     @context.setter
     def context(self, text):
-        """Ottiene il contesto di appartenenza dell'errore"""
+        """Imposta il contesto di appartenenza dell'errore"""
         self._context = text
 
     @property
@@ -166,10 +176,10 @@ class Error(object):
         """(str)
 
         Imposta a true ``_add_to_dict`` ed inserisce la parola da aggiungere
-        al dizionario in ``_word``
+        al dizionario in ``_replacement``
         """
         self._add_to_dict = True
-        self._replacement = word
+        #self._replacement = word
 
     @staticmethod
     def get_custom_words(errors):
@@ -180,14 +190,14 @@ class Error(object):
         """
         return [e._word for e in errors if e._add_to_dict]
 
-    @staticmethod
-    def remove_words(errors, words):
-        """(list of Error, list of str) -> list of Error
-
-        Itera su errors e rimuove la cui parola errata è contenuta in ``words``
-        """
-        new_err = [e for e in errors if e.err_word in words]
-        return new_err
+    # @staticmethod
+    # def remove_words(errors, words):
+    #     """(list of Error, list of str) -> list of Error
+    #
+    #     Itera su errors e rimuove la cui parola errata è contenuta in ``words``
+    #     """
+    #     new_err = [e for e in errors if e.err_word in words]
+    #     return new_err
 
 
 class SpellCheck(object):
@@ -197,30 +207,40 @@ class SpellCheck(object):
     tags_to_check = ['testo_normale', 'note']
 
     def __init__(self, to_check, mywords=None):
-        """Ottiene il testo da verificare
-        
+        """(str [,str]
+
+        Imposta il testo da verificare `to_check` e l'eventuale dizionario
+        personalizzato
         """
         self._soup = BeautifulSoup(to_check, "lxml")
         self._ep = EnchantProxy(mydict=mywords)
+        self._cust_dict = mywords
         self._chunks = self._get_chunks()
         self._errors = []
 
     @property
     def errors(self):
+        """Ottiene la lista degli oggetti `Error`"""
         return self._errors
 
     def _correct_chunks(self):
+        """Applica le correzioni al testo da verificare"""
         for error in self._errors:
-            isinstance(error, Error)
-            if error.replacement:
+            assert isinstance(error, Error)
+            if error.correct_word:
                 self._chunks[error.idx].string.replace(
-                    error.err_word, error.replacement
+                    error.err_word, error.correct_word
                 )
 
-
-
     def add_custom_words(self):
-        pass
+        if not self._cust_dict or not os.path.exists(self._cust_dict):
+            return
+        cust_words = Error.get_custom_words(self._errors)
+        codecs.open(
+            self._cust_dict, mode="a", encoding='utf-8'
+        ).write("\n".join(cust_words))
+
+
 
     def _get_chunks(self):
         """Estrae gli elementi da verificare specificati in tags_to_check"""
@@ -232,7 +252,7 @@ class SpellCheck(object):
     def get_checked(self, prettyprinted=False):
         """([bool]) -> str
 
-        Ritorna il testo corretto, se ``prettyprinted`` ritorna il testo
+        Ritorna il testo corretto, se `prettyprinted` ritorna il testo
         formattato"""
         return str(self._soup) if not prettyprinted else self._soup.prettify()
 

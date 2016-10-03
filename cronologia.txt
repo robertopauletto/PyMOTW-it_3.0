@@ -22,3 +22,7 @@
 02.07.2016  copy - Duplica oggetti
 16.07.2016  random - Generatori Pseudocasuali di Numeri
 16.07.2016  fractions - Numeri Razionali
+13.08.2016  glob - Corrispondenza su un modello di nome di file
+13.08.2016  fnmatch - Corrispondenza su Modello Stile Unix Glob
+03.10.2016  operator - Interfaccia Funzionale agli Operatori Built-in
+03.10.2016  itertools - Funzioni di Iterazione

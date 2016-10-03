@@ -23,8 +23,9 @@ INIT_DIR = '../tran'
 INIT_DIR = '/home/robby'
 MYDICT = "/home/robby/ownCloud/spell_mywords.txt"
 
+
 class ContatoreErrori(object):
-    """Rappresenta un riepilogo per tipologia di una collezione di Error"""
+    """Rappresenta un riepilogo per tipologia di una collezione di `Error`"""
     def __init__(self, errors):
         """(list of Error)
 
@@ -60,6 +61,7 @@ class ContatoreErrori(object):
 
     @property
     def togo(self):
+        """Numero di errori ancora da elaborare"""
         return self.tot - self.ignored - self.checked - self.custom
 
     def conta(self):
@@ -68,7 +70,6 @@ class ContatoreErrori(object):
         self._cust = len([e for e in self._errors if e.is_customized_word])
         self._ign = len([e for e in self._errors if e.is_ignored_word])
         self._chckd = len([e for e in self._errors if e.correct_word])
-
 
 
 class Gui(object):
@@ -95,6 +96,7 @@ class Gui(object):
         self._statusbar.set_text("   ", 2)
         self._statusbar.set_text("   ", 3)
         self._contaerr = None  # Contatore errori
+        self._position = StringVar(value='-')
         self._draw()
 
     def _draw(self):
@@ -126,7 +128,13 @@ class Gui(object):
         Button(
             fm_nv, text='>>', width=5, command=lambda: self._nav_errors('ff')
         ).grid(row=0, column=3, padx=5, pady=5)
-        fm_nv.grid(row=0, column=0, ipady=17)
+        Label(
+            fm_nv, text="Errore n. "
+        ).grid(row=1, column=0,  padx=5, pady=5)
+        Label(
+            fm_nv, textvariable=self._position, justify=LEFT, anchor=W
+        ).grid(row=1, column=1, columnspan=3, padx=5, pady=5)
+        fm_nv.grid(row=0, column=0, ipady=5)
 
         # ------------------------------------------------------
 
@@ -149,7 +157,7 @@ class Gui(object):
             command=lambda: self._ignora(False)
         ).grid(row=1, column=1, padx=5, pady=5, sticky=E)
         Button(
-            fm_cmd, text='Aggiungi a diz.', command=self._correggi, width=10
+            fm_cmd, text='Aggiungi a diz.', command=self._custom_word, width=10
         ).grid(row=1, column=2, padx=5, pady=5, sticky=E)
         fm_cmd.grid(row=0, column=1, padx=8, pady=8, sticky=EW)
 
@@ -195,8 +203,8 @@ class Gui(object):
         """"""
         prompt = ["Confermi salvataggio di %s" % self._file.get()]
         prompt.append(
-            "%s formattazione del file?" % "con" if self._chk_pprint else
-            "senza"
+            "%s formattazione del file?" % "con"
+            if int(self._chk_pprint.get()) else "senza"
         )
         prompt.append("%s file originale" % (
             "effettuando una copia del " if self._chk_backup.get() else
@@ -219,8 +227,9 @@ class Gui(object):
         or_file = self._file.get()
         bk_file = self._get_bk_filename() if self._chk_backup.get() else ""
         copy(or_file, bk_file)
-
-        text = self._sc.get_checked(bool(self._chk_pprint.get()))
+        pp = bool(int(self._chk_pprint.get()))
+        text = self._sc.get_checked(pp)
+        self._sc.add_custom_words()
         codecs.open(or_file, mode='w', encoding="utf-8").write(text)
         self._statusbar.set_text(bk_file, 1)
         showinfo("Salvataggio", "Salvataggio eseguito")
@@ -289,6 +298,7 @@ class Gui(object):
         self._sc = spell_checker.SpellCheck(text, MYDICT)
         self._sc.check()
         self._show_error()
+        self._position.set(self._pos +1)
         self._contaerr = ContatoreErrori(self._sc.errors)
         self._show_status_errors()
 
@@ -327,7 +337,7 @@ class Gui(object):
             "%d errori ignorati" % self._contaerr.ignored, 2
         )
         self._statusbar.set_text(
-            "%d aggiunti al dizionario" % self._contaerr.custom, 3
+            "%d parole personalizzate" % self._contaerr.custom, 3
         )
 
     def _nav_errors(self, goto):
@@ -373,6 +383,7 @@ class Gui(object):
 
         self._show_error()
         self._show_status_errors()
+        self._position.set(self._pos +1)
 
     def _fill_hints(self, hints):
         """Riempie il listbox dei suggerimenti per l'errore selezionato"""
