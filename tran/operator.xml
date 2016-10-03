@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>algoritmi</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+operator - Interfaccia Funzionale agli Operatori Built-in
+</titolo_1>
+<descrizione>
+Interfaccia funzionale agli operatori built-in.
+
+</descrizione>
+<testo_normale>
+Programmare utilizzando iteratori richiede occasionalmente la creazione di piccole funzioni per semplici espressioni. Talvolta queste possono essere implementate come funzioni <a href='https://it.wikipedia.org/wiki/Funzione_anonima'>lambda</a>, ma per alcuni operatori nuove funzioni non sono assolutamente necessarie. Il modulo <strong>operator</strong> definisce funzioni che corrispondono ad operazioni built-in per aritmetica, confronto ed altre operazioni che corrispondono ad API per oggetti standard.
+</testo_normale>
+<titolo_2>
+Operazioni logiche
+</titolo_2>
+<testo_normale>
+Ci sono funzioni per determinare l'equivalente booleano di un valore, negarlo per creare il valore booleano opposto, e confrontare oggetti per vedere se sono identici.
+</testo_normale>
+<py_code>
+# operator_boolean.py
+
+from operator import *
+
+a = -1
+b = 5
+
+print('a =', a)
+print('b =', b)
+print()
+
+print('not_(a)     :', not_(a))
+print('truth(a)    :', truth(a))
+print('is_(a, b)   :', is_(a, b))
+print('is_not(a, b):', is_not(a, b))
+</py_code>
+<testo_normale>
+<code>_not()</code> comprende il carattere di sottolineatura all'inizio in quanto <strong>non</strong> è una parola chiave di Python. Per <code>truth()</code> si applica la stessa logica utilizzata quando si verifica una espressione in una istruzione <code>if</code> o quando si converte una espressionie in un <code>bool</code>. <code>is_()</code> implementa la stessa verifica utilizzata dalla parola chiave <code>is</code>, mentre <code>is_not()</code> fa lo stesso controllo e ritorna la risposta opposta.
+</testo_normale>
+<py_output>
+$ python3 operator_boolean.py
+a = -1
+b = 5
+
+not_(a)     : False
+truth(a)    : True
+is_(a, b)   : False
+is_not(a, b): True
+</py_output>
+<titolo_2>
+Operatori di Confronto
+</titolo_2>
+<testo_normale>
+Tutti gli operatori di confronto sono supportati.
+</testo_normale>
+<py_code>
+# operator_comparisons.py
+
+from operator import *
+
+a = 1
+b = 5.0
+
+print('a =', a)
+print('b =', b)
+for func in (lt, le, eq, ne, ge, gt):
+    print('{}(a, b): {}'.format(func.__name__, func(a, b)))
+</py_code>
+<testo_normale>
+Le funzioni sono equivalenti alla sintassi delle espressioni che usano <code>&lt;</code>, <code>&lt;=</code>, <code>==</code>, <code>&gt;=</code> e <code>&gt;</code>.
+</testo_normale>
+<py_output>
+$ python3 operator_comparisons.py
+
+a = 1
+b = 5.0
+lt(a, b): True
+le(a, b): True
+eq(a, b): False
+ne(a, b): True
+ge(a, b): False
+gt(a, b): False
+</py_output>
+<titolo_2>
+Operatori Aritmetici
+</titolo_2>
+<testo_normale>
+Sono supportati anche gli operatori aritmetici per la manipolazione di valori numerici.
+</testo_normale>
+<py_code>
+# operator_math.py
+
+from operator import *
+
+a = -1
+b = 5.0
+c = 2
+d = 6
+
+print('a =', a)
+print('b =', b)
+print('c =', c)
+print('d =', d)
+
+print('\nPositivi/Negativi:')
+print('abs(a):', abs(a))
+print('neg(a):', neg(a))
+print('neg(b):', neg(b))
+print('pos(a):', pos(a))
+print('pos(b):', pos(b))
+
+print('\nArithmetici:')
+print('add(a, b)     :', add(a, b))
+print('floordiv(a, b):', floordiv(a, b))
+print('floordiv(d, c):', floordiv(d, c))
+print('mod(a, b)     :', mod(a, b))
+print('mul(a, b)     :', mul(a, b))
+print('pow(c, d)     :', pow(c, d))
+print('sub(b, a)     :', sub(b, a))
+print('truediv(a, b) :', truediv(a, b))
+print('truediv(d, c) :', truediv(d, c))
+
+print('\nBitwise:')
+print('and_(c, d)  :', and_(c, d))
+print('invert(c)   :', invert(c))
+print('lshift(c, d):', lshift(c, d))
+print('or_(c, d)   :', or_(c, d))
+print('rshift(d, c):', rshift(d, c))
+print('xor(c, d)   :', xor(c, d))
+</py_code>
+<testo_normale>
+Ci sono due operatori di divisione separati: <code>floordiv()</code> (divisione di interi così come implementata da Python prima della versione 3.0) e <code>truediv()</code> (divisione a virgola mobile).
+</testo_normale>
+<py_output>
+$ python3 operator_math.py
+
+a = -1
+b = 5.0
+c = 2
+d = 6
+
+Positivi/Negativi:
+abs(a): 1
+neg(a): 1
+neg(b): -5.0
+pos(a): -1
+pos(b): 5.0
+
+Arithmetici:
+add(a, b)     : 4.0
+floordiv(a, b): -1.0
+floordiv(d, c): 3
+mod(a, b)     : 4.0
+mul(a, b)     : -5.0
+pow(c, d)     : 64
+sub(b, a)     : 6.0
+truediv(a, b) : -0.2
+truediv(d, c) : 3.0
+
+Bitwise:
+and_(c, d)  : 2
+invert(c)   : -3
+lshift(c, d): 128
+or_(c, d)   : 6
+rshift(d, c): 1
+xor(c, d)   : 4
+</py_output>
+<titolo_2>
+Operatori per Sequenze
+</titolo_2>
+<testo_normale>
+Gli operatori per lavorare con sequenze possono essere divisi in quattro gruppi: per la costruzione di sequenze, per la ricerca di elementi, per l'accesso ai contenuti e per la rimozione di elementi dalle sequenze.
+</testo_normale>
+<py_code>
+# operator_sequences.py
+
+from operator import *
+
+a = [1, 2, 3]
+b = ['a', 'b', 'c']
+
+print('a =', a)
+print('b =', b)
+
+print('\nContruttivi:')
+print('  concat(a, b):', concat(a, b))
+
+print('\nRicerca:')
+print('  contains(a, 1)  :', contains(a, 1))
+print('  contains(b, "d"):', contains(b, "d"))
+print('  countOf(a, 1)   :', countOf(a, 1))
+print('  countOf(b, "d") :', countOf(b, "d"))
+print('  indexOf(a, 5)   :', indexOf(a, 1))
+
+print('\nAccesso Elementi:')
+print('  getitem(b, 1)                  :',
+      getitem(b, 1))
+print('  getitem(b, slice(1, 3))        :',
+      getitem(b, slice(1, 3)))
+print('  setitem(b, 1, "d")             :', end=' ')
+setitem(b, 1, "d")
+print(b)
+print('  setitem(a, slice(1, 3), [4, 5]):', end=' ')
+setitem(a, slice(1, 3), [4, 5])
+print(a)
+
+print('\nDistruttivi:')
+print('  delitem(b, 1)          :', end=' ')
+delitem(b, 1)
+print(b)
+print('  delitem(a, slice(1, 3)):', end=' ')
+delitem(a, slice(1, 3))
+print(a)
+</py_code>
+<testo_normale>
+Alcune di queste operazioni, tipo <code>setitem()</code> e <code>delitem()</code>, modificano la sequenza sul posto e non ritornano un valore.
+</testo_normale>
+<py_output>
+$ python3 operator_sequences.py
+
+a = [1, 2, 3]
+b = ['a', 'b', 'c']
+
+Contruttivi:
+  concat(a, b): [1, 2, 3, 'a', 'b', 'c']
+
+Ricerca:
+  contains(a, 1)  : True
+  contains(b, "d"): False
+  countOf(a, 1)   : 1
+  countOf(b, "d") : 0
+  indexOf(a, 5)   : 0
+
+Accesso Elementi:
+  getitem(b, 1)                  : b
+  getitem(b, slice(1, 3))        : ['b', 'c']
+  setitem(b, 1, "d")             : ['a', 'd', 'c']
+  setitem(a, slice(1, 3), [4, 5]): [1, 4, 5]
+
+Distruttivi:
+  delitem(b, 1)          : ['a', 'c']
+  delitem(a, slice(1, 3)): [1]
+</py_output>
+<titolo_2>
+Operatori Sul Posto
+</titolo_2>
+<testo_normale>
+Oltre agli operatori standard, molti tipi di oggetti supportano modifiche "sul posto" attraverso operatori speciali tipo <code>+=</code>. Ci sono anche delle funzioni equivalenti anche per queste modifiche.
+</testo_normale>
+<py_code>
+# operator_inplace.py
+
+from operator import *
+
+a = -1
+b = 5.0
+c = [1, 2, 3]
+d = ['a', 'b', 'c']
+print('a =', a)
+print('b =', b)
+print('c =', c)
+print('d =', d)
+print()
+
+a = iadd(a, b)
+print('a = iadd(a, b) =>', a)
+print()
+
+c = iconcat(c, d)
+print('c = iconcat(c, d) =>', c)
+</py_code>
+<testo_normale>
+Questi esempi dimostrano solo alcune di queste funzioni. Si faccia riferimento alla documentazione della libreria standard per completi dettagli.
+</testo_normale>
+<py_output>
+$ python3 operator_inplace.py
+
+a = -1
+b = 5.0
+c = [1, 2, 3]
+d = ['a', 'b', 'c']
+
+a = iadd(a, b) => 4.0
+
+c = iconcat(c, d) => [1, 2, 3, 'a', 'b', 'c']
+</py_output>
+<titolo_2>
+Attributi e "Getter" di elementi
+</titolo_2>
+<testo_normale>
+Una delle più inusuali caratteristiche del modulo <strong>operator</strong> è il concetto di <em>getters</em>. Questi sono oggetti chiamabili costruiti in fase di esecuzione per recuperare attributi di oggetti o contenuti da sequenze. I <em>getters</em> sono particolarmente utili quando si lavora con iteratori o generatori di sequenze, laddove sono intesi per avere meno <a href="https://it.wikipedia.org/wiki/Overhead">overhead</a> di una <a href='https://it.wikipedia.org/wiki/Funzione_anonima'>lambda</a> o funzione Python.
+</testo_normale>
+<py_code>
+# operator_attrgetter.py
+
+from operator import *
+
+
+class MyObj:
+    """classe di esempio for attrgetter"""
+
+    def __init__(self, arg):
+        super().__init__()
+        self.arg = arg
+
+    def __repr__(self):
+        return 'MyObj({})'.format(self.arg)
+
+
+l = [MyObj(i) for i in range(5)]
+print('oggetti   :', l)
+
+# Estrae il valore 'arg' da ogni oggetto
+g = attrgetter('arg')
+vals = [g(i) for i in l]
+print('valori arg:', vals)
+
+# Sort using arg
+l.reverse()
+print('invertiti  :', l)
+print('ordinati   :', sorted(l, key=g))
+</py_code>
+<testo_normale>
+I <em>getters</em> di attributi lavorano come <code>lambda x, n='nomeattributo': getattr(x, n)</code>
+</testo_normale>
+<py_output>
+$ python3 operator_attrgetter.py
+
+oggetti   : [MyObj(0), MyObj(1), MyObj(2), MyObj(3), MyObj(4)]
+valori arg: [0, 1, 2, 3, 4]
+invertiti  : [MyObj(4), MyObj(3), MyObj(2), MyObj(1), MyObj(0)]
+ordinati   : [MyObj(0), MyObj(1), MyObj(2), MyObj(3), MyObj(4)]
+</py_output>
+<testo_normale>
+I <em>getters</em> di elementi lavorano come <code>lambda x, n='nomeattributo': getattr(x, n)</code>
+</testo_normale>
+<py_code>
+# operator_itemgetter.py
+
+from operator import *
+
+l = [dict(val=-1 * i) for i in range(4)]
+print('Dizionali:')
+print(' originale:', l)
+g = itemgetter('val')
+vals = [g(i) for i in l]
+print('   valori:', vals)
+print('   ordinati:', sorted(l, key=g))
+
+print
+l = [(i, i * -2) for i in range(4)]
+print('\nTuple:')
+print(' originale:', l)
+g = itemgetter(1)
+vals = [g(i) for i in l]
+print('   valori:', vals)
+print('   ordinati:', sorted(l, key=g))
+</py_code>
+<testo_normale>
+I <em>getters</em> di elementi lavorano sia con mappature che con sequenze.
+</testo_normale>
+<py_output>
+$ python3 operator_itemgetter.py
+Dizionali:
+ originale: [{'val': 0}, {'val': -1}, {'val': -2}, {'val': -3}]
+   valori: [0, -1, -2, -3]
+   ordinati: [{'val': -3}, {'val': -2}, {'val': -1}, {'val': 0}]
+
+Tuple:
+ originale: [(0, 0), (1, -2), (2, -4), (3, -6)]
+   valori: [0, -2, -4, -6]
+   ordinati: [(3, -6), (2, -4), (1, -2), (0, 0)]
+</py_output>
+<titolo_2>
+Combinare Operatori e Classi Personalizzate
+</titolo_2>
+<testo_normale>
+Le funzioni nel modulo <strong>operator</strong> funzionano tramite le interfacce standard Python per le proprie operazioni, quindi funzionano con classi definite dall'utente alla stessa stregua dei tipi built-in.
+</testo_normale>
+<py_code>
+# operator_classes.py
+
+from operator import *
+
+
+class MyObj:
+    """Esempio per overload di operatore"""
+
+    def __init__(self, val):
+        super(MyObj, self).__init__()
+        self.val = val
+
+    def __str__(self):
+        return 'MyObj({})'.format(self.val)
+
+    def __lt__(self, other):
+        """confronto per minore di"""
+        print('Verifica {} < {}'.format(self, other))
+        return self.val < other.val
+
+    def __add__(self, other):
+        """aggiunge valori"""
+        print('Aggiungo {} + {}'.format(self, other))
+        return MyObj(self.val + other.val)
+
+
+a = MyObj(1)
+b = MyObj(2)
+
+print('Confronto:')
+print(lt(a, b))
+
+print('\nAritmetica:')
+print(add(a, b))
+</py_code>
+<testo_normale>
+Si faccia riferimento alla guida di riferimento di Python per un elenco completo dei metodi speciali utilizzati da ciascun operatore.
+</testo_normale>
+<py_output>
+$ python3 operator_classes.py
+
+Confronto:
+Verifica MyObj(1) < MyObj(2)
+True
+
+Aritmetica:
+Aggiungo MyObj(1) + MyObj(2)
+MyObj(3)
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/operator.html|operator|La documentazione standard della libreria per questo modulo.
+functools.html|functools|Strumenti per la programmazione funzionale, compreso il decoratore <code>total_ordering</code> per aggiungere metodi di confronto arricchito ad una classe.
+itetools.html|itertools|Operazioni di iterazione.
+collections.html|collections|Tipi astratti per collezioni
+|numbers|Tipi astratti per valori numerici.
+</vedi_anche>
+</documento_tradotto>

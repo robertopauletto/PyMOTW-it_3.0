@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>algoritmi</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+itertools - Funzioni di Iterazione
+</titolo_1>
+<descrizione>
+Il modulo itertools contiene un insieme di funzioni per lavorare con sequenze di dati.
+</descrizione>
+<testo_normale>
+Le funzioni fornite da <strong>itertools</strong> sono ispirate da caratteristiche simili dei linguaggi di programmazione funzionale tipo Clojure, Haskell, APL ed SML. Esse sono concepite per essere veloci ed usare memoria con efficienza, oltre ad essere concatenate per esprimere algoritmi basati sull'iterazione più complicati.
+</testo_normale>
+<testo_normale>
+Il codice basato su iteratori fornisce migliori capacità di consumo della memoria rispetto al codice che utilizza liste. Visto che il dato non viene prodotto dall'iteratore fino a quando non è richiesto, non occorre che tutti i dati vengano conservati in memoria allo stesso momento. Questo modello di elaborazione "pigro" usa meno memoria, che può ridurre lo swapping ed altri effetti colletarali nella gestione di grandi insiemi di dati, migliorando le prestazioni.
+</testo_normale>
+<testo_normale>
+Oltre alle funzioni definite in <strong>itertools</strong>, gli esempi in questa sezione fanno anche affidamento ad alcune funzioni di iterazione built-in.
+</testo_normale>
+<titolo_2>
+Unire e Dividere Iteratori
+</titolo_2>
+<testo_normale>
+La funzione <code>chain()</code> ottiene diversi iteratori come argomenti e ritorna un singolo iteratore che produce il contenuto di tutti gli input come se provenissero da un singolo iteratore.
+</testo_normale>
+<py_code>
+# itertools_chain.py
+
+from itertools import *
+
+for i in chain([1, 2, 3], ['a', 'b', 'c']):
+    print(i, end=' ')
+print()
+</py_code>
+<testo_normale>
+<code>chain()</code> facilita l'elaborazione di parecchie sequenze senza costruire una grande lista.
+</testo_normale>
+<py_output>
+$ python3 itertools_chain.py
+
+1 2 3 a b c
+</py_output>
+<testo_normale>
+Se gli iterabili da combinare non sono tutti noti in anticipo, oppure devono essere elaborati pigramente, <code>chain.from_iterable()</code> può essere invece usata per costruire il concatenamento.
+</testo_normale>
+<py_code>
+# itertools_chain_from_iterable.py
+
+from itertools import *
+
+
+def make_iterables_to_chain():
+    yield [1, 2, 3]
+    yield ['a', 'b', 'c']
+
+
+for i in chain.from_iterable(make_iterables_to_chain()):
+    print(i, end=' ')
+print()
+</py_code>
+<py_output>
+$ python3 itertools_chain_from_iterable.py
+
+1 2 3 a b c
+</py_output>
+<testo_normale>
+La funzione built-in <code>zip()</code> ritorna un iteratore che combina gli elementi di diversi iteratori in tuple.
+</testo_normale>
+<py_code>
+# itertools_zip.py
+
+for i in zip([1, 2, 3], ['a', 'b', 'c']):
+    print(i)
+</py_code>
+<testo_normale>
+Così come per le altre funzioni di questo modulo, il valore ritornato è un oggetto iterabile che produce valori uno alla volta.
+</testo_normale>
+<py_output>
+$ python3 itertools_zip.py
+
+(1, 'a')
+(2, 'b')
+(3, 'c')
+</py_output>
+<testo_normale>
+<code>zip()</code> si interrompe quando il primo iteratore in input viene esaurito. Per elaborare tutti gli input, anche se gli iteratori producono diversi numeri di valori, si usa <code>zip_longest()</code>.
+</testo_normale>
+<py_code>
+# itertools_zip_longest.py
+
+from itertools import *
+
+r1 = range(3)
+r2 = range(2)
+
+print('zip si ferma prima:')
+print(list(zip(r1, r2)))
+
+r1 = range(3)
+r2 = range(2)
+
+print('\nzip_longest elabora tutti i valori:')
+print(list(zip_longest(r1, r2)))
+</py_code>
+<testo_normale>
+Nella modalità predefinita, <code>zip_longest()</code> sostituisce qualsiasi valore mancante con <code>None</code>. Si usa l'argomento <code>fillvalue</code> per utilizzare un valore di sostituzione diverso.
+</testo_normale>
+<py_output>
+$ python3 itertools_zip_longest.py
+
+zip si ferma prima:
+[(0, 0), (1, 1)]
+
+zip_longest elabora tutti i valori:
+[(0, 0), (1, 1), (2, None)]
+</py_output>
+<testo_normale>
+La funzione <code>islice()</code> ritorna un iteratore che ritorna elementi selezionati dall'iteratore in input, per indice.
+</testo_normale>
+<py_code>
+# itertools_islice.py
+
+from itertools import *
+
+print('Ferma a  5:')
+for i in islice(count(), 5):
+    print(i, end=' ')
+print('\n')
+
+print('Parte da 5, ferma a 10:')
+for i in islice(count(), 5, 10):
+    print(i, end=' ')
+print('\n')
+
+print('Per decine fino a 100:')
+for i in islice(count(), 0, 100, 10):
+    print(i, end=' ')
+print('\n')
+</py_code>
+<testo_normale>
+<code>islice()</code> ottiene gli stessi argomenti dell'operatore slice per le liste: <em>start</em>, <em>stop</em> e <em>step</em>. Gli argomenti <em>start</em> e <em>step</em> sono opzionali.
+</testo_normale>
+<py_output>
+$ python3 itertools_islice.py
+
+Ferma a  5:
+0 1 2 3 4
+
+Parte da 5, ferma a 10:
+5 6 7 8 9
+
+Per decine fino a 100:
+0 10 20 30 40 50 60 70 80 90
+</py_output>
+<testo_normale>
+La funzione <code>tee()</code> ritorna diversi iteratori indipendenti (predefiniti 2) in base ad un singolo input di origine.
+</testo_normale>
+<py_code>
+# itertools_tee.py
+
+from itertools import *
+
+r = islice(count(), 5)
+i1, i2 = tee(r)
+
+print('i1:', list(i1))
+print('i2:', list(i2))
+</py_code>
+<testo_normale>
+<code>tee()</code> ha una semantica simile all'utilità UNIX <strong>tee</strong>, la quale ripete i valori che legge dall'input e li scrive in un file oppure nell'output standard. Gli iteratori ritornati da <code>tee()</code> possono essere usati per alimentare con lo stesso insieme di dati multipli algoritmi che debbano essere elaborati in parallelo.
+</testo_normale>
+<py_output>
+$ python3 itertools_tee.py
+
+i1: [0, 1, 2, 3, 4]
+i2: [0, 1, 2, 3, 4]
+</py_output>
+<testo_normale>
+I nuovi iteratori creati da <code>tee()</code> condividono il loro input, quindi l'iteratore originale non dovrebbe essere usato dopo che sono stati creati quelli nuovi.
+</testo_normale>
+<py_code>
+# itertools_tee_error.py
+
+from itertools import *
+
+r = islice(count(), 5)
+i1, i2 = tee(r)
+
+print('r:', end=' ')
+for i in r:
+    print(i, end=' ')
+    if i > 1:
+        break
+print()
+
+print('i2:', list(i2))
+print('i1:', list(i1))
+</py_code>
+<testo_normale>
+Se i valori sono consumati dall'input originale, i nuovi iteratori non produrranno quei valori.
+</testo_normale>
+<py_output>
+$ python3 itertools_tee_error.py
+
+r: 0 1 2
+i2: [3, 4]
+i1: [3, 4]
+</py_output>
+<titolo_2>
+Convertire Input
+</titolo_2>
+<testo_normale>
+La funzione built-in <code>map()</code> ritorna un iteratore che chiama una funzione sui valori degli iteratori in input e ritorna i risultati. Si ferma quando tutti gli iteratori in input sono esauriti.
+</testo_normale>
+<py_code>
+# itertools_map.py
+
+
+def times_two(x):
+    return 2 * x
+
+
+def multiply(x, y):
+    return (x, y, x * y)
+
+
+print('Doppi:')
+for i in map(times_two, range(5)):
+    print(i)
+
+print('\nMultipli:')
+r1 = range(5)
+r2 = range(5, 10)
+for i in map(multiply, r1, r2):
+    print('{:d} * {:d} = {:d}'.format(*i))
+
+print('\nFine:')
+r1 = range(5)
+r2 = range(2)
+for i in map(multiply, r1, r2):
+    print(i)
+</py_code>
+<testo_normale>
+Nel primo esempio, la funzione <a href='https://it.wikipedia.org/wiki/Funzione_anonima'>lambda</a> moltiplica i valori per 2. Nel secondo esempio la funzione <a href='https://it.wikipedia.org/wiki/Funzione_anonima'>lambda</a> moltiplica due argomenti, presi da iteratori separati, e ritorna una tupla con gli argomenti originali ed il valore calcolato. Il terzo esempio si interrompe dopo aver prodotto due tuple visto che il secondo iteratore in input si è esaurito.
+</testo_normale>
+<py_output>
+$ python3 itertools_map.py
+
+Doppi:
+0
+2
+4
+6
+8
+
+Multipli:
+0 * 5 = 0
+1 * 6 = 6
+2 * 7 = 14
+3 * 8 = 24
+4 * 9 = 36
+
+Fine:
+(0, 0, 0)
+(1, 1, 1)
+</py_output>
+<testo_normale>
+La funzione <code>starmap()</code> è simile a <code>map()</code>, ma in luogo di costruire una tupla da molteplici iteratori, divide gli elementi in un singolo iteratore come argomenti per la funzione di mappatura usando la sintassi <code>*</code>
+</testo_normale>
+<py_code>
+# itertools_starmap.py
+
+from itertools import *
+
+values = [(0, 5), (1, 6), (2, 7), (3, 8), (4, 9)]
+
+for i in starmap(lambda x, y: (x, y, x * y), values):
+    print('{} * {} = {}'.format(*i))
+</py_code>
+<testo_normale>
+Laddove la funzione di mappatura per <code>map()</code> viene chiamata <code>f(i1, i2)</code>, la funzione di mappatura passata a <code>starmap()</code> viene chiamata <code>f(*i)</code>.
+</testo_normale>
+<py_output>
+$ python3 itertools_starmap.py
+
+0 * 5 = 0
+1 * 6 = 6
+2 * 7 = 14
+3 * 8 = 24
+4 * 9 = 36
+</py_output>
+<titolo_2>
+Produrre Nuovi Valori
+</titolo_2>
+<testo_normale>
+La funzione <code>count()</code> ritorna un iteratore che produce interi consecutivi, indefinitamente. Il primo numero può essere passato come argomento (predefinito 0). Non c'è un argomento per definiire un valore massimo (si veda la funzione built-in <code>range()</code> per un maggiore controllo sull'insieme del risultato).
+</testo_normale>
+<py_code>
+# itertools_count.py
+
+from itertools import *
+
+for i in zip(count(1), ['a', 'b', 'c']):
+    print(i)
+</py_code>
+<testo_normale>
+Questo esempio si interrompe poichè gli argomenti nella lista argomento si sono esauriti.
+</testo_normale>
+<py_output>
+$ python3 itertools_count.py
+
+(1, 'a')
+(2, 'b')
+(3, 'c')
+</py_output>
+<testo_normale>
+Gli argomenti <em>start</em> e <em>step</em> per <code>count()</code> possono essere valori numerici che possono essere sommati assieme.
+</testo_normale>
+<py_code>
+# itertools_count_step.py
+
+import fractions
+from itertools import *
+
+start = fractions.Fraction(1, 3)
+step = fractions.Fraction(1, 3)
+
+for i in zip(count(start, step), ['a', 'b', 'c']):
+    print('{}: {}'.format(*i))
+</py_code>
+<testo_normale>
+In questo esempio, il punto di partenza e l'incremento sono oggetti <code>Fraction</code> dal modulo <strong>fraction</strong>.
+</testo_normale>
+<py_output>
+$ python3 itertools_count_step.py
+
+1/3: a
+2/3: b
+1: c
+</py_output>
+<testo_normale>
+La funzione <code>cycle()</code> ritorna un iteratore che ripete i contenuti degli argomenti ricevuti indefinitamente. Visto che deve ricordare l'intero contenuto dell'iteratore in input, potrebbe consumare un bel poco di memoria se l'iteratore è lungo.
+</testo_normale>
+<py_code>
+# itertools_cycle.py
+
+from itertools import *
+
+for i in zip(range(7), cycle(['a', 'b', 'c'])):
+    print(i)
+</py_code>
+<testo_normale>
+In questo esempio una variabile contatore viene usata per uscire dal ciclo dopo alcune iterazioni.
+</testo_normale>
+<py_output>
+$ python3 itertools_cycle.py
+
+(0, 'a')
+(1, 'b')
+(2, 'c')
+(3, 'a')
+(4, 'b')
+(5, 'c')
+(6, 'a')
+</py_output>
+<testo_normale>
+La funzione <code>repeat()</code> ritorna un iteratore che produce lo stesso valore ogni volta che viene elaborato.
+</testo_normale>
+<py_code>
+# itertools_repeat.py
+
+from itertools import *
+
+for i in repeat('over-and-over', 5):
+    print(i)
+</py_code>
+<testo_normale>
+L'iteratore ritornato da <code>repaat()</code> continuerebbe a restituire dati per sempre, a meno che l'argomento opzionale <em>times</em> venga fornito per limitarlo.
+</testo_normale>
+<py_output>
+$ python3 itertools_repeat.py
+
+over-and-over
+over-and-over
+over-and-over
+over-and-over
+over-and-over
+</py_output>
+<testo_normale>
+E' utile combinare <code>repeat()</code> con <code>zip()</code> o <code>map()</code> quando occorre includere valori fissi debbano essere combinati con valori da altri iteratori.
+</testo_normale>
+<py_code>
+# itertools_repeat_zip.py
+
+from itertools import *
+
+for i, s in zip(count(), repeat('over-and-over', 5)):
+    print(i, s)
+</py_code>
+<testo_normale>
+In questo esempio un valore contatore viene combinato con la costante restituita da <code>repeat()</code>.
+</testo_normale>
+<py_output>
+$ python3 itertools_repeat_zip.py
+
+0 over-and-over
+1 over-and-over
+2 over-and-over
+3 over-and-over
+4 over-and-over
+</py_output>
+<testo_normale>
+Questo esempio utilizza <code>map()</code> per moltiplicare per 2 i numeri nell'intervallo tra 0 e 4.
+</testo_normale>
+<py_code>
+# itertools_repeat_map.py
+
+from itertools import *
+
+for i in map(lambda x, y: (x, y, x * y), repeat(2), range(5)):
+    print('{:d} * {:d} = {:d}'.format(*i))
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<py_output>
+$ python3 itertools_repeat_map.py
+
+2 * 0 = 0
+2 * 1 = 2
+2 * 2 = 4
+2 * 3 = 6
+2 * 4 = 8
+</py_output>
+<testo_normale>
+L'iteratore <code>repeat()</code> non deve essere esplicitamente limitato, visto che <code>map()</code> interrompe l'elaborazione quando un qualsiasi dei suoi input si esaurisce, e <code>range()</code> ritorna solo 5 elementi.
+</testo_normale>
+<titolo_2>
+Filtrare
+</titolo_2>
+<testo_normale>
+La funzione <code>dropwhile()</code> ritorna un iteratore che produce elementi dall'iteratore in input dopo che una condizione diventa <code>False</code> per la prima volta.
+</testo_normale>
+<py_code>
+# itertools_dropwhile.py
+
+from itertools import *
+
+
+def should_drop(x):
+    print('Verifica:', x)
+    return x < 1
+
+for i in dropwhile(should_drop, [-1, 0, 1, 2, -2]):
+    print('Trattengo:', i)
+</py_code>
+<testo_normale>
+<code>dropwhile()</code> non filtra tutti gli elementi dell'input; dopo che la condizione diventa falsa per la prima volta, vengono ritornati tutti gli elementi rimanenti dell'input.
+</testo_normale>
+<py_output>
+$ python3 itertools_dropwhile.py
+
+Verifica: -1
+Verifica: 0
+Verifica: 1
+Trattengo: 1
+Trattengo: 2
+Trattengo: -2
+</py_output>
+<testo_normale>
+L'opposto di <code>dropwhile()</code> è <code>takewhile()</code>, che ritorna un iteratore che contiene gli elementi dell'iteratore in input fintanto che la funzione di verifica ritorna <code>True</code>.
+</testo_normale>
+<py_code>
+# itertools_takewhile.py
+
+from itertools import *
+
+
+def should_take(x):
+    print('Verifica:', x)
+    return x < 2
+
+for i in takewhile(should_take, [-1, 0, 1, 2, -2]):
+    print('Trattengo:', i)
+</py_code>
+<testo_normale>
+Non appena <code>should_take</code> ritorna <code>False</code>, <code>takewhile()</code> interrompe l'elaborazione dell'input.
+</testo_normale>
+<py_output>
+$ python3 itertools_takewhile.py
+
+Verifica: -1
+Trattengo: -1
+Verifica: 0
+Trattengo: 0
+Verifica: 1
+Trattengo: 1
+Verifica: 2
+</py_output>
+<testo_normale>
+La funzione built-in <code>filter()</code> ritorna un iteratore che include solo gli elementi per i quali la funzione di verifica ritorna <code>True</code>.
+</testo_normale>
+<py_code>
+# itertools_filter.py
+
+from itertools import *
+
+
+def check_item(x):
+    print('Verifica:', x)
+    return x < 1
+
+for i in filter(check_item, [-1, 0, 1, 2, -2]):
+    print('Trattengo:', i)
+</py_code>
+<testo_normale>
+<code>filter()</code> è diverso da <code>dropwhile()</code> e <code>takewhile()</code> in quanto tutti gli elementi vengono verificati prima di essere restituiti.
+</testo_normale>
+<py_output>
+$ python3 itertools_filter.py
+
+Verifica: -1
+Trattengo: -1
+Verifica: 0
+Trattengo: 0
+Verifica: 1
+Verifica: 2
+Verifica: -2
+Trattengo: -2
+</py_output>
+<testo_normale>
+<code>filterfalse()</code> ritorna un iteratore che comprende solo elementi per i quali la funzione di verifica ritorna <code>False</code>.
+</testo_normale>
+<py_code>
+# itertools_filterfalse.py
+
+from itertools import *
+
+
+def check_item(x):
+    print('Verifica:', x)
+    return x < 1
+
+for i in filterfalse(check_item, [-1, 0, 1, 2, -2]):
+    print('Trattengo:', i)
+</py_code>
+<testo_normale>
+L'espressione di verifica in <code>check_item()</code> è la stessa, quindi i risultati in questo esempio con <code>filterfalse()</code> sono l'opposto di quelli ottenuti con <code>filter()</code> nell'esempio precedente.
+</testo_normale>
+<py_output>
+$ python3 itertools_filterfalse.py
+
+Verifica: -1
+Verifica: 0
+Verifica: 1
+Trattengo: 1
+Verifica: 2
+Trattengo: 2
+Verifica: -2
+</py_output>
+<testo_normale>
+<code>compress()</code> offre un altro modo di filtrare il contenuto di un iterabile. Invece di chiamare una funzione, utilizza i valori in un altro iterabile per indicare quando accettare un valore oppure ignorarlo.
+</testo_normale>
+<py_code>
+# itertools_compress.py
+
+from itertools import *
+
+every_third = cycle([False, False, True])
+data = range(1, 10)
+
+for i in compress(data, every_third):
+    print(i, end=' ')
+print()
+</py_code>
+<testo_normale>
+Il primo argomento è il dato iterabile da elaborare ed il secondo è un iterabile di selezione che produce valori booleani che indicano quali elementi prendere dall'input (un valore <code>True</code> fa sì che l'elemento venga ritornato, un valore <code>False</code> lo fa ignorare).
+</testo_normale>
+<py_output>
+$ python3 itertools_compress.py
+
+3 6 9
+</py_output>
+<titolo_2>
+Raggruppare Dati
+</titolo_2>
+<testo_normale>
+La funzione <code>groupby()</code> ritorna un iteratore che produce insiemi di valori ordinati da una chiave comune
+Questo esempio illustra un raggruppamento di valori in base ad un attributo.
+</testo_normale>
+<py_code>
+# itertools_groupby_seq.py
+
+import functools
+from itertools import *
+import operator
+import pprint
+
+
+@functools.total_ordering
+class Point:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return '({}, {})'.format(self.x, self.y)
+
+    def __eq__(self, other):
+        return (self.x, self.y) == (other.x, other.y)
+
+    def __gt__(self, other):
+        return (self.x, self.y) > (other.x, other.y)
+
+
+# Crea un insieme di dati di istanze di Point
+data = list(map(Point,
+                cycle(islice(count(), 3)),
+                islice(count(), 7)))
+print('Dati:')
+pprint.pprint(data, width=35)
+print()
+
+# Cerca di raggruppare i dati non ordinati in baase al valore di X
+print('Raggruppati, non ordinati:')
+for k, g in groupby(data, operator.attrgetter('x')):
+    print(k, list(g))
+print()
+
+# Ordina i dati
+data.sort()
+print('Ordinati:')
+pprint.pprint(data, width=35)
+print()
+
+# Raggruppa i dati ordinati in base ai valori di X
+print('Raggruppati, ordinati:')
+for k, g in groupby(data, operator.attrgetter('x')):
+    print(k, list(g))
+print()
+</py_code>
+<testo_normale>
+La sequenza in input deve essere ordinata in base al valore chiave affinchè il raggruppamento avvenga come ci si attende.
+</testo_normale>
+<py_output>
+$ python3 itertools_groupby_seq.py
+
+Dati:
+[(0, 0),
+ (1, 1),
+ (2, 2),
+ (0, 3),
+ (1, 4),
+ (2, 5),
+ (0, 6)]
+
+Raggruppati, non ordinati:
+0 [(0, 0)]
+1 [(1, 1)]
+2 [(2, 2)]
+0 [(0, 3)]
+1 [(1, 4)]
+2 [(2, 5)]
+0 [(0, 6)]
+
+Ordinati:
+[(0, 0),
+ (0, 3),
+ (0, 6),
+ (1, 1),
+ (1, 4),
+ (2, 2),
+ (2, 5)]
+
+Raggruppati, ordinati:
+0 [(0, 0), (0, 3), (0, 6)]
+1 [(1, 1), (1, 4)]
+2 [(2, 2), (2, 5)]
+</py_output>
+<titolo_2>
+Combinare Input
+</titolo_2>
+<testo_normale>
+La funzione <code>accumulate()</code> elebora un input iterabile, passando l'ennesimo e l'ennesimo + 1 elemento ad una funzione e produce il valore di ritorno in luogo dell'input. La funzione predefinita utilizzata per combinare i due valori li aggiunge, quindi <code>accumulate()</code> può essere usata per produrre somme cumulative di serie di input numerici.
+</testo_normale>
+<py_code>
+# itertools_accumulate.py
+
+from itertools import *
+
+print(list(accumulate(range(5))))
+print(list(accumulate('abcde')))
+</py_code>
+<testo_normale>
+Quando usata con una sequenza di valori non interi, i risultati dipendono da quel che significa "aggiungere" due elementi assieme. Il secondo esempio dello script mostra come quando <code>accumulte()</code> riceve in input una stringa ciascuna risposta costituisce un prefisso più lungo di quella stringa.
+</testo_normale>
+<py_output>
+$ python3 itertools_accumulate.py
+
+[0, 1, 3, 6, 10]
+['a', 'ab', 'abc', 'abcd', 'abcde']
+</py_output>
+<testo_normale>
+E' possibile combinare <code>accumulate()</code>  con qualsiasi altra funzione che riceve due valori in input per conseguire diversi risultati.
+</testo_normale>
+<py_code>
+# itertools_accumulate_custom.py
+
+from itertools import *
+
+
+def f(a, b):
+    print(a, b)
+    return b + a + b
+
+print(list(accumulate('abcde', f)))
+</py_code>
+<testo_normale>
+Questo esempio combina i valori stringa in modo che generino una serie di palindromi (senza significato). Ad ogni passo, quando viene chiamata <code>f()</code>, vengono stampati i valori in input passati ad <code>accumulate()</code>.
+</testo_normale>
+<py_output>
+$ python3 itertools_accumulate_custom.py
+a b
+bab c
+cbabc d
+dcbabcd e
+['a', 'bab', 'cbabc', 'dcbabcd', 'edcbabcde']
+</py_output>
+<testo_normale>
+Cicli <code>for</code> annidati che iterino su sequenze multiple spesso possono essere rimpiazzate con <code>product()</code>, che produce un singolo iterabile i cui valori sono il prodotto Cartesiano dell'insieme dei valori in input.
+</testo_normale>
+<py_code>
+# itertools_product.py
+
+from itertools import *
+import pprint
+
+FACE_CARDS = ('J', 'Q', 'K', 'A')
+SUITS = ('\u2665', '\u2666', '\u2663', '\u2660')
+
+DECK = list(
+    product(
+        chain(range(2, 11), FACE_CARDS),
+        SUITS,
+    )
+)
+
+for card in DECK:
+    print('{:>2}{}'.format(*card), end=' ')
+    if card[1] == SUITS[-1]:
+        print()
+</py_code>
+<testo_normale>
+I valori generati da <code>product()</code> sono tuple, con i membri presi da ciascun iterabile passato come argomento, nell'ordine nel quale vengono passati. La prima tupla ritorna il pirmo valore da ciascun iterabile. L'ultimo iterabile passato a <code>product()</code> viene elaborato per primo, seguito dal penultimo e così via. Il risultato è che i valori ritornati sono nell'ordine del primo iterabile, poi del successivo e così via.
+</testo_normale>
+<testo_normale>
+I questo esempio, le carte sono ordinate per valore, quindi per seme.
+</testo_normale>
+<py_output>
+$ python3 itertools_product.py
+
+ 2♥  2♦  2♣  2♠
+ 3♥  3♦  3♣  3♠
+ 4♥  4♦  4♣  4♠
+ 5♥  5♦  5♣  5♠
+ 6♥  6♦  6♣  6♠
+ 7♥  7♦  7♣  7♠
+ 8♥  8♦  8♣  8♠
+ 9♥  9♦  9♣  9♠
+10♥ 10♦ 10♣ 10♠
+ J♥  J♦  J♣  J♠
+ Q♥  Q♦  Q♣  Q♠
+ K♥  K♦  K♣  K♠
+ A♥  A♦  A♣  A♠
+</py_output>
+<testo_normale>
+Per cambiare l'ordine delle carte, occorre cambiare l'ordine degli argomenti per <code>product()</code>.
+</testo_normale>
+<py_code>
+# itertools_product_ordering.py
+
+from itertools import *
+import pprint
+
+FACE_CARDS = ('J', 'Q', 'K', 'A')
+SUITS = ('\u2665', '\u2666', '\u2663', '\u2660')
+
+DECK = list(
+    product(
+        SUITS,
+        chain(range(2, 11), FACE_CARDS),
+    )
+)
+
+for card in DECK:
+    print('{:>2}{}'.format(card[1], card[0]), end=' ')
+    if card[1] == FACE_CARDS[-1]:
+        print()
+</py_code>
+<testo_normale>
+Il ciclo di stampa in questo esempio cerca un asso, invece del seme di spade, quindi aggiunge un ritorno a capo per spezzare l'input.
+</testo_normale>
+<py_output>
+$ python3 itertools_product_ordering.py
+
+ 2♥  3♥  4♥  5♥  6♥  7♥  8♥  9♥ 10♥  J♥  Q♥  K♥  A♥
+ 2♦  3♦  4♦  5♦  6♦  7♦  8♦  9♦ 10♦  J♦  Q♦  K♦  A♦
+ 2♣  3♣  4♣  5♣  6♣  7♣  8♣  9♣ 10♣  J♣  Q♣  K♣  A♣
+ 2♠  3♠  4♠  5♠  6♠  7♠  8♠  9♠ 10♠  J♠  Q♠  K♠  A♠
+</py_output>
+<testo_normale>
+Per calcolare il prodotto di una sequenza con se stessa, occorre specificare quante volte l'input debba essere ripetuto.
+</testo_normale>
+<py_code>
+# itertools_product_repeat.py
+
+from itertools import *
+
+
+def show(iterable):
+    for i, item in enumerate(iterable, 1):
+        print(item, end=' ')
+        if (i % 3) == 0:
+            print()
+    print()
+
+
+print('Ripetizione 2:\n')
+show(list(product(range(3), repeat=2)))
+
+print('Ripetizione 3:\n')
+show(list(product(range(3), repeat=3)))
+</py_code>
+<testo_normale>
+Visto che ripetere un singolo iterabile è come passare lo stesso iterabile più volte, ogni tupla generata da <code>product()</code> contiene un numero di elementi pari al contatore di ripetizioni.
+</testo_normale>
+<py_output>
+$ python3 itertools_product_repeat.py
+Ripetizione 2:
+
+(0, 0) (0, 1) (0, 2)
+(1, 0) (1, 1) (1, 2)
+(2, 0) (2, 1) (2, 2)
+
+Ripetizione 3:
+
+(0, 0, 0) (0, 0, 1) (0, 0, 2)
+(0, 1, 0) (0, 1, 1) (0, 1, 2)
+(0, 2, 0) (0, 2, 1) (0, 2, 2)
+(1, 0, 0) (1, 0, 1) (1, 0, 2)
+(1, 1, 0) (1, 1, 1) (1, 1, 2)
+(1, 2, 0) (1, 2, 1) (1, 2, 2)
+(2, 0, 0) (2, 0, 1) (2, 0, 2)
+(2, 1, 0) (2, 1, 1) (2, 1, 2)
+(2, 2, 0) (2, 2, 1) (2, 2, 2)
+</py_output>
+<testo_normale>
+La funzione <code>permutations()</code> produce elementi dall'iteratore combinati nelle possibili permutazioni della lunghezza data. Nella modalità predefinita viene prodotto l'insieme completo di permutazioni.
+</testo_normale>
+<py_code>
+# itertools_permutations.py
+
+from itertools import *
+
+
+def show(iterable):
+    first = None
+    for i, item in enumerate(iterable, 1):
+        if first != item[0]:
+            if first is not None:
+                print()
+            first = item[0]
+        print(''.join(item), end=' ')
+    print()
+
+print('Tutte le permutazioni:\n')
+show(permutations('abcd'))
+
+print('Coppie:\n')
+show(permutations('abcd', r=2))
+</py_code>
+<testo_normale>
+Si usa l'argomento <code>r</code> per limitare la lunghezza ed il numero di permutazioni individuali ritornate.
+</testo_normale>
+<py_output>
+$ python3 itertools_permutations.py
+Tutte le permutazioni:
+
+abcd abdc acbd acdb adbc adcb
+bacd badc bcad bcda bdac bdca
+cabd cadb cbad cbda cdab cdba
+dabc dacb dbac dbca dcab dcba
+Coppie:
+
+ab ac ad
+ba bc bd
+ca cb cd
+da db dc
+</py_output>
+<testo_normale>
+Per limitare i valori alle permutazioni univoche si usa <code>combinations()</code>. Fino a che i membri dell'input sono univoci, l'output non comprenderà alcun valore ripetuto.
+</testo_normale>
+<py_code>
+# itertools_combinations.py
+
+from itertools import *
+
+
+def show(iterable):
+    first = None
+    for i, item in enumerate(iterable, 1):
+        if first != item[0]:
+            if first is not None:
+                print()
+            first = item[0]
+        print(''.join(item), end=' ')
+    print()
+
+print('Coppie univoche:\n')
+show(combinations('abcd', r=2))
+</py_code>
+<testo_normale>
+A differenza di <code>permutations()</code>, l'argomento <code>r</code> per <code>combinations()</code> è richiesto.
+</testo_normale>
+<py_output>
+$ python3 itertools_combinations.py
+Coppie univoche:
+
+ab ac ad
+bc bd
+cd
+</py_output>
+<testo_normale>
+Mentre <code>combinations()</code> non ripete elementi di input individuali, talvolta può essere utile considerare combinazioni che includano elementi ripetuti. In questi casi si usa <code>combinations_with_replacement()</code>.
+</testo_normale>
+<py_code>
+# itertools_combinations_with_replacement.py
+
+from itertools import *
+
+
+def show(iterable):
+    first = None
+    for i, item in enumerate(iterable, 1):
+        if first != item[0]:
+            if first is not None:
+                print()
+            first = item[0]
+        print(''.join(item), end=' ')
+    print()
+
+print('Coppie univoche:\n')
+show(combinations_with_replacement('abcd', r=2))
+</py_code>
+<testo_normale>
+In questo output, ciascun input viene accoppiato con se stesso oltre che con tutti gli altri membri delle sequenza.
+</testo_normale>
+<py_output>
+$ python3 itertools_combinations_with_replacement.py
+Coppie univoche:
+
+aa ab ac ad
+bb bc bd
+cc cd
+dd
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/itertools.html|itertools|La documentazione standard della libreria per questo modulo.
+riferimenti_moduli_modificati.html#itertools_porting|Note di portabilità per itertools|
+http://www.standardml.org/Basis/|The Standard ML Basis Library|La libreria per SML (in inglese)
+http://www.haskell.org/definition/|Definition of Haskell and the Standard Libraries|Definizione di Haskell e librerie standard (in inglese).
+http://clojure.org/|Clojure|Clojure è un linguaggio dinamico funzionale the viene eseguito sulla Java Virtual Machine
+https://it.wikipedia.org/wiki/Tee_(Unix)|tee|Strumento UNIX da riga di comando che dividere un input in molteplici flussi di output identici.
+https://it.wikipedia.org/wiki/Prodotto_cartesiano|Prodotto Cartesiano|Definizione matematica del prodotto cartesiano di due sequenze.
+</vedi_anche>
+</documento_tradotto>

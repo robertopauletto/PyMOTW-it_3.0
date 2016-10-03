@@ -1,19 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# re_simple_compiled.py
 
 import re
 
-# Pre-compile the patterns
-regexes = [ re.compile(p) for p in [ 'questo',
-                                     'quello',
-                                     ]
-            ]
+# Precompile the patterns
+regexes = [
+    re.compile(p)
+    for p in ['questo', 'quello']
+]
 text = 'questo testo ha corrispondenza nel modello?'
 
+print('Testo: {!r}\n'.format(text))
+
 for regex in regexes:
-    print 'Ricerca di "%s" in "%s" ->' % (regex.pattern, text),
+    print('Ricerca di "{}" ->'.format(regex.pattern), end=' ')
 
     if regex.search(text):
-        print 'trovata corrispondenza!'
+        print('trovato!')
     else:
-        print 'nessuna corrispondenza'
+        print('non trovato')

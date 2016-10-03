@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_test_patterns_groups.py
 
-import re
-
-text = 'Questa è una porzione di testo -- con punteggiatura.'
 import re
 
 def test_patterns(text, patterns=[]):
@@ -11,24 +7,26 @@ def test_patterns(text, patterns=[]):
     cerca corrispondenze per ogni modello all'interno del testo
     e le stampa su stdout.
     """
-    # Mostra la posizione del carattere ed il testo in input
-    print
-    print ''.join(str(i/10 or ' ') for i in range(len(text)))
-    print ''.join(str(i%10) for i in range(len(text)))
-    print text
-
-    # Cerca corrispondenza nel testo per ogni modello
-    # e stampa i risultati1
-    for pattern in patterns:
-        print
-        print 'Cerco corrispondenze ... "%s"' % pattern
+    # Cerca ciascun modello nel testo e stampa i risultati
+    for pattern, desc in patterns:
+        print('{!r} ({})\n'.format(pattern, desc))
+        print('  {!r}'.format(text))
         for match in re.finditer(pattern, text):
             s = match.start()
             e = match.end()
-            print '  %2d : %2d = "%s"' % \
-                (s, e-1, text[s:e])
-            print '    Grouppi:', match.groups()
+            prefix = ' ' * (s)
+            print(
+                '  {}{!r}{} '.format(prefix,
+                                     text[s:e],
+                                     ' ' * (len(text) - e)),
+                end=' ',
+            )
+            print(match.groups())
             if match.groupdict():
-                print '    Gruppi con intestazione:', match.groupdict()
-            print
+                print('{}{}'.format(
+                    ' ' * (len(text) - s),
+                    match.groupdict()),
+                )
+        print()
     return
+

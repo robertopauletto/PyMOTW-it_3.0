@@ -2,23 +2,31 @@
 
 import os
 import os.path
-
+import glob
 
 if not os.path.exists('dir'):
     os.mkdir('dir')
 if not os.path.exists('dir/subdir'):
     os.mkdir('dir/subdir')
 os.chdir('dir')
-fh = file('file.txt', 'w')
+fh = open('file.txt', 'w')
 fh.close()
-fh = file('file1.txt', 'w')
+fh = open('file1.txt', 'w')
 fh.close()
-fh = file('file2.txt', 'w')
+fh = open('file2.txt', 'w')
 fh.close()
-fh = file('filea.txt', 'w')
+fh = open('filea.txt', 'w')
 fh.close()
-fh = file('fileb.txt', 'w')
+fh = open('fileb.txt', 'w')
 fh.close()
-fh = file('subdir/subfile.txt', 'w')
+fh = open('file?.txt', 'w')
 fh.close()
-
+fh = open('file*.txt', 'w')
+fh.close()
+fh = open('file[.txt', 'w')
+fh.close()
+fh = open('subdir/subfile.txt', 'w')
+fh.close()
+print("\n".join(glob.glob('dir')))
+print("\n".join(sorted(glob.glob('dir/*'))))
+print("\n".join(sorted(glob.glob('dir/subdir/*'))))

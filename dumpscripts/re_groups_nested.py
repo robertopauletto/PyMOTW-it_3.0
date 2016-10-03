@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_groups_nested.py
 
 from re_test_patterns_groups import test_patterns
 
-test_patterns('abbaaabbbbaaaaa',
-              [r'a((a*)(b*))', # 'a' seguito da 0-n 'a' e 0-n 'b'
-               ])
+test_patterns(
+    'abbaabbba',
+    [(r'a((a*)(b*))', 'a followed by 0-n a and 0-n b')],
+)

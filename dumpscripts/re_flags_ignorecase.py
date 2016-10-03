@@ -1,14 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_flags_ignorecase.py
 
 import re
 
-text = 'Questo e quello'
-pattern = r'\bQ\w+'
+text = 'Test su di una una porzione di testo -- con punteggiatura.'
+pattern = r'\bT\w+'
 with_case = re.compile(pattern)
 without_case = re.compile(pattern, re.IGNORECASE)
 
-print 'Testo           :', text
-print 'Modello         :', pattern
-print 'Case-sensitive  :', with_case.findall(text)
-print 'Case-insensitive:', without_case.findall(text)
+print('Testo:\n  {!r}'.format(text))
+print('Modello:\n  {}'.format(pattern))
+print('Case-sensitive:')
+for match in with_case.findall(text):
+    print('  {!r}'.format(match))
+print('Case-insensitive:')
+for match in without_case.findall(text):
+    print('  {!r}'.format(match))
+

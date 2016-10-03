@@ -146,14 +146,27 @@ gettext
 <testo_normale>
 Tutte le funzioni di traduzione in <strong>gettext</strong> assumono che input ed output sia unicode, e le varianti unicode tipo <code>ugettext()</code> sono state rimosse
 </testo_normale>
-<a name='glob'>
-
-</a><titolo_2>
+<a name='glob'></a>
+<titolo_2>
 glob
 </titolo_2>
 <testo_normale>
 La nuova funzione <code>escape()</code> implementa una soluzione per cercare file con meta-caratteri nel nome (<a href="http://bugs.python.org/issue8402">Python issue 9124</a>)
 </testo_normale>
+<titolo_2>
+imaplib
+</titolo_2>
+<testo_normale>
+In Python3 imaplib ritorna stringhe di byte codificate come UTF-8. C'è supporto per accettare stringhe unicode e codificarle automaticamente mentre vengono spediti come comandi in uscita oppure come utente/password per autenticazione su di un server.
+<a name='itertools_porting'></a>
+</testo_normale>
+<titolo_2>
+itertools
+</titolo_2>
+<testo_normale>
+Le funzioni <code>imap</code>, <code>izip()</code> ed <code>ifilter()</code> sono state sostituite con versioni di funzioni built-in che ritornano degli iterabili in luogo di oggetti <code>list</code> (<code>map()</code>, <code>zip()</code>) e <code>filter:()</code> rispettivamente).
+</testo_normale>
+
 <titolo_2>
 mailbox
 </titolo_2>

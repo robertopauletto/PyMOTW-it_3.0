@@ -1,14 +1,17 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_flags_dotall.py
 
 import re
 
-text = u'Questa è una porzione di testo -- senza punteggiatura.\nEd una seconda riga'
+text = 'Test su di una porzione di testo -- con punteggiatura.\nUn\'altra riga.'
 pattern = r'.+'
 no_newlines = re.compile(pattern)
 dotall = re.compile(pattern, re.DOTALL)
 
-print 'Testo             :', repr(text)
-print 'Modello           :', pattern
-print 'No ritorni a capo :', no_newlines.findall(text)
-print 'Dotall            :', dotall.findall(text)
+print('Testo:\n  {!r}'.format(text))
+print('Modello:\n  {}'.format(pattern))
+print('No ritorni a capo :')
+for match in no_newlines.findall(text):
+    print('  {!r}'.format(match))
+print('Dotall      :')
+for match in dotall.findall(text):
+    print('  {!r}'.format(match))

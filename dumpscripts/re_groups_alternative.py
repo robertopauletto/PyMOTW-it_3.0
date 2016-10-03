@@ -1,9 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_groups_alternative.py
 
 from re_test_patterns_groups import test_patterns
 
-test_patterns('abbaaabbbbaaaaa',
-              [r'a((a+)|(b+))', # 'a' seguito da una sequanza di 'a' o da una sequenza di 'b'
-               r'a((a|b)+)',    # 'a' seguito da una sequenza di 'a' o 'b'
-               ])
+test_patterns(
+    'abbaabbba',
+    [(r'a((a+)|(b+))', 'a then seq. of a or seq. of b'),
+     (r'a((a|b)+)', 'a then seq. of [ab]')],
+)

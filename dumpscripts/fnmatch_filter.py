@@ -1,10 +1,16 @@
+# fnmatch_filter.py
+
 import fnmatch
 import os
+import pprint
 
 pattern = 'fnmatch_*.py'
-print 'Modello :', pattern
+print('Modello :', pattern)
 
 files = os.listdir('.')
-print 'File    :', files
 
-print 'Corrispondenze :', fnmatch.filter(files, pattern)
+print('\nFile   :')
+pprint.pprint(files)
+
+print('\nCorrispondenze :')
+pprint.pprint(fnmatch.filter(files, pattern))

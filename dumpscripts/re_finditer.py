@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# re_finditer.py
 
 import re
 
@@ -10,4 +9,5 @@ pattern = 'ab'
 for match in re.finditer(pattern, text):
     s = match.start()
     e = match.end()
-    print 'Trovato "%s" a %d:%d' % (text[s:e], s, e)
+    print('Trovato {!r} a {:d}:{:d}'.format(
+        text[s:e], s, e))
