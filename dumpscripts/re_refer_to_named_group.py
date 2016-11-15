@@ -1,16 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_refer_to_named_group.py
 
 import re
 
 address = re.compile(
-    r'''
+    '''
 
     # Il nome normale
-    (?P<nome>\w+)
+    (?P<first_name>\w+)
     \s+
-    (([\w.]+)\s+)?      # Secondo nome opzionale o inizilae
-    (?P<cognome>\w+)    # Cognome
+    (([\w.]+)\s+)?      # secondo nome opzionale od iniziali
+    (?P<last_name>\w+)
 
     \s+
 
@@ -18,9 +17,9 @@ address = re.compile(
 
     # Indirizzo: nome.cognome@domain.tld
     (?P<email>
-      (?P=nome)
+      (?P=first_name)
       \.
-      (?P=cognome)      
+      (?P=last_name)
       @
       ([\w\d.]+\.)+    # prefisso del nome di dominio
       (com|org|edu)    # limita i domini di livello più alto consentiti
@@ -28,7 +27,7 @@ address = re.compile(
 
     >
     ''',
-    re.UNICODE | re.VERBOSE | re.IGNORECASE)
+    re.VERBOSE | re.IGNORECASE)
 
 candidates = [
     u'Nome Cognome <nome.cognome@example.com>',
@@ -38,12 +37,13 @@ candidates = [
     ]
 
 for candidate in candidates:
-    print
-    print 'Candidato:', candidate
+    print('Candidate:', candidate)
     match = address.search(candidate)
     if match:
-        print '  Corrispondenza con nome :', match.groupdict()['nome'], match.groupdict()['cognome']
-        print '  Corrispondenza con email:', match.groupdict()['email']    
+        print('  Corrispondenza con nome :', match.groupdict()['first_name'],
+              end=' ')
+        print(match.groupdict()['last_name'])
+        print('  Corrispondenza con email:', match.groupdict()['email'])
     else:
-        print '  Nessuna corrispondenza  :'
-        
+        print('  Nessuna corrispondenza')
+

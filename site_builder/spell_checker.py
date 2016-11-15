@@ -155,7 +155,7 @@ class Error(object):
 
     @property
     def correct_word(self):
-        """Ottiene la parola corretta"""
+        """Ottiene la par7ola corretta"""
         return self._replacement
 
     @correct_word.setter
@@ -225,6 +225,14 @@ class SpellCheck(object):
 
     def _correct_chunks(self):
         """Applica le correzioni al testo da verificare"""
+        retval = []
+        for error in self._errors:
+            assert isinstance(error, Error)
+            if error.correct_word:
+                retval.append(error.err_word, error.correct_word)
+        return retval
+    def _correct_chunks_old(self):
+        """Applica le correzioni al testo da verificare"""
         for error in self._errors:
             assert isinstance(error, Error)
             if error.correct_word:
@@ -254,6 +262,7 @@ class SpellCheck(object):
 
         Ritorna il testo corretto, se `prettyprinted` ritorna il testo
         formattato"""
+        self._correct_chunks()
         return str(self._soup) if not prettyprinted else self._soup.prettify()
 
     def check(self):

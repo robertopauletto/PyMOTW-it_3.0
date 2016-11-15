@@ -26,3 +26,4 @@
 13.08.2016  fnmatch - Corrispondenza su Modello Stile Unix Glob
 03.10.2016  operator - Interfaccia Funzionale agli Operatori Built-in
 03.10.2016  itertools - Funzioni di Iterazione
+13.11.2016  weakref - Riferimenti Non Permanenti ad Oggetti

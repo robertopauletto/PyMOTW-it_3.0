@@ -1,0 +1,585 @@
+cisso del nome di dominio
+    (com|org|edu)    # limita i domini di livello più alto consentiti
+
+    $
+    ''',
+    re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'noreply@example.com',
+]
+
+for candidate in candidates:
+    print('Candidato:', candidate)
+    match = address.search(candidate)
+    if match:
+        print('  Corrispondenza:', candidate[match.start():match.end()])
+    else:
+        print('  Nessuna corrispondenza')
+</py_code>
+<testo_normale>
+Gli indirizzi che iniziano con <em>noreply</em>c non generano corrispondenza nel modello visto che l'asserzione di ricerca in avanti fallisce.
+</testo_normale>
+<py_output>
+$ python3 re_negative_look_ahead.py
+
+Candidato: first.last@example.com
+  Corrispondenza: first.last@example.com
+Candidato: noreply@example.com
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Invece di cercare in avanti <em>noreply</em> nella porzione del nome utente nell'indirizzo email, il modello può anche essere scritto utilizzando la ricerca all'indietro negativa dopo che è stata trovata corrispondenza con il nome utente tramite la sintassi <code>(?<!modello)</code>.
+</testo_normale>
+<py_code>
+# re_negative_look_behind.py
+
+import re
+
+address = re.compile(
+    '''
+    ^
+
+    # Un indirizzo: username@domain.tld
+
+    [\w\d.+-]+       # nome utente
+
+    # Ignora gli indirizzi noreply
+    (?<!noreply)
+
+    @
+    ([\w\d.]+\.)+    # prefisso del nome di dominio
+    (com|org|edu)    # limita i domini di livello più alto consentiti
+
+    $
+    ''',
+    re.VERBOSE)
+
+candidates = [
+    u'first.last@example.com',
+    u'noreply@example.com',
+]
+
+for candidate in candidates:
+    print('Candidato:', candidate)
+    match = address.search(candidate)
+    if match:
+        print('  Corrispondenza:', candidate[match.start():match.end()])
+    else:
+        print('  Nessuna corrispondenza')
+</py_code>
+<testo_normale>
+Cercando all'indietro funziona in modo leggermente diverso dalla ricerca in avanti, nel senso che l'espressione deve usare un modello a lughezza fissa. Le ripetizioni sono consentite, fintanto che siano in numero fisso (nessun carattere jolly od intervalli).
+</testo_normale>
+<py_output>
+$ python3 re_negative_look_behind.py
+
+Candidato: first.last@example.com
+  Corrispondenza: first.last@example.com
+Candidato: noreply@example.com
+  Nessuna corrispondenza
+</py_output>
+<testo_normale>
+Una ricerca all'indietro positiva può essrer usata per trovare testo che segue un modello usando la sintassi <code>(?<=modello)</code>. Ad esempio questa espressione cerca handle di Twitter.
+</testo_normale>
+<py_code>
+# re_look_behind.py
+
+import re
+
+twitter = re.compile(
+    '''
+    # Un handle di Twitter: @username
+    (?<=@)
+    ([\w\d_]+)       # username
+    ''',
+    re.VERBOSE)
+
+text = '''Questo testo include due Twitter handle.
+Uno per @ThePSF, ed uno per l'autore, @doughellmann.
+'''
+
+print(text)
+for match in twitter.findall(text):
+    print('Handle:', match)
+
+</py_code>
+<testo_normale>
+Il modello trova corrispondenza nelle sequenze di caratteri che possono costituire un handle di Twitter, finto che siano preceduti da @.
+</testo_normale>
+<py_output>
+$ python3 re_look_behind.py
+
+Questo testo include due Twitter handle.
+Uno per @ThePSF, ed uno per l'autore, @doughellmann.
+
+Handle: ThePSF
+Handle: doughellmann
+</py_output>
+<titolo_2>
+Espressioni Auto-referenziate
+</titolo_2>
+<testo_normale>
+I valori corrisposti possono essere usati in parti successive dell'espressione. L'esempio per l'email potrebbe essere aggiornato per trovare corrispondenze solo con indirizzi composti dal nome e cognome della persona per includere riferimenti all'indietro per quei gruppi. Il modo più semplice con conseguire lo scopo è facendo riferimento ai gruppi precedenti per i quali si è trovata corrispondenza in base al numero identificativo, utilizzando <code>\num</code>.
+</testo_normale>
+<py_code>
+# re_refer_to_group.py
+
+import re
+
+address = re.compile(
+    r'''
+
+    # Il nome normale
+    (\w+)               # nome
+    \s+
+    (([\w.]+)\s+)?      # Secondo nome opzionale od iniziale
+    (\w+)               # cognome
+
+    \s+
+
+    <
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      \1               # nome
+      \.
+      \4               # cognome
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >
+    ''',
+    re.VERBOSE | re.IGNORECASE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Diverso Nome <nome.cognome@example.com>',
+    u'Nome SecondoNome Cognome <nome.cognome@example.com>',
+    u'Nome S. Cognome <nome.cognome@example.com>',
+]
+
+for candidate in candidates:
+    print('Candidato:', candidate)
+    match = address.search(candidate)
+    if match:
+        print('  Corrispondenza con nome :', match.group(1), match.group(4))
+        print('  Corrispondenza con email:', match.group(5))
+    else:
+        print('  Nessuna corrispondenza')
+</py_code>
+<testo_normale>
+Sebbene la sintassi sia semplice, creare riferimenti all'indietro tramite identificativi numerici ha una paio di svantaggi. Dal punto di vista pratico, mentre l'espressione cambia, i gruppi devono essere contati nuovamente ed ogni riferimento deve essere aggiornato. L'altro svantaggio è che possono essere fatti fino a 99 riferimenti utilizzando la sintassi standard <code>\n</code>, infatti un numero a tre cifre sarebbe interpretato come un valore di carattere ottale. Naturalmente, se ci sono più di 99 gruppi in una espressione, ci sarebbero problemi di mantenibilità ben superiori a questo inconveniente.
+</testo_normale>
+<py_output>
+$ python3 re_refer_to_group.py
+
+Candidato: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+Candidato: Diverso Nome <nome.cognome@example.com>
+  Nessuna corrispondenza
+Candidato: Nome SecondoNome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+Candidato: Nome S. Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+</py_output>
+<testo_normale>
+L'elaboratore di espressioni di Python include una estensione che usa <code>(?P=nome)</code> per riferirsi ad un un valore di un gruppo nominativo che è stato corrisposto precedentemente nella espressione.
+</testo_normale>
+<py_code>
+# re_refer_to_named_group.py
+
+import re
+
+address = re.compile(
+    '''
+
+    # Il nome normale
+    (?P<first_name>\w+)
+    \s+
+    (([\w.]+)\s+)?      # secondo nome opzionale od iniziali
+    (?P<last_name>\w+)
+
+    \s+
+
+    <
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      (?P=first_name)
+      \.
+      (?P=last_name)
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+    )
+
+    >
+    ''',
+    re.VERBOSE | re.IGNORECASE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Diverso Nome <nome.cognome@example.com>',
+    u'Nome SecondoNome Cognome <nome.cognome@example.com>',
+    u'Nome S. Cognome <nome.cognome@example.com>',
+    ]
+
+for candidate in candidates:
+    print('Candidate:', candidate)
+    match = address.search(candidate)
+    if match:
+        print('  Corrispondenza con nome :', match.groupdict()['first_name'],
+              end=' ')
+        print(match.groupdict()['last_name'])
+        print('  Corrispondenza con email:', match.groupdict()['email'])
+    else:
+        print('  Nessuna corrispondenza')
+
+</py_code>
+<testo_normale>
+L'espressione dell'indirizzo viene compilata con il flag <code>IGNORECASE</code> attivo, visto che i nomi propri in genere sono scritti con la prima lettera maiuscola mentre gli indirizzi mail no.
+</testo_normale>
+<py_output>
+$ python3 re_refer_to_named_group.py
+
+Candidate: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+Candidate: Diverso Nome <nome.cognome@example.com>
+  Nessuna corrispondenza
+Candidate: Nome SecondoNome Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+Candidate: Nome S. Cognome <nome.cognome@example.com>
+  Corrispondenza con nome : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+</py_output>
+<testo_normale>
+L'altro meccanismo per utilizzare riferimenti all'indietro nelle espressioni adotta un modello differente basato sulla corrispondenza o meno in un gruppo precedente. Il modello email può essere corretto in modo che le parentesi angolari siano richieste se è presente un nome e non siano richieste se l'indirizzo mail è a se stante. La sintassi per verificare se un gruppo ha trovato corrispondenza è <code>(id)yespressione-si|espressione-no)</code>, dove <em>id</em> è il nome od il numero del gruppo, <em>espressione-si</em> è il modello da usare se il gruppo ha un valore ed <em>espressione-no</em> quello da usare altrimenti.
+</testo_normale>
+<py_code>
+# re_id.py
+
+import re
+
+address = re.compile(
+    '''
+    ^
+
+    # Un nome è composto da lettere, e può comprendere "." per abbreviazioni
+    # di titoli ed iniziali di secondo nome
+      (?P<name>
+       ([\w.]+\s+)*[\w.]+
+     )?
+    \s*
+
+    # Gli indirizzi email sono racchiusi tra parentesi angolari, ma vogliamo
+    # le parentesi solo se troviamo un nome
+    (?(name)
+      # visto che abbiamo un nome il resto è racchiuso tra parentesi angolari
+      (?P<brackets>(?=(<.*>$)))
+      |
+      # non abbiamo un nome ed il resto non deve comprendere parentesi
+      # angolari
+      (?=([^<].*[^>]$))
+     )
+
+    # Cerchiamo le parentesi angolari solo se l'asserzione look ahead le ha
+    # trovate entrambe
+    (?(brackets)<|\s*)
+
+    # Indirizzo: nome.cognome@domain.tld
+    (?P<email>
+      [\w\d.+-]+       # nome utente
+      @
+      ([\w\d.]+\.)+    # prefisso del nome di dominio
+      (com|org|edu)    # limita i domini di livello più alto consentiti
+     )
+
+    # Cerchiamo le parentesi angolari solo se l'asserzione look ahead le ha
+    # trovate entrambe
+    (?(brackets)>|\s*)
+
+    $
+    ''',
+    re.VERBOSE)
+
+candidates = [
+    u'Nome Cognome <nome.cognome@example.com>',
+    u'Nessuna parentesi nome.cognome@example.com>',
+    u'Parentesi aperta <nome.cognome@example.com',
+    u'Parentesi chiusa nome.cognome@example.com>',
+    u'no.parentesi@example.com',
+    ]
+
+for candidate in candidates:
+    print('Candidato:', candidate)
+    match = address.search(candidate)
+    if match:
+        print('  Corrispondenza con name :', match.groupdict()['name'])
+        print('  Corrispondenza con email:', match.groupdict()['email'])
+    else:
+        print('  Nessuna corrispondenza')
+
+</py_code>
+<testo_normale>
+Qyesta versione dell'elaboratore dell'indirizzo email usa due verifiche. Se c'è corrispondenza con il gruppo del nome, l'asserzione di ricerca in avanti richiede che entrambe le parentesi angolari ed imposta il gruppo <code>brackets</code>. Se non c'è corrispondenza con il nome, l'asserzione richiede che il resto del testo non sia racchiuso tra parentesi angolari. Più tardi, se il gruppo <code>brackets</code> viene impostato, il codice del modello per la corrispondenza consuma le parentesi nell'input utilizzando modelli letterali, altrimenti consuma un qualsiasi spazio.
+</testo_normale>
+<py_output>
+</py_output>
+robby@robby-desktop:~/pycode/pymotw-it3.0/dumpscripts$ python3 re_id.py
+Candidato: Nome Cognome <nome.cognome@example.com>
+  Corrispondenza con name : Nome Cognome
+  Corrispondenza con email: nome.cognome@example.com
+Candidato: Nessuna parentesi nome.cognome@example.com>
+  Nessuna corrispondenza
+Candidato: Parentesi aperta <nome.cognome@example.com
+  Nessuna corrispondenza
+Candidato: Parentesi chiusa nome.cognome@example.com>
+  Nessuna corrispondenza
+Candidato: no.parentesi@example.com
+  Corrispondenza con name : None
+  Corrispondenza con email: no.parentesi@example.com
+</py_output>
+<titolo_3>
+Modificare Stringhe con Modelli
+</titolo_3>
+<testo_normale>
+Oltre alla ricerca nel testo, <strong>re</strong> supporta anche la modifica del testo utilizzando le espressioni regolari come strumento di ricerca, e le sostituzioni possono fare riferimento ai gruppi con corrispondenze trovate nel modello come parte del testo di sostituzione. Si una <code>sub()</code> per sostituire tutte le occorrenze di un modello con un'altra stringa.
+</testo_normale>
+<py_code>
+# re_sub.py
+
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}')
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print('Testo:', text)
+print('Grassetto:', bold.sub(r'<b>\1</b>', text))
+</py_code>
+<testo_normale>
+I riferimenti al testo per il quale il modello ha trovato corrispondenza può essere reinserito usando la sintassi <code>\num</code> utiizzata per i riferimenti all'indietro.
+</testo_normale>
+<py_output>
+$ python3 re_sub.py
+
+Testo: Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.
+</py_output>
+<testo_normale>
+Per utilizzare nelle sostituzioni gruppi nominali si usa la sintassi <code>\g<nome></code>.
+</testo_normale>
+<py_code>
+# re_sub_named_groups.py
+
+import re
+
+bold = re.compile(r'\*{2}(?P<bold_text>.*?)\*{2}')
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print('Testo:', text)
+print('Grassetto:', bold.sub(r'<b>\g<bold_text></b>', text))
+</py_code>
+<testo_normale>
+La sintassi <code>\g<nome></nome></code> funziona anche con riferimenti numerati, ed il suo utilizzao consente di eliminare qualsiasi ambiguità tra numero di gruppo e cifre letterali circostanti.
+</testo_normale>
+<py_output>
+$ python3 re_sub_named_groups.py
+
+Testo: Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.
+</py_output>
+<testo_normale>
+Si passa un valore a <code>count</code> per limitare il numero delle sostituizioni da eseguire.
+</testo_normale>
+<py_code>
+# re_sub_count.py
+
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}')
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print('Testo:', text)
+print('Grassetto:', bold.sub(r'<b>\1</b>', text, count=1))
+</py_code>
+<testo_normale>
+Viene eseguita solo la prima sostituzione, visto che <code>count</code> è pari ad 1.
+</testo_normale>
+<py_output>
+$ python3 re_sub_count.py
+
+Testo: Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: Rendi questo  in <b>grassetto</b>. Anche **questo**.
+</py_output>
+<testo_normale>
+<code>subn()</code> funziona come <code>sub()</code>, eccetto che ritorna sia la stringa modificata che il numero di sostituzioni effettuate.
+</testo_normale>
+<py_code>
+# re_subn.py
+
+import re
+
+bold = re.compile(r'\*{2}(.*?)\*{2}')
+
+text = 'Rendi questo  in **grassetto**. Anche **questo**.'
+
+print('Testo:', text)
+print('Grassetto:', bold.subn(r'<b>\1</b>', text))
+</py_code>
+<testo_normale>
+In questo esempio il modello di ricerca trova due corrispondenze.
+</testo_normale>
+<py_output>
+$ python3 re_subn.py
+
+Testo: Rendi questo  in **grassetto**. Anche **questo**.
+Grassetto: ('Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.', 2)
+</py_output>
+<titolo_2>
+Dividere con i Modelli
+</titolo_2>
+<testo_normale>
+<code>str.split()</code> è uno dei metodi più frequentemente usati per dividere stringhe per l'elaborazione; tuttavia supporta solamente valori letterali come separatori e talvolta è necessaria una espressione regolare se l'input non è consistentemente formattato. Ad esempio molti linguaggi di marcatura a testo semplice definiscono separatori di paragrafo come due o più caratteri di nuova riga (\n). In questo caso <code>str.split()</code> non può essere utilizzato in quanto non può gestire la parte "o più" della definizione.
+</testo_normale>
+<testo_normale>
+Una strategia per identificare i paragrafi utilizzando <code>findall()</code> dovrebbe usare un modello tipo <code>(.+?)\n(2{2,}</code>.
+</testo_normale>
+<py_code>
+# re_paragraphs_findall.py
+
+import re
+
+text = '''Paragrafo uno
+su due righe.
+
+Paragrafo due.
+
+
+Paragrafo tre.'''
+
+for num, para in enumerate(re.findall(r'(.+?)\n{2,}',
+                                      text,
+                                      flags=re.DOTALL)
+                           ):
+    print(num, repr(para))
+    print()
+</py_code>
+<testo_normale>
+Il modello fallisce l'identificazione dell'ultimo paragrafo, come dimostrato dal fatto che "Paragrafo tre" non si trova nell'output.
+</testo_normale>
+<py_output>
+$ python3 re_paragraphs_findall.py
+
+0 'Paragrafo uno\nsu due righe.'
+
+1 'Paragrafo due.'
+</py_output>
+<testo_normale>
+Per risolvere il problema si espande il modello stabilendo che un paragrafo finisce con due o più righe oppure con la fine del file, tuttavia rende il modello più complicato. Passare a <code>re.split()</code> in luogo di <code>re.findall()</code> consente di gestire le condizioni di limite automaticamente e mantiene il modello più semplice.
+</testo_normale>
+<py_code>
+# re_split.py
+
+import re
+
+text = '''Paragrafo uno
+su due righe.
+
+Paragrafo due.
+
+
+Paragrafo tre.'''
+
+print('Con findall:')
+for num, para in enumerate(re.findall(r'(.+?)(\n{2,}|$)',
+                                      text,
+                                      flags=re.DOTALL)):
+    print(num, repr(para))
+    print()
+
+print()
+print('Con split:')
+for num, para in enumerate(re.split(r'\n{2,}', text)):
+    print(num, repr(para))
+    print()
+
+</py_code>
+<testo_normale>
+L'argomento del modello per <code>split()</code> esprime la specifica di marcatura più precisamente. Due o più caratteri di nuova riga marcano un punto di separazione tra paragrafi nella stringa di input.
+</testo_normale>
+<py_output>
+$ python3 re_split.py
+
+Con findall:
+0 ('Paragrafo uno\nsu due righe.', '\n\n')
+
+1 ('Paragrafo due.', '\n\n\n')
+
+2 ('Paragrafo tre.', '')
+
+
+Con split:
+0 'Paragrafo uno\nsu due righe.'
+
+1 'Paragrafo due.'
+
+2 'Paragrafo tre.'
+</py_output>
+<testo_normale>
+Includendo l'espressione tra parantesi per definire un gruppo fa sì che <code>split()</code> lavori più come <code>str.partition()</code>, quindi ritorna i valori del deparatore così come le altre parti della stringa.
+</testo_normale>
+<py_code>
+# re_split_groups.py
+
+import re
+
+text = '''Paragrafo uno
+su due righe.
+
+Paragrafo due.
+
+
+Paragrafo tre.'''
+
+print('Con split:')
+for num, para in enumerate(re.split(r'(\n{2,})', text)):
+    print(num, repr(para))
+    print()
+</py_code>
+<testo_normale>
+L'output ora include ciascun paragrafo e la sequenza di caratteri di nuova riga che li separa.
+</testo_normale>
+<py_output>
+$ python3 re_split_groups.py
+Con split:
+0 'Paragrafo uno\nsu due righe.'
+
+1 '\n\n'
+
+2 'Paragrafo due.'
+
+3 '\n\n\n'
+
+4 'Paragrafo tre.'
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/re.html|re|La documentazione della libreria standard per questo modulo (lingua inglese)
+http://docs.python.org/howto/regex.html|Regular Expressions HOWTO|Introduzione alle espressioni regolari per gli sviluppatori Python di Andrew Kuchling.
+http://kodos.sourceforge.net/|Kodos|Uno strumento per il test delle espressioni regolari di Phil Schwartz.
+http://it.wikipedia.org/wiki/Espressione_regolare|Wikipedia: Espressione Regolare| Una pagina introduttiva ai concetti delle espressioni regolari ed alle tecniche
+http://docs.python.org/2/library/unicodedata.html|unicodedata|Accesso programmatico al database delle proprietà dei caratteri Unicode
+</vedi_anche>
+</documento_tradotto>
+</testo_normale>

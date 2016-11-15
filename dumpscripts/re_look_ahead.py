@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_look_ahead.py
 
 import re
 
@@ -11,43 +10,42 @@ address = re.compile(
        ([\w.,]+\s+)*[\w.,]+
      )
      \s+
-    ) # name non è più opzionale
+    ) # il nome non è più opzionale
 
-    # LOOKAHEAD
-    # Gli indirizzi email sono incorporati in parentesi angolari, ma si 
-    # vogliono le parentesi sono se sono presenti entrambe, oppure nessuna.
+    # RICERCA IN AVANTI
+    # Gli indirizzi email sono incorporati in parentesi angolari, solo se
+    # sono presenti entrambe, oppure nessuna.
     (?= (<.*>$)       # il resto è racchiuso tra parentesi angolari
         |
         ([^<].*[^>]$) # il resto *non* è racchiuso tra parentesi angolari
       )
 
-    <? # parentesi angolare aperta opzionale
+    <? # parentesi angolare di apertura opzionale
 
-    # L'indirizzo vero e proprio: username@domain.tld
+    # L'indirizzo stesso: username@domain.tld
     (?P<email>
       [\w\d.+-]+       # nome utente
       @
       ([\w\d.]+\.)+    # prefisso del nome di dominio
-      (com|org|edu)    # limita i domini di livello più alto consentiti
+      (com|org|edu)    # limita ai domini di livello più alto consentiti
     )
 
-    >? # parentesi angolare chiusa opzionale
+    >? # parentesi angolare di chiusura opzionale
     ''',
-    re.UNICODE | re.VERBOSE)
+    re.VERBOSE)
 
 candidates = [
     u'Nome Cognome <first.last@example.com>',
-    u'No Parentesi first.last@example.com',
-    u'Parentesi aperta <first.last@example.com',
-    u'Parentesi Chiusa first.last@example.com>',
-    ]
+    u'Nessuna parentesi first.last@example.com',
+    u'Parentesi di apertura <first.last@example.com',
+    u'Parentesi di chiusura first.last@example.com>',
+]
 
 for candidate in candidates:
-    print
-    print 'Candidatp:', candidate
+    print('Candidato:', candidate)
     match = address.search(candidate)
     if match:
-        print '  Corrispondenza con il nome :', match.groupdict()['name']
-        print '  Corrispondenza con email   :', match.groupdict()['email']
+        print('  Nome :', match.groupdict()['name'])
+        print('  Email:', match.groupdict()['email'])
     else:
-        print '  Nessuna corrispondenza'
+        print('  Nessuna corrispondenza')

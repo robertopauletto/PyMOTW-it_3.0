@@ -6,14 +6,16 @@ https://it.wikipedia.org/wiki/Copia_di_un_oggetto#Copia_per_indirizzo_o_Shallow_
 https://it.wikipedia.org/wiki/CSS
 https://it.wikipedia.org/wiki/Digrafo_(matematica)
 https://it.wikipedia.org/wiki/File_system
-https://it.wikipedia.org/wiki/Hash
 https://it.wikipedia.org/wiki/Funzione_anonima
+https://www.wikiwand.com/it/Garbage_collection
+https://it.wikipedia.org/wiki/Hash
 https://it.wikipedia.org/wiki/Metacarattere
 https://it.wikipedia.org/wiki/NaN
 https://it.wikipedia.org/wiki/Operazione_bit_a_bit
 https://it.wikipedia.org/wiki/Overhead
 https://it.wikipedia.org/wiki/Parsing
 https://it.wikipedia.org/wiki/Pila_(informatica)
+http://it.wikipedia.org/wiki/Ricerca_in_ampiezza
 https://it.wikipedia.org/wiki/Sensibile_alle_maiuscole
 https://it.wikipedia.org/wiki/Stack_overflow
 https://it.wikipedia.org/wiki/Tempo_coordinato_universale

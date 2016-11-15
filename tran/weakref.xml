@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+weakref - Riferimenti Non Permanenti ad Oggetti
+</titolo_1>
+<descrizione>
+Fa riferimento ad oggetti "costosi", ma consente che la sua memoria sia reclamata dal <a href='https://www.wikiwand.com/it/Garbage_collection'>garbage collector</a> se non ci sono altri riferimenti non deboli.
+
+</descrizione>
+<note>
+In informatica, un riferimento debole (weak reference) è un riferimento che non protegge l'oggetto referenziato dall'essere raccolto da un <a href='https://www.wikiwand.com/it/Garbage_collection'>garbage collector</a> al contrario di un riferimento forte (<em>strong reference</em>). Un oggetto referenziato solo da un riferimento debole, vale a dire che "ogni catena di riferimenti che raggiunge l'oggetto comprende almeno un riferimento debole come collegamento", viene considerato <em>weakly reachable</em> e può essere trattato come irraggiungibile, pertanto può essere raccolto dal garbage collector in qualsiasi momento. Python, assieme ad altri linguaggi (Java, C#, Perl, Lisp, Shell) ha un garbage collector che supporta vari livelli di riferimento debole.
+</note>
+<testo_normale>
+Il modulo <strong>weakref</strong> supporta riferimenti deboli ad oggetti. Un normale riferimento incrementa il contatore dei riferimenti all'oggetto e lo preserva dall'essere raccolto dal <a href='https://www.wikiwand.com/it/Garbage_collection'>garbage collector</a>. Questo comportamento non sempre è desiderabile, sia quando possa essere presente un riferimento circolare oppure quando si costruisce una cache di oggetti che dovrebbero essere eliminati quando è necessaria della memoria. Un riferimento debole è un puntamento ad un oggetto che non lo esclude dell'essere pulito automaticamente.
+</testo_normale>
+<titolo_2>
+Riferimenti
+</titolo_2>
+<testo_normale>
+I riferimenti deboli verso gli oggetti sono gestiti tramite la classe <code>ref</code>. Per recuperare l'oggetto originale, chiama l'oggetto referenziato.
+</testo_normale>
+<py_code>
+# weakref_ref.py
+
+import weakref
+
+
+class ExpensiveObject:
+
+    def __del__(self):
+        print('(In eliminazione {})'.format(self))
+
+
+obj = ExpensiveObject()
+r = weakref.ref(obj)
+
+print('obj:', obj)
+print('ref:', r)
+print('r():', r())
+
+print('eliminazione di obj')
+del obj
+print('r():', r())
+</py_code>
+<testo_normale>
+In questo caso, visto che <code>obj</code> viene eliminato prima della seconda chiamata al riferimento, <code>ref</code> ritorna <code>None</code>.
+</testo_normale>
+<py_output>
+$ python3 weakref_ref.py
+
+obj: <__main__.ExpensiveObject object at 0x7fe2b4c06a58>
+ref: <weakref at 0x7fe2b4c24318; to 'ExpensiveObject' at 0x7fe2b4c06a58>
+r(): <__main__.ExpensiveObject object at 0x7fe2b4c06a58>
+eliminazione di obj
+(In eliminazione <__main__.ExpensiveObject object at 0x7fe2b4c06a58>)
+r(): None
+</py_output>
+<titolo_2>
+Callback su Riferimenti
+</titolo_2>
+<testo_normale>
+Il costruttore <code>ref</code> accetta una funzione <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> opzionale da invocare quando l'oggetto referenziato viene cancellato.
+</testo_normale>
+<py_code>
+# weakref_ref_callback.py
+import weakref
+
+class ExpensiveObject(object):
+    def __del__(self):
+        print('(Eliminazione di %s)' % self)
+
+def callback(reference):
+    """Chiamato quando l'oggetto referenziato viene eliminato"""
+    print('callback(', reference, ')')
+
+obj = ExpensiveObject()
+r = weakref.ref(obj, callback)
+
+print('obj:', obj)
+print('ref:', r)
+print('r():', r())
+
+print('Eliminazione di obj')
+del obj
+print('r():', r())
+</py_code>
+<testo_normale>
+La funzione di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> riceve il riferimento all'oggetto come argomento, dopo che il riferimento è "morto" e non si riferisce più all'oggetto originale. Un uso per questa caratteristica è per rimuovere l'oggetto con riferimento debole da una cache.
+</testo_normale>
+<py_output>
+$ python3 weakref_ref_callback.py
+
+obj: <__main__.ExpensiveObject object at 0x7ff1e7296ac8>
+ref: <weakref at 0x7ff1e72b3368; to 'ExpensiveObject' at 0x7ff1e7296ac8>
+r(): <__main__.ExpensiveObject object at 0x7ff1e7296ac8>
+Eliminazione di obj
+(Eliminazione di <__main__.ExpensiveObject object at 0x7ff1e7296ac8>)
+callback( <weakref at 0x7ff1e72b3368; dead> )
+r(): None
+</py_output>
+<titolo_2>
+Finalizzare gli Oggetti
+</titolo_2>
+<testo_normale>
+Per una gestione più robusta delle risorse quando vengono cancellati i riferimenti deboli si utilizza <code>finalize</code> per associare <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> ad oggetti. Una istanza di <code>finalize</code> viene mantenuta fino a che l'oggetto attaccato ad essa non viene cancellato, anche se l'applicazione non mantiene un riferimento all'istanza di <code>finalize</code>
+</testo_normale>
+<py_code>
+# weakref_finalize.py
+
+import weakref
+
+
+class ExpensiveObject:
+
+    def __del__(self):
+        print('(In eliminazione {})'.format(self))
+
+
+def on_finalize(*args):
+    print('on_finalize({!r})'.format(args))
+
+
+obj = ExpensiveObject()
+weakref.finalize(obj, on_finalize, 'argumento extra')
+
+del obj
+</py_code>
+<testo_normale>
+Gli argomenti per <code>finalize</code> sono l'oggetto da tracciare, un  <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> da chiamare quando l'oggetto viene raccolto dal <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a>, e qualsiasi argomento posizionale o nominale da passare al callback
+</testo_normale>
+<py_output>
+$ python3 weakref_finalize.py
+
+(In eliminazione <__main__.ExpensiveObject object at 0x7f1226f69a20>)
+on_finalize(('argumento extra',))
+</py_output>
+<testo_normale>
+L'istanza di <code>finalize</code> ha un proprietà scrivibile chiamata <code>atexit</code> per controllare se invocare o meno il <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> se un programma è in uscita, se non è già stato chiamato.
+</testo_normale>
+<py_code>
+# weakref_finalize_atexit.py
+
+import sys
+import weakref
+
+
+class ExpensiveObject:
+
+    def __del__(self):
+        print('(In eliminazione {})'.format(self))
+
+
+def on_finalize(*args):
+    print('on_finalize({!r})'.format(args))
+
+
+obj = ExpensiveObject()
+f = weakref.finalize(obj, on_finalize, 'argumento extra')
+f.atexit = bool(int(sys.argv[1]))
+</py_code>
+<testo_normale>
+Il comportamento predefinito è di chiamare il <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a>; impostando <code>atexit</code> a falso disabilita questo comportamento.
+</testo_normale>
+<py_output>
+$ python3 weakref_finalize_atexit.py 1
+
+on_finalize(('argumento extra',))
+(In eliminazione <__main__.ExpensiveObject object at 0x7fb41a23ba20>)
+
+$ python3 weakref_finalize_atexit.py 0
+</py_output>
+<testo_normale>
+Passando a <code>finalize</code> un riferimento all'oggetto che traccia fa sì che il riferimento venga mantenuto, quindi l'oggetto non viene mai raccolto dal <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a>
+</testo_normale>
+<py_code>
+# weakref_finalize_reference.py
+
+import gc
+import weakref
+
+
+class ExpensiveObject:
+
+    def __del__(self):
+        print('(In eliminazione {})'.format(self))
+
+
+def on_finalize(*args):
+    print('on_finalize({!r})'.format(args))
+
+
+obj = ExpensiveObject()
+obj_id = id(obj)
+
+f = weakref.finalize(obj, on_finalize, obj)
+f.atexit = False
+
+del obj
+
+for o in gc.get_objects():
+    if id(o) == obj_id:
+        print('trovato oggetto non raccoglibile in gc')
+</py_code>
+<testo_normale>
+Questo esempio mostra che l'oggetto viene trattenuto e visibile dal  <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a> attraverso <code>f</code> anche se è stata cancellato il riferimento esplicito ad <code>obj</code>.
+</testo_normale>
+<py_output>
+$ python3 weakref_finalize_reference.py
+
+trovato oggetto non raccoglibile in gc
+</py_output>
+<testo_normale>
+Utilizzando come <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> un metodo legato alla classe dell'oggetto tracciato può inibire un oggetto dall'essere finalizzato propriamente.
+</testo_normale>
+<py_code>
+# weakref_finalize_reference_method.py
+
+import gc
+import weakref
+
+
+class ExpensiveObject:
+
+    def __del__(self):
+        print('(In eliminazione {})'.format(self))
+
+    def do_finalize(self):
+        print('do_finalize')
+
+
+obj = ExpensiveObject()
+obj_id = id(obj)
+
+f = weakref.finalize(obj, obj.do_finalize)
+f.atexit = False
+
+del obj
+
+for o in gc.get_objects():
+    if id(o) == obj_id:
+        print('trovato oggetto non raccoglibile in gc')
+</py_code>
+<testo_normale>
+Visto che il <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> passato a <code>finalize</code> è un oggetto legato alla istanza di <code>obj</code>, l'oggetto finalize mantiene un riferimento ad obj, il quale non può essere eliminato e raccolto dal <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a>
+</testo_normale>
+<py_output>
+$ python3 weakref_finalize_reference_method.py
+
+trovato oggetto non raccoglibile in gc
+</py_output>
+<titolo_2>
+Proxy
+</titolo_2>
+<testo_normale>
+Talvolta è più conveniente utilizzare un proxy al posto di un riferimento debole. I proxy possono essere utilizzati come se fossero l'oggetto originale, e non devono essere chiamati prima che l'oggetto sia accessibile. Il che vuol dire che essi possono essere passati ad una libreria che non sa se sta ricevendo un riferimento in luogo dell'oggetto reale
+</testo_normale>
+<py_code>
+# weakref_proxy.py
+
+import weakref
+
+
+class ExpensiveObject:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __del__(self):
+        print('(Eliminazione di  {})'.format(self))
+
+
+obj = ExpensiveObject('Il mio oggetto')
+r = weakref.ref(obj)
+p = weakref.proxy(obj)
+
+print('via obj:', obj.name)
+print('via ref:', r().name)
+print('via proxy:', p.name)
+del obj
+print('via proxy:', p.name)
+</py_code>
+<testo_normale>
+Se si accede al proxy dopo che l'oggetto a cui si riferisce è rimosso, viene sollevata una eccezione <code>ReferenceError</code>
+</testo_normale>
+<py_output>
+$ python3 weakref_proxy.py
+
+via obj: Il mio oggetto
+via ref: Il mio oggetto
+via proxy: Il mio oggetto
+(Eliminazione di  <__main__.ExpensiveObject object at 0x7f0f9a549978>)
+Traceback (most recent call last):
+  File "weakref_proxy.py", line 23, in <module>
+    print('via proxy:', p.name)
+ReferenceError: weakly-referenced object no longer exists
+</py_output>
+<titolo_2>
+Cache degli Oggetti
+</titolo_2>
+<testo_normale>
+Le classi <code>ref</code> e <code>weakref</code> sono considerate classi di "basso livello". Laddove esse sono utili per mantenere riferimenti deboli ad oggetti individuali e per consentire a cicli di essere raccolti dal garbage collector, se occorre creare una cache di parecchi oggetti <code>WeakKeyDictionary</code> e <code>WeakValueDictionary</code> forniscono API più appropriate.
+</testo_normale>
+<testo_normale>
+<code>WeakValueDictionary</code> utilizza riferimenti deboli come valori da conservare, consentendo di essere poi raccolti dal <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a> quando non vengono più utilizzati da altre parti di codice. Usando chiamate esplicite al <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a> si dimostra la differenza tra la gestione della memoria con un normale dizionario e con <code>WeakValueDictionary</code>
+</testo_normale>
+<py_code>
+# weakref_valuedict.py
+
+import gc
+from pprint import pprint
+import weakref
+
+gc.set_debug(gc.DEBUG_UNCOLLECTABLE)
+
+
+class ExpensiveObject(object):
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return 'ExpensiveObject(%s)' % self.name
+
+    def __del__(self):
+        print('    (In eliminazione {})'.format(self))
+
+
+def demo(cache_factory):
+    # trattiene gli oggetti in modo che nessuna weak reference
+    # venga rimossa immediatamente
+    all_refs = {}
+    # creazione della cache utilizzando la factory
+    print('TIPO CACHE:', cache_factory)
+    cache = cache_factory()
+    for name in ['uno', 'due', 'tre']:
+        o = ExpensiveObject(name)
+        cache[name] = o
+        all_refs[name] = o
+        del o  # decref
+
+    print('  all_refs =', end=' ')
+    pprint(all_refs)
+    print('\n  Prima, la cache contiene:', list(cache.keys()))
+    for name, value in cache.items():
+        print('    {} = {}'.format(name, value))
+        del value  # decref
+
+    # Rimuove tutti i riferimenti agli oggetti tranne la cache
+    print('\n Pulizia:')
+    del all_refs
+    gc.collect()
+
+    print('\n  Dopo, la cache contiene:', list(cache.keys()))
+    for name, value in cache.items():
+         print('    {} = {}'.format(name, value))
+    print('   demo in uscita')
+    return
+
+demo(dict)
+print
+demo(weakref.WeakValueDictionary)
+</py_code>
+<testo_normale>
+Qualsiasi variabile di ciclo che fa riferimento ai valori oggetto di cache deve essere pulita esplicitamente per decrementare il conteggio di riferimenti sull'oggetto. Altrimenti il <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a> non rimuoverebbe gli oggetti, che rimarrebbero nella cache. Alla stessa stregua, la variabile <code>all_refs</code> viene usata per mantenere riferimenti e prevenirne la raccolta prematura da parte del <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'>garbage collector</a>.
+</testo_normale>
+<py_output>
+$ python3 weakref_valuedict.py
+
+TIPO CACHE: <class 'dict'>
+  all_refs = {'due': ExpensiveObject(due),
+ 'tre': ExpensiveObject(tre),
+ 'uno': ExpensiveObject(uno)}
+
+  Prima, la cache contiene: ['due', 'tre', 'uno']
+    due = ExpensiveObject(due)
+    tre = ExpensiveObject(tre)
+    uno = ExpensiveObject(uno)
+
+ Pulizia:
+
+  Dopo, la cache contiene: ['due', 'tre', 'uno']
+    due = ExpensiveObject(due)
+    tre = ExpensiveObject(tre)
+    uno = ExpensiveObject(uno)
+   demo in uscita
+    (In eliminazione ExpensiveObject(due))
+    (In eliminazione ExpensiveObject(tre))
+    (In eliminazione ExpensiveObject(uno))
+TIPO CACHE: <class 'weakref.WeakValueDictionary'>
+  all_refs = {'due': ExpensiveObject(due),
+ 'tre': ExpensiveObject(tre),
+ 'uno': ExpensiveObject(uno)}
+
+  Prima, la cache contiene: ['due', 'tre', 'uno']
+    due = ExpensiveObject(due)
+    tre = ExpensiveObject(tre)
+    uno = ExpensiveObject(uno)
+
+ Pulizia:
+    (In eliminazione ExpensiveObject(due))
+    (In eliminazione ExpensiveObject(tre))
+    (In eliminazione ExpensiveObject(uno))
+
+  Dopo, la cache contiene: []
+   demo in uscita
+</py_output>
+<testo_normale>
+<code>WeakKeyDictionary</code> lavora in modo simile ma utilizza riferimenti deboli per le chiavi invece che per i valori.
+</testo_normale>
+<avvertimento>
+La documentazione standard per <a href='https://docs.python.org/3.5/library/weakref.html'>weakref</a> contiene questo avvertimento:<br /><br />Cautela: Visto un un <code>WeakValueDictionary</code> è costruito sopra un dizionario Python, non deve mutare dimensione quando ci si itera sopra. Il che può essere difficile assicurare per un <code>WeakValueDictionary</code> visto che le azioni eseguite dal programma durante l'iterazione possono fare sì che gli elementi nel dizionario scompaiano "magicamente" (come effetto collaterale della raccolta del garbage collector)
+</avvertimento>
+<vedi_anche>
+https://docs.python.org/3.5/library/weakref.html|weakref|La documentazione standard della libreria per questo modulo.
+<!-- |gc|Il modulo gc è l'interfaccia al garbage collector dell'interprete.-->
+https://www.python.org/dev/peps/pep-0205|PEP 205|Proposta di miglioramento per i riferimenti deboli (in inglese)
+</vedi_anche>
+</documento_tradotto>

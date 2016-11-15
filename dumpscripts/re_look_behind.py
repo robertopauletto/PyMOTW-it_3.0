@@ -1,20 +1,20 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_look_behind.py
 
 import re
 
 twitter = re.compile(
     '''
-    # Un twitter handle: @username
+    # Un handle di Twitter: @username
     (?<=@)
-    ([\w\d_]+)       # nome utente
+    ([\w\d_]+)       # username
     ''',
-    re.UNICODE | re.VERBOSE)
+    re.VERBOSE)
 
 text = '''Questo testo include due Twitter handle.
 Uno per @ThePSF, ed uno per l'autore, @doughellmann.
 '''
 
-print text
+print(text)
 for match in twitter.findall(text):
-    print 'Handle:', match
+    print('Handle:', match)
+

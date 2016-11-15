@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_negative_look_behind.py
 
 import re
 
@@ -20,18 +19,17 @@ address = re.compile(
 
     $
     ''',
-    re.UNICODE | re.VERBOSE)
+    re.VERBOSE)
 
 candidates = [
     u'first.last@example.com',
     u'noreply@example.com',
-    ]
+]
 
 for candidate in candidates:
-    print
-    print 'Candidato:', candidate
+    print('Candidati:', candidate)
     match = address.search(candidate)
     if match:
-        print '  Corrispondenza:', candidate[match.start():match.end()]
+        print('  Corrispondenza:', candidate[match.start():match.end()])
     else:
-        print '  Nessuna corrispondenza'
+        print('  Nessuna corrispondenza')

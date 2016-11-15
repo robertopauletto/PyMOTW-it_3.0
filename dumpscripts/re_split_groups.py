@@ -1,13 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-
+# re_split_groups.py
 
 import re
 
-text = 'Paragrafo uno\nsu due righe.\n\nParagrafo due.\n\n\nParagrafo tre.'
-   
-print
-print 'Con split:'
+text = '''Paragrafo uno
+su due righe.
+
+Paragrafo due.
+
+
+Paragrafo tre.'''
+
+print('Con split:')
 for num, para in enumerate(re.split(r'(\n{2,})', text)):
-    print num, repr(para)
-    print    
+    print(num, repr(para))
+    print()

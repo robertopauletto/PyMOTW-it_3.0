@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_refer_to_group.py
 
 import re
 
@@ -7,10 +6,10 @@ address = re.compile(
     r'''
 
     # Il nome normale
-    (\w+)               # Nome
+    (\w+)               # nome
     \s+
-    (([\w.]+)\s+)?      # Secondo nome opzionale o inizilae
-    (\w+)               # Cognome
+    (([\w.]+)\s+)?      # Secondo nome opzionale od iniziale
+    (\w+)               # cognome
 
     \s+
 
@@ -28,22 +27,20 @@ address = re.compile(
 
     >
     ''',
-    re.UNICODE | re.VERBOSE | re.IGNORECASE)
+    re.VERBOSE | re.IGNORECASE)
 
 candidates = [
     u'Nome Cognome <nome.cognome@example.com>',
     u'Diverso Nome <nome.cognome@example.com>',
     u'Nome SecondoNome Cognome <nome.cognome@example.com>',
     u'Nome S. Cognome <nome.cognome@example.com>',
-    ]
+]
 
 for candidate in candidates:
-    print
-    print 'Candidato:', candidate
+    print('Candidato:', candidate)
     match = address.search(candidate)
     if match:
-        print '  Corrispondenza con nome :', match.group(1), match.group(4)
-        print '  Corrispondenza con email:', match.group(5)
+        print('  Corrispondenza con nome :', match.group(1), match.group(4))
+        print('  Corrispondenza con email:', match.group(5))
     else:
-        print '  Nessuna corrispondenza  :'
-        
+        print('  Nessuna corrispondenza')

@@ -1,21 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# gc_collect.py
 
 import gc
 import pprint
-import Queue
+
 
 class Graph(object):
+
     def __init__(self, name):
         self.name = name
         self.next = None
-    def set_next(self, next):
-        print 'Collegamento nodi %s.next = %s' % (self, next)
-        self.next = next
-    def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.name)
 
-# Construisce un ciclo di Grafi
+    def set_next(self, next):
+        print('Collegamento nodi {}.next = {}'.format(self, next))
+        self.next = next
+
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__, self.name)
+
+# Costruisce un ciclo di Grafi
 one = Graph('uno')
 two = Graph('due')
 three = Graph('tre')
@@ -25,12 +27,11 @@ three.set_next(one)
 
 # Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
 one = two = three = None
-
-# Mostra gli effetti della garbage collection
+\
+# Mostra gli effetti del garbage collection
 for i in range(2):
-    print 'In raccolta %d ...' % i
+    print('In raccolta {} ...'.format(i))
     n = gc.collect()
-    print 'Oggetti non raggiungibili:', n
-    print 'Garbage rimanente:', 
+    print('Oggetti non raggiungibili:', n)
+    print('Garbage rimanente:', end=' ')
     pprint.pprint(gc.garbage)
-    print

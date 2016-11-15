@@ -1,24 +1,24 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# re_email_with_name.py
 
 import re
 
 address = re.compile(
     '''
-    # Un nome è composto da lettere e può includere "." per titoli, 
+
+    # Un nome è composto da lettere e può includere "." per titoli,
     # abbreviazini ed iniziali intermedie
     ((?P<name>
        ([\w.,]+\s+)*[\w.,]+)
        \s*
        # Gli indirizzi email sono racchiusi tra parentesi angolari: < >
-       # ma noi ne vogliamo solo uno se trovaiamo un nome, quindi 
-       # mantenaimo la parentesi di partenza in questo gruppo
+       # solo se troviamo un nome, quindi
+       # manteniamo la parentesi di partenza in questo gruppo
        <
-    )? # l'intero nome è opzionalre
+    )? # # l'intero nome è opzionalre
 
     # L'indirizzo email vero e proprio: username@domain.tld
     (?P<email>
-      [\w\d.+-]+       # nome utene
+      [\w\d.+-]+       # nome utente
       @
       ([\w\d.]+\.)+    # prefisso del nome di dominio
       (com|org|edu)    # limita i domini di livello più alto consentiti
@@ -26,7 +26,7 @@ address = re.compile(
 
     >? # parentesi angolare di chiusura opzionale
     ''',
-    re.UNICODE | re.VERBOSE)
+    re.VERBOSE)
 
 candidates = [
     u'first.last@example.com',
@@ -39,15 +39,14 @@ candidates = [
     u'First Middle Last <first.last@example.com>',
     u'First M. Last <first.last@example.com>',
     u'<first.last@example.com>',
-    ]
+]
 
 for candidate in candidates:
-    print
-    print 'Candidato:', candidate
+    print('Candidato:', candidate)
     match = address.search(candidate)
     if match:
-        print '  Nome corrisponde :', match.groupdict()['name']
-        print '  email corrisponde:', match.groupdict()['email']
+        print('  Nome :', match.groupdict()['name'])
+        print('  Email:', match.groupdict()['email'])
     else:
-        print '  Nessuna corrispondenza'
-        
+        print('  Nessuna corrispondenza')
+

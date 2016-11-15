@@ -1,11 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-
+# re_paragraphs_findall.py
 
 import re
 
-text = 'Paragrafo uno\nsu due righe.\n\nParagrafo due.\n\n\nParagrafo tre.'
+text = '''Paragrafo uno
+su due righe.
 
-for num, para in enumerate(re.findall(r'(.+?)\n{2,}', text, flags=re.DOTALL)):
-    print num, repr(para)
-    print
+Paragrafo due.
+
+
+Paragrafo tre.'''
+
+for num, para in enumerate(re.findall(r'(.+?)\n{2,}',
+                                      text,
+                                      flags=re.DOTALL)
+                           ):
+    print(num, repr(para))
+    print()

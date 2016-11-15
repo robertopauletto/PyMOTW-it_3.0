@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# gc_get_treshold
+
 
 import gc
 
-print gc.get_threshold()
+print(gc.get_threshold())
