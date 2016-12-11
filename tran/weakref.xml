@@ -418,7 +418,7 @@ La documentazione standard per <a href='https://docs.python.org/3.5/library/weak
 </avvertimento>
 <vedi_anche>
 https://docs.python.org/3.5/library/weakref.html|weakref|La documentazione standard della libreria per questo modulo.
-<!-- |gc|Il modulo gc è l'interfaccia al garbage collector dell'interprete.-->
+gc.html|gc|Il modulo gc è l'interfaccia al garbage collector dell'interprete.
 https://www.python.org/dev/peps/pep-0205|PEP 205|Proposta di miglioramento per i riferimenti deboli (in inglese)
 </vedi_anche>
 </documento_tradotto>

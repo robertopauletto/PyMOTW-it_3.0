@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>file system</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+io - Strumenti I/O per flussi grezzi, di testo e binari
+</titolo_1>
+<descrizione>
+Implementa operazioni di input output e fornisce classi per lavorare con i buffer usando <a href='https://it.wikipedia.org/wiki/Application_programming_interface'>API</a> tipo file.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>io</strong> fornisce accesso alla funzione built-in <code>open()</code> ed alle classi utilizzate per implementare operazioni di input ed output basate su file. Le classi sono decomposte in modo tale che possano essere ricombinate per scopi alternativi, ad esempio per abilitare la scrittura di dati in formato Unicode verso un <a href='https://www.wikiwand.com/it/Socket_(reti)'>socket di rete</a>.
+</testo_normale>
+<titolo_2>
+Flussi In Memoria
+</titolo_2>
+<testo_normale>
+<code>StringIO</code> fornisce mezzi per lavorare comodamente con del testo in memoria utilizzando le <a href='https://it.wikipedia.org/wiki/Application_programming_interface'>API</a> di file(<code>read</code>, <code>write()</code>, ecc.). L'utilizzo di <code>StringIO</code> per costruire grandi stringhe può offrire in taluni casi risparmi in prestazioni rispetto ad alcune altre tecniche di concatenamento di stringhe. I <a href='https://www.wikiwand.com/it/Buffer'>buffer</a> di flusso in memoria sono anche utili per test, quando la scrittura verso un file reale potrebbe rallentare la suite di test.
+</testo_normale>
+<testo_normale>
+Ecco alcuni esempi standard dell'utilizzo dei buffer <code>StringIO</code>.
+</testo_normale>
+<py_code>
+# io_stringio.py
+
+import io
+
+# Scrittura verso un buffer
+output = io.StringIO()
+output.write('Questo va nel buffer. ')
+print('Anche questo.', file=output)
+
+# Recupero dei valori scritti
+print(output.getvalue())
+
+output.close()  # scarica il buffer in memoria
+
+# Inizializza un buffer in lettura
+input = io.StringIO('Valore iniziale per il buffer in lettura')
+
+# Legge dal buffer
+print(input.read())
+</py_code>
+<testo_normale>
+Questo  esempio usa <code>read()</code>, ma sono disponibii anche  i metodi <code>readline()</code> e <code>readlines()</code>. La classe <code>StringIO</code> fornisce anche un metodo <code>seek()</code> per muoversi all'interno del buffer quando si è in lettura, utile per "riavvolgere" se si sta utilizzando un algoritmo di elaborazione di tipo look-ahead.
+</testo_normale>
+<py_output>
+$ python3 io_stringio.py
+
+Questo va nel buffer. Anche questo.
+
+Valore iniziale per il buffer in lettura
+</py_output>
+<testo_normale>
+Per lavorare con bite grezzi invece che con testo Unicode, si usa <code>BytesIO</code>.
+</testo_normale>
+<py_code>
+# io_bytesio.py
+
+import io
+
+# Scrittura verso un buffer
+output = io.BytesIO()
+output.write('Questo va nel buffer. '.encode('utf-8'))
+output.write('ÁÇÊ'.encode('utf-8'))
+
+# Recupero dei valori scritti
+print(output.getvalue())
+
+output.close()  # scarica il buffer in memoria
+
+# Inizializza un buffer in lettura
+input = io.BytesIO(b'Valore iniziale per il buffer in lettura')
+
+# Legge dal buffer
+print(input.read())
+</py_code>
+<testo_normale>
+I valori scritti verso <code>BytesIO</code> devono essere di tipo <code>bytes</code>, non <code>str</code>.
+</testo_normale>
+<py_output>
+$ python3 io_bytesio.py
+
+b'Questo va nel buffer. \xc3\x81\xc3\x87\xc3\x8a'
+b'Valore iniziale per il buffer in lettura'
+</py_output>
+<titolo_2>
+Impacchettare Flussi di Byte per Dati di Testo
+</titolo_2>
+<testo_normale>
+Flussi di byte grezzi come i socket possono essere impacchettati in uno strato per gestire la codifica e la decodifica, facilitandone l'uso con dati di testo. La classe <code>TextIOWrapper</code> supporta sia la lettura che la scrittura. L'argomento <code>write_through</code> disabilita il <a href='https://www.wikiwand.com/it/Buffer'>buffering</a>, e scarica tutti i dati scritti all'impacchettatore verso il buffer sottostante immediatamente.
+</testo_normale>
+<py_code>
+# io_textiowrapper.py
+
+import io
+
+# Scrittura verso un buffer
+output = io.BytesIO()
+wrapper = io.TextIOWrapper(
+    output,
+    encoding='utf-8',
+    write_through=True,
+)
+wrapper.write('Questo va nel buffer. ')
+wrapper.write('ÁÇÊ')
+
+# Recupero dei valori scritti
+print(output.getvalue())
+
+output.close()  # scarica il buffer in memoria
+
+# Inizializza un buffer in lettura
+input = io.BytesIO(
+    b'Valore iniziale per il buffer in lettura' + 'ÁÇÊ'.encode('utf-8')
+)
+wrapper = io.TextIOWrapper(input, encoding='utf-8')
+
+# Legge dal buffer
+print(wrapper.read())
+</py_code>
+<testo_normale>
+Questo esempio usa una istanza di <code>BytesIO()</code> come flusso.
+</testo_normale>
+<py_output>
+$ python3 io_textiowrapper.py
+
+b'Questo va nel buffer. \xc3\x81\xc3\x87\xc3\x8a'
+Valore iniziale per il buffer in letturaÁÇÊ
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/io.html|io|La documentazione della libreria standard per questo modulo.
+http://www.skymind.com/~ocrow/python_string/|Efficient String Concatenation in Python|Esamina vari metodi di combinazione di strnghe ed i loro relativi pregi - in inglese.
+</vedi_anche>
+</documento_tradotto>

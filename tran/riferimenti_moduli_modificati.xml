@@ -15,9 +15,10 @@ Moduli Modificati
 </titolo_1>
 <titolo_4>
 Moduli modificati rispetto alle controparti di Python 2
-abc <a name='abc_porting'></a>
+<a name='abc_porting'></a>
 </titolo_4>
 <titolo_2>
+abc
 </titolo_2>
 <testo_normale>
 I decoratori <code>abstractproperty()</code>, <code>abstractclassmethod</code> e <code>abstractstaticmethod</code> sono deprecati. La combinazione di <code>abstractmethod()</code> con i decoratori <code>property()</code>, <code>classmethod()</code> e <code>staticmethod()</code> funziona come atteso (<a href="http://bugs.python.org/issue11610">Python issue 11610</a>).
@@ -89,17 +90,17 @@ bz2
 Le istanze di <code>BZ2File</code> ora supportano il protocollo di gestore di contesto, e non serve incapsularle in <code>contextlib.closing()</code>.
 </testo_normale>
 <titolo_2>
-contextlib
-</titolo_2>
-<testo_normale>
-E' stato rimosso <code>contextlib.nested()</code>. Passare gestori di contesti multipli alla stessa istruzione <code>with</code>
-</testo_normale>
-<titolo_2>
 collections
 </titolo_2>
 <testo_normale>
 Le classi base astratte precedentemente definite in <code>collections</code> sono state spostate in <code>collections.abc</code>, con compatibilità all'indietro tramite import in <code>collections</code>, per ora (<a href="http://bugs.python.org/issue11085">Python issue 11085</a>)
 <a name='pn_collections'></a>
+</testo_normale>
+<titolo_2>
+commands
+</titolo_2>
+<testo_normale>
+Le funzioni <code>getoutput()</code> e <code>getstatusoutput()</code> sono state spostate in <strong>subprocess</strong> e <code>commands</code> è stato eliminato
 </testo_normale>
 <titolo_2>
 configparser
@@ -116,6 +117,12 @@ Il metodo <code>read()</code> ora supporta un argomento <code>encoding</code>, i
 <testo_normale>
 L'utilizzo del vecchio <code>RawConfigParser</code> è sconsigliato. I nuovi progetti dovrebbero utilizzare <code>ConfigParser(interpolation=None)</code> per ottenere lo stesso comportamento.
 <a name='csv'></a>
+</testo_normale>
+<titolo_2>
+contextlib
+</titolo_2>
+<testo_normale>
+E' stato rimosso <code>contextlib.nested()</code>. Passare gestori di contesti multipli alla stessa istruzione <code>with</code>
 </testo_normale>
 <titolo_2>
 csv
@@ -141,6 +148,12 @@ fractions
 I metodi di classe <code>from_float()</code> e <code>from_decimal()</code> non sono più necessari. I valori a virgola mobile e <code>Decimal</code> possono essere passati direttamente al costrutture <code>Fraction</code>
 </testo_normale>
 <titolo_2>
+gc
+</titolo_2>
+<testo_normale>
+I flag <code>DEBUG_OBJECT</code> e <code>DEBUG_INSTANCE</code> sono stati rimossi. Non sono più necessari per differenziare tra classi nuove e "vecchio stile"-
+</testo_normale>
+<titolo_2>
 gettext
 </titolo_2>
 <testo_normale>
@@ -154,11 +167,23 @@ glob
 La nuova funzione <code>escape()</code> implementa una soluzione per cercare file con meta-caratteri nel nome (<a href="http://bugs.python.org/issue8402">Python issue 9124</a>)
 </testo_normale>
 <titolo_2>
+http.cookies
+</titolo_2>
+<testo_normale>
+Oltre ad inserire nelle sequenze di escape gli apici, <code>SimpleCookie</code> codifica anche virgole e punti e virgola in valori per riflettere maggiormente il comportamento dei veri browser (<a href='http://bugs.python.org/issue9824'>Python issue 9824</a>)
+</testo_normale>
+<titolo_2>
 imaplib
 </titolo_2>
 <testo_normale>
 In Python3 imaplib ritorna stringhe di byte codificate come UTF-8. C'è supporto per accettare stringhe unicode e codificarle automaticamente mentre vengono spediti come comandi in uscita oppure come utente/password per autenticazione su di un server.
 <a name='itertools_porting'></a>
+</testo_normale>
+<titolo_>
+inspect
+</titolo_>
+<testo_normale>
+Le funzioni <code>getargspec()</code>, <code>getfullargspec()</code>, <code>getargvalues()</code>, <code>getcallargs()</code>, <code>getargvalues()</code>, <code>formatargspec()</code>, e <code>formatargvalues()</code> sono state deprecate a beneficio di <code>signature()</code> (<a href='http://bugs.python.org/issue20438'>Python issue 20438</a>)
 </testo_normale>
 <titolo_2>
 itertools
@@ -166,7 +191,24 @@ itertools
 <testo_normale>
 Le funzioni <code>imap</code>, <code>izip()</code> ed <code>ifilter()</code> sono state sostituite con versioni di funzioni built-in che ritornano degli iterabili in luogo di oggetti <code>list</code> (<code>map()</code>, <code>zip()</code>) e <code>filter:()</code> rispettivamente).
 </testo_normale>
-
+<titolo_2>
+json
+</titolo_2>
+<testo_normale>
+L'api di <strong>json</strong> è stata aggiornata per supportare solamente <code>str</code> e non <code>bytes</code> visto che la specifica di JSON è definita usando Unicode.
+</testo_normale>
+<titolo_2>
+locale
+</titolo_2>
+<testo_normale>
+La versione normalizzata del nome della codificat UTF-8 è cambiata da "UTF8" a "UTF-8" visto che i sistemi operativi MAC OS X ed OpenBSD non supportano l'uso di "UTF8" (<a href='http://bugs.python.org/issue10154'>Python issue 1054</a> e <a href='http://bugs.python.org/issue10090'>Python issue 10090</a>)
+</testo_normale>
+<titolo_2>
+logging
+</titolo_2>
+<testo_normale>
+Il modulo <strong>logging</strong> ora include il logger <code>lastResort</code> utilizzato se non viene eseguita alcuna configurazione di logging da una applicazione. Ciò elimina la necessità di configurare il logging di una applicazione solo per evitare che l'utente veda messaggi di errore nel caso che una libreria importata da una applicazione usi logging ma l'applicazione stesso no.
+</testo_normale>
 <titolo_2>
 mailbox
 </titolo_2>
@@ -174,10 +216,108 @@ mailbox
 mailbox legge e scrive i file mailbox in modalità binaria, affidandosi al pacchetto email per l'elaborazione dei messaggi. Input StringIO e file di testo sono deprecati (<a href="http://bugs.python.org/issue9124">Python issue 9124</a>)
 </testo_normale>
 <titolo_2>
+nmap
+</titolo_2>
+<testo_normale>
+I valori ritornati dall'API di lettura sono stringhe di byte, e devono essere decodificate prima di trattarle come testo.
+</testo_normale>
+<titolo_2>
+operator
+</titolo_2>
+<testo_normale>
+La funzione <code>div()</code>è stata rimossa. Si utilizzi <code>floordiv()</code> oppure <code>truediv()</code>, a seconda della semantica desiderata.
+</testo_normale>
+<testo_normale>
+La funzione <code>repeat()</code> è stata rimossa. Si utilizzi al suo posto <code>mul()</code>.
+</testo_normale>
+<testo_normale>
+Le funzioni <code>getslice()</code>, <code>setslice()</code>, e <code>delslice()</code> sono state rimosse. Si utilizzi <code>getitem()</code>, <code>setitem()</code>, e <code>delitem()</code> con porzioni di indici
+</testo_normale>
+<testo_normale>
+La funzione  <code>isCallable()</code> è stata rimossa. Si utilizzi la classe base astratta <code>collections.Callable</code>.
+</testo_normale>
+<py_code>
+isinstance(obj, collections.Callable)
+</py_code>
+<testo_normale>
+Le funzioni di verifica di tipo <code>isMappingType()</code>, <code>isSequenceType()</code>, e <code>isNumberType()</code> sono state rimosse. Si utilizzi le relative classi base astratte da collections o numbers.
+</testo_normale>
+<py_code>
+isinstance(obj, collections.Mapping)
+isinstance(obj, collections.Sequence)
+isinstance(obj, numbers.Number)
+</py_code>
+<testo_normale>
+La funzione <code>sequenceIncludes()</code> è stata rimossa. Si utilizzi <code>contains()</code>.
+</testo_normale>
+<titolo_2>
+os
+</titolo_2>
+<testo_normale>
+Le funzioni <code>popen2()</code>, <code>popen3()</code> e <code>popen4()</code> sono state rimmosse. <code>popen()</code> è ancora presente ma è deprecato ed emette avvertimenti se utilizzato. Il codice che utilizza queste funzioni dovrebbe essere riscritto usando <strong>subprocess</strong> per aumentarne la portabilità tra i sistemi operativi.
+</testo_normale>
+<testo_normale>
+Le funzioni <code>os.tmpnam()</code>, <code>os.tempnam()</code>, e <code>os.tmpfile()</code> sono state rimesse. Si usi il modulo <strong>tempfile</strong> in sostituzione.
+</testo_normale>
+<testo_normale>
+La funzione <code>os.stat_float_times()</code> è deprecata <a href='http://bugs.python.org/issue14711'>Python issue 14711</a>.
+</testo_normale>
+<testo_normale>
+La funzione <code>os.unsetenv()</code> non ignora più gli errori <a href='http://bugs.python.org/issue13415'>Python issue 13415</a>.
+</testo_normale>
+<titolo_2>
+os.path
+</titolo_2>
+<testo_normale>
+<code>os.path.walk()</code> è stata rimossa. Si usi <code>os.walk()</code>.
+</testo_normale>
+<titolo_2>
 pdb
 </titolo_2>
 <testo_normale>
-L'alias di comando <code>print</code> è stato rimosso in modo che non si sovrapponga alla funzione <code>print()</code> (<a href="http://bugs.python.org/issue18764">Python issue 18764</a>). La scorciatoia <code>p</code> è contenuta.
+L'alias di comando <code>print</code> è stata rimossa. Si utilizzi al suo posto <code>do ch</ funzione <code>print()</code> (<a href="http://bugs.python.org/issue18764">Python issue 18764</a>). La scorciatoia <code>p</code> è contenuta.
+</testo_normale>
+<titolo_2>
+platform
+</titolo_2>
+<testo_normale>
+<code>platform.popen()</code> è stata deprecata. Si usi <code>subprocess.popen()</code> al suo posto (<a href='http://bugs.python.org/issue11377'>Python issue 11377</a>)
+</testo_normale>
+<testo_normale>
+<code>platform.uname()</code> ora restituisce una <code>namedtuple</code>
+</testo_normale>
+<testo_normale>
+Visto che le distribuzioni Linux non hanno un modo consistente per descrivere se stesse, le funzioni per ottenere descrizioni (<code>platform.dist()</code> e <code>platform.linux_distribution</code>) sono deprecate ed in calendario per la rimozione in Python 3.7 (<a href='http://bugs.python.org/issue1322'>Python issue 1322</a>
+</testo_normale>
+<titolo_2>
+pickle
+</titolo_2>
+<testo_normale>
+L'implementazione C del modulo pickle da Python 2 è stata spostata verso un nuovo modulo che è usato automaticamente per sostituire quando possibile l'implementazione Python. Il vecchio idioma di importazione:
+</testo_normale>
+<python_code>
+try:
+   import cPickle as pickle
+except:
+   import pickle
+</python_code>
+<testo_normale>
+può essere sostituito con:
+</testo_normale>
+<py_code>
+import pickle
+</py_code>
+<testo_normale>
+L'interoperabilità tra Python 2.x e Python 3.x è stata migliorata per i dati lavorati da pickle usando il livello di protocollo 2 od inferiore per risolvere un problema introdotto quando un grande numero di moduli di  librerie standard erano rinominati durante la transizione verso Python 3. Visto che i dati lavorati con pickle includono riferimenti a classi e tipi di nomi, ed questi nomi erano cambiati, risultava difficile lo scambio di dati lavorati con pickle tra programmi Python 2 e Python 3. Ora per i dati lavorati con pickle con il protocollo 2 o più vecchio, i vecchi nomi delle classi sono automaticamente utilizzati durante le operazioni di lettura e scrittura da un flusso di pickle.
+</testo_normale>
+<testo_normale>
+Questo comportamento è disponibile nella modalità predefinita, e può essere disabilitato con l'opzione <code>fix_imports</code>. Questa modifica migliora la situazione, ma non elimina interamente le incompatibilità. IN particolare, è possibile che dati lavorati con pickle sotto Python 3.1 con possano essere letti sotto Python 3.0. Per assicurare la massima portabilità tra applicazioni Python 3, si usi il livello di protocollo 3, che non contempla questa caratteristica di compatibilità.
+</testo_normale>
+<testo_normale>
+La versione del protocollo predefinito è stata cambiata da 0, la versione leggibile dall'umano, a 3, il formato binario con la migliore interoperabilità se condivisa tra applicazioni Python 3.
+</testo_normale>
+<testo_normale>
+I dati in formato di stringa di byte scritti con pickle da una applicazione Python 2.x vengono decodificati quando vengono riletti per creare un oggetto stringa Unicode. La codifica predefinita per la trasformazione è ASCII, e può essere modificata passando valori a <code>Unpickler</code>
 </testo_normale>
 <titolo_2>
 pipes
@@ -192,16 +332,58 @@ random
 La funzione <code>jumpahead()</code> è stata rimossa in Python 3.0
 </testo_normale>
 <titolo_2>
+re
+</titolo_2>
+<testo_normale>
+Il flag <code>UNICODE</code> costituisce il comportamento predefinito. Per ripristinare il comportamento ASCII, specifico di Python 2, utilizzare il flag <code>ASCII</code>.
+</testo_normale>
+<titolo_2>
 shelve
 </titolo_2>
 <testo_normale>
 Il formato di output predefinito per <code>shelve</code> può creare un file con una estensione <em>.db</em> aggiunta al nome dato a <code>shelve.open()</code>.
 </testo_normale>
 <titolo_2>
+signal
+</titolo_2>
+<testo_normale>
+<a href='https://www.python.org/dev/peps/pep-0475'>PEP 475</a> indica che le chiamate di sistema interrotte che ritornano con <code>EINTR</code> siano ritentate. Questo modifica il comportamento dei gestori di segnali ed altre chiamate di sistema, visto che dopo che il gestore di segnali ritorna, la chiamata interrotta verrà ritentata, a meno che il gestore di segnali sollevi una eccezione. Fare riferimento alla documentazione PEP per i dettagli completi.
+</testo_normale>
+<titolo_2>
+socket
+</titolo_2>
+<testo_normale>
+In Python 2 tipicamente gli oggetti stringa potevano essere inviati direttamente attraverso un socket. Visto che <code>str</code> sostituisce <code>unicode</code>, in Python 3 i valori devono essere codificati prima di essere inviati. Gli esempi usano stringhe di byte, che sono già codificate.
+</testo_normale>
+<titolo_2>
 socketserver
 </titolo_2>
 <testo_normale>
-Sotto Python 2 il modulo <strong>socketserver</strong> è stato rinominato in <strong>SocketServer</strong>
+Il modulo <strong>socketserver</strong> si chiamava <code>SocketServer</code> in Python 2.
+</testo_normale>
+<titolo_2>
+string
+</titolo_2>
+<testo_normale>
+Tutte le funzioni del modulo string che sono anche metodi di oggetti <code>str</code> sono state rimosse.
+</testo_normale>
+<testo_normale>
+Le costanti <code>letters</code>, <code>lowercase</code> e <code>uppercase</code> sono state rimosse. Le nuove costanti con nomi simili sono limitate all'insieme dei caratteri ASCII.
+</testo_normale>
+<testo_normale>
+La funzione <code>maketrans()</code> è stata sostituita dai metodi <code>str.bytes</code> e <code>str.bytearray</code> per chiarire quale tipo di input sia supportato da ciascuna tabella di traduzione.
+</testo_normale>
+<titolo_2>
+struct
+</titolo_2>
+<testo_normale>
+<code>struct.pack()</code> ora supporta solamente stringhe di byte quando si utilizza il codice di impacchettamento <code>s</code>, e non vengono più codificati implicitamente gli oggetti stringa verso UTF-8 (<a href='http://bugs.python.org/issue10783'>Python issue 10783</a>)
+</testo_normale>
+<titolo_2>
+subprocess
+</titolo_2>
+<testo_normale>
+Il valore predefinito per l'argomento <code>close_fds</code> per <code>subprocess.Popen</code> è stato modificato in modo che sia sempre <code>False</code>. Viene sempre predefinito a <code>True</code> sotto UNIX, mentre sotto Windows se gli argomenti del flusso I/O standard sono impostati a <code>None</code>, altrimenti viene predefinito a <code>False</code>.
 </testo_normale>
 <titolo_2>
 sys
@@ -247,6 +429,30 @@ Vecchie implementazioni di <strong>threading</strong> utilizzavano funzioni di f
 </testo_normale>
 <testo_normale>I simboli pubblici esportati da <stong>threading</stong> sono stati rinominati per essere conformi a <a href="https://www.python.org/dev/peps/pep-0008">PEP 8</a>. I vecchi nomi sono stati conservati per retrocompatibilità, tuttavia saranno rimossi in un prossimo rilascio.
 </testo_normale>
+<a name='time_porting'></a>
+<titolo_2>
+time
+</titolo_2>
+<testo_normale>
+<code>time.asctime()</code> e <code>time.ctime()</code> sono state reimplementate ed ora non usano le funzioni di sistema di time per supportare l'utilizzo di un maggiore numero di anni. <code>time.ctime()</code> ora supporta gli anni da 1900 fino a <code>maxint</code>, sebbene per valori più alti di 9999 la stringa in uscita sia più lunga dei 24 caratteri standard per accomodare le cifre di anno supplementari (<a href='http://bugs.python.org/issue8013'>Python issue 8013</a>).
+</testo_normale>
+<titolo_2>
+unittest
+</titolo_2>
+<testo_normale>
+I metodi di <code>TestCase</code> che iniziano con "fail" (<code>failIf()</code>, <code>failUnless()</code>, ecc.) sono stati deprecati. Si usi la forma alternativa dei metodi di asserzione.
+</testo_normale>
+<testo_normale>
+Parecchi alias di vecchi metodi sono stati deprecati e sostituiti con nomi preferiti. L'uso dei nomi deprecati produce un avvertimento (<a href='http://bugs.python.org/issue9424'>Python issue 9424</a>)
+</testo_normale>
+<tabella_semplice>
+Nomi Deprecati;Nomi Preferiti
+assert_();assertTrue()
+assertEquals();assertEqual()
+assertNotEquals();assertNotEqual()
+assertAlmostEquals();assertAlmostEqual()
+assertNotAlmostEquals();assertNotAlmostEqual()
+</tabella_semplice>
 <titolo_2>
 UserDict, UserList, UserString
 </titolo_2>
@@ -254,8 +460,33 @@ UserDict, UserList, UserString
 Le classi UserDict, UserList, UserString sono state spostate dai loro propri moduli nel modulo <strong>collections</strong>. <code>dict</code>, <code>list</code> e <code>str</code> possono essere direttamente subclassate ma le classi in <strong>collections</strong> possono rendere l'implementazione della sottoclasse più semplice visto che il contenuto del contenitore è disponibile direttamente attraverso un attributo di istanza. Anche le classi astratte in <strong>collections.abc</strong> sono utili per creare contenitori personalizzati pche seguono le API dei tipi built-in.
 </testo_normale>
 <titolo_2>
+uuid
+</titolo_2>
+<testo_normale>
+<code>uuid.getnome()</code> ora utilizza la variabile di ambiente <code>PATH</code> per trovare programmi che possono rilevare l'<a href='https://www.wikiwand.com/it/Indirizzo_MAC'>indirizzo MAC</a> dell'host sotto UNIX (<a href='http://bugs.python.org/issue19855'>Python issue 19855</a>). Se non viene trovato un programma nei percorsi indicati in <code>PATH</code> tenta la ricerca in <code>/sbin</code> e <code>/usr/sbin</code>. Il comportamento di ricerca può dare risultati differenti rispetto a versioni precedenti di Python se versioni alternative di programmi tipo <code>netstat</code>, <code>ifconfig</code>, <code>ip</code> ed <code>arp</code> sono presenti e produrre risultati differenti.
+</testo_normale>
+<titolo_2>
 whichdb
 </titolo_2>
 <testo_normale>
 Le funzionalità di <strong>wichdb</strong> sono state spostate nel modulo <strong>anydbm</strong>.
+</testo_normale>
+<titolo_2>
+xml.etree.ElementTree
+</titolo_2>
+<testo_normale>
+<code>XMLTreeBuilder</code> è stato rinominato in <code>TreeBuilder</code>, l '<a href='https://it.wikipedia.org/wiki/Application_programming_interface'>API</a> è stata sottoposta a diversi cambiamenti.
+</testo_normale>
+<testo_normale>
+<code>ElementTree.getchildren()</code> è stato deprecato. Usare <code>list(elem)</code> per costruire una lista di figli.
+
+<code>ElementTree.getiterator()</code> è stato deprecato. Usare <code>iter()</code> per creare un iteratore usando il protocollo del normale  iteratore.
+
+Quando fallisce l'elaborazione, invece che sollevare <code>xml.parsers.expat.ExpatError</code>, <code>XMLParser</code> ora solleva <code>xml.etree.ElementTree.ParseError</code>.
+</testo_normale>
+<titolo_2>
+zipimport
+</titolo_2>
+<testo_normale>
+I dati restituiti da <code>get_data()</code> sono in formato di stringa di byte, e devono essere codificati prima di utilizzarli come stringa unicode.
 </testo_normale>
