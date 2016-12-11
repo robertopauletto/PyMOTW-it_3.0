@@ -1,9 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# time_clock_sleep.py
 
 import time
 
-for i in range(6, 1, -1):
-    print '%s %0.2f %0.2f' % (time.ctime(), time.time(), time.clock())
-    print 'In pausa', i
+template = '{} - {:0.2f} - {:0.2f}'
+
+print(template.format(
+    time.ctime(), time.time(), time.clock())
+)
+
+for i in range(3, 0, -1):
+    print('Inattivo', i)
     time.sleep(i)
+    print(template.format(
+        time.ctime(), time.time(), time.clock())
+    )

@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# time_time.py
 
 import time
 
-print "L'ora è:", time.time()
+print("L'orario è:", time.time())
