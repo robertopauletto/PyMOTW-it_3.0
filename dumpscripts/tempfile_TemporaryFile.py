@@ -1,23 +1,25 @@
+# tempfile_TemporaryFile.py
+
 import os
 import tempfile
 
-print 'Creazione di un nome di file:'
-filename = '/tmp/indovina_il_nome.%s.txt' % os.getpid()
-temp = open(filename, 'w+b')
-try:
-    print 'temp:', temp
-    print 'temp.name:', temp.name
-finally:
-    temp.close()
-    # Elimina espressamente il file temporaneo
-    os.remove(filename)
+print('Crezione di un nome di file con PID:')
+filename = '/tmp/indovina_il_nome.{}.txt'.format(os.getpid())
+with open(filename, 'w+b') as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
 
-print
-print 'TemporaryFile:'
-temp = tempfile.TemporaryFile()
-try:
-    print 'temp:', temp
-    print 'temp.name:', temp.name
-finally:
-    # Elimina il file automaticamente
-    temp.close()
+# Clean up the temporary file yourself.
+os.remove(filename)
+
+print()
+print('File Temporaraneo:')
+with tempfile.TemporaryFile() as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
+
+# Elimina il file automaticamente

@@ -1,11 +1,10 @@
+# tempfile_TemporaryFile_text.py
+
 import tempfile
 
-f = tempfile.TemporaryFile(mode='w+t')
-try:
+with tempfile.TemporaryFile(mode='w+t') as f:
     f.writelines(['primo\n', 'secondo\n'])
-    f.seek(0)
 
+    f.seek(0)
     for line in f:
-        print line.rstrip()
-finally:
-    f.close()
+        print(line.rstrip())

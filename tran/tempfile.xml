@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Il file system</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+tempfile - Oggetti Temporanei di File System
+</titolo_1>
+<descrizione>
+Crea oggetti di file system temporanei
+
+</descrizione>
+<testo_normale>
+Creare in sicurezza file temporanei con nomi univoci, in modo che nessuno possa identificarli nel tentativo di forzare una applicazione o catturarne i dati è impegnativo. Il modulo <strong>tempfile</strong> fornisce parecchie funzioni per creare risorse temporanee di file system in sicurezza. <code>TemporaryFile()</code> apre e restituisce un file senza nome, <code>NamedTemporaryFile()</code> apre e restituisce un file con un nome, <code>SpooledTemporaryFile</code> mantiene il suo contenuto in memoria prima di scriverlo su disco e <code>TemporaryDirectory()</code> è un gestore di contesto che elimina la directory quanto il contesto viene chiuso.
+</testo_normale>
+<titolo_2>
+File Temporanei
+</titolo_2>
+<testo_normale>
+Applicazioni che necessitano di file temporanei per conservare dati, senza condividere quel file con altri programmi, dovrebbero usare la funzione <code>TemporaryFile()</code> per creare i file. Essa crea un file e, nelle piattaforme in cui è possibile, esegue immediatamente un operazione di <em>unlink</em>. Questo rende impossibile ad un altro programma il trovare od aprire il file, visto che non esiste nessun riferimento ad esso nella tabella del file system. Il file creato da <code>TemporaryFile()</code> viene eliminato automaticamente quando viene chiuso, sia che lo si faccia chiamando <code>close()</code> oppure utilizzando l'<a href="https://it.wikipedia.org/wiki/Application_programming_interface">API</a> del gestore di contesto con l'istruzione <code>with</code>.
+</testo_normale>
+<py_code>
+# tempfile_TemporaryFile.py
+
+import os
+import tempfile
+
+print('Crezione di un nome di file con PID:')
+filename = '/tmp/indovina_il_nome.{}.txt'.format(os.getpid())
+with open(filename, 'w+b') as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
+
+# Clean up the temporary file yourself.
+os.remove(filename)
+
+print()
+print('File Temporaraneo:')
+with tempfile.TemporaryFile() as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
+
+# Elimina il file automaticamente
+</py_code>
+<testo_normale>
+Questo esempio illustra la differenza tra il creare un file temporaneo usando una operatività comune per impostarne il nome, e l'usare la funzione <code>TemporaryFile()</code> . Il file restituito da TemporaryFile non ha un nome.
+</testo_normale>
+<py_output>
+$ python3 tempfile_TemporaryFile.py
+
+Crezione di un nome di file con PID:
+temp:
+  <_io.BufferedRandom name='/tmp/indovina_il_nome.16226.txt'>
+temp.name:
+  '/tmp/indovina_il_nome.16226.txt'
+
+File Temporaraneo:
+temp:
+  <_io.BufferedRandom name=3>
+temp.name:
+  3
+</py_output>
+<testo_normale>
+In modalità predefinita, l'handle del file viene creato con modalità <code>'w+b'</code>, in modo che si comporti consistentemente su tutte le piattaforme ed il chiamante può scrivere o leggere da esso.
+</testo_normale>
+<py_code>
+import os
+import tempfile
+
+temp = tempfile.TemporaryFile()
+try:
+    temp.write('Qualche dato')
+    temp.seek(0)
+
+    print temp.read()
+finally:
+    temp.close()
+
+</py_code>
+<testo_normale>
+Nella modalità predefinita, l'handle del file viene creato nella modalità <code>'w+b'</code> in modo da comportarsi in modo consistente su tutte le piattaforme ed il chiamante può da esso scrivere e leggere.
+</testo_normale>
+<py_code>
+# tempfile_TemporaryFile_binary.py
+
+import os
+import tempfile
+
+with tempfile.TemporaryFile() as temp:
+    temp.write(b'Qualche dato')
+
+    temp.seek(0)
+    print(temp.read())
+</py_code>
+<testo_normale>
+Dopo la scrittura si deve "riavvolgere" l'handle del file usando <code>seek()</code> per potere leggere di nuovo i dati da esso.
+</testo_normale>
+<py_output>
+$ python3 tempfile_TemporaryFile_binary.py
+
+b'Qualche dato'
+</py_output>
+<testo_normale>
+Per aprire il file in formato testo, si passa <code>mode='w+t'</code> quando lo si crea:
+</testo_normale>
+<py_code>
+# tempfile_TemporaryFile_text.py
+
+import tempfile
+
+with tempfile.TemporaryFile(mode='w+t') as f:
+    f.writelines(['primo\n', 'secondo\n'])
+
+    f.seek(0)
+    for line in f:
+        print(line.rstrip())
+</py_code>
+<testo_normale>
+L'handle del file considera i dati come testo:
+</testo_normale>
+<py_output>
+$ python3 tempfile_TemporaryFile_text.py
+
+primo
+secondo
+</py_output>
+<titolo_2>
+File Nominati
+</titolo_2>
+<testo_normale>
+Ci sono situazioni nelle quali avere un file temporaneo con un nome è importante. Se una applicazione sviluppa processi multipli, od anche host, nominare il file diventa il modo più semplice per passarlo tra le parti dell'applicazione. La funzione <code>NamedTemporaryFile()</code> crea un file senza toglierne il collegamento, in modo che esso conservi il suo  nome, al quale si accede con l'attributo <em>name</em>.
+</testo_normale>
+<py_code>
+# tempfile_NamedTemporaryFile.py
+
+import os
+import pathlib
+import tempfile
+
+with tempfile.NamedTemporaryFile() as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
+
+    f = pathlib.Path(temp.name)
+
+print('Esiste dopo la chiusura:', f.exists())
+</py_code>
+<testo_normale>
+Il file viene rimosso dopo che l'handle viene chiuso.
+</testo_normale>
+<py_output>
+$ python3 tempfile_NamedTemporaryFile.py
+
+temp:
+  <tempfile._TemporaryFileWrapper object at 0x7f642f22aa58>
+temp.name:
+  '/tmp/tmpdvrok0ji'
+Esiste dopo la chiusura: False
+</py_output>
+<titolo_2>
+File in Memoria
+</titolo_2>
+<testo_normale>
+Per file temporanei che contengono una limitata mole di dati, è probabilmente più efficace l'utilizzo di <code>SpooledTemporaryFile</code> in quanto il contenuto del file viene trattenuto in memoria tramite un <a href='https://www.wikiwand.com/it/Buffer'>buffer</a> <code>io.BytesIO</code> oppure <code>io.StringIO</code> fino a che viene raggiunta una dimensione soglia. Quando i dati superano questa soglia, vengono scritti su disco ed il <a href="https://www.wikiwand.com/it/Buffer">buffer</a> viene sostituito da un normale <code>TemporaryFile()</code>
+</testo_normale>
+<py_code>
+# tempfile_SpooledTemporaryFile.py
+
+import tempfile
+
+with tempfile.SpooledTemporaryFile(max_size=100,
+                                   mode='w+t',
+                                   encoding='utf-8') as temp:
+    print('temp: {!r}'.format(temp))
+
+    for i in range(3):
+        temp.write('Questa riga viene ripetuta ad libitum.\n')
+        print(temp._rolled, temp._file)
+</py_code>
+<testo_normale>
+Questo esempio utilizza gli attributi privati di <code>SpooledTemporaryFile</code> per determinare quando il riversamento (rollover) su disco accade. Questo non è normalmente necessario per verificare lo stato a meno che non si stia aggiustando la dimensione del <a href="https://www.wikiwand.com/it/Buffer">buffer</a>.
+</testo_normale>
+<py_output>
+$ python3 tempfile_SpooledTemporaryFile.py
+
+temp: <tempfile.SpooledTemporaryFile object at 0x7f7a5f738a20>
+False <_io.StringIO object at 0x7f7a5f782708>
+False <_io.StringIO object at 0x7f7a5f782708>
+True <_io.TextIOWrapper name=3 mode='w+t' encoding='utf-8'>
+</py_output>
+<testo_normale>
+Per provocare una esplicita scrittura del <a href="https://www.wikiwand.com/it/Buffer">buffer</a> su disco, si invocano i metodi <code>rollover()</code> oppure <code>fileno()</code>
+</testo_normale>
+<py_code>
+# tempfile_SpooledTemporaryFile_explicit.py
+
+import tempfile
+
+with tempfile.SpooledTemporaryFile(max_size=1000,
+                                   mode='w+t',
+                                   encoding='utf-8') as temp:
+    print('temp: {!r}'.format(temp))
+
+    for i in range(3):
+        temp.write('Questa riga viene ripetuta ad libitum.\n')
+        print(temp._rolled, temp._file)
+    print('scrittura del buffer')
+    temp.rollover()
+    print(temp._rolled, temp._file)
+</py_code>
+<testo_normale>
+In questo esempio, visto che la dimnensione del <a href="https://www.wikiwand.com/it/Buffer">buffer</a> è molto di più grande dei dati stessi, non verrebbe creato alcun file su disco se non venisse chiamato <code>rollover()</code>.
+</testo_normale>
+<py_output>
+$ python3 tempfile_SpooledTemporaryFile_explicit.py
+
+temp: <tempfile.SpooledTemporaryFile object at 0x7f624959f780>
+False <_io.StringIO object at 0x7f62495e6708>
+False <_io.StringIO object at 0x7f62495e6708>
+False <_io.StringIO object at 0x7f62495e6708>
+scrittura del buffer
+True <_io.TextIOWrapper name=3 mode='w+t' encoding='utf-8'>
+</py_output>
+<titolo_2>
+Directory Temporanee
+</titolo_2>
+<testo_normale>
+Se occorrono diversi file temporanei, potrebbe essere molto più conveniente creare una singola directory temporanea con <code>TemporaryDirectory</code>, quindi aprire tutti i file in essa.
+</testo_normale>
+<py_code>
+# tempfile_TemporaryDirectory.py
+
+import pathlib
+import tempfile
+
+with tempfile.TemporaryDirectory() as directory_name:
+    the_dir = pathlib.Path(directory_name)
+    print(the_dir)
+    a_file = the_dir / 'un_file.txt'
+    a_file.write_text('Questo file viene eliminato.')
+
+print('La directory eiste dopo?', the_dir.exists())
+print('Contenuto dopo:', list(the_dir.glob('*')))
+</py_code>
+<testo_normale>
+Il gestore di contesto produce il nome della directory, che può poi essere usato all'interno del blocco del contesto per costruire altri nomi di file.
+</testo_normale>
+<py_output>
+$ python3 tempfile_TemporaryDirectory.py
+
+/tmp/tmpm253msqx
+La directory eiste dopo? False
+Contenuto dopo: []
+</py_output>
+<titolo_2>
+Predire i nomi
+</titolo_2>
+<testo_normale>
+Sebbene sia meno sicuro rispetto ai file temporanei strettamente anonimi, includere una porzione prevedibile nel nome consente di trovare il file ed esaminarlo per scopi di debug. Tutte le funzioni fin qui descritte ricevono tre parametri per consentire il controllo dei nomi dei file fino ad un certo punto. I nomi sono generati usando la formula:
+</testo_normale>
+<testo_normale>
+dir + prefix (prefisso) + random (casuale) + suffix (suffisso)
+</testo_normale>
+<testo_normale>
+Tutti i valori tranne <code>casuale</code> possono essere passati come argomenti delle funzioni per creare directory e file temporanei
+</testo_normale>
+<py_code>
+# tempfile_NamedTemporaryFile_args.py
+
+import tempfile
+
+with tempfile.NamedTemporaryFile(suffix='_suffisso',
+                                 prefix='prefisso_',
+                                 dir='/tmp') as temp:
+    print('temp:')
+    print('  ', temp)
+    print('temp.name:')
+    print('  ', temp.name)
+</py_code>
+<testo_normale>
+Gli argomenti <code>prefix</code> e <code>suffix</code> sono combinati assieme ad una stringa casuale di caratteri per costruire il nome del file, ed l'argomento <code>dir</code> viene ricevuto così com'è ed usato come locazione del nuovo file.
+</testo_normale>
+<py_output>
+$ python3 tempfile_NamedTemporaryFile.py
+
+temp:
+  <tempfile._TemporaryFileWrapper object at 0x7f6ba21397b8>
+temp.name:
+  '/tmp/tmpmc08iq_w'
+Esiste dopo la chiusura: False
+</py_output>
+<titolo_2>
+Locazione dei file temporanei
+</titolo_2>
+<testo_normale>
+Se non viene specificata esplicitamente una destinazione attraverso l'argomento <code>dir</code>, il percorso usato per i file temporanei assumerà valori diversi a seconda della piattaforma di esecuzione e delle impostazioni. Il modulo <strong>tempfile</strong> include due funzioni per interrogare le impostazioni che sono usate in fase di esecuzione.
+</testo_normale>
+<py_code>
+# tempfile_settings.py
+
+import tempfile
+
+print('gettempdir():', tempfile.gettempdir())
+print('gettempprefix():', tempfile.gettempprefix())
+</py_code>
+<testo_normale>
+<code>gettempdir()</code> restituisce la directory predefinita che conterrà tutti i file temporanei e <code>gettempprefix()</code> ritorna la stringa del prefisso  per i nomi del nuovo file e directory.
+</testo_normale>
+<py_output>
+$ python3 tempfile_settings.py
+
+gettempdir(): /tmp
+gettempprefix(): tmp
+</py_output>
+<testo_normale>
+Il valore restituito da <code>gettempdir()</code> viene impostato in base ad un algoritmo che cerca attraverso un elenco di locazioni il primo posto nel quale il processo corrente può creare un file. La lista di ricerca è:
+</testo_normale>
+<lista_ordinata>
+Il valore della variabile di ambiente <code>TMPDIR</code>
+Il valore della variabile di ambiente <code>TEMP</code>
+Il valore della variabile di ambiente <code>TMP</code>
+Una locazione specifica rispetto alla piattaforma. (Windows usa la prima disponibile tra, le directory: <code>C:\temp</code>, <code>C:\tmp</code>, <code>\temp</code>, o <code>\tmp</code>. Altri piattaforme usano  <code>/tmp</code>, <code>/var/tmp</code>, o <code>/usr/tmp</code>.
+Se nessuna directory viene trovata, si utilizza la directory corrente.
+</lista_ordinata>
+<py_code>
+# tempfile_tempdir.py
+
+import tempfile
+
+tempfile.tempdir = '/Ho/cambiato/questo/percorso'
+print('gettempdir():', tempfile.gettempdir())
+</py_code>
+<testo_normale>
+I programmi che devono utilizzare una locazione globale per tutti i file temporanei senza usare alcuna di queste variabili di ambiente, dovrebbero impostare <code>tempfile.tempdir</code> direttamente assegnando il valore alla variabile
+</testo_normale>
+<py_output>
+$ python3 tempfile_tempdir.py
+
+gettempdir(): /Ho/cambiato/questo/percorso
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/tempfile.html|tempfile|La documentazione della libreria standard per questo modulo.
+random.html#module-random|random|Generatore di numeri pseudocasuali, utilizzato per inserire valori casuali all'interno dei nomi di file temporanei.
+</vedi_anche>
+</documento_tradotto>

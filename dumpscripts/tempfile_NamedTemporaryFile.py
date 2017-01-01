@@ -1,11 +1,15 @@
+# tempfile_NamedTemporaryFile.py
+
 import os
+import pathlib
 import tempfile
 
-temp = tempfile.NamedTemporaryFile()
-try:
-    print 'temp:', temp
-    print 'temp.name:', temp.name
-finally:
-    # Elimina il file automaticamente
-    temp.close()
-print 'Esiste dopo la chiusura:', os.path.exists(temp.name)
+with tempfile.NamedTemporaryFile() as temp:
+    print('temp:')
+    print('  {!r}'.format(temp))
+    print('temp.name:')
+    print('  {!r}'.format(temp.name))
+
+    f = pathlib.Path(temp.name)
+
+print('Esiste dopo la chiusura:', f.exists())
