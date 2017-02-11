@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>caratteristiche della fase di esecuzione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+os - Accesso portabile alle funzionalit&agrave; specifiche di un sistema operativo
+</titolo_1>
+<descrizione>
+Accesso portabile alle funzionalit&agrave; specifiche di un sistema operativo
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>os</strong> fornisce un <a href='https://www.wikiwand.com/it/Wrapper' target='_blank'>wrapper</a>
+ per moduli specifici per una piattaforma tipo <code>posix</code>, <code>nt</code> e <code>mac</code>. L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>
+ per le funzioni disponibile su tutte le piattaforme dovrebbe essere la stessa, quindi l'uso del modulo <strong>os</strong> offre una qualche garanzia di portabilità. Non tutte le funzioni sono disponibili in tutte le piattaforme, comunque. Molte delle funzioni di gestione dei processi qui descritte non sono disponibil in Windows.
+</testo_normale>
+<testo_normale>
+La documentazione Python per il modulo <strong>os</strong> è sottotitolata "Interfacce varie per sistemi operativi". Il modulo comprende per lo più funzioni per creare e gestire processi in esecuzione oppure contenuto di filesystem (file e direcotry), con poche altre funzionalità qui e là.
+</testo_normale>
+<titolo_2>
+Esaminare i Contenuti del File System
+</titolo_2>
+<testo_normale>
+Per preparare una lista del contenuto di una directory nel file system si usa <code>listdir()</code>
+</testo_normale>
+<py_code>
+# os_listdir.py
+
+import os
+import sys
+
+print(os.listdir(sys.argv[1]))
+</py_code>
+<testo_normale>
+Il valore ritornato è una lista di tutti i membri nominati della directory passata. Non viene fatta distinzione tra file, sottodirectory o <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamenti simbolici</a> (symlink).
+</testo_normale>
+<py_output>
+$ python3 os_listdir.py .
+
+['index.rst', 'os_access.py', 'os_cwd_example.py',
+'os_directories.py', 'os_environ_example.py',
+'os_exec_example.py', 'os_fork_example.py',
+'os_kill_example.py', 'os_listdir.py', 'os_listdir.py~',
+'os_process_id_example.py', 'os_process_user_example.py',
+'os_rename_replace.py', 'os_rename_replace.py~',
+'os_scandir.py', 'os_scandir.py~', 'os_spawn_example.py',
+'os_stat.py', 'os_stat_chmod.py', 'os_stat_chmod_example.txt',
+'os_strerror.py', 'os_strerror.py~', 'os_symlinks.py',
+'os_system_background.py', 'os_system_example.py',
+'os_system_shell.py', 'os_wait_example.py',
+'os_waitpid_example.py', 'os_walk.py']
+</py_output>
+<testo_normale>
+La funzione <code>walk()</code> attraversa ricorsivamente una directory e per ogni sotto-directory genera una <code>tuple</code> che contiene il percorso della directory, ogni immediata sotto-directory di quel percorso, ed una lista di nomi di tutti i file in quella directory.
+</testo_normale>
+<py_code>
+# os_walk.py
+
+import os
+import sys
+
+# Se non viene passato un percorso da elencare, si usa /tmp
+if len(sys.argv) == 1:
+    root = '/tmp'
+else:
+    root = sys.argv[1]
+
+for dir_name, sub_dirs, files in os.walk(root):
+    print(dir_name)
+    # Risalta i nomi delle sotto-directory aggiungendo una /
+    sub_dirs = [n + '/' for n in sub_dirs]
+    # Combina i contenuti delle directory assieme
+    contents = sub_dirs + files
+    contents.sort()
+    # Mostra il contenuto
+    for c in contents:
+        print('  {}'.format(c))
+    print()
+</py_code>
+<testo_normale>
+Questo esempio mostra una lista ricorsiva di una directory.
+</testo_normale>
+<py_output>
+$ python3 os_walk.py ../zipimport
+
+../zipimport
+  __init__.py
+  example_package/
+  index.rst
+  zipimport_example.zip
+  zipimport_find_module.py
+  zipimport_get_code.py
+  zipimport_get_data.py
+  zipimport_get_data_nozip.py
+  zipimport_get_data_zip.py
+  zipimport_get_source.py
+  zipimport_is_package.py
+  zipimport_load_module.py
+  zipimport_make_example.py
+
+../zipimport/example_package
+  README.txt
+  __init__.py
+</py_output>
+<testo_normale>
+Se sono necessarie maggiori informazioni oltre ai nomi dei file, è probabilmente più efficiente usare <code>scandir()</code> in luogo di <code>listdir()</code> visto che molte informazioni vengono raccolte con una sola chiamata di sistema quando la directory viene esaminata.
+</testo_normale>
+<py_code>
+# os_scandir.py
+
+import os
+import sys
+
+for entry in os.scandir(sys.argv[1]):
+    if entry.is_dir():
+        typ = 'dir'
+    elif entry.is_file():
+        typ = 'file'
+    elif entry.is_symlink():
+        typ = 'link'
+    else:
+        typ = 'sconosciuto'
+    print('{name} {typ}'.format(
+        name=entry.name,
+        typ=typ,
+    ))
+</py_code>
+<testo_normale>
+<code>scandir</code> ritorna una sequenza di istanze di <code>DirEntry</code> per gli elementi nella directory. L'oggetto ha parecchi attributi e metodi per accedere ai metadati riguardo ai file.
+</testo_normale>
+<py_output>
+$ python3 os_scandir.py .
+
+index.rst file
+os_access.py file
+os_cwd_example.py file
+os_directories.py file
+os_environ_example.py file
+os_exec_example.py file
+os_fork_example.py file
+os_kill_example.py file
+os_listdir.py file
+os_listdir.py~ file
+os_process_id_example.py file
+os_process_user_example.py file
+os_rename_replace.py file
+os_rename_replace.py~ file
+os_scandir.py file
+os_scandir.py~ file
+os_spawn_example.py file
+os_stat.py file
+os_stat_chmod.py file
+os_stat_chmod_example.txt file
+os_strerror.py file
+os_strerror.py~ file
+os_symlinks.py file
+os_system_background.py file
+os_system_example.py file
+os_system_shell.py file
+os_wait_example.py file
+os_waitpid_example.py file
+os_walk.py file
+</py_output>
+<titolo_2>
+Gestire i Permessi del File System
+</titolo_2>
+<testo_normale>
+E' possibile accedere ad informazioni dettagliate riguardo ad un file tramite <code>stat()</code> o <code>lstat</code> (per verificare lo stato di qualcosa che potrebbe essere un <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamento simbolico</a>).
+</testo_normale>
+<py_code>
+# os_stat.py
+
+import os
+import sys
+import time
+
+if len(sys.argv) == 1:
+    filename = __file__
+else:
+    filename = sys.argv[1]
+
+stat_info = os.stat(filename)
+
+print('os.stat({}):'.format(filename))
+print('  Dimensione     :', stat_info.st_size)
+print('  Permessi       :', oct(stat_info.st_mode))
+print('  Proprietario   :', stat_info.st_uid)
+print('  Dispositivo    :', stat_info.st_dev)
+print('  Creato         :', time.ctime(stat_info.st_ctime))
+print('  Ultima modifica:', time.ctime(stat_info.st_mtime))
+print('  Ultimo accesso :', time.ctime(stat_info.st_atime))
+</py_code>
+<testo_normale>
+L'output varierà in base a dove viene installato il codice di esempio. Si provi a passare diversi nomi di file nella riga di comando a <code>os_stat.py</code>
+</testo_normale>
+<py_output>
+$ python3 os_stat.py  os_stat.py
+
+os.stat(os_stat.py):
+  Dimensione     : 570
+  Permessi       : 0o100600
+  Proprietario   : 1000
+  Dispositivo    : 2053
+  Creato         : Sat Jan  7 18:38:14 2017
+  Ultima modifica: Sat Jan  7 18:38:14 2017
+  Ultimo accesso : Sat Jan  7 18:38:14 2017
+
+$ python3 os_stat.py  zipfile_write.zip os.stat(zipfile_write.zip):
+  Dimensione     : 197
+  Permessi       : 0o100600
+  Proprietario   : 1000
+  Dispositivo    : 2053
+  Creato         : Wed Nov  2 22:43:12 2016
+  Ultima modifica: Sun Oct 16 16:45:04 2011
+  Ultimo accesso : Sun Nov 13 08:43:44 2016
+</py_output>
+<testo_normale>
+Nei sitemi tipo Unix, i premessi dei file possono essere cambiati usando <code>chmod()</code>, passando la modalità come intero. I valori delle modalità possono essere costruiti utilizzando le costanti definite nel modulo <code>stat</code>. Questo esempio modifica il bit del permesso di esecuzione per l'utente.
+</testo_normale>
+<py_code>
+# os_stat_chmod.py
+
+import os
+import stat
+
+filename = 'os_stat_chmod_example.txt'
+if os.path.exists(filename):
+    os.unlink(filename)
+with open(filename, 'wt') as f:
+    f.write('contenuto')
+
+# Determina quali permessi sono già impostati usando  stat
+existing_permissions = stat.S_IMODE(os.stat(filename).st_mode)
+
+if not os.access(filename, os.X_OK):
+    print('Aggiunta dei permessi di esecuzione')
+    new_permissions = existing_permissions | stat.S_IXUSR
+else:
+    print('Rimozione dei permessi di esecuzione')
+    # usa xor per rimuovere il permesso di esecuzione per l'utente
+    new_permissions = existing_permissions ^ stat.S_IXUSR
+
+os.chmod(filename, new_permissions)
+</py_code>
+<testo_normale>
+Lo script assume che abbia i permessi necessari per modificare la modalità del file quando in esecuzione.
+</testo_normale>
+<py_output>
+$ python3 os_stat_chmod.py
+
+Aggiunta dei permessi di esecuzione
+</py_output>
+<testo_normale>
+La funzione <code>access()</code> può essere usata per verificare i diritti di accesso che un processo ha per un file.
+</testo_normale>
+<py_code>
+# os_access.py
+import os
+
+print('Verifica:', __file__)
+print('Esiste:', os.access(__file__, os.F_OK))
+print('Leggibile:', os.access(__file__, os.R_OK))
+print('Scrivibile:', os.access(__file__, os.W_OK))
+print('Eseguibile:', os.access(__file__, os.X_OK))
+</py_code>
+<testo_normale>
+I risultati varieranno a seconda di dove viene installato il codice di esempio, ma l'output dovrebbe essere simile a questo:
+</testo_normale>
+<py_output>
+$ python3 os_access.py
+
+Verifica: os_access.py
+Esiste: True
+Leggibile: True
+Scrivibile: True
+Eseguibile: False
+</py_output>
+<testo_normale>
+La documentazione della libreria per <code>access()</code> include due avvertimenti speciali. Primo, non ha molto senso chiamare <code>access()</code> per verificare se un file possa essere aperto prima dell'effettiva chiamata di <code>open()</code> su di esso. Esiste una piccola ma reale finestra temporale tra le due chiamate durante la quale i permessi del file potrebbero cambiare. L'altro avvertimento si applica per lo più a file system di rete che estendono le semantiche dei permessi POSIX. Alcuni tipi di file system potrebbero rispondere alle chiamate POSIX che un processo ha il permesso di accedere ad un file, poi riportare un errore quando il tentativo viene fatto usando <code>open()</code> per una qualche ragione non verificato tramite la chiamata POSIX. Tutto sommato, è meglio chiamare <code>open()</code> con la modalità richiesta e catturare l'errore <code>IOError</code> eventualmente sollevato in caso di problemi.
+</testo_normale>
+<titolo_2>
+Creare ed Eliminare Directory
+</titolo_2>
+<testo_normale>
+Ci sono parecchie funzioni per lavorare con le directory nel file system, incluse quelle per crearle, elencarne il contenuto ed eliminarle.
+</testo_normale>
+<py_code>
+# os_directories.py
+
+import os
+
+dir_name = 'os_directory_esempio'
+
+print('Creazione', dir_name)
+os.makedirs(dir_name)
+
+file_name = os.path.join(dir_name, 'esempio.txt')
+print('Creazione', file_name)
+with open(file_name, 'wt') as f:
+    f.write('file di esempio')
+
+print('Pulizia')
+os.unlink(file_name)
+os.rmdir(dir_name)
+</py_code>
+<testo_normale>
+Ci sono due insiemi di funzioni per creare ed eliminare directory. Quando si crea una nuova directory con <code>mkdir()</code>, tutte le directory genitore devono già esistere. Quando si elimina una directory con <code>rmdir()</code>, solo l'ultima directory (l'ultima parte del percorso) viene in realtà rimossa. Di contro, <code>makedirs()</code> e <code>removedirs()</code> operano su tutti i nodi del percorso. <code>makedirs()</code> creerà qualsiasi parte del percorso che non esista e <code>removedirs()</code> eliminerà tutte le directory genitore, fintanto che sono vuote.
+</testo_normale>
+<py_output>
+$ python3 os_directories.py
+
+Creazione os_directory_esempio
+Creazione os_directory_esempio/esempio.txt
+Pulizia
+</py_output>
+<titolo_2>
+Lavorare con i Collegamenti Simbolici
+</titolo_2>
+<testo_normale>
+Per le piattaforme ed i file system che li supportano, ci sono funzioni che lavorano con i <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamenti simbolici</a> (symlink).
+</testo_normale>
+<py_code>
+# os_symlinks.py
+
+import os
+
+link_name = '/tmp/' + os.path.basename(__file__)
+
+print('Creaione del collegamento {} -> {}'.format(link_name, __file__))
+os.symlink(__file__, link_name)
+
+stat_info = os.lstat(link_name)
+print('Permessi:', oct(stat_info.st_mode))
+
+print('Punta a:', os.readlink(link_name))
+
+# Pulizia
+os.unlink(link_name)
+</py_code>
+<testo_normale>
+Si usa <code>symlink()</code> per creare un <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamento simbolico</a> e <code>readlink()</code> per leggerlo per determinare il file originale puntato dal collegamento. La funzione <code>lstat()</code> funziona come <code>stat()</code>, ma opera sui <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamento simbolico</a>.
+</testo_normale>
+<py_output>
+$ python3 os_symlinks.py
+
+Creaione del collegamento /tmp/os_symlinks.py -> os_symlinks.py
+Permessi: 0o120777
+Punta a: os_symlinks.py
+</py_output>
+<titolo_2>
+Rimpiazzare in Sicurezza un File Esistente
+</titolo_2>
+<testo_normale>
+Sostituire o rinominare un file esistante non è <a href='https://www.wikiwand.com/it/Idempotenza' target='_blank'>idempotente</a> e può esporre le applicazioni a situazioni di <a href='https://www.wikiwand.com/it/Race_condition' target='_blank'>race condition</a>. Le fuznioni <code>rename()</code> e <code>replace()</code> implementano algoritmi sicuri per queste azioni, utilizzando operazioni atomiche su sistemi conformi POSIX quando possibile,
+</testo_normale>
+<py_code>
+# os_rename_replace.py
+
+import glob
+import os
+
+
+with open('inizio_rinomina.txt', 'w') as f:
+    f.write('parte come inizio_rinomina.txt')
+
+print('Partenza:', glob.glob('*rinomina.txt'))
+
+os.rename('inizio_rinomina.txt', 'fine_rinomina.txt')
+
+print('Dopo rinomina:', glob.glob('*rinomina.txt'))
+
+with open('fine_rinomina.txt', 'r') as f:
+    print('Contenuti:', repr(f.read()))
+
+with open('rinomina_nuovi_contenuti.txt', 'w') as f:
+    f.write('termina con i contenuti di rinomina_nuovi_contenuti.txt')
+
+os.replace('rinomina_nuovi_contenuti.txt', 'fine_rinomina.txt')
+
+with open('fine_rinomina.txt', 'r') as f:
+    print('Dopo la sostituzione:', repr(f.read()))
+
+for name in glob.glob('*rinomina.txt'):
+    os.unlink(name)
+</py_code>
+<testo_normale>
+Le funzioni <code>rename()</code> e <code>replace()</code> lavorano attraverso i file system, per la maggior parte delle volte. La rinomina di un file può fallire se esso viene spostato verso un nuovo file system o se la destinazione esiste già.
+</testo_normale>
+<py_output>
+$ python3 os_rename_replace.py
+
+Partenza: ['inizio_rinomina.txt']
+Dopo rinomina: ['fine_rinomina.txt']
+Contenuti: 'parte come inizio_rinomina.txt'
+Dopo la sostituzione: 'termina con i contenuti di rinomina_nuovi_contenuti.txt'
+</py_output>
+
+<titolo_2>
+Identificare e Modificare il Proprietario del Processo
+</titolo_2>
+<testo_normale>
+Il prossimo insieme di funzioni fornite da <strong>os</strong>  sono usate per determinare e modificare gli identificativi del proprietario di un processo. Esse sono più frequentemente usate  per chi deve programmare <a href='https://www.wikiwand.com/it/Demone_(informatica)' target='_blank'>demoni</a> o programmi speciali di sistema i quali necessitano la modifica del livello di permessi invece che l'esecuzione come <code>root</code> . Non si tenta qui di spiegare gli intricati dettagli della sicurezza su Unix, proprietari di processi, ecc., Vedere la lista di riferimenti qui sotto per maggiori dettagli.
+</testo_normale>
+<testo_normale>
+L'esempio seguente mostra le vere ed effettive informazioni circa il gruppo e l'utente di un processo, quindi ne cambia i valori effettivi. E' simile a quello che un <a href='https://www.wikiwand.com/it/Demone_(informatica)' target='_blank'>demone</a>  dovrebbe fare quando parte come <code>root</code> durante l'inizializzazione del sistema, per abbassare il livello di privilegi ed essere eseguito come diverso utente.
+</testo_normale>
+<note>
+Prima di eseguire l'esempio modificare i valori di <em>TEST_GID</em> e <em>TEST_UID</em> per farli corrispondere a quelli di un reale utente del proprio sistema.
+</note>
+
+<py_code>
+# os_process_user_example.py
+
+import os
+
+TEST_GID = 502
+TEST_UID = 502
+
+
+def show_user_info():
+    print('Utente (reale/effettivo)  : {} / {}'.format(
+        os.getuid(), os.geteuid()))
+    print('Gruppo (reale/effettivo) : {} / {}'.format(
+        os.getgid(), os.getegid()))
+    print('Gruppi reali   :', os.getgroups())
+
+
+print('PRIMA DELLA MDOIFICA:')
+show_user_info()
+print()
+
+try:
+    os.setegid(TEST_GID)
+except OSError:
+    print('ERRORE: Non è stato possibile cambiare il gruupo effettivo. '
+          'Rieseguire come root.')
+else:
+    print('MODIFICA GRUPPO:')
+    show_user_info()
+    print()
+
+try:
+    os.seteuid(TEST_UID)
+except OSError:
+    print('ERRORE: Non è stato possibile cambiare l\'utente effettivo. '
+          'Rieseguire come root.')
+else:
+    print('MODIFICA UTENTE:')
+    show_user_info()
+    print()
+</py_code>
+<testo_normale>
+Quando eseguito come utente/gruppo 502/502 su sistemi OS X, si vede questo risultato
+</testo_normale>
+<py_output>
+$ python3 os_process_user_example.py
+
+PRIMA DELLA MDOIFICA:
+User (actual/effective)  : 527 / 527
+Group (actual/effective) : 501 / 501
+Actual Groups   : [501, 701, 402, 702, 500, 12, 61, 80, 98, 398,
+399, 33, 100, 204, 395]
+
+ERRORE: Non è stato possibile cambiare il gruppo effettivo. Rieseguire come root,
+ERRORE: Non è stato possibile cambiare l'utente effettivo. Rieseguire come root,
+</py_output>
+<testo_normale>
+I valori non vengono modificati, visto che non si sta eseguendo come root, un processo non può modificare il valore del proprietario effettivo. Qualsiasi tentativo  di impostare l'identificativo utente od il gruppo a qualsiasi cosa diversa dall'utente corrente causa il sollevamento di un errore <code>OSError</code> Eseguendo lo stesso script usando <code>sudo</code> per partire con i privilegi di root è un'altra storia
+</testo_normale>
+</testo_normale>
+<py_output>
+$ sudo python3 os_process_user_example.py
+
+PRIMA DELLA MDOIFICA:
+
+User (actual/effective)  : 0 / 0
+Group (actual/effective) : 0 / 0
+Actual Groups : [0, 1, 2, 3, 4, 5, 8, 9, 12, 20, 29, 61, 80,
+702, 33, 98, 100, 204, 395, 398, 399, 701]
+
+MODIFICA GRUPPO:
+User (actual/effective)  : 0 / 0
+Group (actual/effective) : 0 / 502
+Actual Groups   : [0, 1, 2, 3, 4, 5, 8, 9, 12, 20, 29, 61, 80,
+702, 33, 98, 100, 204, 395, 398, 399, 701]
+
+MODIFICA UTENTE:
+User (actual/effective)  : 0 / 502
+Group (actual/effective) : 0 / 502
+Actual Groups   : [0, 1, 2, 3, 4, 5, 8, 9, 12, 20, 29, 61, 80,
+702, 33, 98, 100, 204, 395, 398, 399, 701]
+</py_output>
+<testo_normale>
+In questo caso, visto che si è partiti come root, lo script può modificare utente e gruppo effettivi per il processo. Una volta che l'UID effettivo è stato cambiato, il processo è limitato ai permessi per quell'utente. Visto che utenti non root non possono modificare i loro gruppi effettivi, occorre modificare prima il gruppo, poi l'utente.
+</testo_normale>
+<titolo_2>
+Gestire l'Ambiente del Processo
+</titolo_2>
+<testo_normale>
+Un'altra caratteristica del sistema operativo a disposizione di un programma attraverso il modulo <strong>os</strong> è l'ambiente. La variabili impostate nell'ambiente sono visibili come stringhe che possono essere lette tramite<code>os.environ</code> oppure <code>os.getenv()</code>. Le variabili d'ambiente sono comunemente usate per valori di configurazione tipo percorsi di ricerca, locazioni di file, e flag di debug. Questo esempio mostra come recuperare una variabile d'ambiente, e passare un valore attraverso un processo figlio.
+</testo_normale>
+<py_code>
+# os_environ_example.py
+import os
+
+print('Valore iniziale:', os.environ.get('TESTVAR', None))
+print('Processo figlio:')
+os.system('echo $TESTVAR')
+
+os.environ['TESTVAR'] = 'QUESTO VALORE E\' STATO CAMBIATO'
+
+print()
+print('Valore modificato:', os.environ['TESTVAR'])
+print('Processo figlio:')
+os.system('echo $TESTVAR')
+
+del os.environ['TESTVAR']
+
+print()
+print('Valore rimosso:', os.environ.get('TESTVAR', None))
+print('Processo figlio:')
+os.system('echo $TESTVAR')
+</py_code>
+<testo_normale>
+L'oggetto <code>os.environ</code> segue la mappatura standard delle <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di Python per recuperare ed impostare valori. Le modifiche ad <code>os.environ</code> sono esportate per i processi figli.
+</testo_normale>
+<py_output>
+$ python3 -u os_environ_example.py
+
+Valore iniziale: None
+Processo figlio:
+
+
+Valore modificato: QUESTO VALORE E' STATO CAMBIATO
+Processo figlio:
+QUESTO VALORE E' STATO CAMBIATO
+
+Valore rimosso: None
+Processo figlio:
+</py_output>
+<titolo_2>
+Gestire la Directory di Lavoro del Processo
+</titolo_2>
+<testo_normale>
+I sistemi operativi con <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a> gerarchici hanno il concetto di <em>directory di lavoro corrente</em> - la directory nel <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a> che il processo usa come posizione iniziale quando i file sono indirizzati tramite percorsi relativi. La directory di lavoro corrente può essere recuperata con <code>getpwd()</code> e modificata con <code>chdir()</code>.
+</testo_normale>
+<py_code>
+# os_cwd_example.py
+import os
+
+print('Partenza:', os.getcwd())
+
+print('Risalita di un livello:', os.pardir)
+os.chdir(os.pardir)
+
+print('Dopo lo spostamento:', os.getcwd())
+</py_code>
+<testo_normale>
+<code>os.curdir</code> ed <code>os.pardir</code> sono usate per riferirsi alle directory attuale e genitore in maniera portabile.
+</testo_normale>
+<py_output>
+$ python3 os_cwd_example.py
+
+Partenza: .../pymotw-it3.0/dumpscripts
+Risalita di un livello: ..
+Dopo lo spostamento: .../pymotw-it3.0
+</py_output>
+<titolo_2>
+Eseguire Comandi Esterni
+</titolo_2>
+<avvertimento>
+Molte di queste funzioni per lavorare con i processi hanno una portabilità limitata. Per un modo più consistente di lavorare indipendentemente dalla piattaforma con i processi, si veda il modulo subprocess.
+</avvertimento>
+<testo_normale>
+Il modo più basico per eseguire un comando separato, senza interagire con esso, è <code>system()</code>. Riceve un singolo argomento stringa, che è la riga di comando da eseguire da un sotto processo che esegue una <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a>.
+</testo_normale>
+<py_code>
+# os_system_example.py
+import os
+
+# Semplice comando
+os.system('pwd')
+</py_code>
+<testo_normale>
+Il valore di ritorno di <code>system()</code> è il valore di uscita della <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> che sta eseguendo il programma impacchettata in un numero a 16 bit, con il byte più alto con lo stato di uscita ed il più basso con il numero di segnale che ha causato l'uscita del processo, oppure zero.
+</testo_normale>
+<py_output>
+$ python3  -u os_system_example.py
+
+.../pymotw-it3.0/dumpscripts
+</py_output>
+<testo_normale>
+Visto che il comando è passato direttamente alla <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> per l'esecuzione, può includere sintassi di <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> tipo <a href='https://www.wikiwand.com/it/Glob_pattern' target='_blank'>globbing</a> oppure variabili di ambiente.
+</testo_normale>
+<py_code>
+# os_system_shell.py
+
+import os
+
+# Comando con espansione della shell
+
+os.system('echo $TMPDIR')
+</py_code>
+<testo_normale>
+La variabile di ambiente <code>$$TMPDIR</code> in questa stringa viene espansa quando la <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> esegue la riga di comando.
+</testo_normale>
+<py_output>
+$ python3 -u os_system_shell.py
+
+/home/robby/temp
+</py_output>
+<testo_normale>
+A meno che il comando sia eseguito esplicitamente in <em>background</em>, la chiamata a <code>system()</code> blocca fino a che il comando è completato. I flussi di input, output ed errore dal processo figlio sono legati ai flussi appropriati detenuti dal chiamante in modalità predefinita, ma possono essere rediretti utilizzando la sintassi della <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a>
+</testo_normale>
+<py_code>
+# os_system_background.py
+
+import os
+import time
+
+print('Chiamata...')
+os.system('date; (sleep 3; date) &')
+
+print('In pausa...')
+time.sleep(5)
+</py_code>
+<testo_normale>
+Si sta andando verso i trucchi della <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> tuttavia, e ci sono modi migliori per ottenere la stessa cosa.
+</testo_normale>
+<py_output>
+$ python3 -u os_system_background.py
+
+Chiamata...
+Sat Jan 21 17:03:26 CET 2017
+In pausa...
+Sat Jan 21 17:03:29 CET 2017
+</py_output>
+<titolo_2>
+Creare Processi con os.fork()<span id="os_fork"></span>
+</titolo_2>
+<testo_normale>
+Le funzioni POSIX <code>fork()</code> ed <code>exec()</code> (a disposizione sotto Mac OS X, Linux ed altre varianti Unix) sono esposte tramite il modulo <strong>os</strong>. Sono stati scritti interi libri circa l'affidabilità nell'utilizzo di queste funzioni, quindi si consultino le pubblicazioni per maggiori dettagli rispetto a quelli presentati in questa introduzione.
+</testo_normale>
+<testo_normale>
+Per creare un nuovo processo come clone di quello corrente si usa <code>fork()</code>.
+</testo_normale>
+<py_code>
+# os_fork_example.py
+import os
+
+pid = os.fork()
+
+if pid:
+    print('Id del processo figlio:', pid)
+else:
+    print('Sono il figlio')
+</py_code>
+<testo_normale>
+L'output varierà a seconda dello stato del sistema ogni volta che viene eseguito l'esempio, ma dovrebbe essere circa così:
+</testo_normale>
+<py_output>
+$ python3 -u os_fork_example.py
+
+Id del processo figlio: 6891
+Sono il figlio
+</py_output>
+<testo_normale>
+Dopo il <a href="https://www.wikiwand.com/it/Fork_(programmazione)" target='_blank'>fork</a> ci sono due processi che stanno eseguendo lo stesso codice. Affinchè un programma possa identificare chi sia chi, deve verificare il valore di ritorno di <code>fork()</code>. Se il valore è <code>0</code>, il processo corrente è il figlio. Altrimenti il programma è in esecuzione nel processo genitore ed il valore di ritorno è l'id del processo figlio.
+</testo_normale>
+<py_code>
+# os_kill_example.py
+
+import os
+import signal
+import time
+
+
+def signal_usr1(signum, frame):
+    "Callback chiamto alla ricezione di un segnale"
+    pid = os.getpid()
+    print('Ricevuto USR1 nel processo {}'.format(pid))
+
+print('Fase di fork...')
+child_pid = os.fork()
+if child_pid:
+    print('GENITORE: In pausa prima di inviare il segnale...')
+    time.sleep(1)
+    print('GENITORE: In segnalazione {}'.format(child_pid))
+    os.kill(child_pid, signal.SIGUSR1)
+else:
+    print('FIGLIO: Impostazione del gestore di segnale')
+    signal.signal(signal.SIGUSR1, signal_usr1)
+    print('FIGLIO: In pausa, in attesa del segnale')
+    time.sleep(5)
+</py_code>
+<testo_normale>
+Il genitore può inviare segnali al processo figlio usando <code>kill()</code> ed il modulo <code>signal</code>. Per prima cosa definisce un gestore di segnale da chiamare quando il segnale viene ricevuto. Poi esegue il <code>fork()</code> e nel genitore si mette in pausa per un breve periodo prima di inviare un segnale USR1 utilizzando <code>kill()</code>. Questo esempio usa una breve pausa per dare tempo al processo figlio di impostare il gestore di segnale. Una vera applicazione, non dovrebbe (o vorrebbe) chiamare <code>sleep()</code>. Nel figlio si imposta il gestore di segnale quindi si mette in pausa per un poco per dare tempo al genitore di inviare il segnale.
+</testo_normale>
+<py_output>
+$ python3 -u os_kill_example.py
+
+Fase di fork...
+GENITORE: In pausa prima di inviare il segnale...
+FIGLIO: Impostazione del gestore di segnale
+FIGLIO: In pausa, in attesa del segnale
+GENITORE: Segnalazione di 7461
+Ricevuto USR1 nel processo 7461
+</py_output>
+<testo_normale>
+Un semplice modo per gestire un comportamento separato nel processo figlio è quello di verificare il valore di ritorno di <code>fork()</code> e diramare. Un comportamento maggiormente complesso potrebbe riguardare una separazione del codice maggiore che una semplice diramazione. In altri casi, potrebbe esserci un programma esistente che deve essere impacchettato. Per entrambe queste situazioni le serie di funzioni che iniziano con <code>exec*()</code> possono essere usate per eseguire un altro programma.
+</testo_normale>
+<py_code>
+# os_exec_example.py
+import os
+
+child_pid = os.fork()
+if child_pid:
+    os.waitpid(child_pid, 0)
+else:
+    os.execlp('pwd', 'pwd', '-P')
+</py_code>
+<testo_normale>
+Quando un programma viene eseguito da <code>exec()</code> il codice da quel programma sostituisce il codice dal processo esistente.
+</testo_normale>
+<py_output>
+$ python3 -u os_exec_example.py
+
+.../python/pymotw-it3.0/dumpscripts
+</py_output>
+<testo_normale>
+Ci sono molte varianti di <code>exec()</code>, a seconda della forma nella quale siano disponibili gli argomenti, oppure in base al fatto che il percorso e l'ambiente del processo genitore devve essere copiato nel figlio ecc. Per tutte le varianti il primo argomento è il percorso od il nome del file ed i restanti argomenti controllano il modo in cui il programma viene eseguito. Essi sono passati sia come argomenti di riga di comando oppure sovrascrivendo l'ambiente del processo (si veda <code>os.environ</code> e <code>os.getenv()</code>). Fare riferimento alla documentazione della libreria per maggiori dettagli.
+</testo_normale>
+<titolo_2>
+In Attesa dei Processi Figli
+</titolo_2>
+<testo_normale>
+Diversi programmi molto esigenti dal punto di vista del calcolo utilizzano processori multipli per aggirare le limitazioni nella gestione dei <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> ed il <a href='https://www.wikiwand.com/it/Lock' target='_blank'>lock</a> globale dell'interprete. Quando si fanno partire parecchi processi per eseguire compiti separati, il processo principale dovrà attendere che finiscano uno o più di questi prima di farne partire di nuovi, per evitare un sovraccarico del server. Ci sono alcuni modi diversi per fare questo utilizzando <code>wait()</code> e le funzioni correlate.
+</testo_normale>
+<testo_normale>
+Quando non ha importanza quale processo figlio debba uscire per primo, si usa <code>wait()</code>. Ritorna non appena un qualsiasi processo figlio esce.
+</testo_normale>
+<py_code>
+# os_wait_example.py
+
+import os
+import sys
+import time
+
+for i in range(2):
+    print('GENITORE {}: Forking {}'.format(os.getpid(), i))
+    worker_pid = os.fork()
+    if not worker_pid:
+        print('WORKER {}: In partenza'.format(i))
+        time.sleep(2 + i)
+        print('WORKER {}: Sta finendo'.format(i))
+        sys.exit(i)
+
+for i in range(2):
+    print('GENITORE: In attesa di {}'.format(i))
+    done = os.wait()
+    print('GENITORE: Figlio completato:', done)
+</py_code>
+<testo_normale>
+Il valore di ritorno da <code>wait()</code> è una tuple che contiene l'identificativo del processo e lo stato di uscita combinati in un valore a 16 bit. Il bite inferiore è il numero del segnale che ha ucciso il processo mentre quello superiore è il codice di stato ritornato dal processo in uscita.
+</testo_normale>
+<py_output>
+$ python3 os_wait_example.py
+
+ENITORE 7008: Forking 0
+GENITORE 7008: Forking 1
+WORKER 0: In partenza
+GENITORE: In attesa di 0
+WORKER 1: In partenza
+WORKER 0: Sta finendo
+GENITORE: Figlio completato: (7009, 0)
+GENITORE: In attesa di 1
+WORKER 1: Sta finendo
+GENITORE: Figlio completato: (7010, 256)
+</py_output>
+<testo_normale>
+Per attendere l'uscita di un processo specifico si usa <code>waitpid()</code>
+</testo_normale>
+<py_code>
+# os_process_user_example.py
+
+import os
+
+TEST_GID = 1000
+TEST_UID = 1000
+
+
+def show_user_info():
+    print('Utente (reale/effettivo)  : {} / {}'.format(
+        os.getuid(), os.geteuid()))
+    print('Gruppo (reale/effettivo) : {} / {}'.format(
+        os.getgid(), os.getegid()))
+    print('Gruppi reali   :', os.getgroups())
+
+
+print('PRIMA DELLA MDOIFICA:')
+show_user_info()
+print()
+
+try:
+    os.setegid(TEST_GID)
+except OSError:
+    print('ERRORE: Non è stato possibile cambiare il gruupo effettivo. '
+          'Rieseguire come root.')
+else:
+    print('MODIFICA Gruppo:')
+    show_user_info()
+    print()
+
+try:
+    os.seteuid(TEST_UID)
+except OSError:
+    print('ERRORE: Non è stato possibile cambiare l\'utente effettivo. '
+          'Rieseguire come root.')
+else:
+    print('MODIFICA UTENTE:')
+    show_user_info()
+    print()
+</py_code>
+<testo_normale>
+Si passa l'identificativo del processo scelto e <code>waitpid()</code> si interrompe fino a che quel processo esce.
+</testo_normale>
+<py_output>
+$ python3 os_waitpid_example.py
+
+GENITORE 7656: Forking 0
+GENITORE 7656: Forking 1
+WORKER 0: In partenza
+GENITORE: In attesa di  7657
+WORKER 1: In partenza
+WORKER 0: Sta finendo
+GENITORE: Figlio completato: (7657, 0)
+GENITORE: In attesa di  7658
+WORKER 1: Sta finendo
+GENITORE: Figlio completato: (7658, 256)
+</py_output>
+<testo_normale>
+<code>wait3()</code> e <code>wait4()</code> funzionano in modo simile, ma ritornano informazioni maggiormente dettagliate circa il processo figlio con l'identificativo, lo stato di uscita e l'utilizzo della risorsa.
+</testo_normale>
+<titolo_2>
+Produrre Nuovi Processi
+</titolo_2>
+<testo_normale>
+Per comodità, la famiglia di funzioni <code>spawn()</code> gestisce <code>fork()</code> ed <code>exec()</code> in una sola istruzione:
+</testo_normale>
+<py_code>
+# os_spawn_example.py
+import os
+
+os.spawnlp(os.P_WAIT, 'pwd', 'pwd', '-P')
+</py_code>
+<testo_normale>
+Il primo argomento è una modalità che indica se attendere o meno la fine del processo prima di ritornare. Questo esempio attende. Si usa <code>P_NOWAIT</code> per consentire agli altri processi di partire, poi riprendere nel processo corrente.
+</testo_normale>
+<py_output>
+$ python3 os_spawn_example.py
+
+.../pymotw-it3.0/dumpscripts
+</py_output>
+<titolo_2>
+Codici di Errore del Sistema Operativo
+</titolo_2>
+<testo_normale>
+I codici di errore definiti dai sistemi operativi e gestiti dal modulo <code>errno</code> possono essere trasformati in stringhe di messaggi usando <code>strerror()</code>.
+</testo_normale>
+<py_code>
+# os_strerror.py
+
+import errno
+import os
+
+for num in [errno.ENOENT, errno.EINTR, errno.EBUSY]:
+    name = errno.errorcode[num]
+    print('[{num:>2}] {name:<6}: {msg}'.format(
+        name=name, num=num, msg=os.strerror(num)))
+</py_code>
+<testo_normale>
+Questo esempio mostra i messaggi associati ad alcuni codici di errore che capitano frequentemente.
+</testo_normale>
+<py_output>
+$ python3 os_strerror.py
+
+[ 2] ENOENT: No such file or directory
+[ 4] EINTR : Interrupted system call
+[16] EBUSY : Device or resource busy
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/os.html|os|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#porting-os|Note di portabilità per os|
+https://pymotw.com/3/signal/index.html#module-signal|signal|Dettaglio delle tecniche di gestione del segnale (in corso di traduzione)
+https://pymotw.com/3/subprocess/index.html#module-subprocess|subprocess|Il modulo subprocess sostituisce os.popen() (in corso di traduzione)
+https://pymotw.com/3/multiprocessing/index.html#module-multiprocessing|multiprocessing|Il modulo multiprocessing facilita il lavoro con ulteriori processi (in corso di traduzione)
+tempfile.html|tempfile|Il modulo tempfile per lavorare con file temporanei
+https://pymotw.com/3/shutil/index.html#shutil-directory-functions|Lavorare con l'alberatura delle directory|Il modulo shutil include anche funzioni per lavorare con l'alberatura delle directory
+http://www.ibm.com/developerworks/aix/library/au-speakingunix8/index.html|Speaking UNIX, Part 8|Imparare come UNIX esegue il multitask
+https://www.wikiwand.com/it/Canali_standard|Canali Standard|Per ulteriori discussioni su stdin, stdout e stderr
+http://www.ibm.com/developerworks/aix/library/au-unixprocess.html|Delve into Unix Process Creation|Spiega il ciclo di vita di un processo Unix.
+http://www.amazon.com/Programming-Environment-Addison-Wesley-Professional-Computing/dp/0201433079/ref=pd_bbs_3/002-2842372-4768037?ie=UTF8&s=books&amp;qid=1182098757&sr=8-3|Advanced Programming in the UNIX(R) Environment|Tratta il lavorare con processi multipli, tipo la gestione di segnali, la chiusura di descrittori di file duplicati, ecc.
+</vedi_anche>
+</documento_tradotto>

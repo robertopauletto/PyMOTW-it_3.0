@@ -1,24 +1,40 @@
-https://it.wikipedia.org/wiki/Application_programming_interface
+<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>
 https://it.wikipedia.org/wiki/Cache
-https://it.wikipedia.org/wiki/Callback
+<a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a>
+https://www.wikiwand.com/it/Clock
+<a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamento simbolico</a>
 https://it.wikipedia.org/wiki/Copia_di_un_oggetto#Copia_in_profondit.C3.A0_o_Deep_copy
 https://it.wikipedia.org/wiki/Copia_di_un_oggetto#Copia_per_indirizzo_o_Shallow_copy
 https://it.wikipedia.org/wiki/CSS
+<a href='https://www.wikiwand.com/it/Demone_(informatica)' target='_blank'>demone</a>
 https://it.wikipedia.org/wiki/Digrafo_(matematica)
-https://it.wikipedia.org/wiki/File_system
+<a href="https://www.wikiwand.com/it/Fork_(programmazione)" target='_blank'>fork</a>
+<a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a>
 https://it.wikipedia.org/wiki/Funzione_anonima
 https://www.wikiwand.com/it/Garbage_collection
+<a href='https://www.wikiwand.com/it/Glob_pattern' target='_blank'>globbing</a>
+https://www.wikiwand.com/it/Indirizzo_MAC
 https://it.wikipedia.org/wiki/Hash
+<a href='https://www.wikiwand.com/it/Lock' target='_blank'>lock</a>
 https://it.wikipedia.org/wiki/Metacarattere
 https://it.wikipedia.org/wiki/NaN
 https://it.wikipedia.org/wiki/Operazione_bit_a_bit
 https://it.wikipedia.org/wiki/Overhead
 https://it.wikipedia.org/wiki/Parsing
 https://it.wikipedia.org/wiki/Pila_(informatica)
+<a href='https://www.wikiwand.com/it/Pipe_(informatica)' target='_blank'>pipe</a>
+https://www.wikiwand.com/it/Processo_(informatica)#/Processi_e_thread
+<a href='https://www.wikiwand.com/it/Race_condition' target='_blank'>race condition</a>
 http://it.wikipedia.org/wiki/Ricerca_in_ampiezza
+<a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a>
 https://it.wikipedia.org/wiki/Sensibile_alle_maiuscole
+https://www.wikiwand.com/it/Socket_(reti)
+<a href='https://www.wikiwand.com/it/Call_stack' targte='_blank'>stack frame</a>
 https://it.wikipedia.org/wiki/Stack_overflow
+<a href='https://www.wikiwand.com/it/Canali_standard' target='_blank'>stream</a>
 https://it.wikipedia.org/wiki/Tempo_coordinato_universale
+<a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a>
 https://it.wikipedia.org/wiki/Thread_safety
 https://it.wikipedia.org/wiki/Unicode
 https://it.wikipedia.org/wiki/Whitespace
+<a href='https://www.wikiwand.com/it/Wrapper' target='_blank'>wrapper</a>

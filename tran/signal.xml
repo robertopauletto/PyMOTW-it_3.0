@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Concomitanze con Processi, Thread e Coroutine</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+signal - Eventi di Sistema Asincroni
+</titolo_1>
+<descrizione>
+Eventi di Sistema Asincroni
+
+</descrizione>
+<testo_normale>
+I segnali sono una caratteristica di un sistema operativo che fornisce mezzi per notificare un programma di un evento, e se è stato gestito in modo asincrono. Possono essere generati dal sistema stesso, oppure inviati da un processo ad un altro. Visto che i segnali interrompono il flusso regolare di un programma, è possibile che alcune operazioni (in particolare di Input/Output) possano produrre errori se un segnale viene ricevuto durante il loro svolgimento.
+</testo_normale>
+<testo_normale>
+I segnali sono identificati da interi e sono definiti nelle intestazioni C del sistema operativo. Python espone i segnali appropriati alla piattaforma come simboli nel modulo <strong>signal</strong>. Gli esempi in questa sezione usano <code>SIGINT</code> e <code>SIGUSR1</code>. Entrambi sono tipicamente definiti per tutti i sistemi Unix e similari.
+</testo_normale>
+<note>
+Programmare con i gestori di segnale Unix non è triviale. Questa è una introduzione, e non include tutti i dettagli necessari per usare i segnali con successo su ogni piattaforma. Esiste un certo grado di uniformità attraverso le versioni di Unix, ma ci sono anche alcune variazioni, quindi si consulti la documentazione del sistema operativo se non si vogliono avere problemi.
+</note>
+<titolo_2>
+Ricevere Segnali
+</titolo_2>
+<testo_normale>
+Così come altre forme di programmazione basate sugli eventi, i segnali sono ricevuti impostando una funzione di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a>, chiamata <em>gestore di segnale</em>, che viene invocata quando il segnale si manifesta. Gli argomenti per il gestore di segnale sono il numero di segnale e lo <a href='https://www.wikiwand.com/it/Call_stack' targte='_blank'>stack frame</a> a partire dal punto nel programma che è stato interrotto dal segnale.
+</testo_normale>
+<py_code>
+# signal_signal.py
+
+import signal
+import os
+import time
+
+
+def receive_signal(signum, stack):
+    print('Ricevuto:', signum)
+
+# Registra i gestori di segnale
+signal.signal(signal.SIGUSR1, receive_signal)
+signal.signal(signal.SIGUSR2, receive_signal)
+
+# Stampa l'ID  del processo in modo che possa essere usato con 'kill'
+# per inviare segnali a questo programma
+print('Il mio PID è:', os.getpid())
+
+while True:
+    print('In attesa...')
+    time.sleep(3)
+</py_code>
+<testo_normale>
+Questo script di esempio esegue un ciclo infiinito, mettendosi in pausa per pochi secondi ogni volta. Quando entra un segnale, la chiamata a <code>sleep()</code> viene interrotta ed il gestore di segnale <code>receive_signal</code> stampa il numero del segnale. Dopo che il gestore di segnale ritorna, il ciclo continua.
+</testo_normale>
+<testo_normale>
+Si mandino segnali al programma in esecuzione tramite <code>os.kill()</code> oppure con il programma da riga di comando Unix <code>kill</code>
+</testo_normale>
+<py_output>
+$ python3 signal_signal.py
+
+Il mio PID è: 7388
+In attesa...
+In attesa...
+In attesa...
+Ricevuto: 10
+In attesa...
+In attesa...
+Ricevuto: 12
+In attesa...
+In attesa...
+In attesa...
+Traceback (most recent call last):
+  File "signal_signal.py", line 21, in <module>
+    time.sleep(3)
+KeyboardInterrupt
+</py_output>
+<testo_normale>
+L'output precedente è stato ottenuto eseguendo <code>signal_signal.py</code> in una finestra, mentre in un altra si eseguiva:
+</testo_normale>
+<py_output>
+$ kill -USR1 <numero_pid>
+$ kill -USR2 <numero_pid>
+$ kill -INT <numero_pid>
+</py_output>
+<titolo_2>
+Recuperare Gestori Registrati
+</titolo_2>
+<testo_normale>
+Per vedere quali gestori di segnale sono registrati per un segnale si usa <code>getsignal()</code>. Si passa il numero di segnale come argomento. Il valore ritornato è il gestore registrato, oppure uno dei valori speciali <code>SIG_IGN</code> (se il segnale è stato ignorato), <code>SIG_DFL</code> (se viene utilizzato il comportamento predefinito), oppure <code>None</code> (se il gestore di segnale esistente era stato registrato da C, invece che da Python).
+</testo_normale>
+<py_code>
+# signal_getsignal.py
+
+import signal
+
+
+def alarm_received(n, stack):
+    return
+
+signal.signal(signal.SIGALRM, alarm_received)
+
+signals_to_names = {
+    getattr(signal, n): n
+    for n in dir(signal)
+    if n.startswith('SIG') and '_' not in n
+}
+
+for s, name in sorted(signals_to_names.items()):
+    handler = signal.getsignal(s)
+    if handler is signal.SIG_DFL:
+        handler = 'SIG_DFL'
+    elif handler is signal.SIG_IGN:
+        handler = 'SIG_IGN'
+    print('{:<10} ({:2d}):'.format(name, s), handler)
+
+</py_code>
+<testo_normale>
+Ancora una volta, visto che ogni sistema operativo potrebbe avere definiti segnali diversi, l'output su altri sistemi potrebbe variare. Questo è da Unix:
+</testo_normale>
+<py_output>
+$ python3 signal_getsignal.py
+
+SIGHUP     ( 1): SIG_DFL
+SIGINT     ( 2): &lt;built-in function default_int_handler&gt;
+SIGQUIT    ( 3): SIG_DFL
+SIGILL     ( 4): SIG_DFL
+SIGTRAP    ( 5): SIG_DFL
+SIGIOT     ( 6): SIG_DFL
+SIGBUS     ( 7): SIG_DFL
+SIGFPE     ( 8): SIG_DFL
+SIGKILL    ( 9): SIG_DFL
+SIGUSR1    (10): SIG_DFL
+SIGSEGV    (11): SIG_DFL
+SIGUSR2    (12): SIG_DFL
+SIGPIPE    (13): SIG_IGN
+SIGALRM    (14): &lt;function alarm_received at 0x7f08d2387048&gt;
+SIGTERM    (15): SIG_DFL
+SIGCLD     (17): SIG_DFL
+SIGCONT    (18): SIG_DFL
+SIGSTOP    (19): SIG_DFL
+SIGTSTP    (20): SIG_DFL
+SIGTTIN    (21): SIG_DFL
+SIGTTOU    (22): SIG_DFL
+SIGURG     (23): SIG_DFL
+SIGXCPU    (24): SIG_DFL
+SIGXFSZ    (25): SIG_IGN
+SIGVTALRM  (26): SIG_DFL
+SIGPROF    (27): SIG_DFL
+SIGWINCH   (28): SIG_DFL
+SIGPOLL    (29): SIG_DFL
+SIGPWR     (30): SIG_DFL
+SIGSYS     (31): SIG_DFL
+SIGRTMIN   (34): SIG_DFL
+SIGRTMAX   (64): SIG_DFL
+</py_output>
+<titolo_2>
+Inviare Segnali
+</titolo_2>
+<testo_normale>
+La funzione per inviare segnali da Python è <code>os.kill()</code>. Il suo uso è trattato nella sezione del modulo <a href='os.html'>os</a>, <a href='os.html#os_fork'>Creare Processi con os.fork()</a>.
+</testo_normale>
+<titolo_2>
+Allarmi
+</titolo_2>
+<testo_normale>
+Gli allarmi sono un tipo speciale di segnale, dove il programma chiede al sistema operativo di notificarlo dopo che è trascorso un certo periodo di tempo. Come evidenziato dalla documentazione standard del modulo <a href='https://pymotw.com/3/os/index.html#module-os'>os</a>, la cosa è utile per evitare di bloccare indefinitivamente una operazione di Input/Outpu od altra chiamata di sistema.
+</testo_normale>
+<py_code>
+# signal_alarm.py
+
+import signal
+import time
+
+
+def receive_alarm(signum, stack):
+    print('Allarme :', time.ctime())
+
+# Chiam receive_alarm in 2 secondi
+signal.signal(signal.SIGALRM, receive_alarm)
+signal.alarm(2)
+
+print('Prima:', time.ctime())
+time.sleep(4)
+print('Dopo :', time.ctime())
+</py_code>
+<testo_normale>
+In questo esempio, la chiamata a <code>sleep()</code> viene interrotta, poi riprende dopo che il segnale è elaborato, quindi il messaggio stampato dopo il ritorno di <code>sleep()</code> mostra che il programma è stato messo in pausa per almeno tanto quanto la durata della pausa stessa.
+</testo_normale>
+<py_output>
+$ python3 signal_alarm.py
+
+Prima: Tue Jan 31 21:24:15 2017
+Allarme : Tue Jan 31 21:24:17 2017
+Dopo : Tue Jan 31 21:24:19 2017
+</py_output>
+<titolo_2>
+Ignorare i Segnali
+</titolo_2>
+<testo_normale>
+Per ignorare un segnale, si registra <code>SIG_IGN</code> come gestore. Questo script sostituisce il gestore predefinito per <code>SIGINT</code> con <code>SIG_IGN</code> e registra un gestore per <code>SIGUSR1</code>. Poi usa <code>signal.pause()</code> per attendere che il segnale sia ricevuto.
+</testo_normale>
+<py_code>
+# signal_ignore.py
+
+import signal
+import os
+import time
+
+
+def do_exit(sig, stack):
+    raise SystemExit('In uscita')
+
+signal.signal(signal.SIGINT, signal.SIG_IGN)
+signal.signal(signal.SIGUSR1, do_exit)
+
+print('Il mio PID:', os.getpid())
+
+signal.pause()
+</py_code>
+<testo_normale>
+Normalmente <code>SIGINT</code> (il segnale inviato dalla <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> ad un programma quando l'utente preme <code>Ctrl-C</code>) solleva una eccezione <code>KeyboardInterrupt</code>. Questo esempio ignora <code>SIGINT</code> e solleva <code>SystemExit</code> quando vede <code>SIGUSR1</code>. Ogni <code>^C</code> nell'output rappresenta il tentativo di usare <code>Ctrl-C</code> per terminare lo script dal terminale. Usando <code>kill -USR1 26880</code> da un altro terminale si causerà l'uscita dello script.
+</testo_normale>
+<py_output>
+$ python3 signal_ignore.py
+
+Il mio PID: 26880
+^C^C^CIn uscita
+</py_output>
+<titolo_2>
+Segnali e Thread
+</titolo_2>
+<testo_normale>
+Segnali e <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> in genere non si combinano bene in quanto solo il <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> principale riceverà segnali. L'esempio di seguito imposta un gestore di segnale, attende il segnale in un <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a>, ed invia il segnale da un altro.
+</testo_normale>
+<py_code>
+# signal_threads.py
+
+import signal
+import threading
+import os
+import time
+
+
+def signal_handler(num, stack):
+    print('Segnale {} ricevuto in {}'.format(
+        num, threading.currentThread().name))
+
+signal.signal(signal.SIGUSR1, signal_handler)
+
+
+def wait_for_signal():
+    print('In attesa dell\'entrata del segnale',
+          threading.currentThread().name)
+    signal.pause()
+    print('Attesa terminata')
+
+# Inizia un thread che non riceverà il segnale
+receiver = threading.Thread(
+    target=wait_for_signal,
+    name='ricevente',
+)
+receiver.start()
+time.sleep(0.1)
+
+
+def send_signal():
+    print('Invio del segnale', threading.currentThread().name)
+    os.kill(os.getpid(), signal.SIGUSR1)
+
+sender = threading.Thread(target=send_signal, name='mittente')
+sender.start()
+sender.join()
+
+# Attende il thread per vedere il segnale (non succederà!)
+print('In attesa di', receiver.name)
+signal.alarm(2)
+receiver.join()
+</py_code>
+<testo_normale>
+I gestori di segnale sono tutti registrati nel <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> principale in quanto questo è un requisito dell'implementazione per Python del modulo <strong>signal</strong>, a prescindere dal supporto per l'integrazione di <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> e segnali della piattaforma sottostante. Anche se il <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> ricevente chiama <code>signal.pause()</code> non riceve il segnale. La chiamata di <code>signal.alarm(2)</code> verso la fine dell'esempio previene un ciclo infinito, visto che il <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> ricevente non uscirà mai.
+</testo_normale>
+<py_output>
+$ python3 signal_threads.py
+
+In attesa dell'entrata del segnale ricevente
+Invio del segnale mittente
+Segnale 10 ricevuto in MainThread
+In attesa di ricevente
+Alarm clock
+</py_output>
+<testo_normale>
+Sebbene si possano impostare allarmi in qualunque <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a>, essi saranno sempre ricevuti dal <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a> principale.
+</testo_normale>
+<py_code>
+# signal_threads_alarm.py
+
+import signal
+import threading
+import time
+
+
+def signal_handler(num, stack):
+    print(time.ctime(), 'Allarme in',
+          threading.currentThread().name)
+
+signal.signal(signal.SIGALRM, signal_handler)
+
+
+def use_alarm():
+    t_name = threading.currentThread().name
+    print(time.ctime(), 'Impostazione allarme in', t_name)
+    signal.alarm(1)
+    print(time.ctime(), 'In pausa per', t_name)
+    time.sleep(3)
+    print(time.ctime(), 'Pausa terminata in', t_name)
+
+# Inizia un thread che non riceverà il segnale
+alarm_thread = threading.Thread(
+    target=use_alarm,
+    name='alarm_thread',
+)
+alarm_thread.start()
+time.sleep(0.1)
+
+# Attende il thread per vedere il signale (non succederà!)
+print(time.ctime(), 'In attesa di', alarm_thread.name)
+alarm_thread.join()
+
+print(time.ctime(), 'Uscita normale')
+</py_code>
+<testo_normale>
+L'allarme non interrompe la chiamata di <code>sleep()</code> in <code>use_alarm</code>
+</testo_normale>
+<py_output>
+$ python3 signal_threads_alarm.py
+
+Fri Feb  3 20:39:25 2017 Impostazione allarme in alarm_thread
+Fri Feb  3 20:39:25 2017 In pausa per alarm_thread
+Fri Feb  3 20:39:26 2017 In attesa di alarm_thread
+Fri Feb  3 20:39:26 2017 Allarme in MainThread
+Fri Feb  3 20:39:28 2017 Pausa terminata in alarm_thread
+Fri Feb  3 20:39:28 2017 Uscita normale
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/signal.html|signal|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-0475|PEP 475|Falliti tentativi di ripetere chiamate di sistema con EINTR
+#|subprocess|In corso di traduzione
+os.html#os_fork|Creare Processi con os.fork()|La funzione <code>kill()</code> può essere usata per inviare segnali tra processi
+</vedi_anche>
+</documento_tradotto>

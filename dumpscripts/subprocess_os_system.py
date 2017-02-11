@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# subprocess_os_system.py
 
 import subprocess
 
-# Semplice comando
-subprocess.call(['ls', '-1'], shell=True)
+completed = subprocess.run(['ls', '-1'])
+print('codice_di_ritorno:', completed.returncode)

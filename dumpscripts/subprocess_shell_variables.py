@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# subprocess_shell_variables.py
 
 import subprocess
 
-# Comando con espansione della shell 
-subprocess.call('ls -1 $HOME', shell=True)
+completed = subprocess.run('echo $HOME', shell=True)
+print('returncode:', completed.returncode)
