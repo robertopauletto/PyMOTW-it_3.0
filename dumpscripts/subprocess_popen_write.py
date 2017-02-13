@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# subprocess_popen_write.py
 
 import subprocess
 
-print '\nscrittura:'
-proc = subprocess.Popen(['cat', '-'],
-                        shell=True,
-                        stdin=subprocess.PIPE,
-                        )
-proc.communicate('\tstdin: to stdin\n')
+print('scrittura:')
+proc = subprocess.Popen(
+    ['cat', '-'],
+    stdin=subprocess.PIPE,
+)
+proc.communicate('stdin: to stdin\n'.encode('utf-8'))
+

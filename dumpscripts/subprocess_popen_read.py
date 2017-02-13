@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# subprocess_popen_read.py
 
 import subprocess
 
-print '\nlettura:'
-proc = subprocess.Popen(['echo', '"to stdout"'], 
-                        shell=True, 
-                        stdout=subprocess.PIPE,
-                        )
-stdout_value = proc.communicate()[0]
-print '\tstdout:', repr(stdout_value)
+print('lettura:')
+proc = subprocess.Popen(
+    ['echo', '"to stdout"'],
+    stdout=subprocess.PIPE,
+)
+stdout_value = proc.communicate()[0].decode('utf-8')
+print('stdout:', repr(stdout_value))
+

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# subprocess_signal_parent_shell.py
 
 import os
 import signal
@@ -11,17 +10,18 @@ import sys
 script = '''#!/bin/sh
 echo "Shell script in esecuzione $$"
 set -x
-python signal_child.py
+python3 signal_child.py
 '''
 script_file = tempfile.NamedTemporaryFile('wt')
 script_file.write(script)
 script_file.flush()
 
-proc = subprocess.Popen(['sh %s' % script_file.name], shell=True, close_fds=True)
-print 'GENITORE: In pausa prima di inviare il segnale al figlio %s...' % proc.pid
+proc = subprocess.Popen(['sh', script_file.name])
+print('GENITORE      : In pausa prima di segnalare {}...'.format(
+    proc.pid))
 sys.stdout.flush()
 time.sleep(1)
-print 'GENITORE: Segnalazione al figlio  %s' % proc.pid
+print('GENITORE      : Segnalazione al figlio {}'.format(proc.pid))
 sys.stdout.flush()
 os.kill(proc.pid, signal.SIGUSR1)
 time.sleep(3)

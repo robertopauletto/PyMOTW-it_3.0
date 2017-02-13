@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# subprocess_popen2.py
 import subprocess
 
-print '\npopen2:'
+print('popen2:')
 
-proc = subprocess.Popen(['cat', '-'],
-                        shell=True,
-                        stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        )
-stdout_value = proc.communicate('attraverso stdin a stdout')[0]
-print '\tpassa attraverso:', repr(stdout_value)
+proc = subprocess.Popen(
+    ['cat', '-'],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+)
+msg = 'attraverso stdin a stdout'.encode('utf-8')
+stdout_value = proc.communicate(msg)[0].decode('utf-8')
+print('passa attraverso:', repr(stdout_value))
