@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+shutil - Operazioni di alto livello su file.
+</titolo_1>
+<descrizione>
+Operazioni di alto livello su file.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>shutil</strong> include operazioni di alto livello su file tipo la copiatura e l'archiviazione.
+</testo_normale>
+<titolo_2>
+Copiare i File
+</titolo_2>
+<testo_normale>
+<code>copyfile()</code> copia il contenuto della sorgente nella destinazione e solleva <code>IOError</code> se non si possiedono i permessi per scrivere nel file di destinazione.
+</testo_normale>
+<py_code>
+from shutil import *
+from glob import glob
+
+print 'PRIMA:', glob('shutil_copyfile.*')
+copyfile('shutil_copyfile.py', 'shutil_copyfile.py.copy')
+print 'DOPO :', glob('shutil_copyfile.*')
+</py_code>
+<testo_normale>
+Visto che la funzione apre il file di input per leggerlo, a prescindere dal tipo, i file speciali (tipo i nodi di dispositivo di Unix) non possono essere copiati come nuovi file speciali con <code>copyfile()</code>.
+</testo_normale>
+<py_output>
+$ python shutil_copyfile.py
+PRIMA: ['shutil_copyfile.py']
+DOPO : ['shutil_copyfile.py', 'shutil_copyfile.py.copy' ]
+</py_output>
+<testo_normale>
+copyfile() è scritta usando la funzione a basso livello <code>copyfileobj()</code>. Mentre i parametri per copyfile() sono nomi di file, quelli per copyfileobj() sono handle dei file aperti. Il terzo parametro (opzionale) è la lunghezza del buffer da usare per leggere porzioni di file (nel modo predefinito l'intero file viene letto tutto in una volta).
+</testo_normale>
+<py_code>
+from shutil import *
+import os
+from StringIO import StringIO
+import sys
+
+class VerboseStringIO(StringIO):
+    def read(self, n=-1):
+        next = StringIO.read(self, n)
+        print 'read(%d) =>' % n, next
+        return next
+
+lorem_ipsum = '''Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
+Ut rutrum mi vel sem. Vestibulum ante ipsum.'''
+
+print 'Predefinito:'
+input = VerboseStringIO(lorem_ipsum)
+output = StringIO()
+copyfileobj(input, output)
+
+print
+
+print 'Tutto in una volta:'
+input = VerboseStringIO(lorem_ipsum)
+output = StringIO()
+copyfileobj(input, output, -1)
+
+print
+
+print 'Blocchi di 20:'
+input = VerboseStringIO(lorem_ipsum)
+output = StringIO()
+copyfileobj(input, output, 20)
+</py_code>
+<testo_normale>
+Il comportamento predefinito è quello di leggere usando grandi blocchi. Si usa -1 per leggere tutto l'input in una volta oppure un numero positivo per impostare la dimensione del blocco desiderata.
+</testo_normale>
+<py_output>
+$ python shutil_copyfileobj.py
+Predefinito:
+read(16384) => Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
+Ut rutrum mi vel sem. Vestibulum ante ipsum.
+read(16384) =>
+
+Tutto in una volta:
+read(-1) => Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
+Ut rutrum mi vel sem. Vestibulum ante ipsum.
+read(-1) =>
+
+Blocchi di 20:
+read(20) => Lorem ipsum dolor si
+read(20) => t amet, consectetuer
+read(20) =>  adipiscing elit.
+V
+read(20) => estibulum aliquam mo
+read(20) => llis dolor. Donec vu
+read(20) => lputate nunc ut diam
+read(20) => .
+Ut rutrum mi vel
+read(20) => sem. Vestibulum ante
+read(20) =>  ipsum.
+read(20) =>
+</py_output>
+<testo_normale>
+La funzione <code>copy()</code> funziona come lo strumento da riga comandi di Unix <code>cp</code>. Se la destinazione designata corrisponde ad una directory invece che ad un file, viene creato un nuovo file nella directory usando il nome base della sorgente. I permessi per il file sono copiati assieme al contenuto.
+</testo_normale>
+<py_code>
+from shutil import *
+import os
+
+os.mkdir('esempio')
+print 'PRIMA:', os.listdir('esempio')
+copy('shutil_copy.py', 'esempio')
+print 'DOPO :', os.listdir('esempio')
+</py_code>
+<py_output>
+$ python shutil_copy.py
+PRIMA: []
+DOPO : ['shutil_copy.py']
+</py_output>
+<testo_normale>
+<code>copy2()</code> funziona come <code>copy()</code>, ma include data/ora di accesso e modifica nei meta-dati copiati nel nuovo file.
+</testo_normale>
+<py_code>
+from shutil import *
+import os
+import time
+
+def show_file_info(filename):
+    stat_info = os.stat(filename)
+    print '\tModo      :', stat_info.st_mode
+    print '\tCreato    :', time.ctime(stat_info.st_ctime)
+    print '\tAccesso   :', time.ctime(stat_info.st_atime)
+    print '\tModificato:', time.ctime(stat_info.st_mtime)
+
+os.mkdir('esempio')
+print 'SORGENTE:'
+show_file_info('shutil_copy2.py')
+copy2('shutil_copy2.py', 'esempio')
+print 'DESTIN:'
+show_file_info('esempio/shutil_copy2.py')
+</py_code>
+<py_output>
+$ python shutil_copy2.py
+SORGENTE:
+	Modo      : 33188
+	Creato    : Sat Feb 27 12:16:29 2010
+	Accesso   : Sat Feb 27 12:16:36 2010
+	Modificato: Sat Feb 27 12:16:29 2010
+DESTIN:
+	Modo      : 33188
+	Creato    : Sat Feb 27 12:16:36 2010
+	Accesso   : Sat Feb 27 12:16:36 2010
+	Modificato: Sat Feb 27 12:16:29 2010
+</py_output>
+<titolo_2>
+Copiare i Meta-dati del file
+</titolo_2>
+<testo_normale>
+In modalità predefinita in Unix, quando viene creato un nuovo file riceve i parmessi in base alla <em>umask</em> dell'utente corrente. Per copiare i permessi da un file ad un altro si usa <code>copymode()</code>
+</testo_normale>
+<py_code>
+from shutil import *
+from commands import *
+import os
+
+f = open('file_da_cambiare.txt', 'wt')
+f.write('contenuto')
+f.close()
+os.chmod('file_da_cambiare.txt', 0444)
+
+print 'PRIMA:', getstatus('file_da_cambiare.txt')
+copymode('shutil_copymode.py', 'file_da_cambiare.txt')
+print 'DOPO :', getstatus('file_da_cambiare.txt')
+</py_code>
+<testo_normale>
+Prima occore creare un file da modificare
+</testo_normale>
+<py_output>
+#!/bin/sh
+# Crea un file che serve a shutil_copymode.py
+touch file_da_cambiare.txt
+chmod ugo+w file_da_cambiare.txt
+</py_output>
+<testo_normale>
+L'esecuzione dello script modificherà i permessi.
+</testo_normale>
+<py_output>
+$ python shutil_copymode.py
+PRIMA: -r--r--r-- 1 robby robby 9 2010-02-27 12:22 file_da_cambiare.txt
+DOPO : -rw-r--r-- 1 robby robby 9 2010-02-27 12:22 file_da_cambiare.txt
+</py_output>
+<testo_normale>
+Per copiare altri meta-dati per un file (permessi, data/ora ultimo accesso, data/ora ultima modifica), si usa <code>copystat()</code>.
+</testo_normale>
+<py_code>
+from shutil import *
+import os
+import time
+
+def show_file_info(filename):
+    stat_info = os.stat(filename)
+    print '\tModo      :', stat_info.st_mode
+    print '\tCreato    :', time.ctime(stat_info.st_ctime)
+    print '\tAccesso   :', time.ctime(stat_info.st_atime)
+    print '\tModificato:', time.ctime(stat_info.st_mtime)
+
+f = open('file_da_cambiare.txt', 'wt')
+f.write('contenuto')
+f.close()
+os.chmod('file_da_cambiare.txt', 0444)
+
+print 'PRIMA:'
+show_file_info('file_da_cambiare.txt')
+copystat('shutil_copystat.py', 'file_da_cambiare.txt')
+print 'DOPO :'
+show_file_info('file_da_cambiare.txt')
+</py_code>
+<py_output>
+python shutil_copystat.py
+PRIMA:
+	Modo      : 33060
+	Creato    : Sat Feb 27 13:14:26 2010
+	Accesso   : Sat Feb 27 13:14:26 2010
+	Modificato: Sat Feb 27 13:14:26 2010
+DOPO :
+	Modo      : 33188
+	Creato    : Sat Feb 27 13:14:26 2010
+	Accesso   : Sat Feb 27 13:14:26 2010
+	Modificato: Sat Feb 27 14:21:15 2010
+</py_output>
+<titolo_2>
+Lavorare con Alberi di Directory
+</titolo_2>
+<testo_normale>
+Il modulo <strong>shutil</strong> comprende 3 funzioni per lavorare con alberi di directory. Per copiare una directory da un posto ad un altro si usa <code>copytree()</code>. Attraversa ricorsivamente l'alberto di directory sorgente, copiandone i file nella destinazione. La directory destinazione non deve essere già esistente. Con il parametro <em>symlinks</em> si controlla se i collegamenti simbolici devono essere copiati come collegamenti o come file. Il modo predefinito è copiare il contenuto nei nuovi file. Se l'opione è <en>True</en>, vengono creati nuovi collegamenti simbolici nella destinazione.
+</testo_normale>
+<testo_normale>
+Nota: La documentazione per copytree() dice che dovrebbe essere considerata una semplice implementazione piuttosto che uno strumento. Si potrebbe volere copiare l'implementazione e renderla più robusta, oppure aggiungere altre caratteristiche tipo un indicatore di progresso.
+</testo_normale>
+<py_code>
+from shutil import *
+from commands import *
+
+print 'PRIMA:'
+print getoutput('ls -rlast /tmp/esempio')
+copytree('esempio', '/tmp/esempio')
+print 'DOPO :'
+print getoutput('ls -rlast /tmp/esempio')
+</py_code>
+<py_output>
+$ python shutil_copytree.py
+PRIMA:
+ls: impossibile accedere a /tmp/esempio: Nessun file o directory
+DOPO :
+totale 12
+4 -rw-r--r--  1 robby robby  494 2010-02-27 12:16 shutil_copy2.py
+4 drwxr-xr-x  2 robby robby 4096 2010-02-27 12:16 .
+4 drwxrwxrwt 15 root  root  4096 2010-02-27 13:24 ..
+</py_output>
+<testo_normale>
+Per eliminare una directory ed il suo contenuto, si usa <code>rmtree()</code>. Gli errori sono sollevati come eccezioni in modalità predefinita. Gli errori possono essere ignorati se il secondo parametro è <em>True</em>, ed una funzione speciale per la gestione dell'errore può essere fornita come terzo parametro.
+</testo_normale>
+<py_code>
+from shutil import *
+from commands import *
+
+print 'PRIMA:'
+print getoutput('ls -rlast /tmp/esempio')
+rmtree('/tmp/esempio')
+print 'DOPO :'
+print getoutput('ls -rlast /tmp/esempio')
+</py_code>
+<py_output>
+$ python shutil_rmtree.py
+PRIMA:
+totale 12
+4 -rw-r--r--  1 robby robby  494 2010-02-27 12:16 shutil_copy2.py
+4 drwxr-xr-x  2 robby robby 4096 2010-02-27 12:16 .
+4 drwxrwxrwt 15 root  root  4096 2010-02-27 13:24 ..
+DOPO :
+ls: impossibile accedere a /tmp/esempio: Nessun file o directory
+</py_output>
+<testo_normale>
+Per spostare un file od una directory da un posto all'altro si usa <code>move()</code>. La semantica è simile a quella del comando Unix <code>mv</code>. Se la sorgente e la destinazione sono all'interno dello stesso filesystem, la sorgente viene semplicemente rinominata. Altrimenti la sorgente viene copiata nella destinazione, quindi la sorgente viene rimossa.
+</testo_normale>
+<py_code>
+from shutil import *
+from glob import glob
+
+f = open('esempio.txt', 'wt')
+f.write('contenuto')
+f.close()
+
+print 'PRIMA: ', glob('esempio*')
+move('esempio.txt', 'esempio.out')
+print 'DOPO : ', glob('esempio*')
+</py_code>
+<py_output>
+$ python shutil_move.py
+PRIMA:  ['esempio.txt']
+DOPO :  ['esempio.out']
+</py_output>
+<vedi_anche>
+http://docs.python.org/lib/module-shutil.html|shutil|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>
