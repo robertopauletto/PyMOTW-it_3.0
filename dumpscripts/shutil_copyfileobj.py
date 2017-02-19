@@ -1,33 +1,39 @@
-from shutil import *
+# shutil_copyfileobj.py
+
+import io
 import os
-from StringIO import StringIO
+import shutil
 import sys
 
-class VerboseStringIO(StringIO):
+
+class VerboseStringIO(io.StringIO):
+
     def read(self, n=-1):
-        next = StringIO.read(self, n)
-        print 'read(%d) =>' % n, next
+        next = io.StringIO.read(self, n)
+        print('letti({}) ottenuti {} byte'.format(n, len(next)))
         return next
 
-lorem_ipsum = '''Lorem ipsum dolor sit amet, consectetuer adipiscing elit. 
-Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam. 
-Ut rutrum mi vel sem. Vestibulum ante ipsum.'''
 
-print 'Predefinito:'
+lorem_ipsum = '''Lorem ipsum dolor sit amet, consectetuer
+adipiscing elit.  Vestibulum aliquam mollis dolor. Donec
+vulputate nunc ut diam. Ut rutrum mi vel sem. Vestibulum
+ante ipsum.'''
+
+print('Predefinito:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output)
+output = io.StringIO()
+shutil.copyfileobj(input, output)
 
-print
+print()
 
-print 'Tutto in una volta:'
+print('Tutto in una volta:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output, -1)
+output = io.StringIO()
+shutil.copyfileobj(input, output, -1)
 
-print
+print()
 
-print 'Blocchi di 20:'
+print('Blocchi di 256 byte:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output, 20)
+output = io.StringIO()
+shutil.copyfileobj(input, output, 256)

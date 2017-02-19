@@ -1,8 +1,13 @@
-from shutil import *
-from commands import *
+# shutil_rmtree.py
 
-print 'PRIMA:'
-print getoutput('ls -rlast /tmp/esempio')
-rmtree('/tmp/esempio')
-print 'DOPO :'
-print getoutput('ls -rlast /tmp/esempio')
+import glob
+import pprint
+import shutil
+
+print('PRIMA:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+
+shutil.rmtree('/tmp/example')
+
+print('\nDOPO:')
+pprint.pprint(glob.glob('/tmp/example/*'))

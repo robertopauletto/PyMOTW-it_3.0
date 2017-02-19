@@ -1,10 +1,13 @@
-from shutil import *
-from glob import glob
+# shutil_move.py
 
-f = open('esempio.txt', 'wt')
-f.write('contenuto')
-f.close()
+import glob
+import shutil
 
-print 'PRIMA: ', glob('esempio*')
-move('esempio.txt', 'esempio.out')
-print 'DOPO : ', glob('esempio*')
+with open('example.txt', 'wt') as f:
+    f.write('contents')
+
+print('PRIMA: ', glob.glob('example*'))
+
+shutil.move('example.txt', 'example.out')
+
+print('DOPO : ', glob.glob('example*'))

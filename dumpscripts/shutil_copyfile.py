@@ -1,6 +1,10 @@
-from shutil import *
-from glob import glob
+# shutil_copyfile.py
 
-print 'PRIMA:', glob('shutil_copyfile.*')
-copyfile('shutil_copyfile.py', 'shutil_copyfile.py.copy')
-print 'DOPO :', glob('shutil_copyfile.*')
+import glob
+import shutil
+
+print('PRIMA:', glob.glob('shutil_copyfile.*'))
+
+shutil.copyfile('shutil_copyfile.py', 'shutil_copyfile.py.copy')
+
+print('DOPO:', glob.glob('shutil_copyfile.*'))
