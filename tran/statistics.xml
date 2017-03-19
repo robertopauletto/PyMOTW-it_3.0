@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Matematica</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+statistics - Calcoli Statistici
+</titolo_1>
+<descrizione>
+Implementazione di comuni calcoli statistici
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>statistics</strong> implementa molte comuni formule statistiche per calcoli efficienti usando i vari tipi numerici di Python (<code>int</code>, <code>float</code>, <code>Decimal</code> e <code>Fraction</code>   )
+</testo_normale>
+<titolo_2>
+Medie
+</titolo_2>
+<testo_normale>
+Sono supportate tre forme di medie: la <a href='https://www.wikiwand.com/it/Media_(statistica)' target='_blank'>media</a>, la <a href='https://www.wikiwand.com/it/Mediana_(statistica)' target='_blank'>mediana</a> e la <a href='https://www.wikiwand.com/it/Moda_(statistica)' target='_blank'>moda</a>. Con <code>mean()</code>  si calcola la media artimetica.
+</testo_normale>
+<py_code>
+# statistics_mean.py
+
+from statistics import *
+
+data = [1, 2, 2, 5, 10, 12]
+
+print('{:0.2f}'.format(mean(data)))
+</py_code>
+<testo_normale>
+Il valore ritornato per interi e numeri a virgola mobile è sempre di tipo <code>float</code> . Per dati in input decimali o frazioni il risultato è rispettivamente <code>Decimal</code>  e <code>Fraction</code> .
+</testo_normale>
+<py_output>
+$ python3 statistics_mean.py
+
+5.33
+</py_output>
+<testo_normale>
+Si usa <code>mode()</code>  per calcolare i punti dato più comuni in un insieme di dati.
+</testo_normale>
+<py_code>
+# statistics_mode.py
+
+from statistics import *
+
+data = [1, 2, 2, 5, 10, 12]
+
+print(mode(data))
+</py_code>
+<testo_normale>
+Il valore ritornato è sempre  un membro dell'insieme di dati in input. Poichè <code>mode()</code> tratta l'input come un insieme di valori discreti, e conta le ricorrenze, questi dati non devono essere necessariamente rappresentare valori numerici.
+</testo_normale>
+<py_output>
+$ python3 statistics_mode.py
+
+2
+</py_output>
+<testo_normale>
+Ci sono quattro varianti per calcolare la <a href='https://www.wikiwand.com/it/Mediana_(statistica)' target='_blank'>mediana</a> o valore medio. I primi tre sono versioni lineari del consueto algoritmo, con soluzioni differenti per gestire insiemi di dati con numero di elementi pari.
+</testo_normale>
+<py_code>
+# statistics_median.py
+
+from statistics import *
+
+data = [1, 2, 2, 5, 10, 12]
+
+print('mediana    : {:0.2f}'.format(median(data)))
+print('alto       : {:0.2f}'.format(median_low(data)))
+print('basso      : {:0.2f}'.format(median_high(data)))
+</py_code>
+<testo_normale>
+<code>median()</code> trova il valore centrale, se l'insieme di dati ha un numero pari di valori ritorna la media dei due valori centrali. <code>median_low()</code> ritorna sempre un valore dall'insieme di dati in input, usando il più basso dei due elementi centrali per insieme di dati a numero pari. <code>median_high()</code> alla stessa stregua ritorna il valore più alto dei due elementi centrali.
+</testo_normale>
+<py_output>
+$ python3 statistics_median.py
+
+mediana    : 3.50
+alto       : 2.00
+basso      : 5.00
+</py_output>
+<testo_normale>
+La quarta versione del calcolo della mediana, <code>median_grouped()</code> tratta l'input come un insieme di dati continui e calcola la mediana del 50° percentile, trovando prima l'intervallo mediano usando la larghezza dell'intervallo fornita, quindi interpolando all'interno di quell'intervallo usando la posizione dei valori reali dall'insieme dei dati che si trovano in quell'intervallo.
+</testo_normale>
+<py_code>
+# statistics_median_grouped.py
+
+from statistics import *
+
+data = [10, 20, 30, 40]
+
+print('1: {:0.2f}'.format(median_grouped(data, interval=1)))
+print('2: {:0.2f}'.format(median_grouped(data, interval=2)))
+print('3: {:0.2f}'.format(median_grouped(data, interval=3)))
+</py_code>
+<testo_normale>
+Mano a mano che la larghezza dell'intervallo aumenta, la mediana calcolata per lo stesso insieme cambia.
+</testo_normale>
+<py_output>
+$ python3 statistics_median_grouped.py
+
+1: 29.50
+2: 29.00
+3: 28.50
+</py_output>
+<titolo_2>
+Varianza
+</titolo_2>
+<testo_normale>
+La statistica usa due valori per indicare quanto distante sia un insieme di valori rispetto alla media. La <a href='https://www.wikiwand.com/it/Varianza' target='_blank'>varianza</a> è la media della radice quadrata della differenza di ciascun valore e la media; mentre la <a href='https://www.wikiwand.com/it/Scarto_quadratico_medio' target='_blank'>deviazione standard</a> è la radice quadrata della <a href='https://www.wikiwand.com/it/Varianza' target='_blank'>varianza</a> (utile in quanto utilizzando la radice quadrata si consente alla <a href='https://www.wikiwand.com/it/Scarto_quadratico_medio' target='_blank'>deviazione standard</a> di essere espressa nella stessa unità dei dati in input). Valori grandi per <a href='https://www.wikiwand.com/it/Varianza' target='_blank'>varianza</a> o <a href='https://www.wikiwand.com/it/Scarto_quadratico_medio' target='_blank'>deviazione standard</a> indicano che un insieme di dati è disperso in una vasta area, mentre piccoli valori indicano che i dati sono raggruppati più vicino alla media.
+</testo_normale>
+<py_code>
+# statistics_variance.py
+
+from statistics import *
+import subprocess
+
+
+def get_line_lengths():
+    cmd = 'wc -l ../[a-z]*/*.py'
+    out = subprocess.check_output(
+        cmd, shell=True).decode('utf-8')
+    for line in out.splitlines():
+        parts = line.split()
+        if parts[1].strip().lower() == 'totale':
+            break
+        nlines = int(parts[0].strip())
+        if not nlines:
+            continue  # ignora file vuoti
+        yield (nlines, parts[1].strip())
+
+
+data = list(get_line_lengths())
+
+lengths = [d[0] for d in data]
+sample = lengths[::2]
+
+print('Statistiche base:')
+print('  conteggio: {:3d}'.format(len(lengths)))
+print('  minimo   : {:6.2f}'.format(min(lengths)))
+print('  massimo  : {:6.2f}'.format(max(lengths)))
+print('  media    : {:6.2f}'.format(mean(lengths)))
+
+print('\nVarianza nella popolazione:')
+print('  deviazione standard: {:6.2f}'.format(pstdev(lengths)))
+print('  varianza           : {:6.2f}'.format(pvariance(lengths)))
+
+print('\nVarianza stimata per campione:')
+print('  conteggio          : {:3d}'.format(len(sample)))
+print('  deviazione standard: {:6.2f}'.format(stdev(sample)))
+print('  varianza           : {:6.2f}'.format(variance(sample)))
+</py_code>
+<testo_normale>
+Python include due insiemi di funzioni per calcolare varianza e deviazione standard, a seconda che l'insieme di dati rappresenti l'intera popolazione oppure un campione della popolazione. Questo esempio usa il comando Unix <a href='https://www.wikiwand.com/it/Wc_(Unix)' target='_blank'><code>wc</code></a> per contare il  numero di righe di tutti gli esempi di programma per questo sito, quindi usa <code>pvariance()</code> e <code>pstdev</code>  per calcolare varianza e deviazione standard per l'intera popolazione, quindi usa <code>variance()</code> e <code>stddev()</code> per calcolare varianza e deviazione standard per un sottoinsieme (campione) creato usando la lunghezza di ogni secondo file trovato.
+</testo_normale>
+<py_output>
+$ python3 statistics_variance.py
+
+Statistiche base:
+  conteggio: 936
+  minimo   :   1.00
+  massimo  : 418.00
+  media    :  23.08
+
+Varianza nella popolazione:
+  deviazione standard:  30.82
+  varianza           : 950.14
+
+Varianza stimata per campione:
+  conteggio          : 468
+  deviazione standard:  24.37
+  varianza           : 594.13
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/statistics.html|uuid|La documentazione della libreria standard per questo modulo
+http://www.mathstips.com/statistics/median-for-discrete-and-continuous-frequency-type.html|mathtips.com: Median for Discrete and Continuous Frequancy Type Data (grouped data)|Discussione della mediana per dati continui.
+https://www.python.org/dev/peps/pep-0450|PEP 450|Aggiungere un modulo statistico alla libreria standard.
+</vedi_anche>
+</documento_tradotto>

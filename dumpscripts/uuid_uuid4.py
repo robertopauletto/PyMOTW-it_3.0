@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# uuid_uuid4.py
 
 import uuid
 
-for i in xrange(3):
-    print uuid.uuid4()
+for i in range(3):
+    print(uuid.uuid4())

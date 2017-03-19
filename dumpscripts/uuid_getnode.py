@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# uuid_getnode.py
 
 import uuid
 
-print hex(uuid.getnode())
+print(hex(uuid.getnode()))

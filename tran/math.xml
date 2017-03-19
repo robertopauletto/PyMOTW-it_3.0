@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Matematica</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+math - Funzioni Matematiche
+</titolo_1>
+<descrizione>
+Fornisce funzioni per operazioni matematiche specializzate
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>math</strong> implementa molte delle funzioni <a href='https://www.wikiwand.com/it/Institute_of_Electrical_and_Electronics_Engineers'>IEEE</a> che si troverebbero normalmente nelle librerie della piattaforma nativa C per operazioni matematiche complesse usando valori a virgola mobile, compresi logaritmi ed operazioni trigonometriche.
+</testo_normale>
+<titolo_2>
+Costanti Speciali
+</titolo_2>
+<testo_normale>
+Molte operazioni matematiche si basano su costanti speciali. <strong>math</strong> include valori per &#928;  (pi greco), e, nan (not a number) ed infinito
+</testo_normale>
+<py_code>
+# math_constants.py
+
+import math
+
+print('  π: {:.30f}'.format(math.pi))
+print('  e: {:.30f}'.format(math.e))
+print('nan: {:.30f}'.format(math.nan))
+print('inf: {:.30f}'.format(math.inf))
+</py_code>
+<testo_normale>
+Sia &#928;  che e sono limitati nella precisione solo dalla libreria C della virgola mobile della piattaforma
+</testo_normale>
+<py_output>
+$ python3 math_constants.py
+
+  π: 3.141592653589793115997963468544
+  e: 2.718281828459045090795598298428
+nan: nan
+inf: inf
+</py_output>
+<titolo_2>
+Verificare Valori Eccezionali
+</titolo_2>
+<testo_normale>
+I calcoli a virgola mobile possono risultare in due tipi di valori eccezionali. Il primo di questi, <code>inf</code> (infinito), compare quando il valore <code>double</code> usato per conservare un valore a virgola mobile va in <a href='https://www.wikiwand.com/it/Overflow'>overflow</a> rispetto ad un valore assoluto molto grande.
+</testo_normale>
+<py_code>
+# math_isinf.py
+
+import math
+
+print('{:^3} {:6} {:6} {:6}'.format(
+    'e', 'x', 'x**2', 'isinf'))
+print('{:-^3} {:-^6} {:-^6} {:-^6}'.format(
+    '', '', '', ''))
+
+for e in range(0, 201, 20):
+    x = 10.0 ** e
+    y = x * x
+    print('{:3d} {:<6g} {:<6g} {!s:6}'.format(
+        e, x, y, math.isinf(y),
+    ))
+</py_code>
+<testo_normale>'
+Quando l'esponente nell'esempio raggiunge una dimensione sufficiente, la radice quadrata di <code>x</code>  non può più essere conservata in un <code>double</code>  ed il valore viene registrato come infinito.
+</testo_normale>
+<py_output>
+$ python3 math_isinf.py
+
+ e  x      x**2   isinf
+--- ------ ------ ------
+  0 1      1      False
+ 20 1e+20  1e+40  False
+ 40 1e+40  1e+80  False
+ 60 1e+60  1e+120 False
+ 80 1e+80  1e+160 False
+100 1e+100 1e+200 False
+120 1e+120 1e+240 False
+140 1e+140 1e+280 False
+160 1e+160 inf    True
+180 1e+180 inf    True
+200 1e+200 inf    True
+</py_output>
+<testo_normale>
+Non tutti gli <a href='https://www.wikiwand.com/it/Overflow'>overflow</a> di valori a virgola mobile risultano in valori <code>inf</code>. Calcolando un esponente con valori a virgola mobile, in particolare, viene sollevata una eccezione <code>OverflowErrore</code> invece di preservare il risultato <code>inf</code>.
+</testo_normale>
+<py_code>
+# math_overflow.py
+
+x = 10.0 ** 200
+
+print('x    =', x)
+print('x*x  =', x * x)
+print('x**2 =', end=' ')
+try:
+    print(x ** 2)
+except OverflowError as err:
+    print(err)
+</py_code>
+<testo_normale>
+La discrepanza viene causata da una differenza di implementazione nella libreria usata da C Pyhton.
+</testo_normale>
+<py_output>
+$ python3 math_overflow.py
+x    = 1e+200
+x*x  = inf
+x**2 = (34, 'Numerical result out of range')
+</py_output>
+<testo_normale>
+Le operazioni di divisione usando valori infiniti sono indefinite. Il risultato della divisione di un numero per infinito è <code>nan</code> (non un numero).
+</testo_normale>
+<py_code>
+# math_isnan.py
+
+import math
+
+x = (10.0 ** 200) * (10.0 ** 200)
+y = x / x
+
+print('x =', x)
+print('isnan(x) =', math.isnan(x))
+print('y = x / x =', x / x)
+print('y == nan =', y == float('nan'))
+print('isnan(y) =', math.isnan(y))
+</py_code>
+<testo_normale>
+<code>nan</code> non produce un valore di comparazione positivo contro nessun altro valore, anche se stesso, quindi per verificare se un valore è <code>nan</code> si usa <code>isnana()</code>.
+</testo_normale>
+<py_output>
+$ python3 math_isnan.py
+
+x = inf
+isnan(x) = False
+y = x / x = nan
+y == nan = False
+isnan(y) = True
+</py_output>
+<testo_normale>
+Si usa <code>isfinite()</code> per verificare numeri normali o per i valori speciali <code>inf</code> o <code>nan</code>
+</testo_normale>
+<py_code>
+# math_isfinite.py
+
+import math
+
+for f in [0.0, 1.0, math.pi, math.e, math.inf, math.nan]:
+    print('{:5.2f} {!s}'.format(f, math.isfinite(f)))
+</py_code>
+<testo_normale>
+<code>isfinite()</code> ritorna <code>False</code> per ciascuno dei casi eccezionali, <code>True</code> altrimenti.
+</testo_normale>
+<py_output>
+$ python3 math_isfinite.py
+
+ 0.00 True
+ 1.00 True
+ 3.14 True
+ 2.72 True
+  inf False
+  nan False
+</py_output>
+<titolo_2>
+Confrontare
+</titolo_2>
+<testo_normale>
+Confronti tra valori a virgola mobile possono essere inclini ad errori, in quanto a causa della rappresentazione numerica ogni passo del calcolo potrebbe potenzialmente introdurre errori. La funzione <code>isclose()</code> usa un algoritmo stabile per minimizzare questi errori e fornire una strada per confronti relativi ed assoluti. La formul usata è equivalente a
+</testo_normale>
+<py_output>
+    abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+</py_output>
+<testo_normale>
+In modalità predefinita, <code>isclose()</code> usa un confronto relativo con una tolleranza impostata a <code>1e-09</code> vale a dire che la differenza tra i valori deve essere inferiore od uguale a 1e-09 volte il valore assoluto più grande tra a e b. La tolleranza si modifica passando l'argomento <code>retl_tol</code> ad <code>isclose()</code>. In questo esempio, i valori devono essere all'intero del 10% di ciascuno.
+</testo_normale>
+<py_code>
+# shutil_disk_usage.py
+
+import shutil
+
+total_b, used_b, free_b = shutil.disk_usage('.')
+
+gib = 2 ** 30  # GiB == gibibyte
+gb = 10 ** 9   # GB == gigabyte
+
+print('Totale: {:6.2f} GB  {:6.2f} GiB'.format(
+    total_b / gb, total_b / gib))
+print('Usato : {:6.2f} GB  {:6.2f} GiB'.format(
+    used_b / gb, used_b / gib))
+print('Libero: {:6.2f} GB  {:6.2f} GiB'.format(
+    free_b / gb, free_b / gib))
+</py_code>
+<testo_normale>
+Il confronto tra <code>0.1</code> e <code>0.9</code> fallisce in quanto l'errore vale <code>0.1</code>
+</testo_normale>
+<py_output>
+$ python3 math_isclose.py
+
+   a        b     rel_tol  abs(a-b) tolleranza  close
+-------- -------- -------- -------- ---------- --------
+ 1000.00   900.00     0.10     100.00   100.00     True
+  100.00    90.00     0.10      10.00    10.00     True
+   10.00     9.00     0.10       1.00     1.00     True
+    1.00     0.90     0.10       0.10     0.10     True
+    0.10     0.09     0.10       0.01     0.01    False
+</py_output>
+<testo_normale>
+Per utilizzare una tolleranza fissa o assoluta, si passa <code>abs_tol</code> in luogo di <code>rel_tol</code>.
+</testo_normale>
+<py_code>
+# math_isclose_abs_tol.py
+
+import math
+
+INPUTS = [
+    (1.0, 1.0 + 1e-07, 1e-08),
+    (1.0, 1.0 + 1e-08, 1e-08),
+    (1.0, 1.0 + 1e-09, 1e-08),
+]
+
+print('{:^8} {:^11} {:^8} {:^10} {:^8}'.format(
+    'a', 'b', 'abs_tol', 'abs(a-b)', 'close')
+)
+print('{:-^8} {:-^11} {:-^8} {:-^10} {:-^8}'.format(
+    '-', '-', '-', '-', '-'),
+)
+
+for a, b, abs_tol in INPUTS:
+    close = math.isclose(a, b, abs_tol=abs_tol)
+    abs_diff = abs(a - b)
+    print('{:8.2f} {:11} {:8} {:0.9f} {!s:>8}'.format(
+        a, b, abs_tol, abs_diff, close))
+</py_code>
+<testo_normale>
+Per una tolleranza assoluta, la differenza tra i valori in input deve essere inferiore alla tolleranza data.
+</testo_normale>
+<py_output>
+$ python3 math_isclose_abs_tol.py
+
+   a          b      abs_tol   abs(a-b)   close
+-------- ----------- -------- ---------- --------
+    1.00   1.0000001    1e-08 0.000000100    False
+    1.00  1.00000001    1e-08 0.000000010     True
+    1.00 1.000000001    1e-08 0.000000001     True
+</py_output>
+<testo_normale>
+<code>nan</code> e <code>inf</code> sono casi speciali.
+</testo_normale>
+<py_code>
+# math_isclose_inf.py
+
+import math
+
+print('nan, nan:', math.isclose(math.nan, math.nan))
+print('nan, 1.0:', math.isclose(math.nan, 1.0))
+print('inf, inf:', math.isclose(math.inf, math.inf))
+print('inf, 1.0:', math.isclose(math.inf, 1.0))
+</py_code>
+<testo_normale>
+<code>nan</code> non è mai vicino ad un altro valore, compreso se stesso. <code>inf</code> è vicino solo a se stesso.
+</testo_normale>
+<py_output>
+$ python3 math_isclose_inf.py
+
+nan, nan: False
+nan, 1.0: False
+inf, inf: True
+inf, 1.0: False
+</py_output>
+<titolo_2>
+Convertire Valori a Virgola Mobile in Interi
+</titolo_2>
+<testo_normale>
+Il modulo <strong>math</strong> include tre funzioni per convertire valori a virgola mobile in interi. Ognuna prende un approccio diverso, e saranno utili in differenti circostanze.
+</testo_normale>
+<testo_normale>
+La funzione più semplice è <code>trunc()</code>, che tronca le cifre decimali, lasciando solo la parte intera del valore. <code>floor()</code>  converte il suo input nell'intero più grande precedente e <code>ceil()</code> fornisce l'intero più grande che segue il valore in input.
+</testo_normale>
+<py_code>
+# math_integers.py
+
+import math
+
+HEADINGS = ('i', 'int', 'trunk', 'floor', 'ceil')
+print('{:^5} {:^5} {:^5} {:^5} {:^5}'.format(*HEADINGS))
+print('{:-^5} {:-^5} {:-^5} {:-^5} {:-^5}'.format(
+    '', '', '', '', '',
+))
+
+fmt = '{:5.1f} {:5.1f} {:5.1f} {:5.1f} {:5.1f}'
+
+TEST_VALUES = [
+    -1.5,
+    -0.8,
+    -0.5,
+    -0.2,
+    0,
+    0.2,
+    0.5,
+    0.8,
+    1,
+]
+
+for i in TEST_VALUES:
+    print(fmt.format(
+        i,
+        int(i),
+        math.trunc(i),
+        math.floor(i),
+        math.ceil(i),
+    ))
+</py_code>
+<testo_normale>
+<code>trunc()</code> è equivalente alla conversione diretta in <code>int</code> .
+</testo_normale>
+<py_output>
+$ python3 math_integers.py
+  i    int  trunk floor ceil
+----- ----- ----- ----- -----
+ -1.5  -1.0  -1.0  -2.0  -1.0
+ -0.8   0.0   0.0  -1.0   0.0
+ -0.5   0.0   0.0  -1.0   0.0
+ -0.2   0.0   0.0  -1.0   0.0
+  0.0   0.0   0.0   0.0   0.0
+  0.2   0.0   0.0   0.0   1.0
+  0.5   0.0   0.0   0.0   1.0
+  0.8   0.0   0.0   0.0   1.0
+  1.0   1.0   1.0   1.0   1.0
+</py_output>
+<titolo_2>
+Rappresentazioni Alternative per Valori a Virgola Mobile
+</titolo_2>
+<testo_normale>
+<code>modf()</code> riceve un singolo numero a virgola mobile e ritorna una tuple contenente le parti intera e frazionata del valore in input.
+</testo_normale>
+<py_code>
+# math_modf.py
+
+import math
+
+for i in range(6):
+    print('{}/2 = {}'.format(i, math.modf(i / 2.0)))
+</py_code>
+<testo_normale>
+Entrambi i numeri nel valore ritornato sono di tipo <code>float</code>
+</testo_normale>
+<py_output>
+$ python3 math_modf.py
+
+0/2 = (0.0, 0.0)
+1/2 = (0.5, 0.0)
+2/2 = (0.0, 1.0)
+3/2 = (0.5, 1.0)
+4/2 = (0.0, 2.0)
+5/2 = (0.5, 2.0)
+</py_output>
+<testo_normale>
+<code>frexp()</code> ritorna la <a href='https://www.wikiwand.com/it/Mantissa'>mantissa</a> e l'esponente di un valore a virgola mobile, e può essere usata per creare una rappresentazione più portabile del valore.
+</testo_normale>
+<py_code>
+# math_frexp.py
+
+import math
+
+print('{:^7} {:^7} {:^7}'.format('x', 'm', 'e'))
+print('{:-^7} {:-^7} {:-^7}'.format('', '', ''))
+
+for x in [0.1, 0.5, 4.0]:
+    m, e = math.frexp(x)
+    print('{:7.2f} {:7.2f} {:7d}'.format(x, m, e))
+</py_code>
+<testo_normale>
+<code>frexp()</code> usa la formula <code>x = m * 2**e</code> e ritorna i valori di <code>m</code> ed <code>e</code>.
+</testo_normale>
+<py_output>
+$ python3 math_frexp.py
+   x       m       e
+
+------- ------- -------
+   0.10    0.80      -3
+   0.50    0.50       0
+   4.00    0.50       3
+</py_output>
+<testo_normale>
+<code>ldexp()</code> è l'inverso di <code>frexp()</code>.
+</testo_normale>
+<py_code>
+# math_isclose.py
+
+import math
+
+INPUTS = [
+    (1000, 900, 0.1),
+    (100, 90, 0.1),
+    (10, 9, 0.1),
+    (1, 0.9, 0.1),
+    (0.1, 0.09, 0.1),
+]
+
+print('{:^8} {:^8} {:^8} {:^8} {:^8} {:^8}'.format(
+    'a', 'b', 'rel_tol', 'abs(a-b)', 'tolleranza', 'close')
+)
+print('{:-^8} {:-^8} {:-^8} {:-^8} {:-^10} {:-^8}'.format(
+    '-', '-', '-', '-', '-', '-'),
+)
+
+fmt = '{:8.2f} {:8.2f} {:8.2f}   {:8.2f} {:8.2f} {!s:>8}'
+
+for a, b, rel_tol in INPUTS:
+    close = math.isclose(a, b, rel_tol=rel_tol)
+    tolerance = rel_tol * max(abs(a), abs(b))
+    abs_diff = abs(a - b)
+    print(fmt.format(a, b, rel_tol, abs_diff, tolerance, close))
+</py_code>
+<testo_normale>
+Usando la stessa formula di <code>frexp()</code>, <code>ldexp()</code> riceve i valori di mantissa ed esponente come argomento e ritona un valore a virgola mobile
+</testo_normale>
+<py_output>
+$ python3 math_ldexp.py
+
+   m       e       x
+------- ------- -------
+   0.80      -3    0.10
+   0.50       0    0.50
+   0.50       3    4.00
+</py_output>
+<titolo_2>
+Segni Positivi e Negativi
+</titolo_2>
+<testo_normale>
+Il valore assoluto di un numero è il suo valore senza il segno. Si usa <code>fabs()</code>  per calcolare il valore assoluto per un numero a virgola mobile.
+</testo_normale>
+<py_code>
+# math_fabs.py
+
+import math
+
+print(math.fabs(-1.1))
+print(math.fabs(-0.0))
+print(math.fabs(0.0))
+print(math.fabs(1.1))
+</py_code>
+<testo_normale>
+In termini pratici, il valore assoluto di un <code>float</code> è rappresentato come un valore positivo.
+</testo_normale>
+<py_output>
+$ python3 math_fabs.py
+
+1.1
+0.0
+0.0
+1.1
+</py_output>
+<testo_normale>
+Per determinare il segno di un valore, si dà ad una serie di valori lo stsesso segno oppure si confrontano due valori, si usi <code>copysign()</code>  per impostare il segno di un valore valido conosciuto.
+</testo_normale>
+<py_code>
+# math_copysign.py
+
+import math
+
+HEADINGS = ('f', 's', '< 0', '> 0', '= 0')
+print('{:^5} {:^5} {:^5} {:^5} {:^5}'.format(*HEADINGS))
+print('{:-^5} {:-^5} {:-^5} {:-^5} {:-^5}'.format(
+    '', '', '', '', '',
+))
+
+VALUES = [
+    -1.0,
+    0.0,
+    1.0,
+    float('-inf'),
+    float('inf'),
+    float('-nan'),
+    float('nan'),
+]
+
+for f in VALUES:
+    s = int(math.copysign(1, f))
+    print('{:5.1f} {:5d} {!s:5} {!s:5} {!s:5}'.format(
+        f, s, f < 0, f > 0, f == 0,
+    ))
+</py_code>
+<testo_normale>
+Una funzione supplementare come <code>copysign()</code> è richiesta in quanto il confronto diretto di <code>nan</code> e <code>-nan</code>  con altri valori non funziona.
+</testo_normale>
+<py_output>
+$ python3 math_copysign.py
+
+  f     s    < 0   > 0   = 0
+----- ----- ----- ----- -----
+ -1.0    -1 True  False False
+  0.0     1 False False True
+  1.0     1 False True  False
+ -inf    -1 True  False False
+  inf     1 False True  False
+  nan    -1 False False False
+  nan     1 False False False
+</py_output>
+<testo_normale>
+Calcoli Comunemente Usati
+</testo_normale>
+<testo_normale>
+Il rappresentare valori precisi in memoria binaria a virgola mobile è impegnativo. Alcuni valori non possono essere rappresentati esattamente, e più spesso un valore viene manipolati attraverso calcoli ripetuti, più facilmente potrebbe essere introdotto un errore di rappresentazione.<strong>math</strong> include una funzione per caloclare la somma id una serie di valori a virgola mobile usando un algoritmo efficiente che minimizza detti errori.
+</testo_normale>
+<py_code>
+# math_fsum.py
+
+import math
+
+values = [0.1] * 10
+
+print('Valori in input:', values)
+
+print('sum()       : {:.20f}'.format(sum(values)))
+
+s = 0.0
+for i in values:
+    s += i
+print('ciclo-for   : {:.20f}'.format(s))
+
+print('math.fsum() : {:.20f}'.format(math.fsum(values)))
+</py_code>
+<testo_normale>
+Data una sequenza di 10 valori, ciascuno uguale a <code>0.1</code>, i valori attesi per la somma della sequenza è <code>1.0</code>. Visot che <code>0.1</code>  non può essere rappresntato esattamente come valore a virgola mobile, errori vengono introdotti durante la somma a meno che essa venga calcolata con <code>fsum()</code>.
+</testo_normale>
+<py_output>
+$ python3 math_fsum.py
+
+Valori in input: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+sum()       : 0.99999999999999988898
+ciclo-for   : 0.99999999999999988898
+math.fsum() : 1.00000000000000000000
+</py_output>
+<testo_normale>
+<code>factorial()</code> viene comunemente usato per calcolare il numero di permutazioni e combinazioni di una serie di oggetti. Il <a href='https://www.wikiwand.com/it/Fattoriale'>fattoriale</a> di un intero positivo <code>n</code>, espresso come <code>n!</code>, è definito ricorsivamente com <code>(n-1)! * n</code> e si interrompe quanto <code>0! == 1</code>.
+</testo_normale>
+<py_code>
+# math_factorial.py
+
+import math
+
+for i in [0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.1]:
+    try:
+        print('{:2.0f} {:6.0f}'.format(i, math.factorial(i)))
+    except ValueError as err:
+        print('Errore calcolando il fattoriale({}): {}'.format(i, err))
+</py_code>
+<testo_normale>
+<code>factorial()</code> lavora solo con numeri interi, ma accetta come argomento valori <code>float</code> fintanto che essi possano essere convertiti in un intero senza perdere il valore.
+</testo_normale>
+<py_output>
+$ python3 math_factorial.py
+ 0      1
+ 1      1
+ 2      2
+ 3      6
+ 4     24
+ 5    120
+Errore calcolando il fattoriale(6.1): factorial() only accepts integral values
+</py_output>
+<testo_normale>
+<code>gamma()</code> è come <code>factorial()</code> eccetto che lavora con numeri reali ed il valore viene spostato di uno (gamma equivale a <code>(n - 1)!</code>).
+</testo_normale>
+<py_code>
+# math_gamma.py
+import math
+
+for i in [0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6]:
+    try:
+        print('{:2.1f} {:6.2f}'.format(i, math.gamma(i)))
+    except ValueError as err:
+        print('Errore calcolando gamma({}): {}'.format(i, err))
+</py_code>
+<testo_normale>
+Visto che zero fa sì che il valore iniziale sia negativo, non è consentito
+</testo_normale>
+<py_output>
+$ python3 math_gamma.py
+
+Errore calcolando gamma(0): math domain error
+1.1   0.95
+2.2   1.10
+3.3   2.68
+4.4  10.14
+5.5  52.34
+6.6 344.70
+</py_output>
+
+<vedi_anche>
+https://docs.python.org/3.5/library/statistics.html|uuid|La documentazione della libreria standard per questo modulo
+http://www.mathstips.com/statistics/median-for-discrete-and-continuous-frequency-type.html|mathtips.com: Median for Discrete and Continuous Frequancy Type Data (grouped data)|Discussione della mediana per dati continui.
+https://www.python.org/dev/peps/pep-0450|PEP 450|Aggiungere un modulo statistico alla libreria standard.
+</vedi_anche>
+</documento_tradotto>
