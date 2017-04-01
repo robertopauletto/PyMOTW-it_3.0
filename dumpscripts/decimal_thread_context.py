@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# decimal_thread_context.py
 
 import decimal
 import threading
-from Queue import Queue
+from queue import PriorityQueue
+
 
 class Multiplier(threading.Thread):
     def __init__(self, a, b, prec, q):
@@ -12,17 +12,20 @@ class Multiplier(threading.Thread):
         self.prec = prec
         self.q = q
         threading.Thread.__init__(self)
+
     def run(self):
         c = decimal.getcontext().copy()
         c.prec = self.prec
         decimal.setcontext(c)
-        self.q.put( (self.prec, a * b) )
-        return
+        self.q.put((self.prec, a * b))
+
 
 a = decimal.Decimal('3.14')
 b = decimal.Decimal('1.234')
-q = Queue()
-threads = [ Multiplier(a, b, i, q) for i in range(1, 6) ]
+# Una PriorityQueue ritornerà valori ordinati per precisione,
+# a prescindere dall'ordine nel quale i thread finiscono.
+q = PriorityQueue()
+threads = [Multiplier(a, b, i, q) for i in range(1, 6)]
 for t in threads:
     t.start()
 
@@ -31,4 +34,4 @@ for t in threads:
 
 for i in range(5):
     prec, value = q.get()
-    print prec, '\t', value
+    print('{}  {}'.format(prec, value))
