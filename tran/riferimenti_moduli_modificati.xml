@@ -141,6 +141,13 @@ A partire da Python 3.3, i confronti di uguaglianza tra istanze di <code>datetim
 Prima di Python 3.5 un oggetto <code>datetime.time</code> che rappresenta la mezzanotte ritornava <code>False</code> quando convertito in Booleano. Questo comportamento è stato rimosso in Python 3.5 (<a href="http://bugs.python.org/issue13936">Python issue 13936</a>).
 <a name='fractions_porting'></a>
 </testo_normale>
+<a name='decimal'></a>
+<titolo_2>
+decimal
+</titolo_2>
+<testo_normale>
+Python 3.3 incorpora una implementazione C di <a href='decimal.html' target='_blank'>decimal</a> basata su <code>libmpdec</code>. Questa modifica migliora le prestazioni, inoltre include alcune modifiche alle <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank' />API</a> e differenze di comportamento rispetto all'implementazione in puro Python. Si vedano le note di rilascio di <a href='https://docs.python.org/3.3/whatsnew/3.3.html#decimal' target='_blank'>Python 3.3</a> per ulteriori dettagli.
+</testo_normale>
 <titolo_2>
 fractions
 </titolo_2>
@@ -250,6 +257,7 @@ isinstance(obj, numbers.Number)
 <testo_normale>
 La funzione <code>sequenceIncludes()</code> è stata rimossa. Si utilizzi <code>contains()</code>.
 </testo_normale>
+<a name='porting-os'></a>
 <titolo_2>
 os
 </titolo_2>
@@ -458,12 +466,13 @@ UserDict, UserList, UserString
 </titolo_2>
 <testo_normale>
 Le classi UserDict, UserList, UserString sono state spostate dai loro propri moduli nel modulo <strong>collections</strong>. <code>dict</code>, <code>list</code> e <code>str</code> possono essere direttamente subclassate ma le classi in <strong>collections</strong> possono rendere l'implementazione della sottoclasse più semplice visto che il contenuto del contenitore è disponibile direttamente attraverso un attributo di istanza. Anche le classi astratte in <strong>collections.abc</strong> sono utili per creare contenitori personalizzati pche seguono le API dei tipi built-in.
+<a name='uuid'></a>
 </testo_normale>
 <titolo_2>
 uuid
 </titolo_2>
 <testo_normale>
-<code>uuid.getnome()</code> ora utilizza la variabile di ambiente <code>PATH</code> per trovare programmi che possono rilevare l'<a href='https://www.wikiwand.com/it/Indirizzo_MAC'>indirizzo MAC</a> dell'host sotto UNIX (<a href='http://bugs.python.org/issue19855'>Python issue 19855</a>). Se non viene trovato un programma nei percorsi indicati in <code>PATH</code> tenta la ricerca in <code>/sbin</code> e <code>/usr/sbin</code>. Il comportamento di ricerca può dare risultati differenti rispetto a versioni precedenti di Python se versioni alternative di programmi tipo <code>netstat</code>, <code>ifconfig</code>, <code>ip</code> ed <code>arp</code> sono presenti e produrre risultati differenti.
+<code>uuid.getname()</code> ora utilizza la variabile di ambiente <code>PATH</code> per trovare programmi che possono rilevare l'<a href='https://www.wikiwand.com/it/Indirizzo_MAC'>indirizzo MAC</a> dell'host sotto UNIX (<a href='http://bugs.python.org/issue19855'>Python issue 19855</a>). Se non viene trovato un programma nei percorsi indicati in <code>PATH</code> tenta la ricerca in <code>/sbin</code> e <code>/usr/sbin</code>. Il comportamento di ricerca può dare risultati differenti rispetto a versioni precedenti di Python se versioni alternative di programmi tipo <code>netstat</code>, <code>ifconfig</code>, <code>ip</code> ed <code>arp</code> sono presenti e produrre risultati differenti.
 </testo_normale>
 <titolo_2>
 whichdb

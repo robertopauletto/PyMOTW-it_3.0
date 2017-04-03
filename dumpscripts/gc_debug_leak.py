@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# gc_debug_leak.py
 
 import gc
 
@@ -7,26 +6,33 @@ flags = gc.DEBUG_LEAK
 
 gc.set_debug(flags)
 
-class Graph(object):
+
+class Graph:
+
     def __init__(self, name):
         self.name = name
         self.next = None
-        print 'Creazione di %s 0x%x (%s)' % (self.__class__.__name__, id(self), name)
+
     def set_next(self, next):
-        print 'Connessione nodi %s.next = %s' % (self, next)
         self.next = next
+
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.name)
+        return '{}({})'.format(
+            self.__class__.__name__, self.name)
+
 
 class CleanupGraph(Graph):
+
     def __del__(self):
-        print '%s.__del__()' % self
+        print('{}.__del__()'.format(self))
+
 
 # Costruisce un ciclo di Grafi
 one = Graph('Uno')
 two = Graph('Due')
 one.set_next(two)
 two.set_next(one)
+
 
 # Costruisce un altro nodo a se stante
 three = CleanupGraph('tre')
@@ -40,14 +46,16 @@ five.set_next(four)
 # Elimina i riferimenti ai nodi del grafo in questo spazio dei nomi del modulo
 one = two = three = four = five = None
 
-print
-
-# Forcza una raccolta
-print 'In raccolta'
+# Force una raccolta
+print('In raccolta')
 gc.collect()
-print 'Fatto'
+print('Fatto')
 
-# Report su quello che è rimasto
+# Riporta ciò che è rimasto
 for o in gc.garbage:
     if isinstance(o, Graph):
-        print 'Trattenuto: %s 0x%x' % (o, id(o))
+        print('Trattenuto: {} 0x{:x}'.format(o, id(o)))
+
+# Reimposta i flag di debug prima di uscire per evitare di scaricare molte
+# nformazioni extra che renderebbe l'output di esempio meno chiaro
+gc.set_debug(0)

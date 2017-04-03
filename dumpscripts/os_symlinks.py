@@ -1,17 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# os_symlinks.py
 
-import os, tempfile
+import os
 
-link_name = tempfile.mktemp()
+link_name = '/tmp/' + os.path.basename(__file__)
 
-print 'Creazione del link %s -> %s' % (link_name, __file__)
+print('Creaione del collegamento {} -> {}'.format(link_name, __file__))
 os.symlink(__file__, link_name)
 
 stat_info = os.lstat(link_name)
-print 'Permissi:', oct(stat_info.st_mode)
+print('Permessi:', oct(stat_info.st_mode))
 
-print 'Punta a:', os.readlink(link_name)
+print('Punta a:', os.readlink(link_name))
 
 # Pulizia
 os.unlink(link_name)

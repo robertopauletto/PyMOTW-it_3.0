@@ -1,37 +1,82 @@
-# gc_collect.py
+# gc_get_referrers.py
 
 import gc
 import pprint
 
 
-class Graph(object):
+class Graph:
 
     def __init__(self, name):
         self.name = name
         self.next = None
 
     def set_next(self, next):
-        print('Collegamento nodi {}.next = {}'.format(self, next))
+        print('Linking nodes {}.next = {}'.format(self, next))
         self.next = next
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, self.name)
+        return '{}({})'.format(
+            self.__class__.__name__, self.name)
 
-# Costruisce un ciclo di Grafi
-one = Graph('uno')
-two = Graph('due')
-three = Graph('tre')
+    def __del__(self):
+        print('{}.__del__()'.format(self))
+
+
+# Construct two graph cycles
+one = Graph('one')
+two = Graph('two')
+three = Graph('three')
 one.set_next(two)
 two.set_next(three)
 three.set_next(one)
 
-# Rimuove riferimenti ai nodi del grafo nello spazio dei nomi di questo modulo
+# Remove references to the graph nodes in this module's namespace
 one = two = three = None
-\
-# Mostra gli effetti del garbage collection
-for i in range(2):
-    print('In raccolta {} ...'.format(i))
-    n = gc.collect()
-    print('Oggetti non raggiungibili:', n)
-    print('Garbage rimanente:', end=' ')
-    pprint.pprint(gc.garbage)
+
+# Collecting now keeps the objects as uncollectable
+print()
+print('Collecting...')
+n = gc.collect()
+print('Unreachable objects:', n)
+print('Remaining Garbage:', end=' ')
+pprint.pprint(gc.garbage)
+
+REFERRERS_TO_IGNORE = [locals(), globals(), gc.garbage]
+
+
+def find_referring_graphs(obj):
+    print('Looking for references to {!r}'.format(obj))
+    referrers = (r for r in gc.get_referrers(obj)
+                 if r not in REFERRERS_TO_IGNORE)
+    for ref in referrers:
+        if isinstance(ref, Graph):
+            # A graph node
+            yield ref
+        elif isinstance(ref, dict):
+            # An instance or other namespace dictionary
+            for parent in find_referring_graphs(ref):
+                yield parent
+
+
+# Look for objects that refer to the objects that remain in
+# gc.garbage.
+print()
+print('Clearing referrers:')
+for obj in gc.garbage:
+    for ref in find_referring_graphs(obj):
+        ref.set_next(None)
+        del ref  # remove reference so the node can be deleted
+    del obj  # remove reference so the node can be deleted
+
+# Clear references held by gc.garbage
+print()
+print('Clearing gc.garbage:')
+del gc.garbage[:]
+
+# Everything should have been freed this time
+print()
+print('Collecting...')
+n = gc.collect()
+print('Unreachable objects:', n)
+print('Remaining Garbage:', end=' ')
+pprint.pprint(gc.garbage)

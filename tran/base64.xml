@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Intenet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+base64 - Codifica Dati Binari con ASCII
+</titolo_1>
+<descrizione>
+Il modulo base64 contiene funzioni per traslare dati binari in un sottoinsieme di valori ASCII adatti per la trasmissione utilizzando protocolli a testo semplice.
+
+</descrizione>
+<testo_normale>
+Le codifiche base64, base32, base16 e base85 convertono byte ad 8 bit in valori che rientrano nell'intervallo di caratteri stampabili ASCII, a scapito di maggiori bit, per rappresentare dati con compatibilità con sistemi che supportano solo dati ASCII, tipo <a href='https://www.wikiwand.com/it/Simple_Mail_Transfer_Protocol' target='_blank'>SMTP</a>. I valori base corrispondono alla lunghezza dell'alfabeto usato in ciascuna codifica. Ci sono anche varianti delle codifiche originali per preservare gli URL che usano alfabeti leggermente differenti.
+</testo_normale>
+<titolo_2>
+Codifica Base 64
+</titolo_2>
+<vedi_anche>
+https://docs.python.org/3.5/library/decimal.html|decimal|La documentazione della libreria standard per questo modulo
+riferimenti_moduli_modificati.html|Note di portabilità|Note di portabilità per decimal
+https://www.wikiwand.com/it/Numero_in_virgola_mobile|Wikipedia: Numero in virgola mobile|Articolo sulla rappresentazione ed aritmetica dei numeri a virgola mobile.
+https://docs.python.org/tutorial/floatingpoint.html|Floating Point Arithmetic: Issues and Limitations|Articolo dai tutorial Python che descrive i problemi relativi alla aritmetica dei numeri a virgola mobile.
+</vedi_anche>
+</documento_tradotto>

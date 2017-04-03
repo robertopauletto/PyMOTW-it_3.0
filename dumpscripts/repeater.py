@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# repeater.py
 
 import sys
 
@@ -8,10 +7,11 @@ sys.stderr.flush()
 
 while True:
     next_line = sys.stdin.readline()
+    sys.stderr.flush()
     if not next_line:
         break
     sys.stdout.write(next_line)
     sys.stdout.flush()
 
-sys.stderr.write('repeater.py: uscita\n')
+sys.stderr.write('repeater.py: in uscita\n')
 sys.stderr.flush()

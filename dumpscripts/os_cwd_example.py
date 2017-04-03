@@ -1,13 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# os_cwd_example.py
 import os
 
-print 'Partenza:', os.getcwd()
-print os.listdir(os.curdir)
+print('Partenza:', os.getcwd())
 
-print 'Risalita di uno:', os.pardir
+print('Risalita di un livello:', os.pardir)
 os.chdir(os.pardir)
 
-print 'Dopo lo spostamento:', os.getcwd()
-print os.listdir(os.curdir)
+print('Dopo lo spostamento:', os.getcwd())

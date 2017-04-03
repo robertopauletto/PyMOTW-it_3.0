@@ -16,7 +16,7 @@ Aritmetica decimale usando valori fissi ed a virgola mobile
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>decimal</strong> implementa artimetica su valori fissi ed a virgola mobile usando il modello familiare alla maggior parte delle persone, piuttosto che la versione a virgola mobile <a href='https://www.wikiwand.com/it/Institute_of_Electrical_and_Electronics_Engineers' target='_blank'>IEEE</a> implementato nalla maggior parte dell'hardware dei computer e familiare ai programmatori. Una istanza di <code>Decimal</code> può  rappresentare esattamente qualsiasi numero, arrotondarlo per eccesso o difetto, ed applicare un limite al numero delle cifre significative.
+Il modulo <strong>decimal</strong> implementa artimetica su valori fissi ed a virgola mobile usando il modello familiare alla maggior parte delle persone, piuttosto che la versione a virgola mobile <a href='https://www.wikiwand.com/it/Institute_of_Electrical_and_Electronics_Engineers' target='_blank'>IEEE</a> implementata nalla maggior parte dell'hardware dei computer e familiare ai programmatori. Una istanza di <code>Decimal</code> può  rappresentare esattamente qualsiasi numero, arrotondarlo per eccesso o difetto, ed applicare un limite al numero delle cifre significative.
 </testo_normale>
 <titolo_2>
 Decimal
@@ -48,9 +48,10 @@ print('{:<0.23g} {:<25}'.format(
     str(decimal.Decimal.from_float(f))[:25])
 )
 
-</py_code>'
+</py_code>
+'
 <testo_normale>
-Il valore a virgola mobile di <code>0.1</code> non è rappresentato come valore esatto come binario, quindi la rappresentazione come <code>float</code> è diversa dal valore <code>Decimal</code>. L'intera rappresentazione stringa è troncata a 25 caratteri nell'ultima riga del risultato.
+Il valore a virgola mobile di <code>0.1</code> non è rappresentato come valore esatto in binario, quindi la rappresentazione come <code>float</code> è diversa dal valore <code>Decimal</code>. L'intera rappresentazione stringa è troncata a 25 caratteri nell'ultima riga del risultato.
 </testo_normale>
 <py_output>
 $ python3 decimal_create.py
@@ -62,7 +63,7 @@ Input                     Output
 0.10000000000000000555112 0.10000000000000000555111
 </py_output>
 <testo_normale>
-I <code>Decimal</code>  possono anche essere creati da tuple che contengano un segno (<code>o</code> positivo, <code>1</code> negativo), una tupla di cifre ed un esponente intero.
+I <code>Decimal</code>  possono anche essere creati da tuple che contengano un segno (<code>0</code> positivo, <code>1</code> negativo), una tupla di cifre ed un esponente intero.
 </testo_normale>
 <py_code>
 # decimal_tuple.py
@@ -75,7 +76,7 @@ print('Input  :', t)
 print('Decimal:', decimal.Decimal(t))
 </py_code>
 <testo_normale>
-La rappresentazione basata sulla tupla è meno conveniente da creare, ma offre un modo portabile per esportare valori decimali senza perdere precisione. La forma in tupla può essere trasmessa attraverso una rete oppure conservata in un database che non supporti valori decimali accurati, quindi riconvertita in una istanza di <code>Decimal</code> successivamente.
+La rappresentazione basata sulla tupla è meno conveniente da creare, ma offre un modo portabile per esportare valori decimali senza perdere precisione. La forma in tupla può essere trasmessa attraverso una rete oppure essere conservata in un database che non supporti valori decimali accurati, quindi riconvertita in una istanza di <code>Decimal</code> successivamente.
 </testo_normale>
 <py_output>
 $ python3 decimal_tuple.py
@@ -112,7 +113,7 @@ print('{:05.2}'.format(d))
 print('{:05.3}'.format(d))
 </py_code>
 <testo_normale>
-Le stringhe di formato possono controllare la larghezza dell'output, la precisione (il numero di cifre significative), e come riempire il valore per riempire la larghezza.
+Le stringhe di formato possono controllare la larghezza dell'output, la precisione (il numero di cifre significative), e come allineare il valore per riempire la larghezza.
 </testo_normale>
 <py_output>
 $ python3 decimal_format.py
@@ -137,7 +138,7 @@ Riempimento con Zeri:
 Aritmetica
 </titolo_2>
 <testo_normale>
-<code>Decimal</code> è un <em>overload</em> degli operatori matematici semplici, quindi le istanze possono essere manipolate in modo pressochè uguale ai tipi numerici <em>built-in</em>.
+<code>Decimal</code> fa un <em>overload</em> degli operatori matematici semplici, quindi le istanze possono essere manipolate in modo pressochè uguale ai tipi numerici <em>built-in</em>.
 </testo_normale>
 <py_code>
 # decimal_operators.py
@@ -223,7 +224,7 @@ print(decimal.Decimal('NaN') == decimal.Decimal('Infinity'))
 print(decimal.Decimal('NaN') != decimal.Decimal(1))
 </py_code>
 <testo_normale>
-Aggiungendo valori ad infinito si ottiene sempre un altro infinito. Un confronto di uguaglianza con <code>NaN</code> ritorna sempre <code>False</code> ed un confronto per ineguaglianza ritorna sempre <code>True</code>. Confrontare per un ordinamento contro <code>NaN</code> è indefinito e provoca un errore.
+Aggiungendo valori ad infinito si ottiene sempre un altro valore infinito. Un confronto di uguaglianza con <code>NaN</code> ritorna sempre <code>False</code> ed un confronto per ineguaglianza ritorna sempre <code>True</code>. Confrontare per un ordinamento contro <code>NaN</code> è indefinito e provoca un errore.
 </testo_normale>
 <py_output>
 $ python3 decimal_special.py
@@ -238,16 +239,16 @@ False
 True
 </py_output>
 <titolo_2>
-Confronto
+Contesto
 </titolo_2>
 <testo_normale>
-Fin qui tutti gli esempi hanno usato i comportamenti predefiniti del modulo <strong>Decimal</strong>. E' possibile sostituire questi valori come la precisione mantenuta, come viene eseguito l'arrotondamento, la gestione degli errori ecc., usando un <em>contesto</em>. Un conteso può essere applicato alle istanze di <code>Decimal</code> in un thread o localmente all'interno di una piccola porzione di codice.
+Fin qui tutti gli esempi hanno usato i comportamenti predefiniti del modulo <strong>decimal</strong>. E' possibile sostituire questi valori come la precisione mantenuta, come viene eseguito l'arrotondamento, la gestione degli errori ecc., usando un <em>contesto</em>. I contesti possono essere applicati alle istanze di <code>Decimal</code> in un thread o localmente all'interno di una piccola porzione di codice.
 </testo_normale>
 <titolo_3>
 Contesto Corrente
 </titolo_3>
 <testo_normale>
-Per ottenere il conteso corrente globale, si usa <code>getcontext()</code>.
+Per ottenere il contesto corrente globale, si usa <code>getcontext()</code>.
 </testo_normale>
 <py_code>
 # decimal_getcontext.py
@@ -304,7 +305,7 @@ traps    =
 Precisione
 </titolo_3>
 <testo_normale>
-L'attributo <code>prec</code> del contesto contrlla la precisione mantenuta per i nuovi valori creati come risultato di operazioni aritmetiche. I valori letterali sono mantenuti come descritti.
+L'attributo <code>prec</code> del contesto controlla la precisione mantenuta per i nuovi valori creati come risultato di operazioni aritmetiche. I valori letterali sono mantenuti come descritti.
 </testo_normale>
 <py_code>
 # decimal_precision.py
@@ -402,7 +403,39 @@ UP           0.2      -0.2     0.13    -0.13    0.125    -0.125
 Contesto Locale
 </titolo_3>
 <testo_normale>
-Un <code>Context</code> può anche essere usato per costruire istanze di <code>Decimal</code>, che ereditano gli argomenti di precisione ed arrotondamento della conversione dal contesto.
+Il contesto si può applicare ad un blocco di codice con l'istruzione <code>with</code> .
+</testo_normale>
+<py_code>
+# decimal_context_manager.py
+
+import decimal
+
+with decimal.localcontext() as c:
+    c.prec = 2
+    print('Precisione locale:', c.prec)
+    print('3.14 / 3 =', (decimal.Decimal('3.14') / 3))
+
+print()
+print('Precisione predefinita:', decimal.getcontext().prec)
+print('3.14 / 3 =', (decimal.Decimal('3.14') / 3))
+</py_code>
+<testo_normale>
+<code>Context</code> supporta l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>  del gestore di contesto usata da <code>with</code> quindi le impostazioni vengono applicate solo all'interno del blocco.
+</testo_normale>
+<py_output>
+$ python3 decimal_context_manager.py
+
+Precisione locale: 2
+3.14 / 3 = 1.0
+
+Precisione predefinita: 28
+3.14 / 3 = 1.046666666666666666666666667
+</py_output>
+<titolo_3>
+Contesto Per Istanza
+</titolo_3>
+<testo_normale>
+Un <code>Context</code> può anche essere usato per costruire istanze di <code>Decimal</code>, che ereditano gli argomenti di precisione ed arrotondamento dalla conversione dal contesto.
 </testo_normale>
 <py_code>
 # decimal_instance_context.py
@@ -477,7 +510,7 @@ for i in range(5):
     print('{}  {}'.format(prec, value))
 </py_code>
 <testo_normale>
-Questo esempio crea un nuovo contesto usando quello specificato, e li installa all'interno di ogni thread.
+Questo esempio crea un nuovo contesto usando quello specificato, e lo installa all'interno di ogni thread.
 </testo_normale>
 <py_output>
 $ python3 decimal_thread_context.py

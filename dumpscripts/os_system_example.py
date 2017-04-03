@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# os_system_example.py
 import os
 
 # Semplice comando
-os.system('ls -l')
+os.system('pwd')

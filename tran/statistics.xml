@@ -178,7 +178,7 @@ Varianza stimata per campione:
   varianza           : 594.13
 </py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/statistics.html|uuid|La documentazione della libreria standard per questo modulo
+https://docs.python.org/3.5/library/statistics.html|statistics|La documentazione della libreria standard per questo modulo
 http://www.mathstips.com/statistics/median-for-discrete-and-continuous-frequency-type.html|mathtips.com: Median for Discrete and Continuous Frequancy Type Data (grouped data)|Discussione della mediana per dati continui.
 https://www.python.org/dev/peps/pep-0450|PEP 450|Aggiungere un modulo statistico alla libreria standard.
 </vedi_anche>

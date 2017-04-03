@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# signal_child.py
 
 import os
 import signal
@@ -9,19 +8,21 @@ import sys
 pid = os.getpid()
 received = False
 
+
 def signal_usr1(signum, frame):
-    """Callback chiamato quando viene ricevuto un segnale"""
+    "Callback chiamato quando viene ricevuto un segnale"
     global received
     received = True
-    print 'FIGLIO %s: Ricevuto USR1' % pid
+    print('FIGLIO {:>6}: Ricevuto USR1'.format(pid))
     sys.stdout.flush()
 
-print 'FIGLIO %s: Impostazione del gestore di segnale' % pid
+
+print('FIGLIO {:>6}: Impostazione del gestore di segnale'.format(pid))
 sys.stdout.flush()
 signal.signal(signal.SIGUSR1, signal_usr1)
-print 'FIGLIO %s: In pausa in attesa del segnale' % pid
+print('FIGLIO {:>6}: In pausa in attesa del segnale'.format(pid))
 sys.stdout.flush()
 time.sleep(3)
 
 if not received:
-    print 'FIGLIO %s: Segnale mai ricevuto' % pid
+    print('FIGLIO {:>6}: Segnale mai ricevuto'.format(pid))

@@ -1,37 +1,39 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# os_process_user_example.py
 
 import os
 
-TEST_GID=501
-TEST_UID=527
+TEST_GID = 1000
+TEST_UID = 1000
+
 
 def show_user_info():
-    print 'Utente effettivo :', os.geteuid()
-    print 'Gruppo effettivo :', os.getegid()
-    print 'Utente reale     :', os.getuid(), os.getlogin()
-    print 'Gruppo reale     :', os.getgid()
-    print 'Gruppi reali     :', os.getgroups()
-    return
+    print('Utente (reale/effettivo)  : {} / {}'.format(
+        os.getuid(), os.geteuid()))
+    print('Gruppo (reale/effettivo) : {} / {}'.format(
+        os.getgid(), os.getegid()))
+    print('Gruppi reali   :', os.getgroups())
 
-print 'PRIMA DELLA MODIFICA:'
+
+print('PRIMA DELLA MDOIFICA:')
 show_user_info()
-print
+print()
 
 try:
     os.setegid(TEST_GID)
 except OSError:
-    print 'ERRORE: Impossibile cambiare il gruppo effettivo. Rieseguire come root.'
+    print('ERRORE: Non è stato possibile cambiare il gruupo effettivo. '
+          'Rieseguire come root.')
 else:
-    print 'GRUPPO MODIFICATO:'
+    print('MODIFICA Gruppo:')
     show_user_info()
-    print
+    print()
 
 try:
     os.seteuid(TEST_UID)
 except OSError:
-    print "ERRORE: Impossibile cambiare l'utente effettivo. Rieseguire come root."
+    print('ERRORE: Non è stato possibile cambiare l\'utente effettivo. '
+          'Rieseguire come root.')
 else:
-    print 'MODIFICA UTENTE:'
+    print('MODIFICA UTENTE:')
     show_user_info()
-    print
+    print()

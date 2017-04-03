@@ -1,20 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# os_wait_example.py
 
 import os
 import sys
 import time
 
-for i in range(3):
-    print 'GENITORE: Forking %s' % i
+for i in range(2):
+    print('GENITORE {}: Forking {}'.format(os.getpid(), i))
     worker_pid = os.fork()
     if not worker_pid:
-        print 'WORKER %s: In partenza' % i
+        print('WORKER {}: In partenza'.format(i))
         time.sleep(2 + i)
-        print 'WORKER %s: Sta finendo' % i
+        print('WORKER {}: Sta finendo'.format(i))
         sys.exit(i)
 
-for i in range(3):
-    print 'GENITORE: In attesa di %s' % i
+for i in range(2):
+    print('GENITORE: In attesa di {}'.format(i))
     done = os.wait()
-    print 'GENITORE:', done
+    print('GENITORE: Figlio completato:', done)

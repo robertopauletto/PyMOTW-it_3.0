@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# os_stat.py
 
 import os
 import sys
@@ -12,9 +11,11 @@ else:
 
 stat_info = os.stat(filename)
 
-print 'os.stat(%s):' % filename
-print '\tDimensione:', stat_info.st_size
-print '\tPermissi:', oct(stat_info.st_mode)
-print '\tProprietario:', stat_info.st_uid
-print '\tDispositivo:', stat_info.st_dev
-print '\tUltima modifica:', time.ctime(stat_info.st_mtime)
+print('os.stat({}):'.format(filename))
+print('  Dimensione     :', stat_info.st_size)
+print('  Permessi       :', oct(stat_info.st_mode))
+print('  Proprietario   :', stat_info.st_uid)
+print('  Dispositivo    :', stat_info.st_dev)
+print('  Creato         :', time.ctime(stat_info.st_ctime))
+print('  Ultima modifica:', time.ctime(stat_info.st_mtime))
+print('  Ultimo accesso :', time.ctime(stat_info.st_atime))

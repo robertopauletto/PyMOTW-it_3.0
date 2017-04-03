@@ -27,3 +27,16 @@
 03.10.2016  operator - Interfaccia Funzionale agli Operatori Built-in
 03.10.2016  itertools - Funzioni di Iterazione
 13.11.2016  weakref - Riferimenti Non Permanenti ad Oggetti
+25.11.2016  gc - Gestisce la memoria usata dagli oggetti Python
+03.12.2016  io - Strumenti I/O per flussi grezzi, di testo e binari
+11.12.2016  time - Tempo di clock
+01.01.2017  tempfile - Oggetti Temporanei di File System
+07.01.2017  linecache - Leggere Efficientemente i File di Testo
+29.01.2017  os - Accesso portabile alle funzionalità specifiche di un sistema operativo
+03.02.2017  signal - Eventi di Sistema Asincroni
+14.02.2017  subprocess - Genera Processi Addizionali
+20.02.2017  shutil - Operazioni di alto livello su file.
+26.02.2017  uuid - Identificatori Universalmente Univoci
+16.03.2017  statistics - Calcoli Statistici
+26.03.2017  math - Funzioni Matematiche
+03.04.2017  decimal - Matematica per Valori Fissi ed a Virgola Mobile

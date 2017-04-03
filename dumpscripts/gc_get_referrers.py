@@ -17,6 +17,9 @@ class Graph(object):
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, self.name)
 
+    def __del__(self):
+        print('{}.__del__()'.format(self))
+
 # Costruisce un ciclo di Grafi
 one = Graph('uno')
 two = Graph('due')

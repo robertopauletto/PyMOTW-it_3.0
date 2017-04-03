@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# os_fork_example.py
 import os
 
 pid = os.fork()
 
 if pid:
-    print 'Id del processo:', pid
+    print('Id del processo figlio:', pid)
 else:
-    print 'Sono il figlio'
+    print('Sono il figlio')

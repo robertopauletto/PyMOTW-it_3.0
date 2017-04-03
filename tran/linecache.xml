@@ -12,11 +12,11 @@
 linecache - Leggere Efficientemente i File di Testo
 </titolo_1>
 <descrizione>
-Recupera righe di testo da file o da moduli Python importati, mantenendo una <a href='https://it.wikipedia.org/wiki/Cache'>cache</a> dei risultati per rendere la lettura di molte righe dallo stesso file più efficiente.
+Recupera righe di testo da file o da moduli Python importati, mantenendo una <a href='https://it.wikipedia.org/wiki/Cache' target='_blank'>cache</a> dei risultati per rendere la lettura di molte righe dallo stesso file più efficiente.
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>linecache</strong> viene usato all'interno di altre parti della libreria standard di Python quando occorre trattare file sorgente di Python. L'implementazione della <a href='https://it.wikipedia.org/wiki/Cache'>cache</a> mantiene semplicemente il contenuto dei file, elaborati in righe separate, in un dizionario in memoria. L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface'>API</a> restituisce le righe richieste indicizzate in una lista. e risparmia il tempo che occorrerebbe per leggere ripetutamente il file ed elaborare le righe per trovare quella richiesta. Questo è particolarmente utile quando occorre trovare righe multiple nello stesso file, come ad esempio per produrre una traccia dello stack per una rapporto di errore.
+Il modulo <strong>linecache</strong> viene usato all'interno di altre parti della libreria standard di Python quando occorre trattare file sorgente di Python. L'implementazione della <a href='https://it.wikipedia.org/wiki/Cache'  target='_blank'>cache</a> mantiene i contenuti dei file, elaborati in righe separate, in un dizionario in memoria. L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface'  target='_blank'>API</a> restituisce le righe richieste indicizzate in una lista. e risparmia il tempo che occorrerebbe per leggere ripetutamente il file ed elaborare le righe per trovare quella richiesta. Questo è particolarmente utile quando occorre trovare righe multiple nello stesso file, come ad esempio per produrre una traccia dello stack per una rapporto di errore.
 </testo_normale>
 <titolo_2>
 Dati per il Test
@@ -171,7 +171,7 @@ NESSUN FILE: ''
 Leggere File Sorgente Python
 </titolo_2>
 <testo_normale>
-Visto che <strong>linecache</strong> viene usato così frequentemente per produrre tracce dello stack, una della caratteristiche chiave è la capacità di trovare i sorgenti dei moduli Python inclusi nel percorso di importazione specificando il solo nome del modulo.
+Visto che <strong>linecache</strong> viene usato così frequentemente per produrre tracce dello stack, una della caratteristiche chiave è la capacità di trovare i sorgenti dei moduli Python inclusi nel percorso di importazione specificando il solo nome del file del modulo.
 </testo_normale>
 <py_code>
 # linecache_path_search.py

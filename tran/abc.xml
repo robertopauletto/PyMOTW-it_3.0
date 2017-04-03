@@ -475,7 +475,7 @@ Implementation.const_behavior : Il comportamento statico differisce
 <vedi_anche>
 http://docs.python.org/3.5/library/abc.html|abc|La documentazione della libreria standard per questo modulo
 http://www.python.org/dev/peps/pep-3119|PEP 3119|Introduzione alle classi base astratte
-|collections|Il modulo collections include classi base astratte per parecchi tipi collezione.
+collections.html|collections|Il modulo collections include classi base astratte per parecchi tipi collezione.
 http://www.python.org/dev/peps/pep-3141|PEP 3141|Una gerarchia di tipo per i numeri
 http://it.wikipedia.org/wiki/Strategy_pattern|Wikipedia: Strategy Pattern|Descrizione ed esempi per lo strategy pattern, un comune modello plug-in di implementazione.
 http://pyvideo.org/video/1789/dynamic-code-patterns-extending-your-application|Dynamic Code Patterns: Extending Your Applications With Plugins|Presentazione a PyCon 2013 di Doug Hellmann

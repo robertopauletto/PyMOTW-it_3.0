@@ -25,291 +25,679 @@ Copiare i File
 <code>copyfile()</code> copia il contenuto della sorgente nella destinazione e solleva <code>IOError</code> se non si possiedono i permessi per scrivere nel file di destinazione.
 </testo_normale>
 <py_code>
-from shutil import *
-from glob import glob
+# shutil_copyfile.py
 
-print 'PRIMA:', glob('shutil_copyfile.*')
-copyfile('shutil_copyfile.py', 'shutil_copyfile.py.copy')
-print 'DOPO :', glob('shutil_copyfile.*')
+import glob
+import shutil
+
+print('PRIMA:', glob.glob('shutil_copyfile.*'))
+
+shutil.copyfile('shutil_copyfile.py', 'shutil_copyfile.py.copy')
+
+print('DOPO:', glob.glob('shutil_copyfile.*'))
 </py_code>
 <testo_normale>
 Visto che la funzione apre il file di input per leggerlo, a prescindere dal tipo, i file speciali (tipo i nodi di dispositivo di Unix) non possono essere copiati come nuovi file speciali con <code>copyfile()</code>.
 </testo_normale>
 <py_output>
-$ python shutil_copyfile.py
+$ python3 shutil_copyfile.py
+
 PRIMA: ['shutil_copyfile.py']
-DOPO : ['shutil_copyfile.py', 'shutil_copyfile.py.copy' ]
+DOPO: ['shutil_copyfile.py', 'shutil_copyfile.py.copy']
 </py_output>
 <testo_normale>
-copyfile() è scritta usando la funzione a basso livello <code>copyfileobj()</code>. Mentre i parametri per copyfile() sono nomi di file, quelli per copyfileobj() sono handle dei file aperti. Il terzo parametro (opzionale) è la lunghezza del buffer da usare per leggere porzioni di file (nel modo predefinito l'intero file viene letto tutto in una volta).
+L'implementazione di <code>copyfile()</code> usa la funzione a basso livello <code>copyfileobj()</code>. Mentre gli argomenti  per <code>copyfile()</code> sono nomi di file, quelli per <code>copyfileobj()</code> sono handle di file aperti. Il terzo argomento (opzionale) è la lunghezza del <a href='https://www.wikiwand.com/it/Buffer' target='_blank'>buffer</a> da usare per leggere porzioni di file.
 </testo_normale>
 <py_code>
-from shutil import *
+# shutil_copyfileobj.py
+
+import io
 import os
-from StringIO import StringIO
+import shutil
 import sys
 
-class VerboseStringIO(StringIO):
+
+class VerboseStringIO(io.StringIO):
+
     def read(self, n=-1):
-        next = StringIO.read(self, n)
-        print 'read(%d) =>' % n, next
+        next = io.StringIO.read(self, n)
+        print('letti({}) ottenuti {} byte'.format(n, len(next)))
         return next
 
-lorem_ipsum = '''Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
-Ut rutrum mi vel sem. Vestibulum ante ipsum.'''
 
-print 'Predefinito:'
+lorem_ipsum = '''Lorem ipsum dolor sit amet, consectetuer
+adipiscing elit.  Vestibulum aliquam mollis dolor. Donec
+vulputate nunc ut diam. Ut rutrum mi vel sem. Vestibulum
+ante ipsum.'''
+
+print('Predefinito:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output)
+output = io.StringIO()
+shutil.copyfileobj(input, output)
 
-print
+print()
 
-print 'Tutto in una volta:'
+print('Tutto in una volta:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output, -1)
+output = io.StringIO()
+shutil.copyfileobj(input, output, -1)
 
-print
+print()
 
-print 'Blocchi di 20:'
+print('Blocchi di 256 byte:')
 input = VerboseStringIO(lorem_ipsum)
-output = StringIO()
-copyfileobj(input, output, 20)
+output = io.StringIO()
+shutil.copyfileobj(input, output, 256)
 </py_code>
 <testo_normale>
-Il comportamento predefinito è quello di leggere usando grandi blocchi. Si usa -1 per leggere tutto l'input in una volta oppure un numero positivo per impostare la dimensione del blocco desiderata.
+Il comportamento predefinito è quello di leggere usando grandi blocchi. Si usa <code>-1</code> per leggere tutto l'input in una volta oppure un intero positivo per impostare la dimensione del blocco desiderata. Questo esempio usa diverse dimensioni di blocco per mostrare l'effetto.
 </testo_normale>
 <py_output>
-$ python shutil_copyfileobj.py
+$ python3 shutil_copyfileobj.py
+
 Predefinito:
-read(16384) => Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
-Ut rutrum mi vel sem. Vestibulum ante ipsum.
-read(16384) =>
+letti(16384) ottenuti 166 byte
+letti(16384) ottenuti 0 byte
 
 Tutto in una volta:
-read(-1) => Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Vestibulum aliquam mollis dolor. Donec vulputate nunc ut diam.
-Ut rutrum mi vel sem. Vestibulum ante ipsum.
-read(-1) =>
+letti(-1) ottenuti 166 byte
+letti(-1) ottenuti 0 byte
 
-Blocchi di 20:
-read(20) => Lorem ipsum dolor si
-read(20) => t amet, consectetuer
-read(20) =>  adipiscing elit.
-V
-read(20) => estibulum aliquam mo
-read(20) => llis dolor. Donec vu
-read(20) => lputate nunc ut diam
-read(20) => .
-Ut rutrum mi vel
-read(20) => sem. Vestibulum ante
-read(20) =>  ipsum.
-read(20) =>
+Blocchi di 256 byte:
+letti(256) ottenuti 166 byte
+letti(256) ottenuti 0 byte
 </py_output>
 <testo_normale>
-La funzione <code>copy()</code> funziona come lo strumento da riga comandi di Unix <code>cp</code>. Se la destinazione designata corrisponde ad una directory invece che ad un file, viene creato un nuovo file nella directory usando il nome base della sorgente. I permessi per il file sono copiati assieme al contenuto.
+La funzione <code>copy()</code> interpreta il nome destinazione come lo strumento da riga di comando di Unix <code>cp</code>. Se la destinazione designata corrisponde ad una directory invece che ad un file, viene creato un nuovo file nella directory usando il nome base della sorgente.
 </testo_normale>
 <py_code>
-from shutil import *
-import os
+# shutil_copy.py
 
-os.mkdir('esempio')
-print 'PRIMA:', os.listdir('esempio')
-copy('shutil_copy.py', 'esempio')
-print 'DOPO :', os.listdir('esempio')
+import glob
+import os
+import shutil
+
+os.mkdir('example')
+print('PRIMA:', glob.glob('example/*'))
+
+shutil.copy('shutil_copy.py', 'example')
+
+print('DOPO :', glob.glob('example/*'))
 </py_code>
+<testo_normale>
+I permessi per il file sono copiati assieme al contenuto.
+</testo_normale>
 <py_output>
-$ python shutil_copy.py
+$ python3 shutil_copy.py
+
 PRIMA: []
-DOPO : ['shutil_copy.py']
+DOPO : ['example/shutil_copy.py']
 </py_output>
 <testo_normale>
 <code>copy2()</code> funziona come <code>copy()</code>, ma include data/ora di accesso e modifica nei meta-dati copiati nel nuovo file.
 </testo_normale>
 <py_code>
-from shutil import *
+# shutil_copy2.py
+
 import os
+import shutil
 import time
+
 
 def show_file_info(filename):
     stat_info = os.stat(filename)
-    print '\tModo      :', stat_info.st_mode
-    print '\tCreato    :', time.ctime(stat_info.st_ctime)
-    print '\tAccesso   :', time.ctime(stat_info.st_atime)
-    print '\tModificato:', time.ctime(stat_info.st_mtime)
+    print('  Modalità  :', oct(stat_info.st_mode))
+    print('  Creato    :', time.ctime(stat_info.st_ctime))
+    print('  Accesso   :', time.ctime(stat_info.st_atime))
+    print('  Modificato:', time.ctime(stat_info.st_mtime))
 
-os.mkdir('esempio')
-print 'SORGENTE:'
+
+os.mkdir('example')
+print('SORGENTE:')
 show_file_info('shutil_copy2.py')
-copy2('shutil_copy2.py', 'esempio')
-print 'DESTIN:'
-show_file_info('esempio/shutil_copy2.py')
+
+shutil.copy2('shutil_copy2.py', 'example')
+
+print('DESTINAZIONE:')
+show_file_info('example/shutil_copy2.py')
 </py_code>
+<testo_normale>
+Il nuovo file ha tutte le stesse caratteristiche della vecchia versione.
+</testo_normale>
 <py_output>
-$ python shutil_copy2.py
+$ python3 shutil_copy2.py
+
 SORGENTE:
-	Modo      : 33188
-	Creato    : Sat Feb 27 12:16:29 2010
-	Accesso   : Sat Feb 27 12:16:36 2010
-	Modificato: Sat Feb 27 12:16:29 2010
-DESTIN:
-	Modo      : 33188
-	Creato    : Sat Feb 27 12:16:36 2010
-	Accesso   : Sat Feb 27 12:16:36 2010
-	Modificato: Sat Feb 27 12:16:29 2010
+  Modalità  : 0o100600
+  Creato    : Fri Feb 17 22:37:07 2017
+  Accesso   : Fri Feb 17 22:37:07 2017
+  Modificato: Fri Feb 17 22:37:07 2017
+DESTINAZIONE:
+  Modalità  : 0o100600
+  Creato    : Fri Feb 17 22:37:56 2017
+  Accesso   : Fri Feb 17 22:37:07 2017
+  Modificato: Fri Feb 17 22:37:07 2017
 </py_output>
 <titolo_2>
 Copiare i Meta-dati del file
 </titolo_2>
 <testo_normale>
-In modalità predefinita in Unix, quando viene creato un nuovo file riceve i parmessi in base alla <em>umask</em> dell'utente corrente. Per copiare i permessi da un file ad un altro si usa <code>copymode()</code>
+In modalità predefinita in Unix, quando viene creato un nuovo file, esso riceve i parmessi in base alla <a href='https://www.wikiwand.com/it/Umaskhttps://it.wikipedia.org/wiki/Unicode' target='_blank'>umask</a> dell'utente corrente. Per copiare i permessi da un file ad un altro si usa <code>copymode()</code>
 </testo_normale>
 <py_code>
-from shutil import *
-from commands import *
+# shutil_copymode.py
+
 import os
+import shutil
+import subprocess
 
-f = open('file_da_cambiare.txt', 'wt')
-f.write('contenuto')
-f.close()
-os.chmod('file_da_cambiare.txt', 0444)
+with open('file_da_cambiare.txt', 'wt') as f:
+    f.write('contenuto')
+os.chmod('file_da_cambiare.txt', 0o444)
 
-print 'PRIMA:', getstatus('file_da_cambiare.txt')
-copymode('shutil_copymode.py', 'file_da_cambiare.txt')
-print 'DOPO :', getstatus('file_da_cambiare.txt')
+print('PRIMA:', oct(os.stat('file_da_cambiare.txt').st_mode))
+
+shutil.copymode('shutil_copymode.py', 'file_da_cambiare.txt')
+
+print('DOPO :', oct(os.stat('file_da_cambiare.txt').st_mode))
 </py_code>
 <testo_normale>
-Prima occore creare un file da modificare
+Questo script crea un file da modificare, poi usa <code>copymode()</code> per duplicare i permessi dello script al file di esempio
 </testo_normale>
 <py_output>
-#!/bin/sh
-# Crea un file che serve a shutil_copymode.py
-touch file_da_cambiare.txt
-chmod ugo+w file_da_cambiare.txt
+$ python3 shutil_copymode.py
+
+PRIMA: 0o100444
+DOPO : 0o100600
 </py_output>
 <testo_normale>
-L'esecuzione dello script modificherà i permessi.
-</testo_normale>
-<py_output>
-$ python shutil_copymode.py
-PRIMA: -r--r--r-- 1 robby robby 9 2010-02-27 12:22 file_da_cambiare.txt
-DOPO : -rw-r--r-- 1 robby robby 9 2010-02-27 12:22 file_da_cambiare.txt
-</py_output>
-<testo_normale>
-Per copiare altri meta-dati per un file (permessi, data/ora ultimo accesso, data/ora ultima modifica), si usa <code>copystat()</code>.
+Per copiare altri meta-dati per un file si usa <code>copystat()</code>.
 </testo_normale>
 <py_code>
-from shutil import *
+# shutil_copystat.py
+
 import os
+import shutil
 import time
+
 
 def show_file_info(filename):
     stat_info = os.stat(filename)
-    print '\tModo      :', stat_info.st_mode
-    print '\tCreato    :', time.ctime(stat_info.st_ctime)
-    print '\tAccesso   :', time.ctime(stat_info.st_atime)
-    print '\tModificato:', time.ctime(stat_info.st_mtime)
+    print('  Modalità  :', oct(stat_info.st_mode))
+    print('  Creato    :', time.ctime(stat_info.st_ctime))
+    print('  Accesso   :', time.ctime(stat_info.st_atime))
+    print('  Modificato:', time.ctime(stat_info.st_mtime))
 
-f = open('file_da_cambiare.txt', 'wt')
-f.write('contenuto')
-f.close()
-os.chmod('file_da_cambiare.txt', 0444)
 
-print 'PRIMA:'
+with open('file_da_cambiare.txt', 'wt') as f:
+    f.write('contenuto')
+os.chmod('file_da_cambiare.txt', 0o444)
+
+print('PRIMA:')
 show_file_info('file_da_cambiare.txt')
-copystat('shutil_copystat.py', 'file_da_cambiare.txt')
-print 'DOPO :'
+
+shutil.copystat('shutil_copystat.py', 'file_da_cambiare.txt')
+
+print('DOPO:')
 show_file_info('file_da_cambiare.txt')
 </py_code>
+<testo_normale>
+Con <code>copystat()</code>,  solo i permessi e le date associate al file sono duplicati.
+</testo_normale>
 <py_output>
-python shutil_copystat.py
+$ python3 shutil_copystat.py
+
 PRIMA:
-	Modo      : 33060
-	Creato    : Sat Feb 27 13:14:26 2010
-	Accesso   : Sat Feb 27 13:14:26 2010
-	Modificato: Sat Feb 27 13:14:26 2010
-DOPO :
-	Modo      : 33188
-	Creato    : Sat Feb 27 13:14:26 2010
-	Accesso   : Sat Feb 27 13:14:26 2010
-	Modificato: Sat Feb 27 14:21:15 2010
+  Modalità  : 0o100444
+  Creato    : Fri Feb 17 22:46:51 2017
+  Accesso   : Fri Feb 17 22:46:22 2017
+  Modificato: Fri Feb 17 22:46:51 2017
+DOPO:
+  Modalità  : 0o100600
+  Creato    : Fri Feb 17 22:46:51 2017
+  Accesso   : Fri Feb 17 22:46:50 2017
+  Modificato: Fri Feb 17 22:46:50 2017
 </py_output>
 <titolo_2>
 Lavorare con Alberi di Directory
 </titolo_2>
 <testo_normale>
-Il modulo <strong>shutil</strong> comprende 3 funzioni per lavorare con alberi di directory. Per copiare una directory da un posto ad un altro si usa <code>copytree()</code>. Attraversa ricorsivamente l'alberto di directory sorgente, copiandone i file nella destinazione. La directory destinazione non deve essere già esistente. Con il parametro <em>symlinks</em> si controlla se i collegamenti simbolici devono essere copiati come collegamenti o come file. Il modo predefinito è copiare il contenuto nei nuovi file. Se l'opione è <en>True</en>, vengono creati nuovi collegamenti simbolici nella destinazione.
-</testo_normale>
-<testo_normale>
-Nota: La documentazione per copytree() dice che dovrebbe essere considerata una semplice implementazione piuttosto che uno strumento. Si potrebbe volere copiare l'implementazione e renderla più robusta, oppure aggiungere altre caratteristiche tipo un indicatore di progresso.
+Il modulo <strong>shutil</strong> comprende 3 funzioni per lavorare con alberi di directory. Per copiare una directory da un posto ad un altro si usa <code>copytree()</code>. Attraversa ricorsivamente l'albero di directory sorgente, copiandone i file nella destinazione. La directory destinazione non deve essere già esistente.
 </testo_normale>
 <py_code>
-from shutil import *
-from commands import *
+# shutil_copytree.py
 
-print 'PRIMA:'
-print getoutput('ls -rlast /tmp/esempio')
-copytree('esempio', '/tmp/esempio')
-print 'DOPO :'
-print getoutput('ls -rlast /tmp/esempio')
+import glob
+import pprint
+import shutil
+
+print('PRIMA:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+
+shutil.copytree('../shutil', '/tmp/example')
+
+print('\nDOPO:')
+pprint.pprint(glob.glob('/tmp/example/*'))
 </py_code>
+<testo_normale>
+L'argomento <code>symlinks</code> controlla se i <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamenti simbolici</a>
+ debbano essere copiati come collegamenti o come file. Il comportamento predefinito è di copiare il contenuto su nuovi file. Se l'opzione è <code>True</code> vengono creati dei nuovi <a href=' https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamenti simbolici</a>  nella destinazione.
+</testo_normale>
 <py_output>
-$ python shutil_copytree.py
+$ python3 shutil_copytree.py
+
 PRIMA:
-ls: impossibile accedere a /tmp/esempio: Nessun file o directory
-DOPO :
-totale 12
-4 -rw-r--r--  1 robby robby  494 2010-02-27 12:16 shutil_copy2.py
-4 drwxr-xr-x  2 robby robby 4096 2010-02-27 12:16 .
-4 drwxrwxrwt 15 root  root  4096 2010-02-27 13:24 ..
+[]
+
+DOPO:
+['/tmp/example/example',
+ '/tmp/example/example.out',
+ '/tmp/example/file_to_change.txt',
+ '/tmp/example/index.rst',
+ '/tmp/example/shutil_copy.py',
+ '/tmp/example/shutil_copy2.py',
+ '/tmp/example/shutil_copyfile.py',
+ '/tmp/example/shutil_copyfile.py.copy',
+ '/tmp/example/shutil_copyfileobj.py',
+ '/tmp/example/shutil_copymode.py',
+ '/tmp/example/shutil_copystat.py',
+ '/tmp/example/shutil_copytree.py',
+ '/tmp/example/shutil_copytree_verbose.py',
+ '/tmp/example/shutil_disk_usage.py',
+ '/tmp/example/shutil_get_archive_formats.py',
+ '/tmp/example/shutil_get_unpack_formats.py',
+ '/tmp/example/shutil_make_archive.py',
+ '/tmp/example/shutil_move.py',
+ '/tmp/example/shutil_rmtree.py',
+ '/tmp/example/shutil_unpack_archive.py',
+ '/tmp/example/shutil_which.py',
+ '/tmp/example/shutil_which_regular_file.py']
 </py_output>
 <testo_normale>
-Per eliminare una directory ed il suo contenuto, si usa <code>rmtree()</code>. Gli errori sono sollevati come eccezioni in modalità predefinita. Gli errori possono essere ignorati se il secondo parametro è <em>True</em>, ed una funzione speciale per la gestione dell'errore può essere fornita come terzo parametro.
+<code>copytree()</code> accetta due argomenti chiamabili per controllare il suo comportamento. L'argomento <code>ignore</code> viene chiamato con il nome di ciascuna directory o sotto directory che viene copiata, assieme ad una lista del contenuto della directory. Dovrebbe ritornare un elenco di elementi che dovrebbero essere copiati. L'argomento <code>copy_function</code> viene chiamato per eseguire realmente la copia dei file.
 </testo_normale>
 <py_code>
-from shutil import *
-from commands import *
+## shutil_copytree_verbose.py
 
-print 'PRIMA:'
-print getoutput('ls -rlast /tmp/esempio')
-rmtree('/tmp/esempio')
-print 'DOPO :'
-print getoutput('ls -rlast /tmp/esempio')
+import glob
+import pprint
+import shutil
+
+
+def verbose_copy(src, dst):
+    print('in copia\n {!r}\n verso {!r}'.format(src, dst))
+    return shutil.copy2(src, dst)
+
+
+print('PRIMA:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+print()
+
+shutil.copytree(
+    '../shutil', '/tmp/example',
+    copy_function=verbose_copy,
+    ignore=shutil.ignore_patterns('*.py'),
+)
+
+print('\nDOPO:')
+pprint.pprint(glob.glob('/tmp/example/*'))
 </py_code>
+<testo_normale>
+Nell'esempio, <code>ignore_patterns()</code> viene usata per creare una funzione chiamata come parametro per l'argomento <code>ignore</code> per evitare la copia dei file sorgente Python. <code>verbose_copy()</code> stampa i nomi dei file che sono copiati, quindi usa <code>copy2()</code>, la funzione di copia predefinita, per eseguire le copie
+</testo_normale>
 <py_output>
-$ python shutil_rmtree.py
+$ python3 shutil_copytree_verbose.py
+
 PRIMA:
-totale 12
-4 -rw-r--r--  1 robby robby  494 2010-02-27 12:16 shutil_copy2.py
-4 drwxr-xr-x  2 robby robby 4096 2010-02-27 12:16 .
-4 drwxrwxrwt 15 root  root  4096 2010-02-27 13:24 ..
-DOPO :
-ls: impossibile accedere a /tmp/esempio: Nessun file o directory
+[]
+
+in copia
+ '../shutil/index.rst'
+ verso '/tmp/example/index.rst'
+in copia
+ '../shutil/example.out'
+ verso '/tmp/example/example.out'
+in copia
+ '../shutil/file_to_change.txt'
+ verso '/tmp/example/file_to_change.txt'
+in copia
+ '../shutil/example'
+ verso '/tmp/example/example'
+in copia
+ '../shutil/shutil_copyfile.py.copy'
+ verso '/tmp/example/shutil_copyfile.py.copy'
+
+DOPO:
+['/tmp/example/file_to_change.txt',
+ '/tmp/example/shutil_copyfile.py.copy',
+ '/tmp/example/example.out',
+ '/tmp/example/example',
+ '/tmp/example/index.rst']
 </py_output>
 <testo_normale>
-Per spostare un file od una directory da un posto all'altro si usa <code>move()</code>. La semantica è simile a quella del comando Unix <code>mv</code>. Se la sorgente e la destinazione sono all'interno dello stesso filesystem, la sorgente viene semplicemente rinominata. Altrimenti la sorgente viene copiata nella destinazione, quindi la sorgente viene rimossa.
+Per eliminare una directory ed il suo contenuto, si usa <code>rmtree()</code>.
 </testo_normale>
 <py_code>
-from shutil import *
-from glob import glob
+# shutil_rmtree.py
 
-f = open('esempio.txt', 'wt')
-f.write('contenuto')
-f.close()
+import glob
+import pprint
+import shutil
 
-print 'PRIMA: ', glob('esempio*')
-move('esempio.txt', 'esempio.out')
-print 'DOPO : ', glob('esempio*')
+print('PRIMA:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+
+shutil.rmtree('/tmp/example')
+
+print('\nDOPO:')
+pprint.pprint(glob.glob('/tmp/example/*'))
 </py_code>
+<testo_normale>
+Gli errori sono sollevati come eccezioni in modalità predefinita e possono essere ignorati se il secondo argomento è <code>True</code>, ed una funzione speciale per la gestione dell'errore può essere fornita come terzo parametro.
+</testo_normale>
 <py_output>
-$ python shutil_move.py
-PRIMA:  ['esempio.txt']
-DOPO :  ['esempio.out']
+$ python3 shutil_rmtree.py
+
+PRIMA:
+['/tmp/example/file_to_change.txt',
+ '/tmp/example/shutil_copyfile.py.copy',
+ '/tmp/example/example.out',
+ '/tmp/example/example',
+ '/tmp/example/index.rst']
+
+DOPO:
+[]
+</py_output>
+<testo_normale>
+Per spostare un file od una directory da un posto all'altro si usa <code>move()</code>.
+</testo_normale>
+<py_code>
+# shutil_move.py
+
+import glob
+import shutil
+
+with open('example.txt', 'wt') as f:
+    f.write('contents')
+
+print('PRIMA: ', glob.glob('example*'))
+
+shutil.move('example.txt', 'example.out')
+
+print('DOPO : ', glob.glob('example*'))
+</py_code>
+<testo_normale>
+La semantica è simile a quella del comando Unix <code>mv</code>. Se la sorgente e la destinazione sono all'interno dello stesso <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a>, la sorgente viene rinominata. Altrimenti la sorgente viene copiata nella destinazione, quindi la sorgente viene rimossa.
+</testo_normale>
+<py_output>
+$ python3 shutil_move.py
+
+PRIMA:  ['example.txt']
+DOPO :  ['example.out']
+</py_output>
+<titolo_2>
+Trovare File
+</titolo_2>
+<testo_normale>
+La funzione <code>which()</code> esamina un percorso di ricerca per trovare un file. Il caso d'uso tipico è cercare un programma eseguibile nel percorso di ricerca della <a href='https://www.wikiwand.com/it/Shell_(informatica)' target='_blank'>shell</a> definito nella variabile di ambiente <code>PATH</code>.
+</testo_normale>
+<py_code>
+# shutil_which.py
+
+import shutil
+
+print(shutil.which('virtualenv'))
+print(shutil.which('pip'))
+print(shutil.which('nessun-programma'))
+</py_code>
+<testo_normale>
+Se non è stata trovata corrispondenza con i parametri di ricerca, <code>which()</code> ritorna <code>None</code>.
+</testo_normale>
+<py_output>
+$ python3 shutil_which.py
+
+/usr/local/bin/virtualenv
+/usr/local/bin/pip
+None
+</py_output>
+<testo_normale>
+<code>which()</code>riceve gli argomenti da filtrare in base ai permessi che ha il file, ed il percorso di ricerca da esaminare. L'argomento <code>path</code> è predefinito a <code>os.environ('PATH')</code>, ma può essere qualsiasi stringa che contenga nomi di directory separate da <code>os.pathsep</code>. L'argomento <code>mode</code> dovrebbe essere una <em>bitmask</em> che corrisponde ai permessi del file. Nella modalità predefinita la <em>bitmask</em> corrisponde a file eseguibili, ma l'esempio seguente usa una <em>bitmask</em> per cercare file leggibili ed un percorso di ricerca alternativo per trovare un file di configurazione.
+</testo_normale>
+<py_code>
+# shutil_which_regular_file.py
+
+import os
+import shutil
+
+path = os.pathsep.join([
+    '.',
+    os.path.expanduser('~/pymotw'),
+])
+
+mode = os.F_OK | os.R_OK
+
+filename = shutil.which(
+    'config.ini',
+    mode=mode,
+    path=path,
+)
+
+print(filename)
+</py_code>
+<testo_normale>
+Esiste comunque una <a href='https://www.wikiwand.com/it/Race_condition' target='_blank'>race condition</a> quando si cercano file leggibili in questo modo, in quanto nel tempo trascorso tra il cercare il file ed il reale tentativo di usarlo, il file stesso potrebbe essere stato cancellato od i suoi permessi modificati.
+</testo_normale>
+<py_output>
+$ touch config.ini
+$ python3 shutil_which_regular_file.py
+
+./config.ini
+</py_output>
+<titolo_2>
+Archivi
+</titolo_2>
+<testo_normale>
+La libreria standard di Python comprende molti moduli per gestire file di archivio come <strong>tarfile</strong> e <strong>zipfile</strong>. Ci sono anche parecchie funzioni di più alto livello per creare ed estrarre archivi in <strong>shutil</strong>. <code>get_archive_formats()</code> ritorna una sequenza di nomi e descrizioni per i formati supportati nel sistema corrente.
+</testo_normale>
+<py_code>
+# shutil_get_archive_formats.py
+
+import shutil
+
+for format, description in shutil.get_archive_formats():
+    print('{:<5}: {}'.format(format, description))
+
+</py_code>
+<testo_normale>
+I formati supportati dipendono da quali moduli e librerie sottostanti sono disponibili, quindi il risultato di questo esempio può variare.
+</testo_normale>
+<py_output>
+$ python3 shutil_get_archive_formats.py
+
+bztar: bzip2'ed tar-file
+gztar: gzip'ed tar-file
+tar  : uncompressed tar file
+xztar: xz'ed tar-file
+zip  : ZIP file
+</py_output>
+<testo_normale>
+Si usa <code>made_archive()</code> per creare un nuovo file archivio. I suoi input sono progettati per supportare al meglio l'archiviazione di una intera directory e del suo contenuto, ricorsivamente. Nella modalità predefinita usa la directory di lavoro corrente, in modo che tutti i suoi file e le sotto directory appaiano al livello superiore dell'archivio. Per modificare questo comportamento si usa l'argomento <code>root_dir</code> per spostarsi su di una nuova posizione relativa nel <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a> e <code>base_dir</code> per specificare una directory da aggiungere all'archivio.
+</testo_normale>
+<py_code>
+# shutil_copytree_verbose.py
+
+import glob
+import pprint
+import shutil
+
+
+def verbose_copy(src, dst):
+    print('in copia\n {!r}\n verso {!r}'.format(src, dst))
+    return shutil.copy2(src, dst)
+
+
+print('PRIMA:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+print()
+
+shutil.copytree(
+    '../shutil', '/tmp/example',
+    copy_function=verbose_copy,
+    ignore=shutil.ignore_patterns('*.py'),
+)
+
+print('\nDOPO:')
+pprint.pprint(glob.glob('/tmp/example/*'))
+</py_code>
+<testo_normale>
+Questo esempio inizia all'interno della directory degli esempi per shutil e si sposta su di un livello nel <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a>, poi aggiunge la directory <code>shutil</code> ad un archivio tar compresso con gzip. Il modulo logging è configurato per mostrare i messaggi da <code>make_archive()</code>
+</testo_normale>
+<py_output>
+$ python3 shutil_make_archive.py
+Creazione archivio:
+changing into '..'
+Creating tar archive
+changing back to '...'
+
+Contenuto archivio:
+shutil
+shutil/shutil_disk_usage.py
+shutil/shutil_copyfileobj.py
+shutil/index.rst
+shutil/shutil_rmtree.py
+shutil/shutil_copy2.py
+shutil/shutil_get_archive_formats.py
+shutil/shutil_which.py
+shutil/shutil_copyfile.py
+shutil/example.out
+shutil/shutil_copytree_verbose.py
+shutil/shutil_copymode.py
+shutil/file_to_change.txt
+shutil/example
+shutil/shutil_move.py
+shutil/shutil_copystat.py
+shutil/shutil_copytree.py
+shutil/shutil_which_regular_file.py
+shutil/shutil_get_unpack_formats.py
+shutil/shutil_copy.py
+shutil/shutil_unpack_archive.py
+shutil/shutil_copyfile.py.copy
+shutil/shutil_make_archive.py
+</py_output>
+<testo_normale>
+<code>shutil</code>  mantene un registro dei formati nel sistema corrente, accessibili tramite <code>get_unpack_formats()</code>
+</testo_normale>
+<py_code>
+# shutil_get_unpack_formats.py
+
+import shutil
+
+for format, exts, description in shutil.get_unpack_formats():
+    print('{:<5}: {}, nomi che finiscono in {}'.format(
+        format, description, exts))
+</py_code>
+<testo_normale>
+Il registro è diverso da quello per la creazione degli archivi visto che include anche estensioni comuni di file utilizzate da ciascun formato in modo che la funzione per estrarre un archivio possa indovinare quale formato usare in base all'estensione del file.
+</testo_normale>
+<py_output>
+$ python3 shutil_get_unpack_formats.py
+
+bztar: bzip2'ed tar-file, nomi che finiscono in ['.tar.bz2', '.tbz2']
+gztar: gzip'ed tar-file, nomi che finiscono in ['.tar.gz', '.tgz']
+tar  : uncompressed tar file, nomi che finiscono in ['.tar']
+xztar: xz'ed tar-file, nomi che finiscono in ['.tar.xz', '.txz']
+zip  : ZIP file, nomi che finiscono in ['.zip']
+</py_output>
+<testo_normale>
+L'archivio si estrae con <code>unpack_archive()</code> passando il nome del file archivio ed opzionalmente la directory nella quale dovrebbe avvenire l'estrazione. Se nessuna directory viene passata, viene usata la directory corrente.
+</testo_normale>
+<py_code>
+# shutil_unpack_archive.py
+
+import pathlib
+import shutil
+import sys
+import tempfile
+
+with tempfile.TemporaryDirectory() as d:
+    print('Estrazione archivio:')
+    shutil.unpack_archive(
+        'example.tar.gz',
+        extract_dir=d,
+    )
+
+    print('\nCreato:')
+    prefix_len = len(d) + 1
+    for extracted in pathlib.Path(d).rglob('*'):
+        print(str(extracted)[prefix_len:])
+</py_code>
+<testo_normale>
+In questo esempio <code>unpack_archive()</code> è in grado di determinare il formato dell'archivio visto che il nome del file finisce per <code>tar.gz</code>, e quel valore è associato al formato <code>gztar</code> nel registro dei formati di estrazione.
+</testo_normale>
+<py_output>
+$ python3 shutil_unpack_archive.py
+
+Estrazione archivio:
+
+Creato:
+shutil
+shutil/shutil_which.py
+shutil/shutil_copy.py
+shutil/shutil_get_archive_formats.py
+shutil/shutil_unpack_archive.py
+shutil/file_to_change.txt
+shutil/shutil_copytree_verbose.py
+shutil/shutil_copyfile.py.copy
+shutil/shutil_move.py
+shutil/shutil_copystat.py
+shutil/example.out
+shutil/example
+shutil/shutil_rmtree.py
+shutil/shutil_disk_usage.py
+shutil/shutil_make_archive.py
+shutil/shutil_copyfile.py
+shutil/shutil_copymode.py
+shutil/shutil_copy2.py
+shutil/shutil_which_regular_file.py
+shutil/shutil_copytree.py
+shutil/shutil_get_unpack_formats.py
+shutil/index.rst
+shutil/shutil_copyfileobj.py
+</py_output>
+<titolo_2>
+Spazio nel File System
+</titolo_2>
+<testo_normale>
+Può essere utile esaminare il <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a> locale per vedere quanto spazio sia disponibile prima di eseguire una operazione che richiede molto tempo che potrebbe esaurire quello spazio. <code>disk_usage()</code> ritorna una tupla con lo spazio totale, quello attualmente in uso, ed il rimanente libero.
+</testo_normale>
+<py_code>
+# shutil_disk_usage.py
+
+import shutil
+
+total_b, used_b, free_b = shutil.disk_usage('.')
+
+gib = 2 ** 30  # GiB == gibibyte
+gb = 10 ** 9   # GB == gigabyte
+
+print('Totale: {:6.2f} GB  {:6.2f} GiB'.format(
+    total_b / gb, total_b / gib))
+print('Usato : {:6.2f} GB  {:6.2f} GiB'.format(
+    used_b / gb, used_b / gib))
+print('Libero: {:6.2f} GB  {:6.2f} GiB'.format(
+    free_b / gb, free_b / gib))
+</py_code>
+<testo_normale>
+I valori ritornati da <code>disk_usage()</code> sono in byte, quindi il programma di esempio converte i valori in una unità di misura maggiormente leggibile prima di stamparli.
+</testo_normale>
+<py_output>
+$ python3 shutil_disk_usage.py
+
+Totale:  19.55 GB   18.21 GiB
+Usato :  16.70 GB   15.55 GiB
+Libero:   1.84 GB    1.71 GiB
 </py_output>
 <vedi_anche>
-http://docs.python.org/lib/module-shutil.html|shutil|La documentazione della libreria standard per questo modulo.
+https://docs.python.org/3.5/library/shutil.html|shutil|La documentazione della libreria standard per questo modulo.
 </vedi_anche>
 </documento_tradotto>

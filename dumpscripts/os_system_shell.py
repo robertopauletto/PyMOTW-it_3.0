@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# os_system_shell.py
 
+import os
 
-import os
+# Comando con espansione della shell
 
-# Commndo con espansione della shell 
-os.system('ls -ld $TMPDIR')
+os.system('echo $TMPDIR')
