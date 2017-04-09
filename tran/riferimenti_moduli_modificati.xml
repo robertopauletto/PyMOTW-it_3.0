@@ -74,6 +74,7 @@ atexit
 <testo_normale>
 Quando atexit venne aggiornato per includere l'implementazione in C (<a href="http://bugs.python.org/issue1680961">Python issue 1680961</a>) fu introdotta una regressione nella logica di gestione dell'errore che faceva sì che venisse mostrato solo il riepilogo della eccezione, senza il <em>traceback</em>. Questa regressione è stata corretta in Python 3.3 (<a href="http://bugs.python.org/issue18776">Python issue 18776</a>)
 </testo_normale>
+<a name='base64'></a>
 <titolo_2>
 base64
 </titolo_2>

@@ -40,3 +40,4 @@
 16.03.2017  statistics - Calcoli Statistici
 26.03.2017  math - Funzioni Matematiche
 03.04.2017  decimal - Matematica per Valori Fissi ed a Virgola Mobile
+09.04.2017  base64 - Codifica Dati Binari con ASCII

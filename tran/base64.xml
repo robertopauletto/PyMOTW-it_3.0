@@ -16,15 +16,221 @@ Il modulo base64 contiene funzioni per traslare dati binari in un sottoinsieme d
 
 </descrizione>
 <testo_normale>
-Le codifiche base64, base32, base16 e base85 convertono byte ad 8 bit in valori che rientrano nell'intervallo di caratteri stampabili ASCII, a scapito di maggiori bit, per rappresentare dati con compatibilità con sistemi che supportano solo dati ASCII, tipo <a href='https://www.wikiwand.com/it/Simple_Mail_Transfer_Protocol' target='_blank'>SMTP</a>. I valori base corrispondono alla lunghezza dell'alfabeto usato in ciascuna codifica. Ci sono anche varianti delle codifiche originali per preservare gli URL che usano alfabeti leggermente differenti.
+Le codifiche base64, base32, base16 e base85 convertono byte ad 8 bit in valori che rientrano nell'intervallo di caratteri stampabili ASCII, a scapito dell'utilizzo di più bit, per rappresentare dati con compatibilità con sistemi che supportano solo dati ASCII, tipo <a href='https://www.wikiwand.com/it/Simple_Mail_Transfer_Protocol' target='_blank'>SMTP</a>. I valori base corrispondono alla lunghezza dell'alfabeto usato in ciascuna codifica. Ci sono anche varianti delle codifiche originali per preservare gli URL che usano alfabeti leggermente differenti.
 </testo_normale>
 <titolo_2>
 Codifica Base 64
 </titolo_2>
+<testo_normale>
+Questo è un esempio base di codifica di un testo.
+</testo_normale>
+<py_code>
+# base64_b64encode.py
+# -*- coding: utf-8 -*-
+#end_pymotw_header
+
+import base64
+import textwrap
+
+# Carica questo file sorgente ed elimina l'intestazione
+with open(__file__, 'r', encoding='utf-8') as input:
+    raw = input.read()
+    initial_data = raw.split('#end_pymotw_header')[1]
+
+byte_string = initial_data.encode('utf-8')
+encoded_data = base64.b64encode(byte_string)
+wrapped_data = textwrap.fill(str(encoded_data), width=50)
+
+num_initial = len(byte_string)
+
+padding = 3 - (num_initial % 3)
+
+print('{} byte prima della codifica'.format(num_initial))
+print('Attesi {} byte di riempimento'.format(padding))
+print('{} byte dopo la codifica\n'.format(len(encoded_data)))
+print(wrapped_data)
+</py_code>
+<testo_normale>
+L'input deve essere un stringa di byte, per questo la stringa unicode viene prima codificata in UTF-8. L'output mostra i 195 bye della sorgente UTF-8 espansa a 260 byte dopo la codifica.
+</testo_normale>
+<note>
+Non ci sono ritorni a capo nei dati codificati prodotti dalla libreria, ma l'output è stato allineato artificialmente per meglio accomodarlo nella pagina.
+</note>
+<py_output>
+$ python3 base64_b64encode.py
+
+195 byte prima della codifica
+Attesi 3 byte di riempimento
+260 byte dopo la codifica
+
+b'CgppbXBvcnQgYmFzZTY0CmltcG9ydCB0ZXh0d3JhcAoKIyBD
+YXJpY2EgcXVlc3RvIGZpbGUgc29yZ2VudGUgZWQgZWxpbWluYS
+BsJ2ludGVzdGF6aW9uZQp3aXRoIG9wZW4oX19maWxlX18sICdy
+JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgaW5wdXQ6CiAgICByYX
+cgPSBpbnB1dC5yZWFkKCkKICAgIGluaXRpYWxfZGF0YSA9IHJh
+dy5zcGxpdCgn'
+</py_output>
+<titolo_2>
+Decodifica Base 64
+</titolo_2>
+<testo_normale>
+<code>b64decode()</code> converte una stringa codificata nella sua forma originale, prendendo quattro byte e convertendoli nei tre originali, usando una <a href='https://www.wikiwand.com/it/Lookup_table' target='_blank'>tabella di associazione</a>.
+</testo_normale>
+<py_code>
+# base64_b64decode.py
+
+import base64
+
+encoded_data = b'UXVlc3RpIHNvbm8gaSBkYXRpLCBpbiBjaGlhcm8='
+decoded_data = base64.b64decode(encoded_data)
+print('Codificati   :', encoded_data)
+print('Decodificati :', decoded_data)
+</py_code>
+<testo_normale>
+Il processo di decodifica cerca ciascuna sequenza di 24 bit nell'input (tre byte) e codifica quegli stessi 24 bit spandendoli nei quattro byte dell'output. I simboli di uguale alla fine dell'output sono inseriti come riempimento visto che il numero di bit nella stringa originale non era equamente divisibile per 24, in questo esempio.
+</testo_normale>
+<py_output>
+$ python3 base64_b64decode.py
+
+Codificati   : b'UXVlc3RpIHNvbm8gaSBkYXRpLCBpbiBjaGlhcm8='
+Decodificati : b'Questi sono i dati, in chiaro'
+</py_output>
+<testo_normale>
+Il valore ritornato da <code>b64decode()</code> è una stringa di byte. Se si sa che il contenuto è testo, la stringa di byte può essere convertita in un oggetto unicode. Comunque lo scopo di utilizzare la codifica base 64 è di poter trasmettere dati binari, quindi non è sempre sicuro assumere che il valore decodificato sia testo.
+</testo_normale>
+<titolo_2>
+Variazioni a prova di URL
+</titolo_2>
+<testo_normale>
+Visto che l'alfabeto predefinito base64 potrebbe usare <code>+</code> e <code>/</code>, caratteri che sono usati negli URL, è spesso necessario usare una codifica alternativa con sostituti per quei caratteri.
+</testo_normale>
+<py_code>
+# base64_urlsafe.py
+
+import base64
+
+encodes_with_pluses = b'\xfb\xef'
+encodes_with_slashes = b'\xff\xff'
+
+for original in [encodes_with_pluses, encodes_with_slashes]:
+    print('Originale              :', repr(original))
+    print('Codifica standard      :',
+          base64.standard_b64encode(original))
+    print('Codifica a prova di URL:',
+          base64.urlsafe_b64encode(original))
+    print()
+</py_code>
+<testo_normale>
+Il <code>+</code> è sostituito da un <code>-</code> e <code>/</code> da un <code>_</code>. Per il resto, l'alfabeto è lo stesso.
+</testo_normale>
+<py_output>
+$ python3 base64_urlsafe.py
+
+Originale              : b'\xfb\xef'
+Codifica standard      : b'++8='
+Codifica a prova di URL: b'--8='
+
+Originale              : b'\xff\xff'
+Codifica standard      : b'//8='
+Codifica a prova di URL: b'__8='
+</py_output>
+<titolo_2>
+Altre Codifiche
+</titolo_2>
+<testo_normale>
+Oltre a Base64 il modulo fornisce anche funzioni per lavorare con dati codificati con Base85, Base32 e Base16 (esadeciamle).
+</testo_normale>
+<py_code>
+# base64_base32.py
+
+import base64
+
+original_data = b'Questi sono i dati, in chiaro.'
+print('Originale    :', original_data)
+
+encoded_data = base64.b32encode(original_data)
+print('Codificato   :', encoded_data)
+
+decoded_data = base64.b32decode(encoded_data)
+print('Decodificato :', decoded_data)
+</py_code>
+<testo_normale>
+L'alfabeto Base32 include le 26 lettere maiuscole dall'insieme ASCII e le cifre da 2 a 7.
+</testo_normale>
+<py_output>
+$ python3 base64_base32.py
+
+Originale    : b'Questi sono i dati, in chiaro.'
+Codificato   : b'KF2WK43UNEQHG33ON4QGSIDEMF2GSLBANFXCAY3INFQXE3ZO'
+Decodificato : b'Questi sono i dati, in chiaro.'
+</py_output>
+<testo_normale>
+Le funzioni Base16 lavorano con l'alfabeto esadeciamle.
+</testo_normale>
+<py_code>
+# base64_base16.py
+
+import base64
+
+original_data = b'Questi sono i dati, in chiaro.'
+print('Originali    :', original_data)
+
+encoded_data = base64.b16encode(original_data)
+print('Codificati   :', encoded_data)
+
+decoded_data = base64.b16decode(encoded_data)
+print('Decodificati :', decoded_data)
+</py_code>
+<testo_normale>
+Ogni volta che il numero di bit da codificare scende, l'output nel formato codificato occupa più spazio.
+</testo_normale>
+<py_output>
+$ python3 base64_base16.py
+
+Originali    : b'Questi sono i dati, in chiaro.'
+Codificati   : b'51756573746920736F6E6F206920646174692C20696E2063686961726F2E'
+Decodificati : b'Questi sono i dati, in chiaro.'
+</py_output>
+<testo_normale>
+Le funzioni Base85 usano un alfabeto espanso che è più efficiente a livello di spazio di quello Base64.
+</testo_normale>
+<py_code>
+# base64_base85.py
+
+import base64
+
+original_data = b'TQuesti sono i dati, in chiaro..'
+print('Originale    : {} byte {!r}'.format(
+    len(original_data), original_data))
+
+b64_data = base64.b64encode(original_data)
+print('Codifica b64 : {} byte {!r}'.format(
+    len(b64_data), b64_data))
+
+b85_data = base64.b85encode(original_data)
+print('Codifica b85 : {} byte {!r}'.format(
+    len(b85_data), b85_data))
+
+a85_data = base64.a85encode(original_data)
+print('Codifica a85 : {} byte {!r}'.format(
+    len(a85_data), a85_data))
+</py_code>
+<testo_normale>
+Ci sono diverse codifiche Base85 e diverse varianti usate nei formati Mercurial, Git e PDF. Python include due implementazioni, <code>b85encode()</code> implementa la versione usata in Git e Mercurial mentre <code>a85encode()</code> implementa la variante Ascii85 usata dai file PDF.
+</testo_normale>
+<py_output>
+$ python3 base64_base85.py
+
+Originale    : 31 byte b'TQuesti sono i dati, in chiaro.'
+Codifica b64 : 44 byte b'VFF1ZXN0aSBzb25vIGkgZGF0aSwgaW4gY2hpYXJvLg=='
+Codifica b85 : 39 byte b'R8e(hb98ASb8l{MAZZ|EVRUIMAZczOV`yn%a&Im'
+Codifica a85 : 39 byte b'&lt;)IdLF*)+=F)Pr7+DDs/@&lt;?37+DG^9@q]RbEc3Q'
+</py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/decimal.html|decimal|La documentazione della libreria standard per questo modulo
-riferimenti_moduli_modificati.html|Note di portabilità|Note di portabilità per decimal
-https://www.wikiwand.com/it/Numero_in_virgola_mobile|Wikipedia: Numero in virgola mobile|Articolo sulla rappresentazione ed aritmetica dei numeri a virgola mobile.
-https://docs.python.org/tutorial/floatingpoint.html|Floating Point Arithmetic: Issues and Limitations|Articolo dai tutorial Python che descrive i problemi relativi alla aritmetica dei numeri a virgola mobile.
+https://docs.python.org/3.5/library/base64.html|base64|La documentazione della libreria standard per questo modulo
+https://tools.ietf.org/html/rfc3548.html|RFC 3548|Le codifiche dati Base16, Base32 e Base 64
+https://tools.ietf.org/html/rfc1924.html|RFC 1924|Una rappresentazione compatta degli indirizzi IPv6 (suggerisce una codifica Base85 per gli indirizzi di rete IPv6)
+https://en.wikipedia.org/wiki/Ascii85|Ascii85|
+riferimenti_moduli_modificati.html#bas64|Note di Portabilità per base64|
 </vedi_anche>
 </documento_tradotto>

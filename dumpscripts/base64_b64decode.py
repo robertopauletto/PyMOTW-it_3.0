@@ -1,11 +1,8 @@
+# base64_b64decode.py
+
 import base64
 
-original_string = 'Questi sono i dati in chiaro'
-print 'Originali   :', original_string
-
-encoded_string = base64.b64encode(original_string)
-print 'Codificati  :', encoded_string
-
-decoded_string = base64.b64decode(encoded_string)
-print 'Decodificati:', decoded_string
-
+encoded_data = b'UXVlc3RpIHNvbm8gaSBkYXRpLCBpbiBjaGlhcm8='
+decoded_data = base64.b64decode(encoded_data)
+print('Codificati   :', encoded_data)
+print('Decodificati :', decoded_data)
