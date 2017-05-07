@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+urllib.parse - Divide un URL nei suoi Componenti
+</titolo_1>
+<descrizione>
+Divide un URL nei suoi Componenti
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>urllib.parse</strong> fornisce funzioni per manipolare gli URL e le parti con le quali sono costituiti, sia per comporli che per decomporli.
+</testo_normale>
+<titolo_2>
+Ottenere le Parti
+</titolo_2>
+<testo_normale>
+Il valore di ritorno della funzione <code>urlparse()</code> è un oggetto <code>ParseResult</code> che agisce come una <code>tupla</code> di sei elementi.
+</testo_normale>
+<py_code>
+# urllib_parse_urlparse.py
+
+from urllib.parse import urlparse
+
+url = 'http://netloc/path;param?query=arg#frag'
+parsed = urlparse(url)
+print(parsed)
+</py_code>
+<testo_normale>
+Le parti dell'URL disponibili tramite la tupla di interfaccia sono lo schema, la locazione della rete, il percorso, i parametri di segmento del percorso (separati dal percorso da un punto e virgola), <a href='https://www.wikiwand.com/it/Query_string' target='_blank'>query</a>  e frammento.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlparse.py
+
+ParseResult(scheme='http', netloc='netloc', path='/path', params='param', query='query=arg', fragment='frag')
+</py_output>
+<testo_normale>
+Sebbene il valore ritornato agisca come una tupla, in realtè basato su una <code>namedtuple</code>, una sottoclasse di <code>tuple</code> che supporta l'accesso alle parti dell'URL tramite attributi nominali e numerici. Oltre ad essere più facile da usare per gli sviluppatori, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> offre accesso a parecchi valori non disponiibli nell'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_urlparseattrs.py
+
+from urllib.parse import urlparse
+
+url = 'http://user:pwd@NetLoc:80/path;param?query=arg#frag'
+parsed = urlparse(url)
+print('schema      :', parsed.scheme)
+print('loc. di rete:', parsed.netloc)
+print('percorso    :', parsed.path)
+print('parametri   :', parsed.params)
+print('query       :', parsed.query)
+print('frammento   :', parsed.fragment)
+print('nome utene  :', parsed.username)
+print('password    :', parsed.password)
+print('nome host   :', parsed.hostname)
+print('porta       :', parsed.port)
+</py_code>
+<testo_normale>
+<code>username</code> e <code>password</code>  sono disponibili se presenti nell'URL elaborato, ed impostati a <code>None</code> in caso contrario. <code>hostname</code> ha lo stesso valore di <code>netloc</code>, in caratteri minuscoli e con il valore della porta eliminato, <code>port</code> viene convertito in un intero se presente ed a <code>None</code> altrimenti.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlparseattrs.py
+
+schema      : http
+loc. di rete: user:pwd@NetLoc:80
+percorso    : /path
+parametri   : param
+query       : query=arg
+frammento   : frag
+nome utene  : user
+password    : pwd
+nome host   : netloc
+porta       : 80
+</py_output>
+<testo_normale>
+La funzione <code>urlsplit()</code> è una alternativa ad <code>urlparse()</code>. Si comporta in maniera leggermente diversa, visto che non separa i parametri dall'URL. Questo è utile per gli URL che seguono le direttive <a href='https://tools.ietf.org/html/rfc2396.html' target='_blank'>RFC 2396</a>, che supportano parametri per ciascun segmento del percorso.
+</testo_normale>
+<py_code>
+# urllib_parse_urlsplit.py
+
+from urllib.parse import urlsplit
+
+url = 'http://user:pwd@NetLoc:80/path;param?query=arg#frag'
+parsed = urlsplit(url)
+print(parsed)
+print('schema      :', parsed.scheme)
+print('loc. di rete:', parsed.netloc)
+print('percorso    :', parsed.path)
+print('query       :', parsed.query)
+print('frammento   :', parsed.fragment)
+print('nome utene  :', parsed.username)
+print('password    :', parsed.password)
+print('nome host   :', parsed.hostname)
+print('porta       :', parsed.port)
+</py_code>
+<titolo_2>
+Assemblare le Parti
+</titolo_2>
+<testo_normale>
+Ci sono parecchi modi per assemblare in una singola stringa le parti di un URL separate. L'oggetto URL separato ha un metodo <code>geturl()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_geturl.py
+
+from urllib.parse import urlparse
+
+original = 'http://netloc/path;param?query=arg#frag'
+print('ORIGINALE  :', original)
+parsed = urlparse(original)
+print('ASSEMBLATO :', parsed.geturl())
+</py_code>
+<testo_normale>
+<code>geturl()</code> funziona solo con oggetti restituiti da <code>urlparse()</code> ed <code>urlsplit()</code>.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_geturl.py
+
+ORIGINALE  : http://netloc/path;param?query=arg#frag
+ASSEMBLATO : http://netloc/path;param?query=arg#frag
+</py_output>
+<testo_normale>
+Visto che i parametri non sono estrapolati, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code> mostrerà solo cinque elementi in luogo di sei, e non c'è il parametro <code>attribute</code>.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlsplit.py
+
+SplitResult(scheme='http', netloc='user:pwd@NetLoc:80', path='/path;param', query='query=arg', fragment='frag')
+schema      : http
+loc. di rete: user:pwd@NetLoc:80
+percorso    : /path;param
+query       : query=arg
+frammento   : frag
+nome utene  : user
+password    : pwd
+nome host   : netloc
+porta       : 80
+</py_output>
+<testo_normale>
+Per estrapolare l'identificatore del frammento da un URL, come quando si deve trovare un nome di pagina base per un URL, si usa <code>urldefrag()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_urldefrag.py
+
+from urllib.parse import urldefrag
+
+original = 'http://netloc/path;param?query=arg#frag'
+print('originale:', original)
+d = urldefrag(original)
+print('url      :', d.url)
+print('frammento:', d.fragment)
+</py_code>
+<testo_normale>
+Il valore ritornato è un oggetto <code>DefragResult</code>, basato su <code>namedtuple</code>, che contiene l'URL base ed il frammento.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urldefrag.py
+
+originale: http://netloc/path;param?query=arg#frag
+url      : http://netloc/path;param?query=arg
+frammento: frag
+</py_output>
+<testo_normale>
+Una tupla normale che contenga stringhe può essere combinata in un URL con <code>urlunparse()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_urlunparse.py
+
+from urllib.parse import urlparse, urlunparse
+
+original = 'http://netloc/path;param?query=arg#frag'
+print('ORIGINALE  :', original)
+parsed = urlparse(original)
+print('ASSEMBLATO :', type(parsed), parsed)
+t = parsed[:]
+print('TUPLA      :', type(t), t)
+print('NUOVO      :', urlunparse(t))
+</py_code>
+<testo_normale>
+Mentro l'oggetto <code>ParseResult</code> ritornato da <code>urlparse()</code> può essere usato come tupla, questo esempio crea esplicitamente una nuova tupla per mostrare che <code>urlunparse()</code> funziona anche con le normali tuple.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlunparse.py
+
+ORIGINALE  : http://netloc/path;param?query=arg#frag
+ASSEMBLATO : <class 'urllib.parse.ParseResult'> ParseResult(scheme='http', netloc='netloc', path='/path', params='param', query='query=arg', fragment='frag')
+TUPLA      : <class 'tuple'> ('http', 'netloc', '/path', 'param', 'query=arg', 'frag')
+NUOVO      : http://netloc/path;param?query=arg#frag
+</py_output>
+<testo_normale>
+Se l'URL in input comprende anche parti superflue, esse potranno essere ignorate nella ricostruzione dell'URL
+</testo_normale>
+<py_code>
+# urllib_parse_urlunparseextra.py
+
+from urllib.parse import urlparse, urlunparse
+
+original = 'http://netloc/path;?#'
+print('ORIGINALE :', original)
+parsed = urlparse(original)
+print('ASSEMBLATO:', type(parsed), parsed)
+t = parsed[:]
+print('TUPLA     :', type(t), t)
+print('NUOVO     :', urlunparse(t))
+</py_code>
+<testo_normale>
+In questo caso <code>parameters</code>, <code>query</code> e <code>fragment</code> sono mancanti nell'URL di origine. Il nuovo URL non sembra uguale all'originale, ma, in base agli standard, è equivalente.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlunparseextra.py
+
+ORIGINALE : http://netloc/path;?#
+ASSEMBLATO: <class 'urllib.parse.ParseResult'> ParseResult(scheme='http', netloc='netloc', path='/path', params='', query='', fragment='')
+TUPLA     : <class 'tuple'> ('http', 'netloc', '/path', '', '', '')
+NUOVO     : http://netloc/path
+</py_output>
+<titolo_2>
+UNIRE
+</titolo_2>
+<testo_normale>
+Oltre alla separazione di URL, <strong>urllib.urlparse</strong> comprende <code>urljoin()</code> per costruire URL assoluti da frammenti relativi.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/urllib.request.html|urllib.request|La documentazione della libreria standard per questo modulo
+urllib.parse.html|urllib.parse|Lavora con le stringa URL
+http://www.w3.org/TR/REC-html40/interact/forms.html#h-17.13.4|Form content types|Specifiche WC3 per l'invio di file o grandi volumi di dati tramite form HTTP.
+https://pypi.python.org/pypi/requests|requests|Libreria di terze parti con miglior supporto per connessioni sicure e una API più facile da usare. La squadra di sviluppo del core di Python raccomanda che la maggior parte degli sviluppatori utilizzi requests, in parte perchè riceve aggiornamenti di sicurezza più frequentemente della libreria standard.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+urllib.robotparser - Controllo Accesso degli Spider Internet
+</titolo_1>
+<descrizione>
+Elabora il file robots.txt utilizzato per controllare gli spider internet
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>robotparser</strong> implementa un elaboratore per il formato di file <code>robots.txt</code>, compresa una funzione per verificare se un dato <a href='https://www.wikiwand.com/it/User_agent' target='_blank'>user agent</a> può accedere ad una risorsa. E' concepito per l'uso in spider che "si comportano bene", od altre applicazioni <a href='https://www.wikiwand.com/it/Crawler' target='_blank'>crawler</a> che devono essere in qualche modo limitate.
+</testo_normale>
+<titolo_2>
+robots.txt
+</titolo_2>
+<testo_normale>
+Il formato file <code>robots.txt</code> è un semplice sistema di controllo di accesso basato su testo semplice per programmi che accedono automaticamente a risorse web ("spider", "crawler", ecc.). Il file è composto da records che specificano l'ientificativo dell'<a href='https://www.wikiwand.com/it/User_agent' target='_blank'>user agent</a> per il programma seguito da un elenco di URL (o prefissi URL) ai quali l'agente non può accedere.
+</testo_normale>
+<testo_normale>
+Questo è il file <code>robots.txt</code> per il sito <code>https://pymotw.com</code>:
+</testo_normale>
+<py_code>
+robots.txt
+
+Sitemap: https://pymotw.com/sitemap.xml
+User-agent: *
+Disallow: /admin/
+Disallow: /downloads/
+Disallow: /media/
+Disallow: /static/
+Disallow: /codehosting/
+</py_code>
+<testo_normale>
+Previene l'accesso ad alcune parti del sito che sono costose da elaborare e sovraccaricherebbero il server se il motore di ricerca cercasse di indicizzarle. Per un insieme di esempi più esaustivo fare riferimento a <a href='http://www.robotstxt.org/orig.html' target='_blank'>The Web Robots Page</a>.
+</testo_normale>
+<titolo_2>
+Verficare i Permessi di Accesso
+</titolo_2>
+<testo_normale>
+Utilizzando i dati esposti qui sopra, un semplice <a href='https://www.wikiwand.com/it/Crawler' target='_blank'>crawler</a> potrebber verificare se gli sia consentito o meno scaricare una pagina usando <code>RobotFileParser.can_fetch()</code>.
+</testo_normale>
+<py_code>
+# urllib_robotparser_simple.py
+
+from urllib import parse
+from urllib import robotparser
+
+AGENT_NAME = 'PyMOTW'
+URL_BASE = 'https://pymotw.com/'
+parser = robotparser.RobotFileParser()
+parser.set_url(parse.urljoin(URL_BASE, 'robots.txt'))
+parser.read()
+
+PATHS = [
+    '/',
+    '/PyMOTW/',
+    '/admin/',
+    '/downloads/PyMOTW-1.92.tar.gz',
+]
+
+for path in PATHS:
+    print('{!r:>6} : {}'.format(
+        parser.can_fetch(AGENT_NAME, path), path))
+    url = parse.urljoin(URL_BASE, path)
+    print('{!r:>6} : {}'.format(
+        parser.can_fetch(AGENT_NAME, url), url))
+    print()
+</py_code>
+<testo_normale>
+L'argomento <code>URL</code> per <code>can_fetch()</code> può essere un percorso relativo alla radice del sito, oppure un URL completo.
+</testo_normale>
+<py_output>
+$ python3 urllib_robotparser_simple.py
+
+  True : /
+  True : https://pymotw.com/
+
+  True : /PyMOTW/
+  True : https://pymotw.com/PyMOTW/
+
+ False : /admin/
+ False : https://pymotw.com/admin/
+
+ False : /downloads/PyMOTW-1.92.tar.gz
+ False : https://pymotw.com/downloads/PyMOTW-1.92.tar.gz
+</py_output>
+<titolo_2>
+Spider che Vivono a Lungo
+</titolo_2>
+<testo_normale>
+Una applicazione che impiega un lungo periodo di tempo per elaborare le risorse che scarica o che viene costretta ad effettuare pause tra gli scaricamenti dovrebbere cercare dei nuovi file <code>robots.txt</code> periodicamente in base all'età del contenuto che è già stato scaricato. Questo dato non viene gestito automaticamente ma ci sono metodi di comodo per facilitare la tracciatura.
+</testo_normale>
+<py_code>
+# urllib_robotparser_longlived.py
+
+from urllib import robotparser
+import time
+
+AGENT_NAME = 'PyMOTW'
+parser = robotparser.RobotFileParser()
+# Usa la copia locale
+parser.set_url('file:robots.txt')
+parser.read()
+parser.modified()
+
+PATHS = [
+    '/',
+    '/PyMOTW/',
+    '/admin/',
+    '/downloads/PyMOTW-1.92.tar.gz',
+]
+
+for path in PATHS:
+    age = int(time.time() - parser.mtime())
+    print('age:', age, end=' ')
+    if age > 1:
+        print('rilettura di robots.txt')
+        parser.read()
+        parser.modified()
+    else:
+        print()
+    print('{!r:>6} : {}'.format(
+        parser.can_fetch(AGENT_NAME, path), path))
+    # Simula un differimento nell'elaborazione
+    time.sleep(1)
+    print()
+</py_code>
+<testo_normale>
+Questo esempio estremizzato scarica un nuovo file <code>robots.txt</code> se quello che ha è più vecchio di un secondo.
+</testo_normale>
+<py_output>
+$ python3 urllib_robotparser_longlived.py
+
+age: 0
+  True : /
+
+age: 1
+  True : /PyMOTW/
+
+age: 2 rilettura di robots.txt
+ False : /admin/
+
+age: 1
+ False : /downloads/PyMOTW-1.92.tar.gz
+</py_output>
+<testo_normale>
+Una versione più efficace dell'applicazione potrebbe richiedere il tempo di modifica per il file prima di scaricare tutto quanto. D'altro canto, i file <code>robots.txt</code>  sono in genere piuttosto piccoli, quindi non è eccessivamente costoso riscaricare nuovamente l'intero documento.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/urllib.robotparser.html|urllib.robotparser|La documentazione della libreria standard per questo modulo
+http://www.robotstxt.org/orig.html|The Web Robots Page|Descrizione del formato robots.txt
+</vedi_anche>
+</documento_tradotto>

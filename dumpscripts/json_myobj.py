@@ -1,7 +1,9 @@
+# json_myobj.py
 
-class MyObj(object):
+class MyObj:
+
     def __init__(self, s):
         self.s = s
-    def __repr__(self):
-        return '<MyObj(%s)>' % self.s
 
+    def __repr__(self):
+        return '<MyObj({})>'.format(self.s)
