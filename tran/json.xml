@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+json - JavaScript Object Notation
+</titolo_1>
+<descrizione>
+Codifica oggetti Python come stringhe JSON, e decodifica  stringhe JSON in oggetti Python.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>json</strong> fornisce una <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> simile a <strong>pickle</strong> per convertire oggetti Python in memoria in una rappresentazione serializzata nota come JavaScript Object Notation (JSON). A differenza di pickle, JSON ha il vantaggio di avere implementazioni in molti linguaggi (specialmente JavaScript). Esso è usato largamente per comunicare tra web server e client nelle <a href='https://www.wikiwand.com/it/Representational_State_Transfer' target='_blank'>API REST</a>, ma è anche utile per altre necessità di comunicazione tra applicazioni.
+</testo_normale>
+<titolo_2>
+Codificare e Decodificare Tipi di Dato Semplici
+</titolo_2>
+<testo_normale>
+Il codificatore nella modalità predefinita è in grado di riconoscere gli oggetti nativi Python (<code>str</code>, <code>int</code>, <code>float</code>, <code>list</code>, <code>tuple</code> e <code>dict</code>).
+</testo_normale>
+<py_code>
+# json_simple_types.py
+
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+print('DATI:', repr(data))
+
+data_string = json.dumps(data)
+print('JSON:', data_string)
+</py_code>
+<testo_normale>
+I valori sono codificati in modo che superficialmente ricorda l'output di <code>repr()</code>.
+</testo_normale>
+<py_output>
+$ python3 json_simple_types.py
+
+DATI: [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+JSON: [{"a": "A", "b": [2, 4], "c": 3.0}]
+</py_output>
+<testo_normale>
+La codifica e la successiva decodifica potrebbe non restituire lo stesso tipo di oggetto
+</testo_normale>
+<py_code>
+# json_simple_types_decode.py
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+print('DATI        :', data)
+
+data_string = json.dumps(data)
+print('CODIFICATI  :', data_string)
+
+decoded = json.loads(data_string)
+print('DECODIFICATI:', decoded)
+
+print('ORIGINALI   :', type(data[0]['b']))
+print('DECODIFICATI:', type(decoded[0]['b']))
+</py_code>
+<testo_normale>
+In particolare, le tuple diventano liste.
+</testo_normale>
+<py_output>
+$ python3 json_simple_types_decode.py
+
+DATI        : [{'a': 'A', 'c': 3.0, 'b': (2, 4)}]
+CODIFICATI  : [{"a": "A", "c": 3.0, "b": [2, 4]}]
+DECODIFICATI: [{'a': 'A', 'c': 3.0, 'b': [2, 4]}]
+ORIGINALI   : &lt;class 'tuple'&gt;
+DECODIFICATI: &lt;class 'list'&gt;
+</py_output>
+<titolo_2>
+Output Comprensibile all'Umano contro Output Compatto
+</titolo_2>
+<testo_normale>
+Un altro vantaggio di JSON su pickle è che i risultati sono leggibili dall'umano. La funzione <code>dumps()</code> accetta diversi argomenti per rendere l'output ancora più gradevole. Ad esempio il flag <code>sort_keys</code> dice al codificatore di stampare le chiavi di un dizionario ordinate, invece che in ordine casuale.
+</testo_normale>
+<py_code>
+# json_sort_keys.py
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+print('DATI:', repr(data))
+
+unsorted = json.dumps(data)
+print('JSON    :', json.dumps(data))
+print('ORDINATO:', json.dumps(data, sort_keys=True))
+
+first = json.dumps(data, sort_keys=True)
+second = json.dumps(data, sort_keys=True)
+
+print('CORRISPONDENZA NON ORDINATA:', unsorted == first)
+print('CORRISPONDENZA ORDINATA    :', first == second)
+</py_code>
+<testo_normale>
+L'ordinamento facilita la scansione ad occhio dei risultati, e rende anche possibile confrontare l'output di JSON nei test.
+</testo_normale>
+<py_output>
+$ python3 json_sort_keys.py
+
+DATI: [{'b': (2, 4), 'a': 'A', 'c': 3.0}]
+JSON    : [{"b": [2, 4], "a": "A", "c": 3.0}]
+ORDINATO: [{"a": "A", "b": [2, 4], "c": 3.0}]
+CORRISPONDENZA NON ORDINATA: False
+CORRISPONDENZA ORDINATA    : True
+</py_output>
+<testo_normale>
+Per strutture dati profondamente nidiifcate, si specifica un valore per l'indentazione: <code>indent</code> in modo che l'output venga formattato piacevolmente.
+</testo_normale>
+<py_code>
+# json_indent.py
+
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+print('DATI:', repr(data))
+
+print('NORMALE  :', json.dumps(data, sort_keys=True))
+print('INDENTATO:', json.dumps(data, sort_keys=True, indent=2))
+</py_code>
+<testo_normale>
+Quando il valore di indentazione non è negativo, l'output assomiglia di più a quello di <a href='pprint.html' target='_blank'>pprint</a>, con gli spazi iniziali per ogni livello della struttura dati corrispondenti al livello di indentazione.
+</testo_normale>
+<py_output>
+$ python3 json_indent.py
+
+DATI: [{'c': 3.0, 'b': (2, 4), 'a': 'A'}]
+NORMALE  : [{"a": "A", "b": [2, 4], "c": 3.0}]
+INDENTATO: [
+  {
+    "a": "A",
+    "b": [
+      2,
+      4
+    ],
+    "c": 3.0
+  }
+]
+</py_output>
+<testo_normale>
+Un output partcolareggiato come questo tuttavia aumenta il numero di byte necessari per trasmettere la stessa mole di dati, pertanto non è indicato per un uso in ambiente di produzione. In effetti è possibile aggiustare le impostazioni per separare i dati nell'output codificato per renderli ancora più compatti che nella modalità predefinita.
+</testo_normale>
+<py_code>
+# json_compact_encoding.py
+
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+print('DATI:', repr(data))
+
+print('repr(data)             :', len(repr(data)))
+
+plain_dump = json.dumps(data)
+print('dumps(data)            :', len(plain_dump))
+
+small_indent = json.dumps(data, indent=2)
+print('dumps(data, indent=2)  :', len(small_indent))
+
+with_separators = json.dumps(data, separators=(',', ':'))
+print('dumps(data, separators):', len(with_separators))
+</py_code>
+<testo_normale>
+L'argomento <code>separators</code> per la funzione <code>dumps()</code> dovrebbe essere una tupla che contiene le stringhe per separare gli elementi in una lista e le chiavi dai valori in un dizionario. La modalità predefinita è <code>(', ', ': ')</code>. Rimuovendo gli spazi si può produrre un output più compatto.
+</testo_normale>
+<py_output>
+$ python3 json_compact_encoding.py
+
+DATI: [{'c': 3.0, 'b': (2, 4), 'a': 'A'}]
+repr(data)             : 35
+dumps(data)            : 35
+dumps(data, indent=2)  : 73
+dumps(data, separators): 29
+</py_output>
+<titolo_2>
+Codificare i Dizionari
+</titolo_2>
+<testo_normale>
+Il formato JSON si attende che le chiavi di un dizionario siano stringhe. Cercare di codificare un dizionario con chiavi non stringa genera un <code>TypeError</code>. Un modo per circumnavigare questa limitazione è di dire al codificatore di ignorare le chiavi non stringa usando l'argomento <code>skipkeys</code>.
+</testo_normale>
+<py_code>
+# json_skipkeys.py
+
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0, ('d',): 'D tuple'}]
+
+print('Primo tentativo')
+try:
+    print(json.dumps(data))
+except TypeError as err:
+    print('ERRORE:', err)
+
+print()
+print('Secondo tentativo')
+print(json.dumps(data, skipkeys=True))
+</py_code>
+<testo_normale>
+Piuttosto che sollevare una eccezione, la chiave non stringa, viene ignorata.
+</testo_normale>
+<py_output>
+$ python3 json_skipkeys.py
+Primo tentativo
+ERRORE: keys must be a string
+
+Secondo tentativo
+[{"c": 3.0, "a": "A", "b": [2, 4]}]
+</py_output>
+<titolo_2>
+Lavorare con Tipi Personalizzati
+</titolo_2>
+<testo_normale>
+Tutti gli esempi fino a qui hanno usato tipi Python <em>built-in</em> visto che questi sono supportati nativamente da <strong>json</strong>. E' comune la necessità di codificare anche classi personalizzate, e per farlo ci sono due modi.
+</testo_normale>
+<testo_normale>
+Si prenda questa classe da codificare.
+</testo_normale>
+<py_code>
+# json_myobj.py
+
+class MyObj:
+
+    def __init__(self, s):
+        self.s = s
+
+    def __repr__(self):
+      return '<MyObj({})>'.format(self.s)
+</py_code>
+<testo_normale>
+Un semplice modo per codificare una istanza di <code>MyObj</code> è di definire una funzione che converta un tipo sconosciuto in uno conosciuto. Non occorre eseguire la codifica, quindi si dovrebbe solo convertire un oggetto in un altro.
+</testo_normale>
+<py_code>
+# json_dump_default.py
+
+import json
+import json_myobj
+
+obj = json_myobj.MyObj('Il valore dell\'istanza va qui')
+
+print('Primo tentativo')
+try:
+    print(json.dumps(obj))
+except TypeError as err:
+    print('ERRORE:', err)
+
+
+def convert_to_builtin_type(obj):
+    print('default(', repr(obj), ')')
+    # Converte oggetti in un dizionario della loro rappresentazione
+    d = {
+        '__class__': obj.__class__.__name__,
+        '__module__': obj.__module__,
+    }
+    d.update(obj.__dict__)
+    return d
+
+print()
+print('Con default')
+print(json.dumps(obj, default=convert_to_builtin_type))
+</py_code>
+<testo_normale>
+Con la funzione <code>convert_to_builtin_type()</code>, le istanze delle classi non riconosciute da <code>json</code> sono convertite in dizionari con informazioni sufficienti per ricreare l'oggetto, se un programma ha accesso ai moduli Python necessari.
+</testo_normale>
+<py_output>
+$ python3 json_dump_default.py
+
+Primo tentativo
+ERRORE: &lt;MyObj(Il valore dell'istanza va qui)&gt; is not JSON serializable
+
+Con default
+default( &lt;MyObj(Il valore dell'istanza va qui)&gt; )
+{"__module__": "json_myobj", "__class__": "MyObj", "s": "Il valore dell'istanza va qui"}
+</py_output>
+<testo_normale>
+Per decodificare i risultati e creare una istanza di <code>MyObj()</code>, si usa l'argomento <code>object_hook</code> di <code>loads()</code> per consentire al decodificatore di importare la classe dal modulo e quindi creare l'istanza.
+</testo_normale>
+<testo_normale>
+<code>object_hook</code> viene chiamato per ogni dizionario decodificato dal canale di dati in arrivo, fornendo la possibilità di convertire il dizionario in un altro tipo di oggetto. La funzione di aggancio dovrebbe ritornare l'oggetto che l'applicazione chiamante dovrebbe ricevere in luogo del dizionario.
+</testo_normale>
+<py_code>
+# json_load_object_hook.py
+
+import json
+
+
+def dict_to_object(d):
+    if '__class__' in d:
+        class_name = d.pop('__class__')
+        module_name = d.pop('__module__')
+        module = __import__(module_name)
+        print('MODULO:', module.__name__)
+        class_ = getattr(module, class_name)
+        print('CLASSE:', class_)
+        args = {
+            key: value
+            for key, value in d.items()
+        }
+        print('ARGOMENTI DELL\'ISTANZA:', args)
+        inst = class_(**args)
+    else:
+        inst = d
+    return inst
+
+
+encoded_object = '''
+    [{"s": "Il valore dell'istanza va qui",
+      "__module__": "json_myobj", "__class__": "MyObj"}]
+    '''
+
+myobj_instance = json.loads(
+    encoded_object,
+    object_hook=dict_to_object,
+)
+print(myobj_instance)
+</py_code>
+<testo_normale>
+Visto che <code>json</code> converte valori stringa in oggetti unicode, essi dovrebbero essere ricodificati in stringhe ASCII prima che possano essere usate come argomenti chiave dal costruttore della classe.
+</testo_normale>
+<py_output>
+$ python3 json_load_object_hook.py
+
+MODULO: json_myobj
+CLASSE: &lt;class 'json_myobj.MyObj'&gt;
+ARGOMENTI DELL'ISTANZA: {'s': "Il valore dell'istanza va qui"}
+[&lt;MyObj(Il valore dell'istanza va qui)&gt;]
+</py_output>
+'
+<testo_normale>
+Agganci simili sono disponibili per i tipi di intero <em>built-in</em> (<code>parse_int</code>), numeri a virgola mobile (<code>parse_float</code>) e costanti (<code>parse_constant</code>).
+</testo_normale>
+<titolo_2>
+Classi per Codificare e Decodificare
+</titolo_2>
+<testo_normale>
+A parte le funzioni di comodo già trattate, il modulo <strong>json</strong> fornisce classi per codificare e decodificare. L'uso delle classi da accesso diretto a delle <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> supplementari per personalizzarne il comportamento.
+</testo_normale>
+<testo_normale>
+<code>JSONEncoder</code> usa una interfaccia iterabile per produrre &quot;blocchi&quot; di dati codificati, facilitandone la scrittura su file o su socket di rete senza dover rappresentare l'intera struttura dati in memoria.
+</testo_normale>
+<py_code>
+# json_encoder_iterable.py
+
+import json
+
+encoder = json.JSONEncoder()
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+
+for part in encoder.iterencode(data):
+    print('PARTE:', part)
+</py_code>
+<testo_normale>
+L'output viene generato in unità logiche, piuttosto che basarsi su un qualsiasi valore di dimensione.
+</testo_normale>
+<py_output>
+$ python3 json_encoder_iterable.py
+
+PARTE: [
+PARTE: {
+PARTE: "b"
+PARTE: :
+PARTE: [2
+PARTE: , 4
+PARTE: ]
+PARTE: ,
+PARTE: "a"
+PARTE: :
+PARTE: "A"
+PARTE: ,
+PARTE: "c"
+PARTE: :
+PARTE: 3.0
+PARTE: }
+PARTE: ]
+</py_output>
+<testo_normale>
+Il metodo <code>encode()</code> è praticamente equivalente a <code>''.join(encoder.iterencode())</code>, con qualche verifica di errore supplementare all'inizio.
+</testo_normale>
+<testo_normale>
+Per codificare oggetti arbitrari, si sovrascrive il metodo <code>default()</code> con una implementazione simile a qualla usata in <code>convert_to_builtin_type()</code>.
+</testo_normale>
+<py_code>
+# json_encoder_default.py
+
+import json
+import json_myobj
+
+
+class MyEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        print('default(', repr(obj), ')')
+        # Convert objects to a dictionary of their representation
+        d = {
+            '__class__': obj.__class__.__name__,
+            '__module__': obj.__module__,
+        }
+        d.update(obj.__dict__)
+        return d
+
+
+obj = json_myobj.MyObj('dati interni')
+print(obj)
+print(MyEncoder().encode(obj))
+</py_code>
+<testo_normale>
+L'output è lo stesso dell'implementazione precedente.
+</testo_normale>
+<py_output>
+$ python3 json_encoder_default.py
+
+&lt;MyObj(dati interni)&gt;
+default( &lt;MyObj(dati interni)&gt; )
+{"__class__": "MyObj", "__module__": "json_myobj", "s": "dati interni"}
+</py_output>
+<testo_normale>
+Decodificare il testo, quindi convertire il dizionario in un oggetto necessita di più lavoro di impostazione rispetto alla implementazione precedente, ma non più di tanto.
+</testo_normale>
+<py_code>
+# json_decoder_object_hook.py
+
+import json
+
+
+class MyDecoder(json.JSONDecoder):
+
+    def __init__(self):
+        json.JSONDecoder.__init__(
+            self,
+            object_hook=self.dict_to_object,
+        )
+
+    def dict_to_object(self, d):
+        if '__class__' in d:
+            class_name = d.pop('__class__')
+            module_name = d.pop('__module__')
+            module = __import__(module_name)
+            print('MODULO:', module.__name__)
+            class_ = getattr(module, class_name)
+            print('CLASSE:', class_)
+            args = {
+                key: value
+                for key, value in d.items()
+            }
+            print('ARGOMENTI DELL\'ISTANZA:', args)
+            inst = class_(**args)
+        else:
+            inst = d
+        return inst
+
+
+encoded_object = '''
+[{"s": "I valori dell'instanza vanno qui",
+  "__module__": "json_myobj", "__class__": "MyObj"}]
+'''
+
+myobj_instance = MyDecoder().decode(encoded_object)
+print(myobj_instance)
+</py_code>
+<testo_normale>
+L'output è lo stesso dell'esempio precedente.
+</testo_normale>
+<py_output>
+$ python3 json_decoder_object_hook.py
+MODULO: json_myobj
+CLASSE: &lt;class 'json_myobj.MyObj'&gt;
+ARGOMENTI DELL'ISTANZA: {'s': "I valori dell'instanza vanno qui"}
+[&lt;MyObj(I valori dell'instanza vanno qui)&gt;]
+</py_output>
+'
+<titolo_2>
+Lavorare con Flussi e File
+</titolo_2>
+<testo_normale>
+Tutti gli esempi fino a qui assumevano che la versione codificata della intera struttura dati dovrebbe stare tutta in memoria. Con strutture dati molto grandi, potrebbe essere preferibile scrivere la codifica direttamente ad un oggetto di tipo file. Le funzioni di comodo <code>load()</code> e <code>dump()</code> accettano riferimenti ad oggetti di tipo file da usare per lettura e scrittura.
+</testo_normale>
+<py_code>
+# json_dump_file.py
+
+import io
+import json
+
+data = [{'a': 'A', 'b': (2, 4), 'c': 3.0}]
+
+f = io.StringIO()
+json.dump(data, f)
+
+print(f.getvalue())
+</py_code>
+<testo_normale>
+Un socket od un normale <em>file handle</em> avrebbero funzionato allo stesso modo del buffer <code>StringIO</code> usato nell'esempio.
+</testo_normale>
+<py_output>
+$ python3 json_dump_file.py
+
+[{"b": [2, 4], "c": 3.0, "a": "A"}]
+</py_output>
+<testo_normale>
+Sebbene non ottimizzato per leggere solo parti di dati alla volta, la funzione <code>load()</code> offre comunque il beneficio dell'incapsulare la logica della generazione degli oggetti da un flusso in input.
+</testo_normale>
+<py_code>
+# json_load_file.py
+
+import io
+import json
+
+f = io.StringIO('[{"a": "A", "c": 3.0, "b": [2, 4]}]')
+print(json.load(f))
+</py_code>
+<testo_normale>
+Propio come per <code>dump()</code>, qualsiasi oggetto di tipo file può essere passato a <code>load()</code>.
+</testo_normale>
+<py_output>
+$ python3 json_load_file.py
+
+[{'b': [2, 4], 'c': 3.0, 'a': 'A'}]
+</py_output>
+<titolo_2>
+Flussi Dati Mescolati
+</titolo_2>
+<testo_normale>
+<code>JSONDecoder</code> include <code>raw_decode()</code>, un metodo per decodificare una struttura dati seguita da ulteriori dati, tipo dati JSON con del testo in coda. Il valore ritornato è l'oggetto creato dalla decodifica dei dati in input, ad un indice nei dati che indica dove la decodifica si è interrotta.
+</testo_normale>
+<py_code>
+# json_mixed_data.py
+
+import json
+
+decoder = json.JSONDecoder()
+
+
+def get_decoded_and_remainder(input_data):
+    obj, end = decoder.raw_decode(input_data)
+    remaining = input_data[end:]
+    return (obj, end, remaining)
+
+
+encoded_object = '[{"a": "A", "c": 3.0, "b": [2, 4]}]'
+extra_text = 'Questo testo non è JSON.'
+
+print('JSON davanti:')
+data = ' '.join([encoded_object, extra_text])
+obj, end, remaining = get_decoded_and_remainder(data)
+
+print('Oggetto                   :', obj)
+print('Fine dell\'input elaborato:', end)
+print('Testo rimanente           :', repr(remaining))
+
+print()
+print('JSON incorporato:')
+try:
+    data = ' '.join([extra_text, encoded_object, extra_text])
+    obj, end, remaining = get_decoded_and_remainder(data)
+except ValueError as err:
+    print('ERRORE:', err)
+</py_code>
+<testo_normale>
+Sfortunatamente, questo funziona solo se l'oggetto compare all'inizio dell'input
+</testo_normale>
+<py_output>
+$ python3 json_mixed_data.py
+
+JSON davanti:
+Oggetto                   : [{'b': [2, 4], 'a': 'A', 'c': 3.0}]
+Fine dell'input elaborato: 35
+Testo rimanente           : ' Questo testo non è JSON.'
+
+JSON incorporato:
+ERRORE: Expecting value: line 1 column 1 (char 0)
+</py_output>
+<titolo_2>
+JSON da Riga di Comando
+</titolo_2>
+<testo_normale>
+Il modulo <code>json.tool</code> implementa un programma di riga di comando per riformattare i dati JSON per facilitarne la lettura.
+</testo_normale>
+<py_code>
+[{"a": "A", "c": 3.0, "b": [2, 4]}]
+</py_code>
+<testo_normale>
+Il file in input <code>example.json</code> contiene una mappatura con le chiavi non ordinate alfabeticamente. Il primo esempio che segue mostra i dati riformattati ordinati, ed il secondo usa <code>--sort-keys</code> per ordinare le chiavi di mappatura prima della stampa.
+</testo_normale>
+<py_output>
+$ python3 -m json.tool example.json
+[
+    {
+        "a": "A",
+        "c": 3.0,
+        "b": [
+            2,
+            4
+        ]
+    }
+]
+[ robby: ~/pycode/pymotw-it3.0/dumpscripts ]$ python3 -m json.tool --sort-keys example.json
+[
+    {
+        "a": "A",
+        "b": [
+            2,
+            4
+        ],
+        "c": 3.0
+    }
+]
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/json.html|json|La documentazione della libreria standard per questo modulo
+riferimenti_moduli_modificati.html#json|Note di Portabilità per json|
+http://json.org/json-it.html|JavaScript Object Notation|La home di JSON, con documentazione ed implementazioni in altri linguaggi.
+http://code.google.com/p/jsonpickle|jsonpickle|consente ad ogni oggetto Python di essere serializzato in JSON
+</vedi_anche>
+</documento_tradotto>

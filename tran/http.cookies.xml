@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+http.cookies - Cookie HTTP
+</titolo_1>
+<descrizione>
+Definisce classi per elaborare e creare intestazioni cookie HTTP
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>http.cookies</strong> implementa un <a href='https://www.wikiwand.com/it/Parsing' target='_blank'>parser</a> per cookie che è per la maggior parte conforme a <a href='url' target='_blank'>RFC 2109</a>. L'implementazione è leggermente meno rigorosa rispetto allo standard poichè MSIE 3.0x non supporta interamente lo standard.
+</testo_normale>
+<titolo_2>
+Creare ed Impostare un Cookie
+</titolo_2>
+<testo_normale>
+I cookie sono usati per gestire lo stato di una applicazione basata sul browser, e come tale in genere vengono impostati dal server per essere conservati e ritornati dal client. L'esempio più triviale per la creazione di un cookie imposta una singola coppia di chiave-valore.
+</testo_normale>
+<py_code>
+# http_cookies_setheaders.py
+
+from http import cookies
+
+
+c = cookies.SimpleCookie()
+c['ilmiocookie'] = 'valore_del_cookie'
+print(c)
+</py_code>
+<testo_normale>
+L'output è una intestazione valida <code>Set-Cookie</code> pronta per essere passata al client come parte della risposta HTTP:
+</testo_normale>
+<py_output>
+$ python3 http_cookies_setheaders.py
+
+Set-Cookie: ilmiocookie=valore_del_cookie
+</py_output>
+<titolo_2>
+Bocconcini
+</titolo_2>
+<testo_normale>
+E' anche possibile controllare altri aspetti di un cookie tipo la scadenza, il percorso, il dominio. In effetti, tutti gli attribuiti per i cookie stabiliti dall'RFC possono essere gestiti tramite l'oggetto <code>Morsel</code> che rappresenta il valore del cookie.
+</testo_normale>
+<py_code>
+# http_cookies_Morsel.py
+
+from http import cookies
+import datetime
+
+
+def show_cookie(c):
+    print(c)
+    for key, morsel in c.items():
+        print()
+        print('chiave =', morsel.key)
+        print('   valore =', morsel.value)
+        print('   valore codificato =', morsel.coded_value)
+        for name in morsel.keys():
+            if morsel[name]:
+                print('   {} = {}'.format(name, morsel[name]))
+
+
+c = cookies.SimpleCookie()
+
+# Un cookie con un valore che deve essere codificato
+# per essere inserito nell'intestazione
+c['cookie_con_valore_codificato'] = '"cookie,valore;"'
+c['cookie_con_valore_codificato']['comment'] = \
+    'Ha punteggiatura da gestire con codici di escape'
+
+# Un cookie che si applica solo a parte di un sito
+c['cookie_limitato'] = 'valore_cookie'
+c['cookie_limitato']['path'] = '/sub/path'
+c['cookie_limitato']['domain'] = 'PyMOTW'
+c['cookie_limitato']['secure'] = True
+
+# Un cookie che scade in 5 minuti
+c['con_durata_massima'] = 'scade fra 5 minuti'
+c['con_durata_massima']['max-age'] = 300  # secondi
+
+# Un cookie che scade ad un determinato tempo
+c['scade_ad_un_dato_tempo'] = 'valore_cookie'
+time_to_live = datetime.timedelta(hours=1)
+expires = (datetime.datetime(2009, 2, 14, 18, 30, 14) +
+           time_to_live)
+
+# Formato data: Wdy, DD-Mon-YY HH:MM:SS GMT
+expires_at_time = expires.strftime('%a, %d %b %Y %H:%M:%S')
+c['scade_ad_un_dato_tempo']['expires'] = expires_at_time
+
+show_cookie(c)
+</py_code>
+<testo_normale>
+Questo esempio include due modi diversi per impostare la conservazione di cookie che scadono. Uno imposta <code>max-age</code> ad un numero di secondi, l'altro imposta <code>expires</code> alla data ed ora di scadenza nella quale il cookie deve essere eliminato.
+</testo_normale>
+<py_output>
+$ python3 http_cookies_Morsel.py
+
+Set-Cookie: con_durata_massima="scade fra 5 minuti"; Max-Age=300
+Set-Cookie: cookie_con_valore_codificato="\"cookie\054valore\073\""; Comment=Ha punteggiatura da gestire con codici di escape
+Set-Cookie: cookie_limitato=valore_cookie; Domain=PyMOTW; Path=/sub/path; Secure
+Set-Cookie: scade_ad_un_dato_tempo=valore_cookie; expires=Sat, 14 Feb 2009 19:30:14
+
+chiave = cookie_con_valore_codificato
+   valore = "cookie,valore;"
+   valore codificato = "\"cookie\054valore\073\""
+   comment = Ha punteggiatura da gestire con codici di escape
+
+chiave = scade_ad_un_dato_tempo
+   valore = valore_cookie
+   valore codificato = valore_cookie
+   expires = Sat, 14 Feb 2009 19:30:14
+
+chiave = con_durata_massima
+   valore = scade fra 5 minuti
+   valore codificato = "scade fra 5 minuti"
+   max-age = 300
+
+chiave = cookie_limitato
+   valore = valore_cookie
+   valore codificato = valore_cookie
+   secure = True
+   path = /sub/path
+   domain = PyMOTW
+</py_output>
+<testo_normale>
+Gli oggetti <code>Cookie</code> e <code>Morsel</code> agiscono come dizionari. <code>Morsel</code> risponde ad un insieme fisso di chiavi.
+</testo_normale>
+<lista>
+comment
+domain
+expires
+max-age
+path
+secure
+version
+</lista>
+<testo_normale>
+Le chiavi per una istanza di <code>Cookie</code> sono i nomi dei singoli cookie che vengono memorizzati. Quell'informazione è anche disponibile dall'attributo <code>key</code> di <code>Morsel</code>.
+</testo_normale>
+<titolo_2>
+Valori codificati
+</titolo_2>
+<testo_normale>
+L'intestazione dei cookie deve avere i valori codificati in modo che possano essere elaborati correttamente.
+</testo_normale>
+<py_code>
+# http_cookies_coded_value.py
+
+from http import cookies
+
+
+c = cookies.SimpleCookie()
+c['intero'] = 5
+c['con_virgolette'] = 'Disse, "Ciao, Mondo!"'
+
+for name in ['intero', 'con_virgolette']:
+    print(c[name].key)
+    print('  {}'.format(c[name]))
+    print('  value={!r}'.format(c[name].value))
+    print('  coded_value={!r}'.format(c[name].coded_value))
+    print()
+</py_code>
+<testo_normale>
+<code>Morsel.value</code> è sempre il valore decodificato del cookie, mentre <code>Morsel.coded_value</code> è sempre la rappresentazione da usare per trasmettere il valore al client. Entrambi i valori sono sempre stringhe. I valori salvati in un cookie che non sono stringhe sono convertiti automaticamente.
+</testo_normale>
+<py_output>
+$ python3 http_cookies_coded_value.py
+
+intero
+  Set-Cookie: intero=5
+  value='5'
+  coded_value='5'
+
+con_virgolette
+  Set-Cookie: con_virgolette="Disse\054 \"Ciao\054 Mondo!\""
+  value='Disse, "Ciao, Mondo!"'
+  coded_value='"Disse\\054 \\"Ciao\\054 Mondo!\\""'
+</py_output>
+<titolo_2>
+Ricevere e Passare Intestazioni di Cookie
+</titolo_2>
+<testo_normale>
+Una volta che le intestazioni in <code>Set-Cookie</code> sono ricevute dal client, esso restituirà al server quei cookie alle successive richieste usando una intestazione <code>Cookie</code>. Una stringa di intestazione <code>Cookie</code> che perviene può contenere parecchi valori di cookie, separati da punto e virgola (<code>;</code>).
+</testo_normale>
+<py_output>
+Cookie: intero=5; con_virgolette="Disse, \"Ciao, Mondo!\""
+</py_output>
+<testo_normale>
+A seconda del server web e del framework, i cookie sono disponibili direttamente dalle intestazioni oppure dalla variabile di ambiente <code>HTTP_COOKIE</code>.
+</testo_normale>
+<py_code>
+# http_cookies_parse.py
+
+from http import cookies
+
+
+HTTP_COOKIE = '; '.join([
+    r'intero=5',
+    r'con_virgolette="Disse, \"Ciao, Mondo!\""',
+])
+
+print('Dal Costruttore:')
+c = cookies.SimpleCookie(HTTP_COOKIE)
+print(c)
+
+print()
+print('Da load():')
+c = cookies.SimpleCookie()
+c.load(HTTP_COOKIE)
+print(c)
+</py_code>
+<testo_normale>
+Per decodificarli, si passi la stringa senza il prefisso di intestazione a <code>SimpleCookie</code> quando lo si istanzia, oppure si usi il metodo <code>load()</code>.
+</testo_normale>
+<py_output>
+$ python3 http_cookies_parse.py
+
+Dal Costruttore:
+Set-Cookie: con_virgolette="Disse, \"Ciao, Mondo!\""
+Set-Cookie: intero=5
+
+Da load():
+Set-Cookie: con_virgolette="Disse, \"Ciao, Mondo!\""
+Set-Cookie: intero=5
+</py_output>
+<titolo_2>
+Formati di Uscita Alternativi
+</titolo_2>
+<testo_normale>
+A parte l'utilizzo dell'intestazione <code>Set-Cookie</code>, i server potrebbero passare del codice Javascript che aggiunge i cookie al client. <code>SimpleCookie</code> e <code>Morsel</code> forniscono un output come codice Javascript tramite il metodo <code>js_output()</code>.
+</testo_normale>
+<py_code>
+# http_cookies_js_output.py
+
+from http import cookies
+import textwrap
+
+
+c = cookies.SimpleCookie()
+c['ilmiocookie'] = 'valore del cookie'
+c['altro_cookie'] = 'secondo valore'
+js_text = c.js_output()
+print(textwrap.dedent(js_text).lstrip())
+</py_code>
+<testo_normale>
+Il risultato è un tag <code>script</code> completo con le istruzioni per impostare i cookie.
+</testo_normale>
+<py_output>
+$ python3 http_cookies_js_output.py
+
+&lt;script type="text/javascript"&gt;
+&lt;!-- begin hiding
+document.cookie = "altro_cookie=\"secondo valore\"";
+// end hiding --&gt;
+&lt;/script&gt;
+
+&lt;script type="text/javascript"&gt;
+&lt;!-- begin hiding
+document.cookie = "ilmiocookie=\"valore del cookie\"";
+// end hiding --&gt;
+&lt;/script&gt;
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/http.cookies.html|http.cookies|La documentazione della libreria standard per questo modulo
+https://docs.python.org/3.5/library/http.cookiejar.html|http.cookiejar|Il modulo cookielib, per lavorere sui cookie lato client.
+https://tools.ietf.org/html/rfc2109.html|RFC 2109|Il meccanismo di gestione della stato in HTTP
+</vedi_anche>
+</documento_tradotto>

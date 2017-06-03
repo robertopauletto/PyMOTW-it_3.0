@@ -1,8 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
-
-#textwrap_fill_width.py
+# textwrap_fill_width.py
 
 import textwrap
 from textwrap_example import sample_text
