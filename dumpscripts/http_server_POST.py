@@ -36,7 +36,7 @@ class PostHandler(BaseHTTPRequestHandler):
             self.headers['user-agent']))
         out.write('Percorso: {}\n'.format(self.path))
         out.write('Dati del form:\n')
-        print( form.keys())
+
         # Ritorna le informazioni di ciò che era stato inviato nel form
         for field in form.keys():
             field_item = form[field]
@@ -55,7 +55,7 @@ class PostHandler(BaseHTTPRequestHandler):
                     field, form[field].value))
 
         # Disconnette il wrapper di codifica dal buffer sottostante
-        # in modo che l'eliminazione del wrapper non chiude
+        # in modo che l'eliminazione del wrapper non chiuda
         # il socket, che è ancora in uso dal server.
         out.detach()
 

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+http.server - Classe Base per Implementare Server Web
+</titolo_1>
+<descrizione>
+Include classi che possono formare le basi un server web.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>http.server</strong> usa classi dal modulo <strong>socketserver</strong> per creare classi baee per creare server HTTP. <code>HTTPServer</code> può essere usato direttamente, ma la classe <code>BaseHTTPRequestHandler</code> è concepita per essere estesa per gestire ciascun metodo del protocollo (GET, POST, ecc.).
+</testo_normale>
+<titolo_2>
+HTTP GET
+</titolo_2>
+<testo_normale>
+Per aggiungere supporto ad un metodo HTTP in una classe per la gestione di richieste, si implementi il metodo <code>do_METODO)=</code> sostituendo METODO con il nome del metodo HTTP (es. <code>do_GET()</code>, <code>do_POST()</code>, ecc.). Per consistenza, i metodi per la gestione della richiesta non richiedono argomenti. Tutti i parametri per la richiesta sono elaborati da <code>BaseHTTPRequestHandler</code> e conservati come attributi di istanza nell'istanza della richiesta.
+</testo_normale>
+<testo_normale>
+Questo esempio di gestore di richiesta illustra come ritornare una risposta al client, ed alcuni degli attributi locali che possono essere utili nella costruzione della risposta.
+</testo_normale>
+<py_code>
+# http_server_GET.py
+
+from http.server import BaseHTTPRequestHandler
+from urllib import parse
+
+
+class GetHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        parsed_path = parse.urlparse(self.path)
+        message_parts = [
+            'VALORI DEL CLIENT:',
+            'indirizzi client={} ({})'.format(
+                self.client_address,
+                self.address_string()),
+            'comando={}'.format(self.command),
+            'percorso={}'.format(self.path),
+            'percorso reale={}'.format(parsed_path.path),
+            'query={}'.format(parsed_path.query),
+            'versione richiesta={}'.format(self.request_version),
+            '',
+            'VALORI DEL SERVER:',
+            'versione server={}'.format(self.server_version),
+            'versione sys={}'.format(self.sys_version),
+            'versione protocollo={}'.format(self.protocol_version),
+            '',
+            'INTESTAZIONI RICEVUTE:',
+        ]
+        for name, value in sorted(self.headers.items()):
+            message_parts.append(
+                '{}={}'.format(name, value.rstrip())
+            )
+        message_parts.append('')
+        message = '\r\n'.join(message_parts)
+        self.send_response(200)
+        self.send_header('Content-Type',
+                         'text/plain; charset=utf-8')
+        self.end_headers()
+        self.wfile.write(message.encode('utf-8'))
+
+
+if __name__ == '__main__':
+    from http.server import HTTPServer
+    server = HTTPServer(('localhost', 8080), GetHandler)
+    print('Avvio del server, usare <Ctrl-C> per interrompere')
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Il testo del messaggio viene assemblato, quindi scritto a <code>wfile</code>, l'<a href='https://www.wikiwand.com/it/File' target='_blank'>handle</a> che incapsula il <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'>socket</a> di risposta. Ogni risposta deve avere un codice di risposta, impostato tramite <code>send_response()</code>. Se viene usato un codice di errore (404, 501, ecc.), viene incluso nell'intestazione un appropriato messaggio di errore predefinito, oppure un messaggio può essere passato con il codice di errore.
+</testo_normale>
+<testo_normale>
+Per eseguire il gestore di richiesta nel server, lo si passi al costrutture di <code>HTTPServer</code>, come indicato nella parte <code>__main__</code> del codice di esempio qui sopra.
+</testo_normale>
+<testo_normale>
+Per par partire il server:
+</testo_normale>
+<py_output>
+$ python3 http_server_GET.py
+
+Avvio del server, usare &lt;Ctrl-C&gt; per interrompere
+</py_output>
+<testo_normale>
+In un altro terminale usare il programma <a href='https://curl.haxx.se/download.html' target='_blank'>curl</a> per accedere:
+</testo_normale>
+<py_output>
+$ curl -v -i http://127.0.0.1:8080/?foo=bar
+
+* Trying 127.0.0.1...
+* Connected to 127.0.0.1 (127.0.0.1) port 8080 (#0)
+&gt; GET /?foo=bar HTTP/1.1
+&gt; Host: 127.0.0.1:8080
+&gt; User-Agent: curl/7.50.1
+&gt; Accept: */*
+&gt;
+* HTTP 1.0, assume close after body
+&lt; HTTP/1.0 200 OK
+HTTP/1.0 200 OK
+&lt; Server: BaseHTTP/0.6 Python/3.5.2+
+Server: BaseHTTP/0.6 Python/3.5.2+
+&lt; Date: Sun, 04 Jun 2017 08:44:41 GMT
+Date: Sun, 04 Jun 2017 08:44:41 GMT
+&lt; Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8
+
+&lt;
+VALORI DEL CLIENT:
+indirizzi client=('127.0.0.1', 55180) (127.0.0.1)
+comando=GET
+percorso=/?foo=bar
+percorso reale=/
+query=foo=bar
+versione richiesta=HTTP/1.1
+
+VALORI DEL SERVER:
+versione server=BaseHTTP/0.6
+versione sys=Python/3.5.2+
+versione protocollo=HTTP/1.0
+
+INTESTAZIONI RICEVUTE:
+Accept=*/*
+Host=127.0.0.1:8080
+User-Agent=curl/7.50.1
+* Closing connection 0
+</py_output>
+<note>
+L'output potrebbe variare a seconda delle versioni di <code>curl</code>. Se l'esecuzione degli esempi produce output diversi, verificare il numero di versione riportato da <code>curl</code>.
+</note>
+<titolo_2>
+HTTP POST
+</titolo_2>
+<testo_normale>
+Per supportare richieste POST è necessario un poco più di lavoro, visto che la classe base non elabora automaticamente i dati del form. Il modulo <strong>cgi</strong> fornisce la classe <code>FieldStorage</code> che è in grado di elaborare il form, se forntia dei corretti input.
+</testo_normale>
+<py_code>
+# http_server_POST.py
+
+import cgi
+from http.server import BaseHTTPRequestHandler
+import io
+
+
+class PostHandler(BaseHTTPRequestHandler):
+
+    def do_POST(self):
+        # Parse the form data posted
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': self.headers['Content-Type'],
+            }
+        )
+
+        # Inizio della risposta
+        self.send_response(200)
+        self.send_header('Content-Type',
+                         'text/plain; charset=utf-8')
+        self.end_headers()
+
+        out = io.TextIOWrapper(
+            self.wfile,
+            encoding='utf-8',
+            line_buffering=False,
+            write_through=True,
+        )
+
+        out.write('Client: {}\n'.format(self.client_address))
+        out.write('User-agent: {}\n'.format(
+            self.headers['user-agent']))
+        out.write('Percorso: {}\n'.format(self.path))
+        out.write('Dati del form:\n')
+
+        # Ritorna le informazioni di ciò che era stato inviato nel form
+        for field in form.keys():
+            field_item = form[field]
+            if field_item.filename:
+                # Il campo contiene un file inviato
+                file_data = field_item.file.read()
+                file_len = len(file_data)
+                del file_data
+                out.write(
+                    '\tUploaded {} as {!r} ({} bytes)\n'.format(
+                        field, field_item.filename, file_len)
+                )
+            else:
+                # Valori del normali
+                out.write('\t{}={}\n'.format(
+                    field, form[field].value))
+
+        # Disconnette il wrapper di codifica dal buffer sottostante
+        # in modo che l'eliminazione del wrapper non chiuda
+        # il socket, che è ancora in uso dal server.
+        out.detach()
+
+
+if __name__ == '__main__':
+    from http.server import HTTPServer
+    server = HTTPServer(('localhost', 8080), PostHandler)
+    print('Avvio del server, usare <Ctrl-C> per interrompere')
+
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Eseguire il server in un terminale:
+</testo_normale>
+<py_output>
+$ python3 http_server_POST.py
+
+Server in esecuzione, usare &lt;Ctrl-C&gt; per terminare
+</py_output>
+<testo_normale>
+Gli argomenti per <code>curl</code> possono includere dati di un form da inviare al server tramite l'opzione <code>-F</code>. L'ultimo argomento, <code>-F datafile=@http_server_GET.py</code>, invia il contenuto del file <code>http_server_GET.py</code> per illustrare la lettura di un file di dati dal form.
+</testo_normale>
+<py_output>
+$ curl -v http://127.0.0.1:8080/ -F name=dhellmann -F foo=bar -F datafile=@http_server_GET.py
+*   Trying 127.0.0.1...
+* Connected to 127.0.0.1 (127.0.0.1) port 8080 (#0)
+&gt; POST / HTTP/1.1
+&gt; Host: 127.0.0.1:8080
+&gt; User-Agent: curl/7.50.1
+&gt; Accept: */*
+&gt; Content-Length: 2025
+&gt; Expect: 100-continue
+&gt; Content-Type: multipart/form-data; boundary=------------------------bd06a03b251d489f
+&gt;
+* Done waiting for 100-continue
+* HTTP 1.0, assume close after body
+&lt; HTTP/1.0 200 OK
+&lt; Server: BaseHTTP/0.6 Python/3.5.2+
+&lt; Date: Sun, 04 Jun 2017 08:55:23 GMT
+&lt; Content-Type: text/plain; charset=utf-8
+&lt;
+Client: ('127.0.0.1', 34358)
+User-agent: curl/7.50.1
+Percorso: /
+Dati del form:
+    foo=bar
+    Uploaded datafile as 'http_server_GET.py' (1614 bytes)
+    name=dhellmann
+* Closing connection 0
+</py_output>
+<titolo_2>
+Threading e Forking
+</titolo_2>
+<testo_normale>
+Per aggiungere caratteristiche di <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>threading</a> e <a href='https://www.wikiwand.com/it/Fork_(programmazione)' target='_blank'>forking</a>, occorre creare una nuova classe usando il mix-in appropriato da <strong>socketserver</strong>, visto che <code>HTTPServer</code> è una semplice sottoclasse di <code>socketserver.TCPServer</code> e non usa thread multipli o processi per gestire le richieste.
+</testo_normale>
+<py_code>
+# http_server_threads.py
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
+import threading
+
+
+class Handler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type',
+                         'text/plain; charset=utf-8')
+        self.end_headers()
+        message = threading.currentThread().getName()
+        self.wfile.write(message.encode('utf-8'))
+        self.wfile.write(b'\n')
+
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Gestisce le richieste in un thread separato."""
+
+
+if __name__ == '__main__':
+    server = ThreadedHTTPServer(('localhost', 8080), Handler)
+    print('Avvio del server, usare <Ctrl-C> per interrompere')
+
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Eseguire il server allo stesso modo degli altri esempi.
+</testo_normale>
+<py_output>
+$ python3 http_server_threads.py
+
+Server in esecuzione, usare &lt;Ctrl-C&gt; per terminare
+</py_output>
+<testo_normale>
+Ogni volta che il server riceve una richiesta, inizia un nuovo thread o processo per gestirla.
+</testo_normale>
+<py_output>
+$ curl  http://127.0.0.1:8080/
+
+Thread-1
+
+$ curl  http://127.0.0.1:8080/
+
+Thread-2
+
+$ curl  http://127.0.0.1:8080/
+
+Thread-3
+</py_output>
+<testo_normale>
+Scambiando <code>ForkingMixIn</code> con <code>ThreadingMixIn</code> si sarebbero ottenuti gli stessi risultati, usando processi separati in luogo dei thread.
+</testo_normale>
+<titolo_2>
+Gestione degli Errori
+</titolo_2>
+<testo_normale>
+Si gestiscano gli errori chiamando <code>send_error()</code>, passando il codice di errore appropriato ed il messaggio di errore opzionale. L'intera risposta (con intestazioni, codice di stato e corpo) viene generata automaticamente.
+</testo_normale>
+<py_code>
+# http_server_errors.py
+
+from http.server import BaseHTTPRequestHandler
+
+
+class ErrorHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_error(404)
+
+
+if __name__ == '__main__':
+    from http.server import HTTPServer
+    server = HTTPServer(('localhost', 8080), ErrorHandler)
+    print('Avvio del server, usare <Ctrl-C> per interrompere')
+
+    server.serve_forever()
+</py_code>
+<testo_normale>
+In questo caso, viene sempre ritornato un errore 404
+</testo_normale>
+<py_output>
+$ python3 http_server_errors.py
+
+Server in esecuzione, usare &lt;Ctrl-C&gt; per terminare
+</py_output>
+<testo_normale>
+Il messaggio di errore viene riportato al client usando un documento HTML assieme all'intestazione per indicare un codice di errore.
+</testo_normale>
+<py_output>
+$ curl -i  http://127.0.0.1:8080/
+
+HTTP/1.0 404 Not Found
+Server: BaseHTTP/0.6 Python/3.5.2+
+Date: Sun, 04 Jun 2017 09:15:25 GMT
+Connection: close
+Content-Type: text/html;charset=utf-8
+Content-Length: 447
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd"&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html;charset=utf-8"&gt;
+        &lt;title&gt;Error response&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Error response&lt;/h1&gt;
+        &lt;p&gt;Error code: 404&lt;/p&gt;
+        &lt;p&gt;Message: Not Found.&lt;/p&gt;
+        &lt;p&gt;Error code explanation: 404 - Nothing matches the given URI.&lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</py_output>
+<titolo_2>
+Impostare Intestazioni
+</titolo_2>
+<testo_normale>
+Il metodo <code>send_header()</code> aggiunge dati di intestazione alla risposta HTTP. Richiede due argomenti: il nome dell'intestazione ed il valore.
+</testo_normale>
+<py_code>
+# http_server_send_header.py
+
+from http.server import BaseHTTPRequestHandler
+import time
+
+
+class GetHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header(
+            'Content-Type',
+            'text/plain; charset=utf-8',
+        )
+        self.send_header(
+            'Last-Modified',
+            self.date_time_string(time.time())
+        )
+        self.end_headers()
+        self.wfile.write('Response body\n'.encode('utf-8'))
+
+
+if __name__ == '__main__':
+    from http.server import HTTPServer
+    server = HTTPServer(('localhost', 8080), GetHandler)
+    print('Avvio del server, usare <Ctrl-C> per interrompere')
+
+    server.serve_forever()
+</py_code>
+<testo_normale>
+Questo esempio imposta l'intestazione <code>Last-Modified</code> all'orario corrente, formattato secondo le specifiche <a href='https://tools.ietf.org/html/rfc7231' target='_blank'>RFC 7231</a>.
+</testo_normale>
+<py_output>
+$ curl -i  http://127.0.0.1:8080/
+
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.5.2+
+Date: Sun, 04 Jun 2017 09:20:47 GMT
+Content-Type: text/plain; charset=utf-8
+Last-Modified: Sun, 04 Jun 2017 09:20:47 GMT
+
+Response body
+</py_output>
+<testo_normale>
+Il server registra la richiesta nel terminale, come negli altri esempi.
+</testo_normale>
+<py_output>
+$ python3 http_server_send_header.py
+
+Server in esecuzione, usare &lt;Ctrl-C&gt; per terminare
+127.0.0.1 - - [04/Jun/2017 11:20:47] "GET / HTTP/1.1" 200 -
+</py_output>
+<titolo_2>
+Utilizzo da Riga di Comando
+</titolo_2>
+<testo_normale>
+<code>http.server</code> include un server <em>built-in</em> per servire file dal file system locale. Per farlo partire dalla riga di comando usare l'opzione <code>-m</code>  per l'interprete Python.
+</testo_normale>
+<py_output>
+$ python3 -m http.server 8080
+
+Serving HTTP on 0.0.0.0 port 8080 ...
+127.0.0.1 - - [04/Jun/2017 11:26:32] "HEAD /http_server_GET.py HTTP/1.1" 200 -
+</py_output>
+<testo_normale>
+La directory radice del server è la directory di lavoro dalla quale il server è stato fatto partire.
+</testo_normale>
+<py_output>
+$ curl -I http://127.0.0.1:8080/http_server_GET.py
+
+HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/3.5.2+
+Date: Sun, 04 Jun 2017 09:26:32 GMT
+Content-type: text/plain
+Content-Length: 1614
+Last-Modified: Sun, 04 Jun 2017 08:32:47 GMT
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/http.server.html|http.server|La documentazione della libreria standard per questo modulo
+https://tools.ietf.org/html/rfc7231.html|RFC 7231|&quot;Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content&quot; include specifiche per il formato delle intestazioni HTTP e delle date.
+</vedi_anche>
+</documento_tradotto>
