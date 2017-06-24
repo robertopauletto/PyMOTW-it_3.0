@@ -42,7 +42,7 @@ $ python3 urllib_parse_urlparse.py
 ParseResult(scheme='http', netloc='netloc', path='/path', params='param', query='query=arg', fragment='frag')
 </py_output>
 <testo_normale>
-Sebbene il valore ritornato agisca come una tupla, in realtè basato su una <code>namedtuple</code>, una sottoclasse di <code>tuple</code> che supporta l'accesso alle parti dell'URL tramite attributi nominali e numerici. Oltre ad essere più facile da usare per gli sviluppatori, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> offre accesso a parecchi valori non disponiibli nell'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code>.
+Sebbene il valore ritornato agisca come una tupla, in realtà è basato su una <a href='namedtuple.html' target='_blank'>namedtuple</a>, una sottoclasse di <code>tuple</code> che supporta l'accesso alle parti dell'URL tramite attributi nominali e numerici. Oltre ad essere più facile da usare per gli sviluppatori, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> offre accesso a parecchi valori non disponiibli nell'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code>.
 </testo_normale>
 <py_code>
 # urllib_parse_urlparseattrs.py
@@ -100,33 +100,8 @@ print('password    :', parsed.password)
 print('nome host   :', parsed.hostname)
 print('porta       :', parsed.port)
 </py_code>
-<titolo_2>
-Assemblare le Parti
-</titolo_2>
 <testo_normale>
-Ci sono parecchi modi per assemblare in una singola stringa le parti di un URL separate. L'oggetto URL separato ha un metodo <code>geturl()</code>.
-</testo_normale>
-<py_code>
-# urllib_parse_geturl.py
-
-from urllib.parse import urlparse
-
-original = 'http://netloc/path;param?query=arg#frag'
-print('ORIGINALE  :', original)
-parsed = urlparse(original)
-print('ASSEMBLATO :', parsed.geturl())
-</py_code>
-<testo_normale>
-<code>geturl()</code> funziona solo con oggetti restituiti da <code>urlparse()</code> ed <code>urlsplit()</code>.
-</testo_normale>
-<py_output>
-$ python3 urllib_parse_geturl.py
-
-ORIGINALE  : http://netloc/path;param?query=arg#frag
-ASSEMBLATO : http://netloc/path;param?query=arg#frag
-</py_output>
-<testo_normale>
-Visto che i parametri non sono estrapolati, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code> mostrerà solo cinque elementi in luogo di sei, e non c'è il parametro <code>attribute</code>.
+Visto che i parametri non sono estrapolati, l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di <code>tuple</code> mostrerà solo cinque elementi in luogo di sei, e non c'è l'attributo <code>params</code>.
 </testo_normale>
 <py_output>
 $ python3 urllib_parse_urlsplit.py
@@ -166,6 +141,32 @@ originale: http://netloc/path;param?query=arg#frag
 url      : http://netloc/path;param?query=arg
 frammento: frag
 </py_output>
+
+<titolo_2>
+Assemblare le Parti
+</titolo_2>
+<testo_normale>
+Ci sono parecchi modi per assemblare in una singola stringa le parti di un URL separate. L'oggetto URL separato ha un metodo <code>geturl()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_geturl.py
+
+from urllib.parse import urlparse
+
+original = 'http://netloc/path;param?query=arg#frag'
+print('ORIGINALE  :', original)
+parsed = urlparse(original)
+print('ASSEMBLATO :', parsed.geturl())
+</py_code>
+<testo_normale>
+<code>geturl()</code> funziona solo con oggetti restituiti da <code>urlparse()</code> ed <code>urlsplit()</code>.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_geturl.py
+
+ORIGINALE  : http://netloc/path;param?query=arg#frag
+ASSEMBLATO : http://netloc/path;param?query=arg#frag
+</py_output>
 <testo_normale>
 Una tupla normale che contenga stringhe può essere combinata in un URL con <code>urlunparse()</code>.
 </testo_normale>
@@ -183,7 +184,7 @@ print('TUPLA      :', type(t), t)
 print('NUOVO      :', urlunparse(t))
 </py_code>
 <testo_normale>
-Mentro l'oggetto <code>ParseResult</code> ritornato da <code>urlparse()</code> può essere usato come tupla, questo esempio crea esplicitamente una nuova tupla per mostrare che <code>urlunparse()</code> funziona anche con le normali tuple.
+Mentre l'oggetto <code>ParseResult</code> ritornato da <code>urlparse()</code> può essere usato come tupla, questo esempio crea esplicitamente una nuova tupla per mostrare che <code>urlunparse()</code> funziona anche con le normali tuple.
 </testo_normale>
 <py_output>
 $ python3 urllib_parse_urlunparse.py
@@ -221,15 +222,173 @@ TUPLA     : <class 'tuple'> ('http', 'netloc', '/path', '', '', '')
 NUOVO     : http://netloc/path
 </py_output>
 <titolo_2>
-UNIRE
+Unire
 </titolo_2>
 <testo_normale>
 Oltre alla separazione di URL, <strong>urllib.urlparse</strong> comprende <code>urljoin()</code> per costruire URL assoluti da frammenti relativi.
 </testo_normale>
+<py_code>
+# urllib_parse_urljoin.py
+
+from urllib.parse import urljoin
+
+print(urljoin('http://www.example.com/path/file.html',
+              'anotherfile.html'))
+print(urljoin('http://www.example.com/path/file.html',
+              '../anotherfile.html'))
+</py_code>
+<testo_normale>
+Nell'esempio la porzione relativa del percorso (<code>"../"</code>), viene presa in considerazione quando viene calcolato il secondo URL.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urljoin.py
+
+http://www.example.com/path/anotherfile.html
+http://www.example.com/anotherfile.html
+</py_output>
+<testo_normale>
+Percorsi non relativi sono gestiti allo stesso modo di <code>os.path.join()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_urljoin_with_path.py
+
+from urllib.parse import urljoin
+
+print(urljoin('http://www.example.com/path/',
+              '/subpath/file.html'))
+print(urljoin('http://www.example.com/path/',
+              'subpath/file.html'))
+</py_code>
+<testo_normale>
+Se il percorso che deve essere unito nell'URL inizia con una barra (<code>/</code>), reimposta il percorso dell'URL al livello superiore, altrimenti viene aggiunto alla fine del percorso dell'URL.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urljoin_with_path.py .
+
+http://www.example.com/subpath/file.html
+http://www.example.com/path/subpath/file.html
+</py_output>
+<titolo_2>
+Codificare gli Argomenti in Query
+</titolo_2>
+<testo_normale>
+Prima di essere aggiunti all'URL, gli argomenti devono essere codificati.
+</testo_normale>
+<py_code>
+# urllib_parse_urlencode.py
+
+from urllib.parse import urlencode
+
+query_args = {
+    'q': 'query string',
+    'foo': 'bar',
+}
+encoded_args = urlencode(query_args)
+print('Codificati:', encoded_args)
+</py_code>
+<testo_normale>
+La codifica sostituisce i caratteri speciali come gli spazi per assicurarsi che vengano passati al server usando un formato che sia conforme allo standard.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlencode.py
+
+Codificati: foo=bar&q=query+string
+</py_output>
+<testo_normale>
+Per passare una sequenza di valori usando diverse occorrenze della variabile nella <a href='https://www.wikiwand.com/it/Query_string' target='_blank'>query string</a>, si imposti <code>doseq</code>  a <code>True</code>  quando si chiama <code>urlencode()</code> .
+</testo_normale>
+<py_code>
+urllib_parse_urlencode_doseq.py
+from urllib.parse import urlencode
+
+query_args = {
+    'foo': ['foo1', 'foo2'],
+}
+print('Singola :', urlencode(query_args))
+print('Sequenza:', urlencode(query_args, doseq=True))
+</py_code>
+<testo_normale>
+Il risultato è una <a href='https://www.wikiwand.com/it/Query_string' target='_blank'>query string</a> con diversi valori associati allo stesso nome
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_urlencode_doseq.py
+
+Singola : foo=%5B%27foo1%27%2C+%27foo2%27%5D
+Sequenza: foo=foo1&foo=foo2
+</py_output>
+<testo_normale>
+Per decodificare una <a href='https://www.wikiwand.com/it/Query_string' target='_blank'>query string</a> si usi <code>parse_qs()</code>, oppure <code>parse_qsl()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_parse_qs.py
+
+from urllib.parse import parse_qs, parse_qsl
+
+encoded = 'foo=foo1&foo=foo2'
+
+print('parse_qs :', parse_qs(encoded))
+print('parse_qsl:', parse_qsl(encoded))
+</py_code>
+<testo_normale>
+Il valore di ritorno da <code>parse_qs()</code> è un dizionario che mappa nomi con valori, mentre <code>parse_qsl()</code> ritorna una lista di tuple che contengono un nome ed un valore.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_parse_qs.py
+
+parse_qs : {'foo': ['foo1', 'foo2']}
+parse_qsl: [('foo', 'foo1'), ('foo', 'foo2')]
+</py_output>
+<testo_normale>
+I caratteri speciali all'interno degli argomenti della query che potrebbero causare problemi di elaborazione con l'URL lato server sono racchiusi tra virgolette quando passati ad <code>urlencode()</code>. Per eseguire la stessa operazione localmente per generare versioni più sicure delle stringhe si usi <code>quote()</code> o <code>quote_plus()</code> direttamente.
+</testo_normale>
+<py_code>
+# urllib_parse_quote.py
+
+from urllib.parse import quote, quote_plus, urlencode
+
+url = 'http://localhost:8080/~hellmann/'
+print('urlencode() :', urlencode({'url': url}))
+print('quote()     :', quote(url))
+print('quote_plus():', quote_plus(url))
+</py_code>
+<testo_normale>
+L'implementazione in <code>quote_plus()</code> è più aggressiva verso i caratteri che deve sostituire.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_quote.py
+
+urlencode() : url=http%3A%2F%2Flocalhost%3A8080%2F%7Ehellmann%2F
+quote()     : http%3A//localhost%3A8080/%7Ehellmann/
+quote_plus(): http%3A%2F%2Flocalhost%3A8080%2F%7Ehellmann%2F
+</py_output>
+<testo_normale>
+Per invertire le operazioni fatte con <code>quote()</code> e <code>quote_plus()</code> si usi rispettivamente <code>unquote()</code> e <code>unquote_plus()</code>.
+</testo_normale>
+<py_code>
+# urllib_parse_unquote.py
+
+from urllib.parse import unquote, unquote_plus
+
+print(unquote('http%3A//localhost%3A8080/%7Ehellmann/'))
+print(unquote_plus(
+    'http%3A%2F%2Flocalhost%3A8080%2F%7Ehellmann%2F'
+))
+</py_code>
+<testo_normale>
+Il valore codificato viene riconvertito come normale stringa URL.
+</testo_normale>
+<py_output>
+$ python3 urllib_parse_unquote.py
+
+http://localhost:8080/~hellmann/
+http://localhost:8080/~hellmann/
+</py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/urllib.request.html|urllib.request|La documentazione della libreria standard per questo modulo
-urllib.parse.html|urllib.parse|Lavora con le stringa URL
-http://www.w3.org/TR/REC-html40/interact/forms.html#h-17.13.4|Form content types|Specifiche WC3 per l'invio di file o grandi volumi di dati tramite form HTTP.
-https://pypi.python.org/pypi/requests|requests|Libreria di terze parti con miglior supporto per connessioni sicure e una API più facile da usare. La squadra di sviluppo del core di Python raccomanda che la maggior parte degli sviluppatori utilizzi requests, in parte perchè riceve aggiornamenti di sicurezza più frequentemente della libreria standard.
+https://docs.python.org/3.5/library/urllib.parse.html|urllib.parse|La documentazione della libreria standard per questo modulo
+urllib.request.html|urllib.request|Recupera il contenuto di una risorsa identificata da un URL
+https://tools.ietf.org/html/rfc1738.html|RFC 1738|Sintassi per Uniform Resource Locator (URL)
+https://tools.ietf.org/html/rfc1808.html|RFC 1808|URL relativi
+https://tools.ietf.org/html/rfc2396.html|RFC 2396|Sintassi generica per Uniform Resource Identifier (URI)
+https://tools.ietf.org/html/rfc3986.html|RFC 3986|Sintassi per Uniform Resource Identifier (URI)
 </vedi_anche>
 </documento_tradotto>

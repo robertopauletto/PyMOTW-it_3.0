@@ -113,7 +113,7 @@ Combinare Dedent e Fill
 Proseguendo, il testo deindentato può essere passato attraverso fill() con diversi valori di larghezza <em>width</em>.
 </testo_normale>
 <py_code>
-#textwrap_fill_width.py
+# textwrap_fill_width.py
 
 import textwrap
 from textwrap_example import sample_text

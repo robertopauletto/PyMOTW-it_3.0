@@ -225,7 +225,7 @@ Intervalli Temporali (timedelta)
 Date future e passate possono essere calcolate utilizzando operazioni aritmetiche su due oggetti <strong>datetime</strong>, oppure combinando un <strong>datetime</strong> con un <code>timedelta</code>. La sottrazione di date produce un <code>timedelta</code>; ed un <code>timedelta</code> può essere aggiunto o sottratto da una data per produrne un'altra. I valori interi di <code>timedelta</code> sono conservati in giorni, secondi e microsecondi.
 </testo_normale>
 <py_code>
-#datetime_timedelta.py
+# datetime_timedelta.py
 
 import datetime
 

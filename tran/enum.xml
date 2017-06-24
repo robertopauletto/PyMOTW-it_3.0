@@ -23,7 +23,7 @@ Creare Enumerazioni
 Una nuova enumerazione viene definita utilizzando la sintassi di <code>class</code> subclassando <code>Enum</code> ed aggiungendo attibuti di classe che descrivono i valori.
 </testo_normale>
 <py_code>
-#enum_create.py
+# enum_create.py
 
 import enum
 
@@ -97,7 +97,7 @@ Confrontare Enumerazioni
 Poichè i membri delle enumerazioni non sono ordinati, supportano solo il confronto per identità ed uguaglianza.
 </testo_normale>
 <py_code>
-#enum_comparison.py
+# enum_comparison.py
 
 import enum
 
@@ -143,7 +143,7 @@ Ordinati per valore:
 Si utilizzi la classe <code>IntEnum</code> per enumerazioni dove i membri devono avere un comportamento che più si avvicini ai numeri, ad esempio per supportare confronti.
 </testo_normale>
 <py_code>
-#enum_intenum.py
+# enum_intenum.py
 
 import enum
 
@@ -181,7 +181,7 @@ Valori di Enumerazione Univoci
 I membri di <code>Enum</code> con lo stesso valore sono trattati come riferimenti alias allo stesso oggetto membro. Un qualsiasi alias non fa sì che siano presenti valori ripetuti nell'iteratore per <code>Enum</code>.
 </testo_normale>
 <py_code>
-#enum_aliases.py
+# enum_aliases.py
 
 import enum
 
@@ -230,7 +230,7 @@ Uguale: closed è fix_released:  True
 Per richiedere che tutti i membri abbiano valori univoci, si aggiunge il decoratore <code>@unique</code> ad <code>Enum</code>.
 </testo_normale>
 <py_code>
-#enum_unique_enforce.py
+# enum_unique_enforce.py
 
 import enum
 
@@ -270,7 +270,7 @@ Creare Programmaticamente Enumerazioni
 Ci sono casi in cui è più vantaggioso creare enumerazioni programmaticamente, piuttosto che scriverle direttamente nel codice in una definizione di classe. Per queste situazioni, <code>Enum</code> suporta anche il passaggio di nomi e valori di membro alla classe costruttore.
 </testo_normale>
 <py_code>
-#enum_programmatic_create.py
+# enum_programmatic_create.py
 
 import enum
 

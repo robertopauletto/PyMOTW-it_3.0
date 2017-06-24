@@ -23,7 +23,7 @@ Il modulo <strong>random</strong> fornisce un veloce generatore pseudocasuale di
 Generare Numeri Casuali
 </titolo_2>
 <testo_normale>
-La funzione <code>random()</code> ritorna il prossimo valore a virgola mobile più vicino  dalla sequenza generata. Tutti i valori di ritorno sono racchiusi tra <code>o <= 1.0</code>.
+La funzione <code>random()</code> ritorna il prossimo valore a virgola mobile più vicino  dalla sequenza generata. Tutti i valori di ritorno sono racchiusi tra <code>0 <= 1.0</code>.
 </testo_normale>
 <py_code>
 # random_random.py

@@ -16,13 +16,13 @@ Include classi che possono formare le basi un server web.
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>http.server</strong> usa classi dal modulo <strong>socketserver</strong> per creare classi baee per creare server HTTP. <code>HTTPServer</code> può essere usato direttamente, ma la classe <code>BaseHTTPRequestHandler</code> è concepita per essere estesa per gestire ciascun metodo del protocollo (GET, POST, ecc.).
+Il modulo <strong>http.server</strong> usa classi dal modulo <strong>socketserver</strong> per creare classi base per costruire server HTTP. <code>HTTPServer</code> può essere usato direttamente, ma la classe <code>BaseHTTPRequestHandler</code> è concepita per essere estesa per gestire ciascun metodo del protocollo (GET, POST, ecc.).
 </testo_normale>
 <titolo_2>
 HTTP GET
 </titolo_2>
 <testo_normale>
-Per aggiungere supporto ad un metodo HTTP in una classe per la gestione di richieste, si implementi il metodo <code>do_METODO)=</code> sostituendo METODO con il nome del metodo HTTP (es. <code>do_GET()</code>, <code>do_POST()</code>, ecc.). Per consistenza, i metodi per la gestione della richiesta non richiedono argomenti. Tutti i parametri per la richiesta sono elaborati da <code>BaseHTTPRequestHandler</code> e conservati come attributi di istanza nell'istanza della richiesta.
+Per aggiungere supporto ad un metodo HTTP in una classe per la gestione di richieste, si implementi il metodo <code>do_METODO)</code> sostituendo METODO con il nome del metodo HTTP (es. <code>do_GET()</code>, <code>do_POST()</code>, ecc.). Per consistenza, i metodi per la gestione della richiesta non richiedono argomenti. Tutti i parametri per la richiesta sono elaborati da <code>BaseHTTPRequestHandler</code> e conservati come attributi di istanza nell'istanza della richiesta.
 </testo_normale>
 <testo_normale>
 Questo esempio di gestore di richiesta illustra come ritornare una risposta al client, ed alcuni degli attributi locali che possono essere utili nella costruzione della risposta.
@@ -139,7 +139,7 @@ L'output potrebbe variare a seconda delle versioni di <code>curl</code>. Se l'es
 HTTP POST
 </titolo_2>
 <testo_normale>
-Per supportare richieste POST è necessario un poco più di lavoro, visto che la classe base non elabora automaticamente i dati del form. Il modulo <strong>cgi</strong> fornisce la classe <code>FieldStorage</code> che è in grado di elaborare il form, se forntia dei corretti input.
+Per supportare richieste POST è necessario un poco più di lavoro, visto che la classe base non elabora automaticamente i dati del form. Il modulo <strong>cgi</strong> fornisce la classe <code>FieldStorage</code> che è in grado di elaborare il form, se fornita dei corretti input.
 </testo_normale>
 <py_code>
 # http_server_POST.py
@@ -460,6 +460,7 @@ Last-Modified: Sun, 04 Jun 2017 08:32:47 GMT
 </py_output>
 <vedi_anche>
 https://docs.python.org/3.5/library/http.server.html|http.server|La documentazione della libreria standard per questo modulo
+socketserver.html|socketserver|Creare server di rete
 https://tools.ietf.org/html/rfc7231.html|RFC 7231|&quot;Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content&quot; include specifiche per il formato delle intestazioni HTTP e delle date.
 </vedi_anche>
 </documento_tradotto>

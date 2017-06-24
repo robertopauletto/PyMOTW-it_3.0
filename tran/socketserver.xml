@@ -16,16 +16,16 @@ Creare Server di Rete
 
 </descrizione>
 <testo_normale>
-Il modulo <code>socketserver</code> è una infrastruttura per la creazione di server di rete. Definisce le classi per la gestione di richieste di rete sincrone (il gestore della richiesta del server genera un blocco fino al completamento di una richiesta) su TCP, UDP, flussi Unix e <a href='http://it.wikipedia.org/wiki/Pacchetto_(reti)'>datagrammi</a> Unix. Può anche fornire classi mix-in per convertire facilmente i server all'uso di un thread o processo separato per ogni richiesta.
+Il modulo <code>socketserver</code> è una infrastruttura per la creazione di server di rete. Definisce le classi per la gestione di richieste di rete sincrone (il gestore della richiesta del server blocca il flusso del programma fino al completamento della richiesta stessa) su TCP, UDP, canali Unix e <a href='http://it.wikipedia.org/wiki/Pacchetto_(reti)'>datagrammi</a> Unix. Fornisce anche classi mix-in per convertire facilmente i server all'uso di un thread o processo separato per ogni richiesta.
 </testo_normale>
 <testo_normale>
-La responsabilità per l'elaborazione di una richiesta viene divisa da una classe per il server e da un classe per la gestione della richiesta. Il server si occupa degli aspetti della comunicazione tipo stare in ascolto su di un socket, accettare connessioni, mentre il gestore di richiesta  si occupa degli aspetti del "protocollo" come linterpretazione dei dati in ricezione, elaborazione, e re-invio dei dati al client. Questa divisione di responsabilità comporta che molte applicazioni possono usare una delle classi server esistenti senza modifiche, e fornire una classe per la gestione della richiesta che possa lavorare con il protocollo personalizzato.
+La responsabilità per l'elaborazione di una richiesta viene divisa da una classe per il server e da un classe per la gestione della richiesta. Il server si occupa degli aspetti della comunicazione tipo stare in ascolto su di un socket, accettare connessioni, mentre il gestore di richiesta  si occupa degli aspetti del "protocollo" come l'interpretazione dei dati in ricezione, elaborazione, e re-invio dei dati al client. Questa divisione di responsabilità comporta che molte applicazioni possono usare una delle classi server esistenti senza modifiche, e fornire una classe per la gestione della richiesta che possa lavorare con il protocollo personalizzato.
 </testo_normale>
 <titolo_2>
 Tipi di Server
 </titolo_2>
 <testo_normale>
-Ci sono cinque diverse classi server definite in <code>socketserver</code>. <code>BaseServer</code> definisce l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>, e non è concepita per essere istanziata ed usata direttamente. <code>TCPServer</code> usa i socket TCP/IP per comunicare. <code>UDPServer</code> usa i socket datagramma. <code>UnixStreamServer</code> ed <code>UnixDatagramServer</code> usano i socket domain di Unix e sono disponibili solo su piattaforme Unix.
+Ci sono cinque diverse classi server definite in <code>socketserver</code>. <code>BaseServer</code> definisce l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>, e non è concepita per essere istanziata ed usata direttamente. <code>TCPServer</code> usa i socket TCP/IP per comunicare. <code>UDPServer</code> usa i socket datagramma. <code>UnixStreamServer</code> ed <code>UnixDatagramServer</code> usano i <a href='urlhttps://www.wikiwand.com/it/Socket_di_dominio_locale' target='_blank'>socket di dominio Unix</a>  e sono disponibili solo su piattaforme Unix.
 </testo_normale>
 <titolo_2>
 Oggetti Server
@@ -33,19 +33,19 @@ Oggetti Server
 <testo_normale>
 Per costruire un server, si passa un indirizzo sul quale si ascoltano le richieste ed una <i>classe</i> (non una istanza) di un gestore di richiesta. Il formato dell'indirizzo dipende dal tipo di server e dalla famiglia di socket usati. Si faccia riferimento alla documentazione del modulo <strong>socket</strong> per i dettagli.
 </testo_normale>
-<<testo_normale>
-Una volta che l'oggetto server è stato istanziato, si usa <code>handle_request()</code> oppure <code>serve_forever()</code> per elaborare le richieste. Il metodo <code>serve_forever()</code> chiama semplicemente <code>handle_request()</code> in un ciclo infinito, ma se una applicazione deve intergrare il server con un altro ciclo di eventi oppure usare <code>select()</code> per monitorare socket diversi per server diversi può chiamare <code>handle_request()</code> direttamente.
+<testo_normale>
+Una volta che l'oggetto server è stato istanziato, si usa <code>handle_request()</code> oppure <code>serve_forever()</code> per elaborare le richieste. Il metodo <code>serve_forever()</code> chiama semplicemente <code>handle_request()</code> in un ciclo infinito, ma se una applicazione deve integrare il server con un altro ciclo di eventi oppure usare <code>select()</code> per monitorare socket diversi per server diversi può chiamare <code>handle_request()</code> direttamente.
 </testo_normale>
 <titolo_2>
 Implementare un server
 </titolo_2>
 <testo_normale>
-Per creare un server, in genere è possibile riutilizzare una delle classi esistenti e fornire una classe personalizzata per la gestione della richiesta. Per altri casi <code>BaseServer</code> mette a disposizione parecchi metodi che possono essere sovrascritti in una sotto classe:
+Per creare un server, in genere è possibile riutilizzare una delle classi esistenti e fornire una classe personalizzata per la gestione della richiesta. Per altri casi <code>BaseServer</code> mette a disposizione parecchi metodi che possono essere sovrascritti in una sottoclasse:
 </testo_normale>
 <lista>
 <code>verify_request(request, client_address)</code> - Restituisce <code>True</code>  per elaborare la richiesta o <code>False</code> per ignorarla. Ad esempio, un server potrebbe rifiutare richieste provenienti da un raggio di indirizzi IP oppure se è sovraccarico.
-<code>process_request(request, client_address)</code> - Chiama <code>finish_request()</code> per eseguire effettivamente il lavoro di gestione della richiesta. Può anche creare un <a href='https://www.wikiwand.com/it/Processo_(informatica)#/Processi_e_thread' target='_blank'>r</a> separato, come fanno le classi mix-in.
-<code>finish_request(request, client_address)</code> - Crea una istanza di un gestore di richiesta usando la classe fornita al costruttore del server. Si chiama <code>handle()</code> sul gestore di richiesta per elaborarla.
+<code>process_request(request, client_address)</code> - Chiama <code>finish_request()</code> per eseguire effettivamente il lavoro di gestione della richiesta. Può anche creare un <a href='https://www.wikiwand.com/it/Processo_(informatica)#/Processi_e_thread' target='_blank'>thread o processo</a> separato, come fanno le classi mix-in.
+<code>finish_request(request, client_address)</code> - Crea una istanza di un gestore di richiesta usando la classe fornita al costruttore del server. Chiama <code>handle()</code> sul gestore di richiesta per elaborarla.
 </lista>
 <titolo_2>
 Gestori di richiesta
@@ -65,7 +65,7 @@ Molti gestori possono esserer implementati con il solo metodo  <code>handle()</c
 Esempio di Eco
 </titolo_2>
 <testo_normale>
-Questo esempio impolementa una semplice coppia server/gestore di richiesta che accetta connessioni TCP e ritorna gli stessi dati inviati dal client. Inizia con il gestore di richiesta.
+Questo esempio implementa una semplice coppia server/gestore di richiesta che accetta connessioni TCP e ritorna gli stessi dati inviati dal client. Si inizia con il gestore di richiesta.
 </testo_normale>
 <py_code>
 # socketserver_echo.py
@@ -107,7 +107,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         return socketserver.BaseRequestHandler.finish(self)
 </py_code>
 <testo_normale>
-Il solo metodo che deve essere implementato è <code>EchoRequestHandler.handle()</code>, ma sono incluse versioni di  tutti i metodi sopra descritti per illustrare la sequenza delle chiamate effettutate. La classe <code>EchoServer</code> non fa nulla di diverso da <code>TCPServer</code>, eccetto il registrare quando viene chiamato ciascun metodo.
+Il solo metodo  implementato è <code>EchoRequestHandler.handle()</code>, ma sono incluse versioni di  tutti i metodi sopra descritti per illustrare la sequenza delle chiamate effettutate. La classe <code>EchoServer</code> non fa nulla di diverso da <code>TCPServer</code>, eccetto il registrare quando viene chiamato ciascun metodo.
 </testo_normale>
 <py_code>
 class EchoServer(socketserver.TCPServer):
@@ -174,7 +174,7 @@ class EchoServer(socketserver.TCPServer):
         return socketserver.TCPServer.shutdown(self)
 </py_code>
 <testo_normale>
-L'ultimo passo è quella di aggiungere il programma principale che imposta il server per essere eseguito in un thread, e gli invia dati per illustrare quali metodi sono chiamati mentre i dati sono restituiti.
+L'ultimo passo è quello di aggiungere il programma principale che imposta il server per essere eseguito in un thread, e gli invia dati per illustrare quali metodi sono chiamati mentre i dati sono restituiti.
 </testo_normale>
 <py_code>
 if __name__ == '__main__':

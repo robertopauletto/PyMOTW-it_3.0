@@ -2,7 +2,7 @@
 <categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
 <!-- # tag <titolo_1> titolo principale -->
 <!-- tag <testo_normale> contiene il testo normale dell'articolo -->
-<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
 <!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
 <!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
 <!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->

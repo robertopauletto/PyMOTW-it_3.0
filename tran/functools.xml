@@ -185,7 +185,7 @@ Altri Chiamabili
 I partial lavorano con qualsiasi oggetto chiamabile, non solo con funzioni <a href="https://it.wikipedia.org/wiki/Stand-alone_(informatica)">stand-alone</a>
 </testo_normale>
 <py_code>
-#functools_method.py
+# functools_method.py
 
 import functools
 

@@ -123,7 +123,7 @@ Istanza    : True
 Un effetto collaterale nell'uso della derivazione diretta è che è possibile trovare tutte le implementazioni di un  <em>plug-in</em>  interrogando la classe base per ottenere la lista delle classi derivate conosciute derivate da essa (non si tratta di una caratteristica di <strong>abc</strong>, tutte le classi lo possono fare).
 </testo_normale>
 <py_code>
-#abc_find_subclasses.py
+# abc_find_subclasses.py
 
 import abc
 from abc_base import PluginBase

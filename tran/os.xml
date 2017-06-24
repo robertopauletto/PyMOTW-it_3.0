@@ -787,45 +787,27 @@ GENITORE: Figlio completato: (7010, 256)
 Per attendere l'uscita di un processo specifico si usa <code>waitpid()</code>
 </testo_normale>
 <py_code>
-# os_process_user_example.py
+# os_waitpid_example.py
 
 import os
+import sys
+import time
 
-TEST_GID = 1000
-TEST_UID = 1000
+workers = []
+for i in range(2):
+    print('GENITORE {}: Forking {}'.format(os.getpid(), i))
+    worker_pid = os.fork()
+    if not worker_pid:
+        print('WORKER {}: In partenza'.format(i))
+        time.sleep(2 + i)
+        print('WORKER {}: Sta finendo'.format(i))
+        sys.exit(i)
+    workers.append(worker_pid)
 
-
-def show_user_info():
-    print('Utente (reale/effettivo)  : {} / {}'.format(
-        os.getuid(), os.geteuid()))
-    print('Gruppo (reale/effettivo) : {} / {}'.format(
-        os.getgid(), os.getegid()))
-    print('Gruppi reali   :', os.getgroups())
-
-
-print('PRIMA DELLA MDOIFICA:')
-show_user_info()
-print()
-
-try:
-    os.setegid(TEST_GID)
-except OSError:
-    print('ERRORE: Non è stato possibile cambiare il gruupo effettivo. '
-          'Rieseguire come root.')
-else:
-    print('MODIFICA Gruppo:')
-    show_user_info()
-    print()
-
-try:
-    os.seteuid(TEST_UID)
-except OSError:
-    print('ERRORE: Non è stato possibile cambiare l\'utente effettivo. '
-          'Rieseguire come root.')
-else:
-    print('MODIFICA UTENTE:')
-    show_user_info()
-    print()
+for pid in workers:
+    print('GENITORE: In attesa di  {}'.format(pid))
+    done = os.waitpid(pid, 0)
+    print('GENITORE: Figlio completato:', done)
 </py_code>
 <testo_normale>
 Si passa l'identificativo del processo scelto e <code>waitpid()</code> si interrompe fino a che quel processo esce.

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+select - Gestisce con efficacia l'attesa per I/O
+</titolo_1>
+<descrizione>
+Attende la notifica che un canale input od output è pronto.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>select</strong> fornisce assesso alle funzioni di monitoraggio I/O specifiche alla piattaforma. L'interfaccia più poratbile è la funzione POSIX <code>select()</code>, la quale è disponibile su Unix e Windows. Il modulo include anche <code>poll()</code>, una <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> solo per Unix, e parecchie opzioni che funzionano solo con varianti specifiche di Unix.
+</testo_normale>
+<note>
+Il nuovo modulo <a href='selectors.html' target='_blank'>selectors</a> fornisce un interfaccia a livello più alto costruita sopra l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> in <strong>select</strong>. E' più facile costruire codice portabile usando selectors, quindi si utilizzi quel modulo a meno che l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di basso livello fornita da <strong>select</strong> sia in qualche modo richiesta.
+</note>
+<titolo_2>
+Usare select()
+</titolo_2>
+<testo_normale>
+La funzione <code>select()</code> di Python è una interfaccia diretta all'implementazione del sistema operativo sottostante. Monitora socket, file aperti e <em>pipe</em> (qualunque cosa con un metodo <code>fileno()</code> che ritorni un descrittore di file valido) fino a che diventano leggibili o scrivibili oppure si manifesta un errore di comunicazione. <code>select()</code> facilita il monitoraggio di connessioni multiple allo stesso tempo, ed è più efficiente rispetto alla scrivere una interrogazione ciclica in Python utilizzando i timeout del socket, in quanto il monitoraggio avviene nello strato di rete del sistema operativo, in luogo dell'interprete.
+</testo_normale>
+<note>
+L'uso di oggetti Python di tipo file con <code>select()</code> funziona in Unix ma non è supportato in Windows
+</note>
+<testo_normale>
+L'esmpio di server che ritorna i dati ricevuti, che si trova nell'articolo relativo a <a href='socketserver.html' target='_blank'>socketserver</a> può essere esteso per monitorare più di una connessione alla volta usando <code>select()</code>. La nuova versione inizia creando un socket TCP/IP non bloccante e lo configura in ascolto su di un indirizzo.
+</testo_normale>
+<py_code>
+# select_echo_server.py
+
+import select
+import socket
+import sys
+import queue
+
+# Crea un socket TCP/IP
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setblocking(0)
+
+# Collega il socket alola  port
+server_address = ('localhost', 10000)
+print('in partenza sulla porta {} {}'.format(*server_address),
+      file=sys.stderr)
+server.bind(server_address)
+
+# In ascolto per connessioni in arrivo
+server.listen(5)
+</py_code>
+<testo_normale>
+Gli argomenti per <code>select()</code> sono tre liste che contegono i canali da monitorare. La prima è una lista degli oggetti che devono essere controllati per la lettura dei dati in arrivo, la seconda contiene gli oggetti che riceveranno i dati in uscita quando vi è spazio nei propri <a href='https://www.wikiwand.com/it/Buffer' target='_blank'>buffer</a>, e la terza è quella che potrebbe avere un errore (in genere una combinazione degli oggetti di input e output). Il passo successivo nel server è l'impostazione delle liste che contengono le sorgenti di input e le destinazioni di output da passare a <code>select()</code>.
+</testo_normale>
+<py_code>
+# Sockets dai quali ci si attende una lettura
+inputs = [server]
+
+# Sockets verso i quali ci si prevede di scrivere
+outputs = []
+</py_code>
+<testo_normale>
+Le connessioni sono aggiunte e rimosse da queste liste dal ciclo principale del server. Visto che questa versione del server attenderà che un socket diventi scrivibile prima di inviargli dati (in luogo di inviare immediatamente la risposta), ciascuna connessione in uscita necessita di una coda che funga da <a href='https://www.wikiwand.com/it/Buffer' target='_blank'>buffer</a> per i dati da inviargli attraverso.
+</testo_normale>
+<py_code>
+# Code di messaggio in uscita (socket:Queue)
+
+message_queues = {}
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/socketserver.html|socketserver|La documentazione della libreria standard per questo modulo
+</vedi_anche>
+</documento_tradotto>

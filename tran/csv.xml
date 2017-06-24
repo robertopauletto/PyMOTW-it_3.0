@@ -144,7 +144,7 @@ Non esiste uno standard ben definito per i file CSV, quindi il <em>parser</em> d
 Le classi dialetto possono essere registrate per nome, quindi i chiamanti del modulo <strong>csv</strong> non hanno bisogno di conoscere in anticipo le impostazioni dei parametri. La lista completa dei dialetti registrati può essere ottenuta con <code>list_dialects()</code>
 </testo_normale>
 <py_code>
-#csv_list_dialects.py
+# csv_list_dialects.py
 import csv
 
 print(csv.list_dialects())
@@ -438,7 +438,7 @@ $ python3 csv_dictreader.py testdata.csv
 Si devono passare a <code>DictWriter</code> un elenco di nomi di campo così che possa conoscere come ordinare le colonne nella scrittura del file.
 </testo_normale>
 <py_code>
-#csv_dictwriter.py
+# csv_dictwriter.py
 
 import csv
 import sys

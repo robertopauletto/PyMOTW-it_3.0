@@ -317,7 +317,7 @@ DOPO:
 <code>copytree()</code> accetta due argomenti chiamabili per controllare il suo comportamento. L'argomento <code>ignore</code> viene chiamato con il nome di ciascuna directory o sotto directory che viene copiata, assieme ad una lista del contenuto della directory. Dovrebbe ritornare un elenco di elementi che dovrebbero essere copiati. L'argomento <code>copy_function</code> viene chiamato per eseguire realmente la copia dei file.
 </testo_normale>
 <py_code>
-## shutil_copytree_verbose.py
+# shutil_copytree_verbose.py
 
 import glob
 import pprint
@@ -524,30 +524,32 @@ zip  : ZIP file
 Si usa <code>made_archive()</code> per creare un nuovo file archivio. I suoi input sono progettati per supportare al meglio l'archiviazione di una intera directory e del suo contenuto, ricorsivamente. Nella modalità predefinita usa la directory di lavoro corrente, in modo che tutti i suoi file e le sotto directory appaiano al livello superiore dell'archivio. Per modificare questo comportamento si usa l'argomento <code>root_dir</code> per spostarsi su di una nuova posizione relativa nel <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a> e <code>base_dir</code> per specificare una directory da aggiungere all'archivio.
 </testo_normale>
 <py_code>
-# shutil_copytree_verbose.py
+# shutil_make_archive.py
 
-import glob
-import pprint
+import logging
 import shutil
+import sys
+import tarfile
 
+logging.basicConfig(
+    format='%(message)s',
+    stream=sys.stdout,
+    level=logging.DEBUG,
+)
+logger = logging.getLogger('pymotw')
 
-def verbose_copy(src, dst):
-    print('in copia\n {!r}\n verso {!r}'.format(src, dst))
-    return shutil.copy2(src, dst)
-
-
-print('PRIMA:')
-pprint.pprint(glob.glob('/tmp/example/*'))
-print()
-
-shutil.copytree(
-    '../shutil', '/tmp/example',
-    copy_function=verbose_copy,
-    ignore=shutil.ignore_patterns('*.py'),
+print('Creazione archivio:')
+shutil.make_archive(
+    'example', 'gztar',
+    root_dir='..',
+    base_dir='shutil',
+    logger=logger,
 )
 
-print('\nDOPO:')
-pprint.pprint(glob.glob('/tmp/example/*'))
+print('\nContenuto archivio:')
+with tarfile.open('example.tar.gz', 'r') as t:
+    for n in t.getnames():
+        print(n)
 </py_code>
 <testo_normale>
 Questo esempio inizia all'interno della directory degli esempi per shutil e si sposta su di un livello nel <a href='https://it.wikipedia.org/wiki/File_system' target='_blank'>file system</a>, poi aggiunge la directory <code>shutil</code> ad un archivio tar compresso con gzip. Il modulo logging è configurato per mostrare i messaggi da <code>make_archive()</code>
