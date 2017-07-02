@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+selectors - Astrazioni Multiplexing per I/OI
+</titolo_1>
+<descrizione>
+Fornisce astrazioni indipendenti dalla piattaforma per multiplexing I/O basato sul modulo <strong>select</strong>
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>selectors</strong> fornisce uno strato di astrazione indipendente dalla piattaforma sopra alle funzioni di monitoraggio I/O della piattaforma specifica in <a href='select.html' target='_blank'>select</a>.
+</testo_normale>
+<titolo_2>
+Modello Operativo
+</titolo_2>
+<testo_normale>
+Le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> in <strong>selectors</strong> sono basate sugli eventi, simili alla funzione <code>poll()</code> di <a href='select.html' target='_blank'>select</a>. Ci sono parecchie implementazioni ed il mdoulo imposta automaticamente l'alias <code>DefaultSelector</code> per fare riferimento a quello maggiormente efficiente per la configurazione corrente del sistema.
+</testo_normale>
+<testo_normale>
+Un oggetto selettore fornisce metodi per specificare quali eventi cercare in un socket, quindi consente al chiamante di rimanere in attesa di eventi in una modalità indipendente della piattaforma. La registrazione di un evento crea una chiave di selettore <code>SelectorKey</code>, che contiene il socket, informazioni sugli eventi di interesse, e dati applicativi opzionali. Il proprietario del selettore chiama il suo metodo <code>select()</code> per apprendere riguardo agli eventi. Il valore di ritorno è una sequenza di oggetti chiave ed una <em>bitmask</em> che indica quali eventi si sono verificati. Un programma che utilizzi un selettore dovrebbe chiamare <code>select()</code> ripetutamente, poi gestire gli eventi in modo appropriato.
+</testo_normale>
+<titolo_2>
+Server che Ritorna Dati Inviati
+</titolo_2>
+<testo_normale>
+L'esempio qui sotto di un server che ritorna i dati inviati usa i dati applicativi in <code>SelectorKey</code> per registrare una funzione <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> da chiamarsi sul nuovo evento. Il ciclo principale ottiene il <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> dalla chiave e passa ad essa il socket e la <em>bitmask</em> dell'evento. Appena il server va in esecuzione, registra la funzione <code>accept()</code> da chiamarsi per eventi di lettura sul socket del server principale. L'accettazione di una connessione produce un nuovo socket, il quale viene poi registrato con la funzione <code>read()</code> come <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> per gli eventi di lettura.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/select.html|select|La documentazione della libreria standard per questo modulo
+#|selectors|Astrazioni Multiplexing di I/O (in corso di traduzione)
+#|socket|Comunicazione di rete a basso livello (in corso di traduzione)
+#|asyncio|Strumenti di I/O e concorrenza (in corso di traduzione)
+https://docs.python.org/howto/sockets.html|Socket Programming HOWTO|Una guida pratica di Gordon McMillan, inclusa nella documentazione della libreria standard.
+#|Unix Network Programming, Volume 1: The Sockets Networking API, 3/E| di W. Richard Stevens, Bill Fenner, e Andrew M. Rudoff. Pubblicato da Addison-Wesley Professional, 2004. ISBN-10: 0131411551
+#|Foundations of Python Network Programminng, 3/E| di Brandon Rhodes e John Goerzen. Pubblicato da Apress, 2014. ISBN-10: 1430258543
+</vedi_anche>
+</documento_tradotto>

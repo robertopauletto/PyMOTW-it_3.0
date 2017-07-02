@@ -5,6 +5,7 @@ import socket
 import sys
 import queue
 
+
 # Crea un socket TCP/IP
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setblocking(0)
@@ -27,6 +28,8 @@ outputs = []
 # Code di messaggio in uscita (socket:Queue)
 message_queues = {}
 
+timeout = 1.0
+
 while inputs:
 
     # Attende che almeno uno dei socket sia
@@ -34,7 +37,13 @@ while inputs:
     print('in attesa dell\'evento successivo', file=sys.stderr)
     readable, writable, exceptional = select.select(inputs,
                                                     outputs,
-                                                    inputs)
+                                                    inputs,
+                                                    timeout)
+
+    if not (readable or writable or exceptional):
+        print('  tempo esaurito, si eseguono altri compiti',
+              file=sys.stderr)
+        continue
 
 # Gestione input
     for s in readable:
@@ -58,7 +67,7 @@ while inputs:
                     data, s.getpeername()), file=sys.stderr,
                 )
                 message_queues[s].put(data)
-                # Aggiunge il canale in output per la risposta
+                # Aggiunge al canale in output per la risposta
                 if s not in outputs:
                     outputs.append(s)
             else:
@@ -102,4 +111,3 @@ while inputs:
 
         # Rimuove la coda di messaggio
         del message_queues[s]
-
