@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Internet</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+socket - Comunicazione di Rete
+</titolo_1>
+<descrizione>
+Fornisce accesso alla comunicazione di rete
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>socket</strong> espone le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> C di basso livello per la comunicazione tramite una rete utilizzando l'interfaccia socket BSD. Comprende la classe <code>Socket</code>, per la gestione dell'effettivo canale dati ed include anche funzioni per svolgere compiti legati alla rete come la conversione di un nome di server in un indirizzo e la formattazione di dati da inviare tramite rete.
+</testo_normale>
+<titolo_2>
+Indirizzamenti, Famgilie di Protocollo e Tipi di Socket
+</titolo_2>
+<testo_normale>
+Un socket è un punto finale di un canale di comunicazione usato dai programmi per passare dati avanti ed indietro localmente oppure attraverso Internet. I socket hanno du proprietà primarie che controllano il modo nel quale sono inviati i dati: la <em>famiglia degli indirizzi</em> controlla il protocollo usato nello strato di rete OSI, ed il <em>tipo di socket</em> controlla il protocollo dello strato di trasporto.
+</testo_normale>
+<testo_normale>
+Python supporto tre famiglie di indirizzi. Quello più comune, <code>AF_INET</code>, viene usato per l'indirizzamento Internet IPv4; questi indirizzi sono lunghi quattro byte e sono in genere rappresentati da una sequenza di quattro numero, uno per ottetto, separati da punti (es. 10.1.1.5 e 127.0.0.1). Questi valori sono più comunmente noti come "indirizzi IP". Al momento della stesura quasi tutto l'indirizzamente Internet viene fatto usando la versione IPv4.
+</testo_normale>
+<testo_normale>
+<code>AF_INET&</code> viene usato per l'indirizzamento Internet IPv6, che rappresenta la versione della "prossima generazione" del protocollo Internet, e supporta indirizzi di 128 bit, modellamento del traffico e caratteristiche di <a href='https://www.wikiwand.com/it/Instradamento' target='_blank'>instradamento</a> non disponibili sottro IPv4. L'adozione di IPv6 continua a crescere, specialemente con la proliferazione del <a href='https://www.wikiwand.com/it/Cloud_computing' target='_blank'>cloud computing</a> e dei dispositivi extra che vengono aggiunti alla rete attraverso i progetti della <a href='urlhttps://www.wikiwand.com/it/Internet_delle_cose' target='_blank'>Internet delle cose</a>
+</testo_normale>
+<testo_normale>
+<code>AF_UNIX</code> è la famiglia di indirizzi dei <a href='https://www.wikiwand.com/it/Socket_di_dominio_locale' target='_blank'>socket di dominio Unix</a> (UDS), un protocollo inter-processo di comunicazione disponibile sui sistemi POSIX compatibili. L'implementazione di UDS tipicamente consente al sistema opeartivo di passare dati direttamente da processo a processo, senza passare attraverso lo stack di rete. E' più efficiente dell'uso di <code>AF_INET</code>, tuttavia, visto che viene usato il file system come spazio dei nomi per l'indirizzamento, UDS è comfinato ai processi sullo stesso sistema. UDS è allettante rispetto ad altri meccanismi <a href='https://www.wikiwand.com/en/Inter-process_communication' target='_blank'>IPC</a>  come le <a href='https://www.wikiwand.com/it/Pipe_(informatica)#/FIFO_o_named_pipe' target='_blank'>named pipe</a> o la memoria condivisa in quanto l'interfaccia di programmazione è la stessa degli IP, quindi l'applicazione può trarre vantaggio da una comunicazione efficiente quando eseguita su host singolo, ma usa lo stesso codice per inviare dati attraverso la rete.
+</testo_normale>
+<nota>
+La costante <code>AF_UNIX</code> viene definita solo sui sitemi che supportano i socket di dominio Unix (UDS)
+</nota>
+<testo_normale>
+Il tipo di socket in genere è <code>SOCK_DGRAM</code> per il datagramma di trasporto orientato ai messaggi oppure <code>SOCK_STREAM</code> per il trasporto orientato ai flussi. I socket datagram sono molto spesso associati al protocollo <a href='urlhttps://www.wikiwand.com/it/User_Datagram_Protocol' target='_blank'>UDP (user datagram protocol)</a>. Essi forniscono un recapito non affidabile di messaggi individuali. I socket orientati ai flussi sono associati al protocollo <a href='https://www.wikiwand.com/it/Transmission_Control_Protocol' target='_blank'>TCP (transission control protocol)</a>. Forniscono flussi di byte fra client e server, assicurandosi che la consegna dei messaggi o la notifica della mancata consegna tramite gestione di timeout, ritrasmissione ed altre caratteristiche.
+</testo_normale>
+<nota>
+Il modulo Python <strong>socket</strong> supporta altri tipi di socket ma sono usati meno comunemente, quindi non sono trattati in questa sede. Si faccia riferimento alla documentazione della libreria standard per maggiori dettagli.
+</nota>
+<titolo_3>
+Trovare Host sulla Rete
+</titolo_3>
+<testo_normale>
+<strong>socket</strong> include funzioni per interfacciarsi con i servizi di nome di dominio sulla rete, in modo che un programma possa convertire il nome host di un server nel suo corrispondente indirizzo di rete. Le applicazioni non devono convertire gli indirizzi esplicitamente prima di usarli per la connessione ad un server, ma può essere utile quando si segnalano errori includere l'indirizzo numerico così come il valore del nome utilizzato
+</testo_normale>
+<testo_normale>
+Per trovare il nome dell'host corrente si usa <code>gethostname()</code>-
+</testo_normale>
+<py_code>
+# socket_gethostname.py
+
+import socket
+
+print(socket.gethostname())
+</py_code>
+<testo_normale>
+Il nome ritornato dipende dalle impostazioni di rete per il sistema corrente, a potrebbe cambiare se ci si trova su una rete diversa (ad esempio un portatile connesso tramite LAN wireless).
+</testo_normale>
+<py_output>
+$ python3 socket_gethostname.py
+
+robby-System-Product-Name
+</py_output>
+<testo_normale>
+Si usa <code>gethostbyname()</code> per consultare l'API di risoluzione del nome dell'host del sistema operativo e converitre il nome di un server nel suo indirizzo numerico
+</testo_normale>
+<py_code>
+# socket_gethostbyname.py
+
+import socket
+
+HOSTS = [
+    'robyp.x10host.com',
+    'www.python.org',
+    'nonesiste',
+]
+
+for host in HOSTS:
+    try:
+        print('{} : {}'.format(host, socket.gethostbyname(host)))
+    except socket.error as msg:
+        print('{} : {}'.format(host, msg))
+</py_code>
+<testo_normale>
+Se la configurazione <a href='https://www.wikiwand.com/it/Domain_Name_System' target='_blank'>DNS</a> del sistema corrente include uno o più domini nella ricerca, l'argomento nome non deve essere completo (vale a dire che non occorre includere il nome di dominio assieme al nome host base). Se il nome non può essere trovato, viene sollevata una eccezione di tipo <code>socket.error</code>.
+</testo_normale>
+<py_output>
+$ python3 socket_gethostbyname.py
+
+robyp.x10host.com : 198.91.81.4
+www.python.org : 151.101.112.223
+nonesiste : [Errno -2] Name or service not known
+</py_output>
+<testo_normale>
+Per l'accesso ad ulteriori informazinoi sul nome di un server, si usa <code>gethostbyname_ex()</code>, che ritorna il nome host canonico del server, qualunque alias e tutti gli indirizzi IP disponibili che possono essere usati per raggiungerlo.
+</testo_normale>
+<py_code>
+# socket_gethostbyname_ex.py
+
+import socket
+
+HOSTS = [
+    'robyp.x10host.com',
+    'www.python.org',
+    'nonesiste',
+]
+
+for host in HOSTS:
+    print(host)
+    try:
+        name, aliases, addresses = socket.gethostbyname_ex(host)
+        print('  Nome Host:', name)
+        print('  Alias    :', aliases)
+        print('  Indirizzi:', addresses)
+    except socket.error as msg:
+        print('ERRORE:', msg)
+    print()
+</py_code>
+<testo_normale>
+L'essere a conoscenza di tutti gli indirizzi IP per un server consente ad un client di implementare il suo proprio <a href='https://www.wikiwand.com/it/Load_balancing' target='_blank'>bilanciatore di carico</a> od algoritmi di <em>fail-over</em>.
+</testo_normale>
+<py_output>
+$ python3 socket_gethostbyname_ex.py
+
+robyp.x10host.com
+  Nome Host: robyp.x10host.com
+  Alias    : []
+  Indirizzi: ['198.91.81.4']
+
+www.python.org
+  Nome Host: python.map.fastly.net
+  Alias    : []
+  Indirizzi: ['151.101.112.223']
+
+nonesiste
+ERRORE: [Errno -2] Name or service not known
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/selectors.html|selectors|La documentazione della libreria standard per questo modulo
+select.html|select|API di basso livello per gestire con efficienza I/O
+</vedi_anche>
+</documento_tradotto>
