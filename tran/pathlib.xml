@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+pathlib - Percorsi di Filesystem come Oggetti
+</titolo_1>
+<descrizione>
+Elabora, costruisce, verifica oppure lavora con nomi di file e percorsi usando una <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> orientata agli oggetti invece che operazioni di stringa a basso livello.
+
+</descrizione>
+<titolo_2>
+Rappresentazione di Percorsi
+</titolo_2>
+<testo_normale>
+<strong>pathlib</strong> include classi per gestire percorsi di filesystem formattati usando sia la sintassi POSIX standard che quella Microsoft Windows. Comprende le cosiddette classi "pure", che operano sulle stringhe ma non interagiscono con il filesystem reale, e quelle "concrete", le quali estendono l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per includere operazioni che riflettono o modificano dati sul filesystem locale.
+</testo_normale>
+<testo_normale>
+Le classi pure <code>PurePosixPath</code> e <code>PureWindowsPath</code> possono essere istanziate ed usate su ogni sistema operativo, visto che funzionano solo con i nomi. Per istanziare la classe corretta per lavorare con un filesystem reale, si usi <code>PosixPath</code> o <code>WindowsPath</code> a seconda della piattaforma.
+</testo_normale>
+<titolo_2>
+Costruire Percorsi
+</titolo_2>
+<testo_normale>
+Per istanziare un nuovo percorso, si passa una stringa come primo argomento. La rappresentazione stringa dell'oggetto percorso è quel valore. Per creare un nuovo percorso che faccia riferimento ad un valore relativo ad un percorso esistente, si usi l'operatore <code>/</code> per estendere il percorso. L'argomento per l'operatore può essere sia una stringa che un altro oggetto <code>path</code>.
+</testo_normale>
+<py_code>
+# pathlib_operator.py
+
+import pathlib
+
+usr = pathlib.PurePosixPath('/usr')
+print(usr)
+
+usr_local = usr / 'local'
+print(usr_local)
+
+usr_share = usr / pathlib.PurePosixPath('share')
+print(usr_share)
+
+root = usr / '..'
+print(root)
+
+etc = root / '/etc/'
+print(etc)
+</py_code>
+<testo_normale>
+Come mostra il valore di <code>root</code> nel risultato dell'esempio, l'operatore combina i valori di percorso così come sono passati, e non normalizza il risultato quanto contiene il riferimento alla directory genitore <code>".."</code>. Tuttavia, se un segmento inizia con il separatore di percorso, viene interpretato come un nuovo riferimento a "root" allo stesso modo della funzione <code>os.path.join()</code>. Separatori di percorso supplementari sono rimessi dal mezzo del valore del percorso, come in <code>etc</code> in questo esempio.
+</testo_normale>
+<py_output>
+$ python3 pathlib_operator.py
+
+/usr
+/usr/local
+/usr/share
+/usr/..
+/etc
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/socket.html|socket|La documentazione della libreria standard per questo modulo
+</vedi_anche>
+</documento_tradotto>
