@@ -1,15 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_gethostbyname_ex.py
 
 import socket
 
-for host in [ 'homer', 'www', 'www.python.org', 'nosuchname' ]:
-    print host
+HOSTS = [
+    'robyp.x10host.com',
+    'www.python.org',
+    'nonesiste',
+]
+
+for host in HOSTS:
+    print(host)
     try:
-        hostname, aliases, addresses = socket.gethostbyname_ex(host)
-        print '  Hostname:', hostname
-        print '  Aliases :', aliases
-        print ' Addresses:', addresses
-    except socket.error, msg:
-        print '%15s : ERROR: %s' % (host, msg)
-    print
+        name, aliases, addresses = socket.gethostbyname_ex(host)
+        print('  Nome Host:', name)
+        print('  Alias    :', aliases)
+        print('  Indirizzi:', addresses)
+    except socket.error as msg:
+        print('ERRORE:', msg)
+    print()

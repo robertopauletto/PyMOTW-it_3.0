@@ -1,10 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_gethostbyname.py
 
 import socket
 
-for host in [ 'homer', 'www', 'www.python.org', 'nosuchname' ]:
+HOSTS = [
+    'robyp.x10host.com',
+    'www.python.org',
+    'nonesiste',
+]
+
+for host in HOSTS:
     try:
-        print '%15s : %s' % (host, socket.gethostbyname(host))
-    except socket.error, msg:
-        print '%15s : ERROR: %s' % (host, msg)
+        print('{} : {}'.format(host, socket.gethostbyname(host)))
+    except socket.error as msg:
+        print('{} : {}'.format(host, msg))

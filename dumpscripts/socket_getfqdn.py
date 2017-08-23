@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_getfqdn.py
 
 import socket
 
-for host in [ 'homer', 'www' ]:
-    print '%6s : %s' % (host, socket.getfqdn(host))
+for host in ['apu', 'pymotw.com']:
+    print('{:>10} : {}'.format(host, socket.getfqdn(host)))

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_echo_client_dgram.py
 
 import socket
 import sys
@@ -8,19 +7,19 @@ import sys
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 server_address = ('localhost', 10000)
-message = 'Questo è il messaggio. Verrà ripetuto'
+message = b'Ecco il messaggio. Viene restituito.'
 
 try:
 
-    # Invio dati
-    print >>sys.stderr, 'in invio "%s"' % message
+    # Invio datif
+    print('in invio {!r}'.format(message))
     sent = sock.sendto(message, server_address)
 
-    # Recezione risposta
-    print >>sys.stderr, 'in attesa di ricezione'
+    # Ricezione risposta
+    print('in attesa di ricevere')
     data, server = sock.recvfrom(4096)
-    print >>sys.stderr, 'ricevuto "%s"' % data
+    print('ricevuti {!r}'.format(data))
 
 finally:
-    print >>sys.stderr, 'chiusura del socket'
+    print('chiusura socket')
     sock.close()

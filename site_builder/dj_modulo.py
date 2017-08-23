@@ -9,16 +9,25 @@ Versione %s %s
 
 from modulo import Modulo
 from footer import Footer
+import os.path
 
 class DjModulo(object):
-    def __init__(self, indice, corpo, modulo, footer=Footer()):
+    baseurl = 'examples'
+    def __init__(self, indice, corpo, modulo, footer=Footer(), zipfile=None):
         self._indice_sidebar = indice
         self._corpo = corpo
         self.modulo = modulo
         self.footer = footer
+        self._zip = zipfile
         isinstance(self.modulo, Modulo)
 
-        
+
+    @property
+    def lnkzip(self):
+        if not self._zip:
+            return None
+        return os.path.join(DjModulo.baseurl, os.path.basename(self._zip))
+
     @property
     def titolo(self):
         x = " - ".join((self.modulo.nome, self.modulo.titolo))

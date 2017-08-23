@@ -1,21 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_echo_client_explicit.py
 
 import socket
 import sys
 
-# Crea un socket TCP/IP 
+# Crea un socket TCP/IP
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connette il socket alla porta sul server passata dal chiamante caller
+# Connette il socket alla porta sul server passata dal chiamante
 server_address = (sys.argv[1], 10000)
-print >>sys.stderr, 'connessione a %s porta %s' % server_address
+print('connessione a {} porta {}'.format(*server_address))
 sock.connect(server_address)
 
 try:
-    
-    message = 'Questo è il messaggio. Verrà ripetuto.'
-    print >>sys.stderr, 'invio "%s"' % message
+
+    message = b'Ecco il messaggio. Viene restituito'
+    print('inviato {!r}'.format(message))
     sock.sendall(message)
 
     amount_received = 0
@@ -23,7 +22,7 @@ try:
     while amount_received < amount_expected:
         data = sock.recv(16)
         amount_received += len(data)
-        print >>sys.stderr, 'ricevuto "%s"' % data
+        print('ricevuto {!r}'.format(data))
 
 finally:
     sock.close()

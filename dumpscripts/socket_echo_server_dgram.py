@@ -1,24 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_echo_server_dgram.py
 
 import socket
 import sys
 
-# Crea un socket UDP
+# Crea un socket TCP/IP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Attacca il socket alla porta
-server_address = ('localhost', 10000)
-print >>sys.stderr, 'in avvio su %s porta %s' % server_address
+# Connette il socket alla porta sul server passata dal chiamante
+server_address = ('', 10000)
 sock.bind(server_address)
+print('in avvio su {} porta {}'.format(*server_address))
 
 while True:
-    print >>sys.stderr, '\nin attesa di ricevere un messaggio'
+    print('in attesa di una connessione')
     data, address = sock.recvfrom(4096)
-    
-    print >>sys.stderr, 'recevuti %s byte da %s' % (len(data), address)
-    print >>sys.stderr, data
-    
+
+    print('ricevuti {} byte da {}'.format(len(data), address))
+    print(data)
+
     if data:
         sent = sock.sendto(data, address)
-        print >>sys.stderr, 'ritornati %s byte a %s' % (sent, address)
+        print('ritornati {} byte a {}'.format(sent, address))

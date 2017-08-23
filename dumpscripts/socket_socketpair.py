@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_socketpair.py
 
 import socket
 import os
@@ -9,17 +8,18 @@ parent, child = socket.socketpair()
 pid = os.fork()
 
 if pid:
-    print 'nel padre, invio messaggio'
+    print('nel genitore, invio messaggio')
     child.close()
-    parent.sendall('ping')
+    parent.sendall(b'ping')
     response = parent.recv(1024)
-    print 'risposta dal figlio:', response
+    print('risposta dal figlio:', response)
     parent.close()
 
 else:
-    print 'nel figlio, in attesa del messaggio'
+    print('nel figlio, in attesa del messagio')
     parent.close()
     message = child.recv(1024)
-    print 'messaggio dal padre:', message
-    child.sendall('pong')
+    print('messaggio dal genitore:', message)
+    child.sendall(b'pong')
     child.close()
+

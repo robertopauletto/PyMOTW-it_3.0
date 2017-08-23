@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_gethostbyaddr.py
 
 import socket
 
-hostname, aliases, addresses = socket.gethostbyaddr('192.168.254.2')
+hostname, aliases, addresses = socket.gethostbyaddr('198.91.81.4')
 
-print 'Hostname :', hostname
-print 'Aliases  :', aliases
-print 'Addresses:', addresses
+print('None host:', hostname)
+print('Alias    :', aliases)
+print('Indirizzi:', addresses)

@@ -358,11 +358,12 @@ signal
 <testo_normale>
 <a href='https://www.python.org/dev/peps/pep-0475'>PEP 475</a> indica che le chiamate di sistema interrotte che ritornano con <code>EINTR</code> siano ritentate. Questo modifica il comportamento dei gestori di segnali ed altre chiamate di sistema, visto che dopo che il gestore di segnali ritorna, la chiamata interrotta verrà ritentata, a meno che il gestore di segnali sollevi una eccezione. Fare riferimento alla documentazione PEP per i dettagli completi.
 </testo_normale>
+<a name='socketporting'></a>
 <titolo_2>
 socket
 </titolo_2>
 <testo_normale>
-In Python 2 tipicamente gli oggetti stringa potevano essere inviati direttamente attraverso un socket. Visto che <code>str</code> sostituisce <code>unicode</code>, in Python 3 i valori devono essere codificati prima di essere inviati. Gli esempi usano stringhe di byte, che sono già codificate.
+In Python 2 tipicamente gli oggetti stringa potevano essere inviati direttamente attraverso un socket. Visto che <code>str</code> sostituisce <code>unicode</code>, in Python 3 i valori devono essere codificati prima di essere inviati. Gli esempi in <a href='socket.html'>socket</a> usano stringhe di byte, che sono già codificate.
 </testo_normale>
 <titolo_2>
 socketserver

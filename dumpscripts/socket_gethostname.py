@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_gethostname.py
 
 import socket
 
-print socket.gethostname()
+print(socket.gethostname())

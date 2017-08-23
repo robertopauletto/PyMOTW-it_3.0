@@ -23,6 +23,19 @@
                     -->
                 </table>
             </div>
+            {% if modulo.lnkzip %}
+              <div class="row">
+                <div class="col-xs-8 col-md-8">
+                </div>
+                <div class="col-xs-4 col-md-4">
+                  <p class="text-right">
+                    <a href="{{ modulo.lnkzip|safe }}" class="dlLink btn btn-info btn-sm">
+                      <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Scarica gli esempi
+                    </a>
+                  </p>
+                </div>
+              </div>
+            {% endif %}
             <div class="row">
                 <div class="col-xs-12 col-sm-12">
                 {{ modulo.main_content|safe }}
@@ -33,6 +46,12 @@
                 <hr />
             </p>
         </div><!--/span-->
+
+        <!-- <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="well sidebar-nav"  >
+              <p><a href="#">Scarica gli esempi per il modulo</a></p>
+            </div>
+        </div> <!--/span -->
 
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <!-- La barra dell'indice viene composta se esiste almeno un elemento -->

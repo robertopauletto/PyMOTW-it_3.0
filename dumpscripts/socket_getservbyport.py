@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_getservbyport.py
 
 import socket
-import urlparse
+from urllib.parse import urlunparse
 
-for port in [ 80, 443, 21, 70, 25, 143, 993, 110, 995 ]:
-    print urlparse.urlunparse(
-        (socket.getservbyport(port), 'example.com', '/', '', '', '')
-        )
+for port in [80, 443, 21, 70, 25, 143, 993, 110, 995]:
+    url = '{}://example.com/'.format(socket.getservbyport(port))
+    print(url)

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_echo_server_uds.py
 
 import socket
 import sys
@@ -17,33 +16,31 @@ except OSError:
 # Crea un socket UDS
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
-
-
-# Collega il socket alla porta
-print >>sys.stderr, 'in avvio su %s ' % server_address
+# Collega il socket all'indirizzo
+print('starting up on {}'.format(server_address))
 sock.bind(server_address)
 
-# In ascolto per una connessione in entrata
+# In ascolto per connessioni in entrata
 sock.listen(1)
 
 while True:
     # Attende una connessione
-    print >>sys.stderr, 'in attesa di una connessione'
+    print('in attesa di una connessione')
     connection, client_address = sock.accept()
     try:
-        print >>sys.stderr, 'connessione da', client_address
-    
+        print('connection from', client_address)
+
         # Riceve i dati in piccoli segmenti e li ritrasmette
         while True:
             data = connection.recv(16)
-            print >>sys.stderr, 'ricevuto "%s"' % data
+            print('ricevuto {!r}'.format(data))
             if data:
-                print >>sys.stderr, 'reinvio dei dati al client'
+                print('reinvio dei dati al client')
                 connection.sendall(data)
             else:
-                print >>sys.stderr, 'non ci sono più dati da', client_address
+                print('nessun dato da', client_address)
                 break
-            
+
     finally:
         # Pulisce la connessione
-        connection.close()    
+        connection.close()

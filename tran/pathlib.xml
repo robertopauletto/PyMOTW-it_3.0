@@ -19,7 +19,7 @@ Elabora, costruisce, verifica oppure lavora con nomi di file e percorsi usando u
 Rappresentazione di Percorsi
 </titolo_2>
 <testo_normale>
-<strong>pathlib</strong> include classi per gestire percorsi di filesystem formattati usando sia la sintassi POSIX standard che quella Microsoft Windows. Comprende le cosiddette classi "pure", che operano sulle stringhe ma non interagiscono con il filesystem reale, e quelle "concrete", le quali estendono l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per includere operazioni che riflettono o modificano dati sul filesystem locale.
+Il modulo <strong>pathlib</strong> include classi per gestire percorsi di filesystem formattati usando sia la sintassi POSIX standard che quella Microsoft Windows. Comprende le cosiddette classi "pure", che operano sulle stringhe ma non interagiscono con il filesystem reale, e quelle "concrete", le quali estendono l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per includere operazioni che riflettono o modificano dati sul filesystem locale.
 </testo_normale>
 <testo_normale>
 Le classi pure <code>PurePosixPath</code> e <code>PureWindowsPath</code> possono essere istanziate ed usate su ogni sistema operativo, visto che funzionano solo con i nomi. Per istanziare la classe corretta per lavorare con un filesystem reale, si usi <code>PosixPath</code> o <code>WindowsPath</code> a seconda della piattaforma.
@@ -28,7 +28,7 @@ Le classi pure <code>PurePosixPath</code> e <code>PureWindowsPath</code> possono
 Costruire Percorsi
 </titolo_2>
 <testo_normale>
-Per istanziare un nuovo percorso, si passa una stringa come primo argomento. La rappresentazione stringa dell'oggetto percorso è quel valore. Per creare un nuovo percorso che faccia riferimento ad un valore relativo ad un percorso esistente, si usi l'operatore <code>/</code> per estendere il percorso. L'argomento per l'operatore può essere sia una stringa che un altro oggetto <code>path</code>.
+Per istanziare un nuovo percorso, si passa una stringa come primo argomento. La rappresentazione stringa dell'oggetto percorso è quel valore. Per creare un nuovo percorso che faccia riferimento ad un valore relativo ad un percorso esistente, si usi l'operatore <code>/</code> per estendere il percorso. L'argomento per l'operatore può essere sia una stringa che un altro oggetto percorso.
 </testo_normale>
 <py_code>
 # pathlib_operator.py
@@ -51,7 +51,7 @@ etc = root / '/etc/'
 print(etc)
 </py_code>
 <testo_normale>
-Come mostra il valore di <code>root</code> nel risultato dell'esempio, l'operatore combina i valori di percorso così come sono passati, e non normalizza il risultato quanto contiene il riferimento alla directory genitore <code>".."</code>. Tuttavia, se un segmento inizia con il separatore di percorso, viene interpretato come un nuovo riferimento a "root" allo stesso modo della funzione <code>os.path.join()</code>. Separatori di percorso supplementari sono rimessi dal mezzo del valore del percorso, come in <code>etc</code> in questo esempio.
+Come mostra il valore di <code>root</code> nel risultato dell'esempio, l'operatore combina i valori di percorso così come sono passati, e non normalizza il risultato quando contiene il riferimento alla directory genitore <code>".."</code>. Tuttavia, se un segmento inizia con il separatore di percorso, viene interpretato come un nuovo riferimento a "root" allo stesso modo della funzione <code>os.path.join()</code>. Separatori di percorso supplementari sono rimessi dal mezzo del valore del percorso, come in <code>etc</code> in questo esempio.
 </testo_normale>
 <py_output>
 $ python3 pathlib_operator.py
@@ -62,7 +62,667 @@ $ python3 pathlib_operator.py
 /usr/..
 /etc
 </py_output>
+<testo_normale>
+Le classi di percorso concrete includono il metodo <code>resolve()</code> per normalizzare un percorso cercando nel filesystem directory e collegamenti simbolici per produrre il percorso assoluto riferito da un nome.
+</testo_normale>
+<py_code>
+# pathlib_resolve.py
+
+import pathlib
+
+usr_local = pathlib.Path('/usr/local')
+share = usr_local / '..' / 'share'
+print(share.resolve())
+</py_code>
+<testo_normale>
+Qui il percorso relativo è convertito in un percorso assoluto in <code>/usr/share</code>. Se il percorso in input comprende collegamenti simbolici, sono anch'essi espansi per consentire al percorso di far direttamente riferimento alla destinazione.
+</testo_normale>
+<py_output>
+$ python3 pathlib_resolve.py
+
+/usr/share
+</py_output>
+<testo_normale>
+Per costruire percorsi quando non si conoscono in anticipo i segmenti, si usi <code>joinpath()</code>, passando ogni segmento del percorso come argomento separato.
+</testo_normale>
+<py_code>
+# pathlib_joinpath.py
+
+import pathlib
+
+root = pathlib.PurePosixPath('/')
+subdirs = ['usr', 'local']
+usr_local = root.joinpath(*subdirs)
+print(usr_local)
+</py_code>
+<testo_normale>
+Come con l'operatore <code>/</code> la chiamata di <code>joinpath()</code> crea una nuova istanza.
+</testo_normale>
+<py_output>
+$ python3 pathlib_joinpath.py
+
+/usr/local
+</py_output>
+<testo_normale>
+Dato un oggetto percorso esistente, è facile costruirne uno nuovo con piccole differenze tipo il fare riferimento ad un file diverso nella stessa directory. Si usi <code>with_name()</code> per creare un nuovo percorso che sostituisce la porzione del nome  con un nome di file differente. Si usi <code>with_suffix()</code> per creare un nuovo percorso che sostituisca l'estensione del nome del file con un diverso valore.
+</testo_normale>
+<py_code>
+# pathlib_from_existing.py
+
+import pathlib
+
+ind = pathlib.PurePosixPath('source/pathlib/index.rst')
+print(ind)
+
+py = ind.with_name('pathlib_from_existing.py')
+print(py)
+
+pyc = py.with_suffix('.pyc')
+print(pyc)
+</py_code>
+<testo_normale>
+Entrambi i metodi ritornano nuovi oggetti, e gli originali rimangono invariati.
+</testo_normale>
+<py_output>
+$ python3 pathlib_from_existing.py
+
+source/pathlib/index.rst
+source/pathlib/pathlib_from_existing.py
+source/pathlib/pathlib_from_existing.pyc
+</py_output>
+<titolo_2>
+Analizzare percorsi
+</titolo_2>
+<testo_normale>
+Gli oggetti di percorso hanno metodi e proprietà per estrarre valori parziali dal nome. Ad esempio la proprietà <code>parts</code> produce una sequenza di segmenti di percorso analizzati in base al valore del separatore di percorso.
+</testo_normale>
+<py_code>
+# pathlib_parts.py
+
+import pathlib
+
+p = pathlib.PurePosixPath('/usr/local')
+print(p.parts)
+</py_code>
+<testo_normale>
+La sequenza è una tupla, che riflette l'immutabilità dell'istanza di percorso.
+</testo_normale>
+<py_output>
+$ python3 pathlib_parts.py
+
+('/', 'usr', 'local')
+</py_output>
+<testo_normale>
+Ci sono due modi per risalire la gerarchia del filesystem dato un oggetto percorso. La proprietà <code>parent</code> fa riferimento da una nuova istanza di percorso per la directory che contiene il percorso, il valore ritornato da <code>os.path.dirname()</code>. La proprietà <code>parents</code> è un iterabile che produce riferimenti alla directory genitore, risalendo continuamente la gerarchia del percorso fino a raggiungere la radice.
+</testo_normale>
+<py_code>
+# pathlib_parents.py
+
+import pathlib
+
+p = pathlib.PurePosixPath('/usr/local/lib')
+
+print('genitore: {}'.format(p.parent))
+
+print('\ngerarchia:')
+for up in p.parents:
+    print(up)
+</py_code>
+<testo_normale>
+L'esempio itera sulla proprietà <code>parents</code> e stampa i valori dei membri.
+</testo_normale>
+<py_output>
+$ python3 pathlib_parents.py
+
+genitore: /usr/local
+
+gerarchia:
+/usr/local
+/usr
+/
+</py_output>
+<testo_normale>
+Altre parti del percorso possono essere raggiunte tramite le proprietà dell'oggetto di percorso. La proprietà <code>name</code> mantiene la parte finale del percorso, dopo l'ultimo separatore di percorso (lo stesso valore prodotto da <code>os.path.basename()</code>). La proprietà <code>suffix</code> mantiene il valore che segue il separatore di estensione e la proprietà <code>stem</code> mantiene la porzione del nome prima del suffisso.
+</testo_normale>
+<py_code>
+# pathlib_name.py
+
+import pathlib
+
+p = pathlib.PurePosixPath('./source/pathlib/pathlib_name.py')
+print('percorso   : {}'.format(p))
+print('nome       : {}'.format(p.name))
+print('suffisso   : {}'.format(p.suffix))
+print('radice nome: {}'.format(p.stem))
+</py_code>
+<testo_normale>
+Sebbene i valori di <code>suffix</code> e <code>stem</code> siano simili a quelli prodotti da <code>os.path.splitext()</code>, i valori sono basati solo sul valore di <code>name</code> e non del percorso completo.
+</testo_normale>
+<py_output>
+$ python3 pathlib_name.py
+
+percorso   : source/pathlib/pathlib_name.py
+nome       : pathlib_name.py
+suffisso   : .py
+radice nome: pathlib_name
+</py_output>
+<titolo_2>
+Creare Percorsi Concreti
+</titolo_2>
+<testo_normale>
+Le istanze della classe concreta <code>Path</code> possono essere create da argomenti stringa in riferimento al nome (o nome potenziale) di un file, directory o collegamento simbolico sul filesystem. La classe fornisce anche parecchi metodi di convenienza per costruire istanze utilizzando locazioni comunemente usate che cambiano, tipo la directory di lavoro corrente e la directory <em>home</em> dell'utente.
+</testo_normale>
+<py_code>
+# pathlib_convenience.py
+
+import pathlib
+
+home = pathlib.Path.home()
+print('home         : ', home)
+
+cwd = pathlib.Path.cwd()
+print('dir. corrente: ', cwd)
+</py_code>
+<testo_normale>
+Entrambi i metodi creano istanze di <code>Path</code> pre-popolate con un riferimento assoluto al filesystem.
+</testo_normale>
+<py_output>
+$ python3 pathlib_convenience.py
+home         :  /home/robby
+dir. corrente:  /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts
+</py_output>
+<titolo_2>
+Contenuto delle Directory
+</titolo_2>
+<testo_normale>
+Ci sono tre metodi per accedere al contenuto di una directory per trovare i nomi di file disponibili sul filesystem. <code>iterdir()</code> è un generatore, che trattiene una nuova istanza di <code>Path</code> per ciascun elemento nella directory interessata.
+</testo_normale>
+<py_code>
+# pathlib_iterdir.py
+
+import pathlib
+
+p = pathlib.Path('.')
+
+for f in p.iterdir():
+    print(f)
+</py_code>
+<testo_normale>
+Se <code>Path</code> non fa riferimento ad una directory, <code>iterdir()</code> solleva una eccezione <code>NotADirectoryError</code>.
+</testo_normale>
+<py_output>
+$ python3 pathlib_iterdir.py
+
+pathlib_operator.py
+pathlib_parents.py
+pathlib_iterdir.py
+pathlib_resolve.py
+pathlib_parts.py
+pathlib_name.py
+pathlib_from_existing.py
+pathlib_convenience.py
+</py_output>
+<testo_normale>
+Si usi <code>glob()</code> per trovare solo i file che corrispondono ad un modello.
+</testo_normale>
+<py_code>
+# pathlib_glob.py
+
+import pathlib
+
+p = pathlib.Path('..')
+
+for f in p.glob('*.rst'):
+    print(f)
+</py_code>
+<testo_normale>
+Questo esempio mostra tutti i file di tipo <a href='http://docutils.sourceforge.net/'>reStructuredText</a> nella directory genitore rispetto allo script.
+</testo_normale>
+<py_output>
+$ python3 pathlib_glob.py
+
+../about.rst
+../algorithm_tools.rst
+../book.rst
+../compression.rst
+../concurrency.rst
+../cryptographic.rst
+../data_structures.rst
+../dates.rst
+../dev_tools.rst
+../email.rst
+../file_access.rst
+../frameworks.rst
+../i18n.rst
+../importing.rst
+../index.rst
+../internet_protocols.rst
+../language.rst
+../networking.rst
+../numeric.rst
+../persistence.rst
+../porting_notes.rst
+../runtime_services.rst
+../text.rst
+../third_party.rst
+../unix.rst
+</py_output>
+<testo_normale>
+Il processore di <code>glob</code> supporta la scansione ricorsiva usando il modello con prefisso <code>**</code> oppure chiamando <code>rglob()</code> in luogo di <code>glob()</code>
+</testo_normale>
+<py_code>
+# pathlib_rglob.py
+
+import pathlib
+
+p = pathlib.Path('..')
+
+for f in p.rglob('pathlib_*.py'):
+    print(f)
+</py_code>
+<testo_normale>
+Visto che questo esempio viene eseguito dalla directory genitore, è richiesta una ricerca ricorsiva per traovare i file di esempio che corrispondono al modello <code>pathlib_*.py</code>
+</testo_normale>
+<py_output>
+$ python3 dumpscripts/pathlib_rglob.py
+
+../pymotw-it3.0/dumpscripts/pathlib_operator.py
+../pymotw-it3.0/dumpscripts/pathlib_parents.py
+../pymotw-it3.0/dumpscripts/pathlib_iterdir.py
+../pymotw-it3.0/dumpscripts/pathlib_resolve.py
+../pymotw-it3.0/dumpscripts/pathlib_parts.py
+../pymotw-it3.0/dumpscripts/pathlib_name.py
+../pymotw-it3.0/dumpscripts/pathlib_rglob.py
+../pymotw-it3.0/dumpscripts/pathlib_from_existing.py
+../pymotw-it3.0/dumpscripts/pathlib_convenience.py
+../pymotw-it3.0/dumpscripts/pathlib_glob.py
+</py_output>
+<titolo_2>
+Leggere e Scrivere File
+</titolo_2>
+<testo_normale>
+Ogni istanza di <code>Path</code> include metodi per lavorare con il contenuto del file al quale fa riferimento. Per ottenere immediatamente il contenuto, si usi <code>read_bytes()</code>  oppure <code>read_text()</code>. Per scrivere sul file si usi <code>write_bytes()</code> oppure <code>write_text()</code>. Si usi il metodo <code>open()</code> per aprire il file e trattenerne l'<em>handle</em>. invece che passare il nome alla funzione <em>built-in</em> <code>open()</code>.
+</testo_normale>
+<py_code>
+# pathlib_read_write.py
+
+import pathlib
+
+f = pathlib.Path('esempio.txt')
+
+f.write_bytes('Questo è il contenuto'.encode('utf-8'))
+
+with f.open('r', encoding='utf-8') as handle:
+    print('lettura da open(): {!r}'.format(handle.read()))
+
+print('read_text(): {!r}'.format(f.read_text('utf-8')))
+</py_code>
+<testo_normale>
+I metodi di convenienza eseguono qualche controllo di tipo prima aprire il file e scriverci sopra, ma per il resto equivale ad eseguire l'operazione direttamente.
+</testo_normale>
+<py_output>
+$ python3 pathlib_read_write.py
+
+lettura da open(): 'Questo è il contenuto'
+read_text(): 'Questo è il contenuto'
+</py_output>
+<titolo_2>
+Manipolare Directory e Collegamenti Simbolici
+</titolo_2>
+<testo_normale>
+I percorsi che rappresentano direcotry o collegamenti simbolici che non esistono possono essere usati per creare i relativi elementi nel filesystem
+</testo_normale>
+<py_code>
+# pathlib_mkdir.py
+
+import pathlib
+
+p = pathlib.Path('dir_esempio')
+
+print('Creazione di {}'.format(p))
+p.mkdir()
+</py_code>
+<testo_normale>
+Se il percorso esiste già, <code>mkdir()</code> solleva un <code>FileExistsError</code>.
+</testo_normale>
+<py_output>
+$ python3 pathlib_mkdir.py
+
+Creazione di dir_esempio
+
+$ python3 pathlib_mkdir.py
+
+Creazione di dir_esempio
+Traceback (most recent call last):
+  File "pathlib_mkdir.py", line 8, in <module>
+    p.mkdir()
+  File "/usr/lib/python3.5/pathlib.py", line 1214, in mkdir
+    self._accessor.mkdir(self, mode)
+  File "/usr/lib/python3.5/pathlib.py", line 371, in wrapped
+    return strfunc(str(pathobj), *args)
+FileExistsError: [Errno 17] File exists: 'dir_esempio'
+</py_output>
+<testo_normale>
+Si usi <code>symlink_to()</code> per creare un collegamento simbolico. Questo collegamento assumerà un nome in base al valore del percorso e farà riferimento al nome dato come argomento a <code>symlink_to()</code>.
+</testo_normale>
+<py_code>
+# pathlib_symlink_to.py
+
+import pathlib
+
+p = pathlib.Path('coll_di_esempio')
+
+p.symlink_to('pathlib_symlink_to.py')
+
+print(p)
+print(p.resolve().name)
+</py_code>
+<testo_normale>
+Questo esempio crea un collegamento simbolico, quindi usa <code>resolve()</code> per leggere il collegamento per trovare a cosa punta e ne stampa il nome.
+</testo_normale>
+<py_output>
+$ python3 pathlib_symlink_to.py
+
+coll_di_esempio
+pathlib_symlink_to.py
+</py_output>
+<titolo_2>
+Tipi di File
+</titolo_2>
+<testo_normale>
+Una istanza di <code>Path</code> include parecchi metodi per verificare il tipo di un file a cui fa riferimento. Questo esempio crea parecchi file di diversi tipi e li verifica assieme ad altri file specifici per il dispositivo disponibili nel sistema operativo locale.
+</testo_normale>
+<py_code>
+# pathlib_types.py
+
+import itertools
+import os
+import pathlib
+
+root = pathlib.Path('file_di_prova')
+
+# Pulisce quanto elaborato nelle precedenti esecuzioni
+if root.exists():
+    for f in root.iterdir():
+        f.unlink()
+else:
+    root.mkdir()
+
+# Crea i file di prova
+(root / 'file').write_text(
+    'Questo è un file normale', encoding='utf-8')
+(root / 'symlink').symlink_to('file')
+os.mkfifo(str(root / 'fifo'))
+
+# Verifica il tipo di file
+to_scan = itertools.chain(
+    root.iterdir(),
+    [pathlib.Path('/dev/disk0'),
+     pathlib.Path('/dev/console')],
+)
+hfmt = '{:18s}' + ('  {:>5}' * 6)
+print(hfmt.format('Nome', 'File', 'Dir', 'Link', 'FIFO', 'Blocco',
+                  'Carattere'))
+print()
+
+fmt = '{:20s}  ' + ('{!r:>5}  ' * 6)
+for f in to_scan:
+    print(fmt.format(
+        str(f),
+        f.is_file(),
+        f.is_dir(),
+        f.is_symlink(),
+        f.is_fifo(),
+        f.is_block_device(),
+        f.is_char_device(),
+    ))
+</py_code>
+<testo_normale>
+Ognuno dei metodi <code>is_dir()</code>, <code>is_file()</code>, <code>is_symlink()</code>, <code>is_socket()</code>, <code>is_fifo()</code>, <code>is_block_device()</code> e <code>is_char_device()</code>  non richiede argomenti.
+</testo_normale>
+<py_output>
+$ python3 pathlib_types.py
+
+Nome                 File    Dir   Link   FIFO  Blocco  Carattere
+
+file_di_prova/fifo    False  False  False   True  False  False
+file_di_prova/symlink   True  False   True  False  False  False
+file_di_prova/file     True  False  False  False  False  False
+/dev/disk0            False  False  False  False  False  False
+/dev/console          False  False  False  False  False   True
+</py_output>
+<titolo_2>
+Proprietà dei File
+</titolo_2>
+<testo_normale>
+Informazioni dettagliate per un file possono essere recuperate usando i meodi <code>stat()</code> oppure <code>lstat()</code> (per verificare lo stato di qualcosa che possa assomigliare ad un collegamento simbolico). Questi metodi producono gli stessi risultati di <code>os.stat()</code> ed <code>os.lstat()</code>.
+</testo_normale>
+<py_code>
+# pathlib_stat.py
+
+import pathlib
+import sys
+import time
+
+if len(sys.argv) == 1:
+    filename = __file__
+else:
+    filename = sys.argv[1]
+
+p = pathlib.Path(filename)
+stat_info = p.stat()
+
+print('{}:'.format(filename))
+print('  Dimnsione      :', stat_info.st_size)
+print('  Permessi       :', oct(stat_info.st_mode))
+print('  Proprietario   :', stat_info.st_uid)
+print('  Dispositivo    :', stat_info.st_dev)
+print('  Creato         :', time.ctime(stat_info.st_ctime))
+print('  Ultima modifica:', time.ctime(stat_info.st_mtime))
+print('  Ultimo accesso :', time.ctime(stat_info.st_atime))
+</py_code>
+<testo_normale>
+L'output potrà variare in base a dove il codice di esempio viene eseguito. Si provi a passare nomi di file diversi da riga di comando a <code>pathlib_stat.py</code>
+</testo_normale>
+<py_output>
+$ python3 pathlib_stat.py
+
+pathlib_stat.py:
+  Dimnsione      : 589
+  Permessi       : 0o100644
+  Proprietario   : 1000
+  Dispositivo    : 2053
+  Creato         : Sat Aug 19 16:50:42 2017
+  Ultima modifica: Sat Aug 19 16:50:42 2017
+  Ultimo accesso : Sat Aug 19 16:50:42 2017
+
+$ python3 pathlib_stat.py ../operator.xml
+../operator.xml:
+  Dimnsione      : 3711
+  Permessi       : 0o100664
+  Proprietario   : 1000
+  Dispositivo    : 2053
+  Creato         : Wed Nov  2 22:43:09 2016
+  Ultima modifica: Thu Sep 29 18:48:13 2016
+  Ultimo accesso : Wed Aug 16 20:44:53 2017
+
+</py_output>
+<testo_normale>
+Per un accesso semplificato ad informazioni circa il proprietario di un file si usi <code>owner()</code> e <code>group()</code>.
+</testo_normale>
+<py_code>
+# pathlib_ownership.py
+
+import pathlib
+
+p = pathlib.Path(__file__)
+
+print('Il proprietario di {} è {}/{}'.format(p, p.owner(), p.group()))
+</py_code>
+<testo_normale>
+Mentre <code>stat()</code> ritorna valori di ID di sistema numerici, questi metodi cercano il nome associato all'identificativo.
+</testo_normale>
+<py_output>
+$ python3 pathlib_ownership.py
+
+Il proprietario di pathlib_ownership.py è robby/robby
+</py_output>
+<testo_normale>
+Il metodo <code>touch()</code> funziona come il comando Unix <a href='https://www.wikiwand.com/it/Touch_(Unix)' target='_blank'>touch</a> per creare un file od aggiornare la data di modifica del file ed i permessi.
+</testo_normale>
+<py_code>
+# pathlib_touch.py
+
+import pathlib
+import time
+
+p = pathlib.Path('toccato')
+if p.exists():
+    print('esiste già')
+else:
+    print('creato nuovo')
+
+p.touch()
+start = p.stat()
+
+time.sleep(1)
+
+p.touch()
+end = p.stat()
+
+print('Inizio:', time.ctime(start.st_mtime))
+print('Fine  :', time.ctime(end.st_mtime))
+</py_code>
+<testo_normale>
+L'esecuzione di più di una volta di questo esempio aggiornerà il file esistente dopo la prima esecuzione.
+</testo_normale>
+<py_output>
+$ python3 pathlib_touch.py
+
+creato nuovo
+Inizio: Sat Aug 19 16:59:08 2017
+Fine  : Sat Aug 19 16:59:09 2017
+
+$ python3 pathlib_touch.py
+
+esiste già
+Inizio: Sat Aug 19 16:59:43 2017
+Fine  : Sat Aug 19 16:59:44 2017
+</py_output>
+<titolo_2>
+Permessi
+</titolo_2>
+<testo_normale>
+Sui sistemi tipo Unix, i permessi dei file possono essere cambiati usando <code>chmod()</code>, passando il modo come intero. I valori possono essere costruiti usando le costanti definite nel modulo <strong>stat</strong>. Questo esempio agisce sul bit del permesso di esecuzione per l'utente alternandone il valore.
+</testo_normale>
+<py_code>
+# pathlib_chmod.py
+
+import os
+import pathlib
+import stat
+
+# Crea un nuovo file di testo
+f = pathlib.Path('pathlib_chmod_esempio.txt')
+if f.exists():
+    f.unlink()
+f.write_text('contenuto')
+
+# Determa che permessi sono già impostati usando stat.
+existing_permissions = stat.S_IMODE(f.stat().st_mode)
+print('Prima: {:o}'.format(existing_permissions))
+
+# Decide in che modo alternarli.
+if not (existing_permissions & os.X_OK):
+    print('Aggiunto permesso di esecuzione')
+    new_permissions = existing_permissions | stat.S_IXUSR
+else:
+    print('Rimosso permesso di esecuzione')
+    # usa xor per rimuovere il permesso di esecuzione utente
+    new_permissions = existing_permissions ^ stat.S_IXUSR
+
+# Esegue la modifica e mostra il nuovo valore.
+f.chmod(new_permissions)
+after_permissions = stat.S_IMODE(f.stat().st_mode)
+print('Dopo: {:o}'.format(after_permissions))
+</py_code>
+<testo_normale>
+Questo script assume che sia abbiano i privilegi necessari per modificare il modo del file quando viene eseguito.
+</testo_normale>
+<py_output>
+$ python3 pathlib_chmod.py
+
+Prima: 644
+Aggiunto permesso di esecuzione
+Dopo: 744
+</py_output>
+<titolo_2>
+Eliminare
+</titolo_2>
+<testo_normale>
+Ci sono due metodi per rimuovere elementi dal filesystem, in base al tipo. Per eliminare una directory vuota si usi <code>rmdir()</code>.
+</testo_normale>
+<py_code>
+# pathlib_rmdir.py
+
+import pathlib
+
+p = pathlib.Path('dir_esempio')
+
+print('Rimozione di {}'.format(p))
+p.rmdir()
+</py_code>
+<testo_normale>
+Viene sollevata una eccezione <code>FileNotFoundError</code> se le condizioni di arrivo sono già presenti e la directory non esiste. Si avrà un errore anche se si tenta di rimuovere una directory non vuota.
+</testo_normale>
+<py_output>
+$ python3 pathlib_rmdir.py
+
+Rimozione di dir_esempio
+
+$ python3 pathlib_rmdir.py
+Rimozione di dir_esempio
+Traceback (most recent call last):
+  File "pathlib_rmdir.py", line 8, in &lg;module&gt;
+    p.rmdir()
+  File "/usr/lib/python3.5/pathlib.py", line 1262, in rmdir
+    self._accessor.rmdir(self)
+  File "/usr/lib/python3.5/pathlib.py", line 371, in wrapped
+    return strfunc(str(pathobj), *args)
+FileNotFoundError: [Errno 2] No such file or directory: 'dir_esempio'
+</py_output>
+<testo_normale>
+Per file, collegamenti simbolici e la maggior parte degli altri tipi di percorso si usi <code>unlink()</code>.
+</testo_normale>
+<py_code>
+# pathlib_unlink.py
+
+import pathlib
+
+p = pathlib.Path('toccato')
+
+p.touch()
+
+print('esiste prima della rimozione:', p.exists())
+
+p.unlink()
+
+print('esiste dopo la rimozione:', p.exists())
+</py_code>
+<testo_normale>
+L'utente deve avere i privilegi per rimuovere il file, il collegamento simbolico, il socket od altro oggetto di filesystem.
+</testo_normale>
+<py_output>
+$ python3 pathlib_unlink.py
+
+esiste prima della rimozione: True
+esiste dopo la rimozione: False
+</py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/socket.html|socket|La documentazione della libreria standard per questo modulo
+https://docs.python.org/3.5/library/pathlib.html|pathlib|La documentazione della libreria standard per questo modulo
+os.path.html|os.path|Manipolazione di nomi di file indipendentemente dalla piattaforma
+os.html|Gestire i Permessi del File System|Discussione su <code>os.stat()</code> ed <code>os.lstat()</code>
+glob.html|glob|Verifica di corrispondenza su modello per nomi di file in Unix
+https://www.python.org/dev/peps/pep-0428|PEP 428|Il modulo pathlib.
 </vedi_anche>
 </documento_tradotto>

@@ -41,3 +41,14 @@
 26.03.2017  math - Funzioni Matematiche
 03.04.2017  decimal - Matematica per Valori Fissi ed a Virgola Mobile
 09.04.2017  base64 - Codifica Dati Binari con ASCII
+22.04.2017  json - JavaScript Object Notation
+30.04.2017  urllib.robotparser - Controllo Accesso degli Spider Internet
+07.05.2017  urllib.request - Accesso a Risorse in Rete
+07.05.2017  urllib.parse - Divide un URL nei suoi Componenti
+14.05.2017  webbrowser - Visualizza Pagine Web
+03.06.2017  http.cookies - Cookie HTTP
+18.06.2017  http.server - Classe Base per Implementare Server Web
+24.06.2017  socketserver - Creare Server di Rete
+09.07.2017  select - Gestisce con efficienza l'attesa per I/O
+09.07.2017  selectors - Astrazioni Multiplexing per I/O
+13.08.2017  socket - Comunicazione di Rete

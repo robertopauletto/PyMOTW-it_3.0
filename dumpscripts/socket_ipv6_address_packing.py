@@ -1,13 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# socket_ipv6_address_packing.py
 
+import binascii
 import socket
+import struct
 import sys
 
-# Crea un socket TCP/IP
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+string_address = '2002:ac10:10a:1234:21e:52ff:fe74:40e'
+packed = socket.inet_pton(socket.AF_INET6, string_address)
 
-# Collega il socket alla porta
-server_address = ('localhost', 10000)
-print >>sys.stderr, 'in avvio sulla porta %s  %s' % server_address
-sock.bind(server_address)
+print('Originale    :', string_address)
+print('Impacchettato:', binascii.hexlify(packed))
+print('Spacchettato :', socket.inet_ntop(socket.AF_INET6, packed))

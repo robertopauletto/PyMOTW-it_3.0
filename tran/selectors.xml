@@ -9,7 +9,7 @@
 <!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
 <documento_tradotto>
 <titolo_1>
-selectors - Astrazioni Multiplexing per I/OI
+selectors - Astrazioni Multiplexing per I/O
 </titolo_1>
 <descrizione>
 Fornisce astrazioni indipendenti dalla piattaforma per multiplexing I/O basato sul modulo <strong>select</strong>
@@ -22,24 +22,208 @@ Il modulo <strong>selectors</strong> fornisce uno strato di astrazione indipende
 Modello Operativo
 </titolo_2>
 <testo_normale>
-Le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> in <strong>selectors</strong> sono basate sugli eventi, simili alla funzione <code>poll()</code> di <a href='select.html' target='_blank'>select</a>. Ci sono parecchie implementazioni ed il mdoulo imposta automaticamente l'alias <code>DefaultSelector</code> per fare riferimento a quello maggiormente efficiente per la configurazione corrente del sistema.
+Le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> in <strong>selectors</strong> sono basate sugli eventi, simili alla funzione <code>poll()</code> di <a href='select.html' target='_blank'>select</a>. Ci sono parecchie implementazioni ed il mdoulo imposta automaticamente l'alias <code>DefaultSelector</code> per fare riferimento a quella maggiormente efficiente per la configurazione corrente del sistema.
 </testo_normale>
 <testo_normale>
 Un oggetto selettore fornisce metodi per specificare quali eventi cercare in un socket, quindi consente al chiamante di rimanere in attesa di eventi in una modalità indipendente della piattaforma. La registrazione di un evento crea una chiave di selettore <code>SelectorKey</code>, che contiene il socket, informazioni sugli eventi di interesse, e dati applicativi opzionali. Il proprietario del selettore chiama il suo metodo <code>select()</code> per apprendere riguardo agli eventi. Il valore di ritorno è una sequenza di oggetti chiave ed una <em>bitmask</em> che indica quali eventi si sono verificati. Un programma che utilizzi un selettore dovrebbe chiamare <code>select()</code> ripetutamente, poi gestire gli eventi in modo appropriato.
 </testo_normale>
 <titolo_2>
-Server che Ritorna Dati Inviati
+Server che Ritorna Dati Inviati da Client
 </titolo_2>
 <testo_normale>
-L'esempio qui sotto di un server che ritorna i dati inviati usa i dati applicativi in <code>SelectorKey</code> per registrare una funzione <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> da chiamarsi sul nuovo evento. Il ciclo principale ottiene il <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> dalla chiave e passa ad essa il socket e la <em>bitmask</em> dell'evento. Appena il server va in esecuzione, registra la funzione <code>accept()</code> da chiamarsi per eventi di lettura sul socket del server principale. L'accettazione di una connessione produce un nuovo socket, il quale viene poi registrato con la funzione <code>read()</code> come <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> per gli eventi di lettura.
+L'esempio qui sotto di un server che ritorna i dati inviati da un client usa i dati applicativi in <code>SelectorKey</code> per registrare una funzione <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> da chiamarsi sul nuovo evento. Il ciclo principale ottiene il <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> dalla chiave e passa ad essa il socket e la <em>bitmask</em> dell'evento. Appena il server va in esecuzione, registra la funzione <code>accept()</code> da chiamarsi per eventi di lettura sul socket del server principale. L'accettazione di una connessione produce un nuovo socket, il quale viene poi registrato con la funzione <code>read()</code> come <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> per gli eventi di lettura.
 </testo_normale>
+<py_code>
+# selectors_echo_server.py
+
+import selectors
+import socket
+
+mysel = selectors.DefaultSelector()
+keep_running = True
+
+
+def read(connection, mask):
+    "Callback for eventi di lettura"
+    global keep_running
+
+    client_address = connection.getpeername()
+    print('letti({})'.format(client_address))
+    data = connection.recv(1024)
+    if data:
+        # Un socket client leggibile ha dati
+        print('  ricevuti {!r}'.format(data))
+        connection.sendall(data)
+    else:
+        # Interpreta un risultato vuoto come connessione chiusa
+        print('  chiusura')
+        mysel.unregister(connection)
+        connection.close()
+        # Dice al ciclo principale di fermarsi
+        keep_running = False
+
+
+def accept(sock, mask):
+    "Callback per nuove connessioni"
+    new_connection, addr = sock.accept()
+    print('accetta({})'.format(addr))
+    new_connection.setblocking(False)
+    mysel.register(new_connection, selectors.EVENT_READ, read)
+
+
+server_address = ('localhost', 10000)
+print('In esecuzione su {} porta {}'.format(*server_address))
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setblocking(False)
+server.bind(server_address)
+server.listen(5)
+
+mysel.register(server, selectors.EVENT_READ, accept)
+
+while keep_running:
+    print('in attesa di I/O')
+    for key, mask in mysel.select(timeout=1):
+        callback = key.data
+        callback(key.fileobj, mask)
+
+print('terminato')
+mysel.close()
+</py_code>
+<testo_normale>
+Quando <code>read()</code> non riceve dati dal socket, interpreta l'evento di lettura come se l'altro capo della connessione sia stata chiusa, invece che spedire dati. Rimuove il socket dal selettore e lo chiude. Per evitare un ciclo infinito, il server chiude anche se stesso dopo che ha finito di comunicare con un singolo client.
+</testo_normale>
+<titolo_2>
+Client che Riceve i Dati Inviati
+</titolo_2>
+<testo_normale>
+L'esempio qui sotto di client che riceve di ritorno i dati da esso inviati elabora tutti gli eventi di I/O nel ciclo principale, invece che usare callback. Imposta il selettore per segnalare eventi di lettura sul socket e per segnalare quando il socket è pronto per l'invio di dati. Visto che stanno cercando due tipi di evento, il client deve verificare quale è occorso esaminando il valore di bitmask. Dopo che tutti i suoi dati in uscita sono stati spediti, modifica la configurazione del selettore per segnalare solo quando ci sono dati da leggere.
+</testo_normale>
+<py_code>
+# selectors_echo_client.py
+
+import selectors
+import socket
+
+mysel = selectors.DefaultSelector()
+keep_running = True
+outgoing = [
+    b'Viene ripetuto.',
+    b'Questo messaggio.  ',
+]
+bytes_sent = 0
+bytes_received = 0
+
+# La connessione è una operazione bloccante, quindi si chiama setblocking()
+# dopo il ritorno
+server_address = ('localhost', 10000)
+print('connecting to {} port {}'.format(*server_address))
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect(server_address)
+sock.setblocking(False)
+
+# Imposta il selettore per verificare quando il socket è pronto
+# per inviare dati oppure per verificare se ci sono dati da leggere
+mysel.register(
+    sock,
+    selectors.EVENT_READ | selectors.EVENT_WRITE,
+)
+
+while keep_running:
+    print('in attesa di I/O')
+    for key, mask in mysel.select(timeout=1):
+        connection = key.fileobj
+        client_address = connection.getpeername()
+        print('client({})'.format(client_address))
+
+        if mask & selectors.EVENT_READ:
+            print('  pronto per legger')
+            data = connection.recv(1024)
+            if data:
+                # Un socket client leggibile ha dati
+                print('  ricevuti {!r}'.format(data))
+                bytes_received += len(data)
+
+            # Interpreta un risultato vuoto come connessione chiusa
+            # e chiude anche quando si è ricevuta una copia di tutti
+            # i dati inviati.
+            keep_running = not (
+                data or
+                (bytes_received and
+                 (bytes_received == bytes_sent))
+            )
+
+        if mask & selectors.EVENT_WRITE:
+            print('  pronto per scrivere')
+            if not outgoing:
+                # I messaggi sono esauriti, quindi non serve più
+                # scrivere qualcosa. Si modifica la registrazione per
+                # consentirci di leggere le risposte dal server.
+                print('  si passa a sola lettura')
+                mysel.modify(sock, selectors.EVENT_READ)
+            else:
+                # Invia il messaggio successivo
+                next_msg = outgoing.pop()
+                print('  in invio {!r}'.format(next_msg))
+                sock.sendall(next_msg)
+                bytes_sent += len(next_msg)
+
+print('terminato')
+mysel.unregister(connection)
+connection.close()
+mysel.close()
+</py_code>
+<testo_normale>
+Il client tiene traccia di quanti dati ha inviato e di quanti ha ricevuto. Quando questi valori corrispondono e non sono zero, il client esce dal ciclo di elaborazione e chiude se stesso rimuovendo il socket dal selettore e chiudendo sia il socket che il selettore.
+</testo_normale>
+<titolo_2>
+Client e Server Insieme
+</titolo_2>
+<testo_normale>
+Il client ed il server dovrebbero essere eseguiti in finestre di terminale separate, in modo che possano comunicare tra di loro. Il risultato del server mostra la connessione ed i dati in arrivo, così come la risposta restituita al client.
+</testo_normale>
+<py_output>
+$ python3 selectors_echo_server.py
+
+In esecuzione su localhost porta 10000
+in attesa di I/O
+in attesa di I/O
+in attesa di I/O
+accetta(('127.0.0.1', 41536))
+in attesa di I/O
+letti(('127.0.0.1', 41536))
+  ricevuti b'Questo messaggio.  Viene ripetuto.'
+in attesa di I/O
+letti(('127.0.0.1', 41536))
+  chiusura
+terminato
+</py_output>
+<testo_normale>
+Il risultato del client mostra il messaggio in uscita e la risposta dal server.
+</testo_normale>
+<py_output>
+$ python3 selectors_echo_client.py
+
+connessione a localhost porta 10000
+in attesa di I/O
+client(('127.0.0.1', 10000))
+  pronto per scrivere
+  in invio b'Questo messaggio.  '
+in attesa di I/O
+client(('127.0.0.1', 10000))
+  pronto per scrivere
+  in invio b'Viene ripetuto.'
+in attesa di I/O
+client(('127.0.0.1', 10000))
+  pronto per scrivere
+  si passa a sola lettura
+in attesa di I/O
+client(('127.0.0.1', 10000))
+  pronto per legger
+  ricevuti b'Questo messaggio.  Viene ripetuto.'
+terminato
+</py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/select.html|select|La documentazione della libreria standard per questo modulo
-#|selectors|Astrazioni Multiplexing di I/O (in corso di traduzione)
-#|socket|Comunicazione di rete a basso livello (in corso di traduzione)
-#|asyncio|Strumenti di I/O e concorrenza (in corso di traduzione)
-https://docs.python.org/howto/sockets.html|Socket Programming HOWTO|Una guida pratica di Gordon McMillan, inclusa nella documentazione della libreria standard.
-#|Unix Network Programming, Volume 1: The Sockets Networking API, 3/E| di W. Richard Stevens, Bill Fenner, e Andrew M. Rudoff. Pubblicato da Addison-Wesley Professional, 2004. ISBN-10: 0131411551
-#|Foundations of Python Network Programminng, 3/E| di Brandon Rhodes e John Goerzen. Pubblicato da Apress, 2014. ISBN-10: 1430258543
+https://docs.python.org/3.5/library/selectors.html|selectors|La documentazione della libreria standard per questo modulo
+select.html|select|API di basso livello per gestire con efficienza I/O
 </vedi_anche>
 </documento_tradotto>

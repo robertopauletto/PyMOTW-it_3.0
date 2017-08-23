@@ -19,29 +19,32 @@ Fornisce accesso alla comunicazione di rete
 Il modulo <strong>socket</strong> espone le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> C di basso livello per la comunicazione tramite una rete utilizzando l'interfaccia socket BSD. Comprende la classe <code>Socket</code>, per la gestione dell'effettivo canale dati ed include anche funzioni per svolgere compiti legati alla rete come la conversione di un nome di server in un indirizzo e la formattazione di dati da inviare tramite rete.
 </testo_normale>
 <titolo_2>
-Indirizzamenti, Famgilie di Protocollo e Tipi di Socket
+Indirizzamenti, Famiglie di Protocollo e Tipi di Socket
 </titolo_2>
 <testo_normale>
-Un socket è un punto finale di un canale di comunicazione usato dai programmi per passare dati avanti ed indietro localmente oppure attraverso Internet. I socket hanno du proprietà primarie che controllano il modo nel quale sono inviati i dati: la <em>famiglia degli indirizzi</em> controlla il protocollo usato nello strato di rete OSI, ed il <em>tipo di socket</em> controlla il protocollo dello strato di trasporto.
+Un socket è un punto finale di un canale di comunicazione usato dai programmi per passarsi dati reciprocamente in locale oppure attraverso Internet. I socket hanno due proprietà primarie che controllano il modo nel quale sono inviati i dati: la <em>famiglia degli indirizzi</em> controlla il protocollo usato nello strato di rete OSI, ed il <em>tipo di socket</em> controlla il protocollo dello strato di trasporto.
 </testo_normale>
 <testo_normale>
-Python supporto tre famiglie di indirizzi. Quello più comune, <code>AF_INET</code>, viene usato per l'indirizzamento Internet IPv4; questi indirizzi sono lunghi quattro byte e sono in genere rappresentati da una sequenza di quattro numero, uno per ottetto, separati da punti (es. 10.1.1.5 e 127.0.0.1). Questi valori sono più comunmente noti come "indirizzi IP". Al momento della stesura quasi tutto l'indirizzamente Internet viene fatto usando la versione IPv4.
+Python supporta tre famiglie di indirizzi. Quello più comune, <code>AF_INET</code>, viene usato per l'indirizzamento Internet IPv4; questi indirizzi sono lunghi quattro byte e sono in genere rappresentati da una sequenza di quattro numeri, uno per ottetto, separati da punti (es. 10.1.1.5 e 127.0.0.1). Questi valori sono più comunmente noti come "indirizzi IP". Al momento della stesura quasi tutto l'indirizzamente Internet viene fatto usando la versione IPv4.
 </testo_normale>
 <testo_normale>
-<code>AF_INET&</code> viene usato per l'indirizzamento Internet IPv6, che rappresenta la versione della "prossima generazione" del protocollo Internet, e supporta indirizzi di 128 bit, modellamento del traffico e caratteristiche di <a href='https://www.wikiwand.com/it/Instradamento' target='_blank'>instradamento</a> non disponibili sottro IPv4. L'adozione di IPv6 continua a crescere, specialemente con la proliferazione del <a href='https://www.wikiwand.com/it/Cloud_computing' target='_blank'>cloud computing</a> e dei dispositivi extra che vengono aggiunti alla rete attraverso i progetti della <a href='urlhttps://www.wikiwand.com/it/Internet_delle_cose' target='_blank'>Internet delle cose</a>
+<code>AF_INET6</code> viene usato per l'indirizzamento Internet IPv6, che rappresenta la versione della "prossima generazione" del protocollo Internet, e supporta indirizzi di 128 bit, modellamento del traffico e caratteristiche di <a href='https://www.wikiwand.com/it/Instradamento' target='_blank'>instradamento</a> non disponibili sottro IPv4. L'adozione di IPv6 continua a crescere, specialemente con la proliferazione del <a href='https://www.wikiwand.com/it/Cloud_computing' target='_blank'>cloud computing</a> e dei dispositivi extra che vengono aggiunti alla rete attraverso i progetti della <a href='urlhttps://www.wikiwand.com/it/Internet_delle_cose' target='_blank'>Internet delle cose</a>.
 </testo_normale>
 <testo_normale>
-<code>AF_UNIX</code> è la famiglia di indirizzi dei <a href='https://www.wikiwand.com/it/Socket_di_dominio_locale' target='_blank'>socket di dominio Unix</a> (UDS), un protocollo inter-processo di comunicazione disponibile sui sistemi POSIX compatibili. L'implementazione di UDS tipicamente consente al sistema opeartivo di passare dati direttamente da processo a processo, senza passare attraverso lo stack di rete. E' più efficiente dell'uso di <code>AF_INET</code>, tuttavia, visto che viene usato il file system come spazio dei nomi per l'indirizzamento, UDS è comfinato ai processi sullo stesso sistema. UDS è allettante rispetto ad altri meccanismi <a href='https://www.wikiwand.com/en/Inter-process_communication' target='_blank'>IPC</a>  come le <a href='https://www.wikiwand.com/it/Pipe_(informatica)#/FIFO_o_named_pipe' target='_blank'>named pipe</a> o la memoria condivisa in quanto l'interfaccia di programmazione è la stessa degli IP, quindi l'applicazione può trarre vantaggio da una comunicazione efficiente quando eseguita su host singolo, ma usa lo stesso codice per inviare dati attraverso la rete.
+<code>AF_UNIX</code> è la famiglia di indirizzi dei <a href='https://www.wikiwand.com/it/Socket_di_dominio_locale' target='_blank'>socket di dominio Unix</a> (UDS), un protocollo  di comunicazione inter-processo disponibile sui sistemi POSIX compatibili. L'implementazione di UDS tipicamente consente al sistema opeartivo di passare dati direttamente da processo a processo, senza passare attraverso lo stack di rete. E' più efficiente dell'uso di <code>AF_INET</code>, tuttavia, visto che viene usato il file system come spazio dei nomi per l'indirizzamento, UDS è confinato ai processi sullo stesso sistema. UDS è allettante rispetto ad altri meccanismi <a href='https://www.wikiwand.com/en/Inter-process_communication' target='_blank'>IPC</a>  come le <a href='https://www.wikiwand.com/it/Pipe_(informatica)#/FIFO_o_named_pipe' target='_blank'>named pipe</a> o la memoria condivisa in quanto l'interfaccia di programmazione è la stessa degli IP, quindi l'applicazione può trarre vantaggio da una comunicazione efficiente quando eseguita su host singolo, ma usa lo stesso codice per inviare dati attraverso la rete.
 </testo_normale>
-<nota>
+<note>
 La costante <code>AF_UNIX</code> viene definita solo sui sitemi che supportano i socket di dominio Unix (UDS)
-</nota>
+</note>
 <testo_normale>
-Il tipo di socket in genere è <code>SOCK_DGRAM</code> per il datagramma di trasporto orientato ai messaggi oppure <code>SOCK_STREAM</code> per il trasporto orientato ai flussi. I socket datagram sono molto spesso associati al protocollo <a href='urlhttps://www.wikiwand.com/it/User_Datagram_Protocol' target='_blank'>UDP (user datagram protocol)</a>. Essi forniscono un recapito non affidabile di messaggi individuali. I socket orientati ai flussi sono associati al protocollo <a href='https://www.wikiwand.com/it/Transmission_Control_Protocol' target='_blank'>TCP (transission control protocol)</a>. Forniscono flussi di byte fra client e server, assicurandosi che la consegna dei messaggi o la notifica della mancata consegna tramite gestione di timeout, ritrasmissione ed altre caratteristiche.
+Il tipo di socket in genere è <code>SOCK_DGRAM</code> per il datagramma di trasporto orientato ai messaggi oppure <code>SOCK_STREAM</code> per il trasporto orientato ai flussi. I socket datagram sono molto spesso associati al protocollo <a href='urlhttps://www.wikiwand.com/it/User_Datagram_Protocol' target='_blank'>UDP (user datagram protocol)</a>. Essi forniscono un recapito non affidabile di messaggi individuali. I socket orientati ai flussi sono associati al protocollo <a href='https://www.wikiwand.com/it/Transmission_Control_Protocol' target='_blank'>TCP (transission control protocol)</a>. Forniscono flussi di byte fra client e server, assicurando  la consegna dei messaggi o la notifica della mancata consegna tramite gestione di timeout, ritrasmissione ed altre caratteristiche.
 </testo_normale>
-<nota>
+<testo_normale>
+La maggior parte dei protocolli applicativi che consegnano un gran numero di dati, tipo HTTP, sono costruiti sopra TCP, visto che semplifica la creazione di applicazioni complesse, quando l'ordinamento dei messaggi e la consegna viene gestita automaticamente. UDP viene comunemente usato per protocolli dove l'ordinamento è meno importante (visto che i messaggi sono auto-contenuti e spesso piccoli, tipo la ricerca dei nomi tramite DNS), oppure per il <em>multicasting</em> (l'invio degli stessi dati a parecchi host). Sia UDP che TCP possono essere usati con gli indirizzamenti IPv4 ed IPv6.
+</testo_normale>
+<note>
 Il modulo Python <strong>socket</strong> supporta altri tipi di socket ma sono usati meno comunemente, quindi non sono trattati in questa sede. Si faccia riferimento alla documentazione della libreria standard per maggiori dettagli.
-</nota>
+</note>
 <titolo_3>
 Trovare Host sulla Rete
 </titolo_3>
@@ -87,7 +90,7 @@ for host in HOSTS:
         print('{} : {}'.format(host, msg))
 </py_code>
 <testo_normale>
-Se la configurazione <a href='https://www.wikiwand.com/it/Domain_Name_System' target='_blank'>DNS</a> del sistema corrente include uno o più domini nella ricerca, l'argomento nome non deve essere completo (vale a dire che non occorre includere il nome di dominio assieme al nome host base). Se il nome non può essere trovato, viene sollevata una eccezione di tipo <code>socket.error</code>.
+Se la configurazione <a href='https://www.wikiwand.com/it/Domain_Name_System' target='_blank'>DNS</a> del sistema corrente include uno o più domini nella ricerca, l'argomento <em>name</em> non deve essere completo (vale a dire che non occorre includere il nome di dominio assieme al nome host base). Se il nome non può essere trovato, viene sollevata una eccezione di tipo <code>socket.error</code>.
 </testo_normale>
 <py_output>
 $ python3 socket_gethostbyname.py
@@ -140,8 +143,1182 @@ www.python.org
 nonesiste
 ERRORE: [Errno -2] Name or service not known
 </py_output>
+<testo_normale>
+Si usi <code>getfqdn()</code> per convertire un nome parziale in un nome di dominio pienamente qualificato.
+</testo_normale>
+<py_code>
+# socket_getfqdn.py
+
+import socket
+
+for host in ['apu', 'pymotw.com']:
+    print('{:>10} : {}'.format(host, socket.getfqdn(host)))
+
+</py_code>
+<testo_normale>
+Il nome ritornato non troverà necessariamente corrispondenza con l'argomento in input.
+</testo_normale>
+<py_output>
+$ python3 socket_getfqdn.py
+
+       apu : apu
+pymotw.com : apache2-zoo.george-washington.dreamhost.com
+</py_output>
+<testo_normale>
+Quando è disponibile l'indirizzo del server, si usi <code>gethostbyaddr()</code> per eseguire una ricerca inversa del nome.
+</testo_normale>
+<py_code>
+# socket_gethostbyaddr.py
+
+import socket
+
+hostname, aliases, addresses = socket.gethostbyaddr('198.91.81.4')
+
+print('None host:', hostname)
+print('Alias    :', aliases)
+print('Indirizzi:', addresses)
+</py_code>
+<testo_normale>
+Il valore ritornato è una tupla che contiene il nome completo dell'host, qualunque alias, e tutti gli indirizzi IP associati al nome.
+</testo_normale>
+<py_output>
+$ python3 socket_gethostbyaddr.py
+
+None host: xo2.x10hosting.com
+Alias    : []
+Indirizzi: ['198.91.81.4']
+</py_output>
+<titolo_3>
+Trovare Informazioni sul Servizio
+</titolo_3>
+<testo_normale>
+Oltre agli indirizzi IP, ciascun indirizzo di socket comprende un intero che rappresenta il <em>numero di porta</em>. Molte applicazioni possono essere in esecuzione sullo stesso host, in ascolto su di un singolo indirizzo IP, ma solo un socket alla volta può usare una porta a quell'indirizzo. La combinazione di indirizzo IP, protocollo e numero di porta identifica unicamente un canale di comunicazione ed assicura che i messaggi inviati attraverso un socket arrivino alla corretta destinazione.
+</testo_normale>
+<testo_normale>
+Alcuni numeri di porta sono pre-allocati per uno specifico protocollo. Ad esempio le comunicazioni tra server email che usano SMTP si svolgono sulla porta numero 25 usando TCP, ed i client ed i server web usano la porta 80 per HTTP. I numeri di porta per i servizi di rete con nomi standardizzati possono essere cercati con <code>getservbyname()</code>.
+</testo_normale>
+<py_code>
+# socket_getservbyname.py
+
+import socket
+from urllib.parse import urlparse
+
+URLS = [
+    'http://www.python.org',
+    'https://www.mybank.com',
+    'ftp://prep.ai.mit.edu',
+    'gopher://gopher.micro.umn.edu',
+    'smtp://mail.example.com',
+    'imap://mail.example.com',
+    'imaps://mail.example.com',
+    'pop3://pop.example.com',
+    'pop3s://pop.example.com',
+]
+
+for url in URLS:
+    parsed_url = urlparse(url)
+    port = socket.getservbyname(parsed_url.scheme)
+    print('{:>6} : {}'.format(parsed_url.scheme, port))
+</py_code>
+<testo_normale>
+Anche se è improbabile che un servizio standardizzato cambi porta, cercare il valore con una chiamata di sistema invece che scrivere i valori nel codice è più flessibile quando nuovi servizi saranno aggiunti in futuro.
+</testo_normale>
+<py_output>
+$ python3 socket_getservbyname.py
+
+  http : 80
+ https : 443
+   ftp : 21
+gopher : 70
+  smtp : 25
+  imap : 143
+ imaps : 993
+  pop3 : 110
+ pop3s : 995
+</py_output>
+<testo_normale>
+Per una ricerca inversa della porta si usi <code>getservbyport()</code>.
+</testo_normale>
+<py_code>
+# socket_getservbyport.py
+
+import socket
+from urllib.parse import urlunparse
+
+for port in [80, 443, 21, 70, 25, 143, 993, 110, 995]:
+    url = '{}://example.com/'.format(socket.getservbyport(port))
+    print(url)
+</py_code>
+<testo_normale>
+La ricerca inversa per trovare il servizio dato in numero di porta è utile per costruire URL a servizi da indirizzi arbitrari
+</testo_normale>
+<py_output>
+$ python3 socket_getservbyport.py
+
+http://example.com/
+https://example.com/
+ftp://example.com/
+gopher://example.com/
+smtp://example.com/
+imap2://example.com/
+imaps://example.com/
+pop3://example.com/
+pop3s://example.com/
+</py_output>
+<testo_normale>
+Il numero assegnato ad un protocollo di trasporto può essere recuperato tramite <code>getprotobyname()</code>.
+</testo_normale>
+<py_code>
+# socket_getprotobyname.py
+import socket
+
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa la costanti del modulo socket
+    ai loro nomi
+    """
+    return {
+        getattr(socket, n): n
+        for n in dir(socket)
+        if n.startswith(prefix)
+    }
+
+
+protocols = get_constants('IPPROTO_')
+
+for name in ['icmp', 'udp', 'tcp']:
+    proto_num = socket.getprotobyname(name)
+    const_name = protocols[proto_num]
+    print('{:&gt;4} -&gt; {:2d} (socket.{:&lt;12} = {:2d})'.format(
+        name, proto_num, const_name,
+        getattr(socket, const_name)))
+</py_code>
+<testo_normale>
+I valori per i numeri di protocollo sono standardizzati, e definiti come costanti in <strong>socket</strong> con il prefisso <code>IPPROTO_</code>.
+</testo_normale>
+<py_output>
+$ python3 socket_getprotobyname.py
+
+icmp ->  1 (socket.IPPROTO_ICMP =  1)
+ udp -> 17 (socket.IPPROTO_UDP  = 17)
+ tcp ->  6 (socket.IPPROTO_TCP  =  6)
+</py_output>
+<titolo_3>
+Cercare gli Indirizzi dei Server
+</titolo_3>
+<testo_normale>
+<code>getaddrinfo()</code> converte l'indirizzo base di un servizio in una lista di tuple con tutte le informazioni necessarie per eseguire una connessione. I contenuti di ogni tupla potranno variare, contenendo diverse famiglie di reti e protocolli.
+</testo_normale>
+<py_code>
+# socket_getaddrinfo.py
+
+import socket
+
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa le costanti del modulo socket
+    ai loro nomi.
+    """
+    return {
+        getattr(socket, n): n
+        for n in dir(socket)
+        if n.startswith(prefix)
+    }
+
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+for response in socket.getaddrinfo('www.python.org', 'http'):
+
+    # Unpack the response tuple
+    family, socktype, proto, canonname, sockaddr = response
+
+    print('Famiglia      :', families[family])
+    print('Tipo          :', types[socktype])
+    print('Protocollo    :', protocols[proto])
+    print('Nome Canonico :', canonname)
+    print('Indir. socket :', sockaddr)
+    print()
+</py_code>
+<testo_normale>
+Il programma dimostra come cercare le informazioni di connessione per www.python.org
+</testo_normale>
+<py_output>
+$ python3 socket_getaddrinfo.py
+
+Famiglia      : AF_INET
+Tipo          : SOCK_STREAM
+Protocollo    : IPPROTO_TCP
+Nome Canonico :
+Indir. socket : ('151.101.112.223', 80)
+
+Famiglia      : AF_INET
+Tipo          : SOCK_DGRAM
+Protocollo    : IPPROTO_UDP
+Nome Canonico :
+Indir. socket : ('151.101.112.223', 80)
+</py_output>
+<testo_normale>
+<code>getaddrinfo()</code> riceve parecchi argomenti per filtrare la lista di risultati. I valori di <code>host</code> e <code>port</code> dati nell'esempio sono argomenti richiesti. Quelli opzionali sono <code>family</code>, <code>socktype</code>, <code>proto</code> e <code>flags</code>. I valori opzionali dovrebbero essere <code>0</code> oppure una delle costanti definite da <code>socket</code>.
+</testo_normale>
+<py_code>
+# socket_getaddrinfo_extra_args.py
+
+import socket
+
+
+def get_constants(prefix):
+    """Crea un dizionario che mappa le costanti del modulo socket
+    ai loro nomi.
+    """
+    return {
+        getattr(socket, n): n
+        for n in dir(socket)
+        if n.startswith(prefix)
+    }
+
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+responses = socket.getaddrinfo(
+    host='www.python.org',
+    port='http',
+    family=socket.AF_INET,
+    type=socket.SOCK_STREAM,
+    proto=socket.IPPROTO_TCP,
+    flags=socket.AI_CANONNAME,
+)
+
+for response in responses:
+    # Spacchetta la tupla response
+    family, socktype, proto, canonname, sockaddr = response
+
+    print('Famiglia      :', families[family])
+    print('Tipo          :', types[socktype])
+    print('Protocollo    :', protocols[proto])
+    print('Nome Canonico :', canonname)
+    print('Indir. socket :', sockaddr)
+    print()
+</py_code>
+<testo_normale>
+Visto che <code>flags</code> include <code>AI_CANONNAME</code>, il nome canonico del server, che potrebbe essere diverso dal valore usato per la ricerca se l'host ha un qualche alias, questa volta è compreso nei risultati. Senza il flag, il valore del nome canonico è lasciato vuoto.
+</testo_normale>
+<py_output>
+$ python3 socket_getaddrinfo_extra_args.py
+
+Famiglia      : AF_INET
+Tipo          : SOCK_STREAM
+Protocollo    : IPPROTO_TCP
+Nome Canonico : python.map.fastly.net
+Indir. socket : ('151.101.112.223', 80)
+</py_output>
+<titolo_3>
+Rappresentazione degli Indirizzi IP
+</titolo_3>
+<testo_normale>
+I programmi di rete scritti in C usano il tipo di dato <code>struct sockaddr</code> per rappresentare indirizzi IP come valori binari (invece delle stringhe di indirizzi in genere trovati nei programmi Python). Per convertire indirizzi IPv4 tra la rappresentazione Python e quella C, si usi <code>inet_aton()</code> ed <code>inet_ntoa()</code>.
+</testo_normale>
+<py_code>
+# socket_address_packing.py
+
+import binascii
+import socket
+import struct
+import sys
+
+for string_address in ['192.168.1.1', '127.0.0.1']:
+    packed = socket.inet_aton(string_address)
+    print('Originale    :', string_address)
+    print('Impacchettato:', binascii.hexlify(packed))
+    print('Spacchettato :', socket.inet_ntoa(packed))
+    print()
+</py_code>
+<testo_normale>
+I quattro byte nel formato <em>packed</em> possono essere passati alle librerie C, e trasmessi in sicurezza attraverso la rete, oppure salvati in un database in modo compatto.
+</testo_normale>
+<py_output>
+$ python3 socket_address_packing.py
+
+Originale    : 192.168.1.1
+Impacchettato: b'c0a80101'
+Spacchettato : 192.168.1.1
+
+Originale    : 127.0.0.1
+Impacchettato: b'7f000001'
+Spacchettato : 127.0.0.1
+</py_output>
+<testo_normale>
+Le funzioni correlate <code>inet_pton()</code> ed <code>inet_ntop()</code> lavorano con indirizzi IPv4 ed IPv6, producendo l'appropriato formato in base al parametro della famiglia di indirizzo ricevuto.
+</testo_normale>
+<py_code>
+# socket_ipv6_address_packing.py
+
+import binascii
+import socket
+import struct
+import sys
+
+string_address = '2002:ac10:10a:1234:21e:52ff:fe74:40e'
+packed = socket.inet_pton(socket.AF_INET6, string_address)
+
+print('Originale    :', string_address)
+print('Impacchettato:', binascii.hexlify(packed))
+print('Spacchettato :', socket.inet_ntop(socket.AF_INET6, packed))
+</py_code>
+<testo_normale>
+Un indirizzo IPv6 è già un valore esadecimale, quindi convertire la versione <em>packed</em> in una serie di valori esadecimali produce una stringa simile al valore originale.
+</testo_normale>
+<py_output>
+$ python3 socket_ipv6_address_packing.py
+
+Originale    : 2002:ac10:10a:1234:21e:52ff:fe74:40e
+Impacchettato: b'2002ac10010a1234021e52fffe74040e'
+Spacchettato : 2002:ac10:10a:1234:21e:52ff:fe74:40e
+</py_output>
+<titolo_2>
+Client e Server TCP/IP
+</titolo_2>
+<testo_normale>
+I socket possono essere configurati per agire come server in ascolto per messaggi in arrivo, oppure per connettersi ad altre applicazioni come <em>client</em>. Dopo che entrambi gli estremi di un socket TCP/IP sono connessi, la comunicazione è bidirezionale.
+</testo_normale>
+<titolo_3>
+Server che Ritorna Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Questo programma di esempio, basato su uno presente nella documantazione della libreria standard, riceve messaggi in arrivo e li ritorna al mittente. Si inizia creando un socket TCP/IP, quindi <code>bind()</code> viene usato per associare il socket all'indirizzo del server. In questo caso, l'indirizzo è <code>localhost</code>, e fa riferimento al server corrente, ed il numero porta è 10000.
+</testo_normale>
+<py_code>
+# socket_echo_server.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Collega il socket alla porta
+server_address = ('localhost', 10000)
+print('In avvio su {} porta {}'.format(*server_address))
+sock.bind(server_address)
+
+# In ascolto per una connessione in arrivo
+sock.listen(1)
+
+while True:
+    # In attesa di una connessioe
+    print('in attesa di una connessioe')
+    connection, client_address = sock.accept()
+    try:
+        print('connessione da', client_address)
+
+        # Riceve i dati in piccoli segmenti e li ritrasmette
+        while True:
+            data = connection.recv(16)
+            print('ricevuti {!r}'.format(data))
+            if data:
+                print('reinvio dei dati al client')
+                connection.sendall(data)
+            else:
+                print('non ci sono più dati da', client_address)
+                break
+
+    finally:
+        # Pulisce la connessione
+        connection.close()
+</py_code>
+<testo_normale>
+La chiamata di <code>listen()</code> mette il socket in modalità di server, ed <code>accept()</code> attende connessioni in arrivo. L'argomento intero è il numero di connessioni che il sistema dovrebbe accodare prima di rifiutare nuovi client. Questo esempio funziona solo con una connessione alla volta.
+</testo_normale>
+<testo_normale>
+<code>accept()</code> ritorna una connessione aperta tra server e client, assieme all'indirizzo del client. La connessione in realtà è un socket diverso su di un'altra porta (assegnata dal kernel). I dati sono letti dalla connessione con <code>recv()</code> e trasmessi con <code>sendall()</code>.
+</testo_normale>
+<testo_normale>
+Quando la comunicazione con un client è terminata, la connessione deve essere pulita usando <code>close()</code>. Questo esempio usa un blocco <code>try:finally</code> per assicurarsi che <code>close()</code> sia sempre chiamata, anche in caso di un errore.
+</testo_normale>
+<titolo_3>
+Client che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+Il programma client imposta un socket in modo diverso da quello server. Invece di collegarsi ad una porta e mettersi in ascolto, usa <code>connect()</code> per attaccare il socket direttamente all'indirizzo remoto.
+</testo_normale>
+<py_code>
+# socket_echo_client.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connette il socket alla porta alla quale il server è in ascolto
+server_address = ('localhost', 10000)
+print('connessione a {} porta {}'.format(*server_address))
+sock.connect(server_address)
+
+try:
+
+    # Invio dati
+    message = b'Ecco il messaggio. Viene restituito.'
+    print('sending {!r}'.format(message))
+    sock.sendall(message)
+
+    # Cerca una risposta
+    amount_received = 0
+    amount_expected = len(message)
+
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print('ricevuti {!r}'.format(data))
+
+finally:
+    print('chiusura socket')
+    sock.close()
+</py_code>
+<testo_normale>
+Dopo che la connessione è stabilita, i dati possono essere inviati attraverso il socket con <code>sendall()</code> e ricevuti con <code>recv()</code>, proprio come nell'esempio del server. Quando tutto il messaggio è stato inviato ed è stata ricevuta una copia, il socket viene chiuso per liberare la porta.
+</testo_normale>
+<titolo_3>
+Client e Server Assieme
+</titolo_3>
+<testo_normale>
+Il client ed il server dovrebbero essere eseguiti in finestre di terminale separate, in modo che possano comunicare. Il risultato del server mostra la connessione in arrivo ed i dati, così come la risposta restituita al client.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_server.py
+
+In avvio su localhost porta 10000
+in attesa di una connessioe
+connessione da ('127.0.0.1', 48024)
+ricevuti b'Ecco il messaggi'
+reinvio dei dati al client
+ricevuti b'o. Viene restitu'
+reinvio dei dati al client
+ricevuti b'ito.'
+reinvio dei dati al client
+ricevuti b''
+non ci sono più dati da ('127.0.0.1', 48024)
+in attesa di una connessioe
+</py_output>
+<testo_normale>
+Il risultato del client mostra il messaggio in uscita e la risposta dal server.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_client.py
+
+connessione a localhost porta 10000
+sending b'Ecco il messaggio. Viene restituito.'
+ricevuti b'Ecco il messaggi'
+ricevuti b'o. Viene restitu'
+ricevuti b'ito.'
+chiusura socket
+</py_output>
+<titolo_3>
+Facili Connessioni Client
+</titolo_3>
+<testo_normale>
+I client TCP/IP possono risparmiare qualche passo usando la funzione di convenienza <code>create_connection()</code> per connettersi ad un server. La funzione riceve un argomento, una tupla a due valori contenente l'indirizzo del server, e deriva il migliore indirizzo da usare per la connessione.
+</testo_normale>
+<py_code>
+# socket_echo_client_easy.py
+
+import socket
+import sys
+
+
+def get_constants(prefix):
+    """Crea un dizionareio che mappa le costanti del modulo socke
+    ai propri nomi.
+    """
+    return {
+        getattr(socket, n): n
+        for n in dir(socket)
+        if n.startswith(prefix)
+    }
+
+
+families = get_constants('AF_')
+types = get_constants('SOCK_')
+protocols = get_constants('IPPROTO_')
+
+# Crea un socket TCP/IP
+sock = socket.create_connection(('localhost', 10000))
+
+print('Famiglia  :', families[sock.family])
+print('Tipo      :', types[sock.type])
+print('Protocollo:', protocols[sock.proto])
+print()
+
+try:
+
+    # Invio dati
+    message = b'Ecco il messaggio. Viene restituito.'
+    print('invio di {!r}'.format(message))
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print('ricevuto {!r}'.format(data))
+
+finally:
+    print('chiusura del socket')
+    sock.close()
+</py_code>
+<testo_normale>
+<code>create_connection()</code> usa <code>getaddrinfo()</code> per trovare i parametri per la connessione, e ritorna un socket aperto con la prima configurazione che crea con successo una connessione. Gli attributi <code>family</code>, <code>type</code> e <code>proto</code> possono essere esaminati per determinare il tipo di socket che viene restituito.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_client_easy.py
+
+Famiglia  : AF_INET
+Tipo      : SOCK_STREAM
+Protocollo: IPPROTO_TCP
+
+invio di b'Ecco il messaggio. Viene restituito.'
+ricevuto b'Ecco il messaggi'
+ricevuto b'o. Viene restitu'
+ricevuto b'ito.'
+chiusura del socket
+</py_output>
+<titolo_3>
+Scegliere un Indirizzo per l'Ascolto
+</titolo_3>
+<testo_normale>
+E' importante collegare il server all'indirizzo corretto, in  modo che i client possano comunicare con esso. Gli esempi precedenti usavano tutti <code>'localhost'</code> come indirizzo IP, il che limita le connessioni ai client che sono in esecuzione sullo stesso server. Si usi un indirizzo pubblico del server, tipo il valore ritornato da <code>gethostname()</code> per consentire la connessione ad altri host. Questo esempio modifica il programma server per ascoltare da un indirizzo specificato da riga di comando.
+</testo_normale>
+<py_code>
+# socket_echo_server_explicit.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Collega il socket all'indirizzo ricevuto da riga di comando
+server_name = sys.argv[1]
+server_address = (server_name, 10000)
+print('in avvio su {} porta {}'.format(*server_address))
+sock.bind(server_address)
+sock.listen(1)
+
+while True:
+    print('in attesa di una connessione')
+    connection, client_address = sock.accept()
+    try:
+        print('client connesso:', client_address)
+        while True:
+            data = connection.recv(16)
+            print('ricevuto {!r}'.format(data))
+            if data:
+                connection.sendall(data)
+            else:
+                break
+    finally:
+        connection.close()
+</py_code>
+<testo_normale>
+Una modifica simile va fatta anche sul programma client affinchè possa essere testato.
+</testo_normale>
+<py_code>
+# socket_echo_client_explicit.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connette il socket alla porta sul server passata dal chiamante
+server_address = (sys.argv[1], 10000)
+print('connessione a {} porta {}'.format(*server_address))
+sock.connect(server_address)
+
+try:
+
+    message = b'Ecco il messaggio. Viene restituito'
+    print('inviato {!r}'.format(message))
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print('ricevuto {!r}'.format(data))
+
+finally:
+    sock.close()
+</py_code>
+<testo_normale>
+Dopo aver fatto partire il server con l'argomento <code>hubert</code>, il comando <code>netstat</code> mostra che è in ascolto sull'ìndirizzo dell'host sopra citato.
+</testo_normale>
+<py_output>
+$ host hubert.hellfly.net
+
+hubert.hellfly.net has address 10.9.0.6
+
+$ netstat -an | grep 10000
+
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+...
+tcp4       0      0  10.9.0.6.10000         *.*                    LISTEN
+...
+</py_output>
+<testo_normale>
+Eseguendo il client su di un altro host, passando  <code>hubert.hellfly.net</code> come host dove il server è in esecuzione produce:
+</testo_normale>
+<py_output>
+$ hostname
+
+apu
+
+$ python3 ./socket_echo_client_explicit.py hubert.hellfly.net
+connessione a hubert.hellfly.net porta 10000
+sending b'Ecco il messaggio. Viene restituito'
+ricevuto b'Ecco il messaggi'
+ricevuto b'o. Viene restitu'
+ricevuto b'ito.'
+</py_output>
+<testo_normale>
+Il risultato del server è:
+</testo_normale>
+<py_output>
+$ python3 socket_echo_server_explicit.py hubert.hellfly.net
+
+in avvio su hubert.hellfly.net porta 10000
+in attesa di una connessione
+client connesso: ('10.9.0.10', 33139)
+ricevuto b''
+in attesa di una connessione
+client connesso: ('10.9.0.10', 33140)
+ricevuto b'Ecco il messaggi'
+ricevuto b'o. Viene restitu'
+ricevuto b'ito.'
+ricevuto b''
+in attesa di una connessione
+</py_output>
+<testo_normale>
+Molti server hanno più di una interfaccia di rete, quindi più di un indirizzo IP. Piuttosto che eseguire copie separate di servizio legato a ciascun indirizzo IP, si usi l'indirizzo speciale <code>INADDR_ANY</code> per ascoltare su tutti gli indirizzi contemporaneamente. Sebbene <strong>socket</strong> definisca una costante per <code>INADDR_ANY</code>, essa rappresenta un intero, quindi deve essere convertita nella stringa di indirizzo separata da punti prima di essere passata a <code>bind()</code>. Come scorciatoia, si usi <code>"0.0.0.0"</code> oppure una stringa vuota invece di eseguire la conversione.
+</testo_normale>
+<py_code>
+# socket_echo_server_any.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connette il socket alla porta sul server passata dal chiamante
+server_address = ('', 10000)
+sock.bind(server_address)
+print('in avvio su {} porta {}'.format(*server_address))
+sock.listen(1)
+
+while True:
+    print('in attesa di una connessione')
+    connection, client_address = sock.accept()
+    try:
+        print('client connesso:', client_address)
+        while True:
+            data = connection.recv(16)
+            print('ricevuto {!r}'.format(data))
+            if data:
+                connection.sendall(data)
+            else:
+                break
+    finally:
+        connection.close()
+</py_code>
+<testo_normale>
+Per vedere l'effettivo indirizzo usato dal socket, si chiami il metodo <code>getsocketname()</code>. Dopo aver fatto partire il servizio, eseguire nuovamente <code>netstat</code> per vedere che è in ascolto per connessioni in arrivo su qualsiasi indirizzo.
+</testo_normale>
+<py_output>
+$ netstat -an
+
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address    Foreign Address  (state)
+...
+tcp4       0      0  *.10000          *.*              LISTEN
+...
+</py_output>
+<titolo_2>
+Client e Server User Datagram
+</titolo_2>
+<testo_normale>
+Il protocollo UDP (User Datagram Protocol), funziona in modo diverso da TCP/IP. Dove quest'ultimo è un protocollo orientato al flusso, assicurando che tutti i dati siano trasmessi nel corretto ordine, UDP è un protocollo orientato ai messaggi. UDP non richiede che una connessione venga mantenuta a lungo, quindi impostare un socket UDP è leggermente più semplice. D'altro canto, i messaggi UDP devono essere compresi in un singolo datagramma (per IPv4 significa che può contenere solo 65.207 byte, visto che il pacchetto di 65.535 byte comprende anche informazioni di intestazione) e la consegna non è garantita come con TCP.
+</testo_normale>
+<titolo_3>
+Server che Ritorna Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Visto che non c'è connessione, <em>per se</em>, il server non deve essere in ascolto per accettare connessioni. Deve semplicemente usare <code>bind()</code> per associare il suo socket ad una porta, quindi attendere i singoli messaggi.
+</testo_normale>
+<py_code>
+# socket_echo_server_dgram.py
+
+import socket
+import sys
+
+# Crea un socket TCP/IP
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Connette il socket alla porta sul server passata dal chiamante
+server_address = ('', 10000)
+sock.bind(server_address)
+print('in avvio su {} porta {}'.format(*server_address))
+sock.listen(1)
+
+while True:
+    print('in attesa di una connessione')
+    data, address = sock.recvfrom(4096)
+
+    print('ricevuti {} byte da {}'.format(len(data), address))
+    print(data)
+
+    if data:
+        sent = sock.sendto(data, address)
+        print('ritornati {} byte a {}'.format(sent, address))
+</py_code>
+<testo_normale>
+I messaggi sono letti dal socket usando <code>recvfrom()</code>, e dallo stesso ritornati assieme all'indirizzo del client dal quale provengono.
+</testo_normale>
+<titolo_3>
+Client che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+Questo client UDP è simile al server, ma non usa <code>bind()</code> per attaccare il suo socket ad un indirizzo. Utilizza <code>sendto()</code> per consegnare i suoi messaggi direttamente al server, e <code>recvfrom()</code> per ricevere la risposta
+</testo_normale>
+<py_code>
+# socket_echo_client_dgram.py
+
+import socket
+import sys
+
+# Crea un socket UDP
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+server_address = ('localhost', 10000)
+message = b'Ecco il messaggio. Viene restituito.'
+
+try:
+
+    # Invio datif
+    print('in invio {!r}'.format(message))
+    sent = sock.sendto(message, server_address)
+
+    # Ricezione risposta
+    print('in attesa di ricevere')
+    data, server = sock.recvfrom(4096)
+    print('ricevuti {!r}'.format(data))
+
+finally:
+    print('chiusura socket')
+    sock.close()
+</py_code>
+<titolo_3>
+Client e Server Insieme
+</titolo_3>
+<testo_normale>
+Eseguendo il server si ottiene
+</testo_normale>
+<py_output>
+$ python3 socket_echo_server_dgram.py
+
+in avvio su  porta 10000
+in attesa di una connessione
+ricevuti 36 byte da ('127.0.0.1', 42614)
+b'Ecco il messaggio. Viene restituito.'
+ritornati 36 byte a ('127.0.0.1', 42614)
+in attesa di una connessione
+</py_output>
+<testo_normale>
+Il risultato del client è
+</testo_normale>
+<py_output>
+$ python3 socket_echo_client_dgram.py
+
+in invio b'Ecco il messaggio. Viene restituito.'
+in attesa di ricevere
+ricevuti b'Ecco il messaggio. Viene restituito.'
+chiusura socket
+</py_output>
+<titolo_2>
+Socket Unix Domain (UDS)
+</titolo_2>
+<testo_normale>
+Dalla prospettiva del programmatore ci sono due differenze essenziali tra l'utilizzo di un socket Unix domain ed un socket TCP/IP. La prima è che l'indirizzo di un socket è un percorso nel file system, invece che una tupla che contiene il nome del server e la porta. La seconda è che il nodo creato nel file system per rappresentare il socket persiste dopo che il socket viene chiuso e deve essere rimosso ogni volta che il server viene avviato. L'esempio precedente di un server che restituisce quanto ricevuto può essere aggiornato per usare i socket UDS facendo poche modifiche nella sezione dell'impostazione.
+</testo_normale>
+<testo_normale>
+Il socket deve essere creato con la famiglia di indirizzo <code>AF_UNIX</code>. Il collegamento del socket e la gestione delle connessioni in arrivo funzionano come per i socket TCP/IP.
+</testo_normale>
+<py_code>
+# socket_echo_server_uds.py
+
+import socket
+import sys
+import os
+
+server_address = './uds_socket'
+
+# Ci si assicura che il socket non esista
+try:
+    os.unlink(server_address)
+except OSError:
+    if os.path.exists(server_address):
+        raise
+
+# Crea un socket UDS
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+# Collega il socket all'indirizzo
+print('starting up on {}'.format(server_address))
+sock.bind(server_address)
+
+# In ascolto per connessioni in entrata
+sock.listen(1)
+
+while True:
+    # Attende una connessione
+    print('in attesa di una connessione')
+    connection, client_address = sock.accept()
+    try:
+        print('connection from', client_address)
+
+        # Riceve i dati in piccoli segmenti e li ritrasmette
+        while True:
+            data = connection.recv(16)
+            print('ricevuto {!r}'.format(data))
+            if data:
+                print('reinvio dei dati al client')
+                connection.sendall(data)
+            else:
+                print('nessun dato da', client_address)
+                break
+
+    finally:
+        # Pulisce la connessione
+        connection.close()
+</py_code>
+<testo_normale>
+Anche l'impostazione del client deve essere modificata per funzionare con UDS. Dovrebbe assumere che il nodo per il socket esista nel file system, visto che il server lo crea collegandosi all'indirizzo. L'invio e la ricezione di dati funziona allo stesso modo del client TCP/IP
+</testo_normale>
+<py_code>
+# socket_echo_client_uds.py
+import socket
+import sys
+
+# Crea un socket UDP
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+# Connette il socket alla porta dove è il ascolto il server
+server_address = './uds_socket'
+print('connessione a {}'.format(server_address))
+try:
+    sock.connect(server_address)
+except socket.error as msg:
+    print(msg)
+    sys.exit(1)
+
+try:
+
+    # Invio dati
+    message = b'Ecco il messaggio. Viene restituito.'
+    print('in invio {!r}'.format(message))
+    sock.sendall(message)
+
+    amount_received = 0
+    amount_expected = len(message)
+
+    while amount_received < amount_expected:
+        data = sock.recv(16)
+        amount_received += len(data)
+        print('ricevuto {!r}'.format(data))
+
+finally:
+    print('chiusura socket')
+    sock.close()
+</py_code>
+<testo_normale>
+Il risultato è per lo più lo stesso, con aggiornamenti appropriati delle informazioni dell'indirizzo. Il server mostra i messaggi ricevuti e ritornati al client.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_server_uds.py
+
+starting up on ./uds_socket
+in attesa di una connessione
+connection from b''
+ricevuto b'Ecco il messaggi'
+reinvio dei dati al client
+ricevuto b'o. Viene restitu'
+reinvio dei dati al client
+ricevuto b'ito.'
+reinvio dei dati al client
+ricevuto b''
+nessun dato da b''
+in attesa di una connessione
+</py_output>
+<testo_normale>
+Il client invia il messaggio tutto in una volta, e riceve indietro le parti di esso in modo incrementale.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_client_uds.py
+
+connessione a ./uds_socket
+in invio b'Ecco il messaggio. Viene restituito.'
+ricevuto b'Ecco il messaggi'
+ricevuto b'o. Viene restitu'
+ricevuto b'ito.'
+chiusura socket
+</py_output>
+<titolo_3>
+Permessi
+</titolo_3>
+<testo_normale>
+VIsto che il socket UDS viene rappresentato da un nodo nel file system, i permessi standard del file system possono essere usati per controllare l'accesso al server.
+</testo_normale>
+<py_output>
+$ ls -l ./uds_socket
+
+srwxr-xr-x 1 robby robby 0 Aug 11 22:21 ./uds_socket
+
+$ sudo chown root ./uds_socket
+
+$ ls -l ./uds_socket
+
+srwxr-xr-x 1 root robby 0 Aug 11 22:21 ./uds_socket
+</py_output>
+<testo_normale>
+Eseguendo il client come utente non <code>root</code> si riceve un errore visto che il processo non ha i permessi per aprire il socket.
+</testo_normale>
+<py_output>
+$ python3 socket_echo_client_uds.py
+
+connessione a ./uds_socket
+[Errno 13] Permission denied
+</py_output>
+<titolo_3>
+Comunicazioni tra Processi Figli e Genitore
+</titolo_3>
+<testo_normale>
+La funzione <code>socketpair()</code> è utile per impostare i socket UDS per la comunicazione tra processi in Unix. Essa crea una coppia di socket connessi che possono essere usati per comunicare tra un processo genitore ed un processo figlio dopo che il figlio viene diramato.
+</testo_normale>
+<py_code>
+# socket_socketpair.py
+
+import socket
+import os
+
+parent, child = socket.socketpair()
+
+pid = os.fork()
+
+if pid:
+    print('nel genitore, invio messaggio')
+    child.close()
+    parent.sendall(b'ping')
+    response = parent.recv(1024)
+    print('risposta dal figlio:', response)
+    parent.close()
+
+else:
+    print('nel figlio, in attesa del messagio')
+    parent.close()
+    message = child.recv(1024)
+    print('messaggio dal genitore:', message)
+    child.sendall(b'pong')
+    child.close()
+</py_code>
+<testo_normale>
+Nella modalità predefinita, un socket UDS viene creato, ma il chiamante può anche passare una famiglia di indirizzi, il tipo socket ed anche le opzioni di protocollo per controllare come i socket vengono creati.
+</testo_normale>
+<py_output>
+$ python3 -u socket_socketpair.py
+
+nel genitore, invio messaggio
+nel figlio, in attesa del messagio
+messaggio dal genitore: b'ping'
+risposta dal figlio: b'pong'
+</py_output>
+<titolo_2>
+Multicast
+</titolo_2>
+<testo_normale>
+Le connessioni da punto-a-punto gestiscono molte esigenze di comunicazione, ma passando la stessa informazione tra molti pari diventa sfidante mano a mano che il numero di connessioni dirette cresce. L'invio separato di messaggi per ciascun destinatario richiede tempo e larghezza di banda supplementare, il che può essere un problema per applicazioni che devono distribuire video od audio. Si acquisisce maggiore efficienza usando <em>multicast</em> per consegnare messaggi a più di una destinazione alla volta, visto che la infrastruttura della rete assicura che i pacchetti siano consegnati a tutti i destinatari.
+</testo_normale>
+<testo_normale>
+I messaggi multicast sono sempre inviati usando UDP, visto che TCP assune una coppia di sistemi comunicanti. Gli indirizzi per multicast, chiamati <em>gruppi multicast</em> sono un sotto insieme nell'intervallo dei normali indirizzi IPv4 (da 224.0.0.0 a 230.255.255.255) riservati al traffico in multicast. Questi indirizzi sono trattati in modo speciale dai router e gli switch di rete, quindi i messaggi inviati al gruppo possono essere distribuiti attraverso Internet a tutti i destinatari che si sono uniti al gruppo.
+</testo_normale>
+<note>
+Alcuni switch e router gestiti hanno il traffico multicast disabilitato nella modalità predefinita. Se si hanno problemi con i programmi di  esempio, si verifichino le  impostazioni hardware di rete.
+</note>
+<titolo_3>
+Inviare Messaggi Multicast
+</titolo_3>
+<testo_normale>
+Questo client che riceve quanto inviato manderà un messaggio ad un gruppo multicast, poi stamperà tutte le risposte che riceve. Visto che non ha modo di sapere quante risposte attendersi, utilizza un valore predefinito sul socket per evitare un blocco indefinito mentre è in attesa di risposta.
+</testo_normale>
+<testo_normale>
+Il socket deve inoltre essere configurato con un valore <a href='https://www.wikiwand.com/it/Time_to_live'>time to live</a> (TTL) per i messaggi. TTL controlla quante reti riceveranno il pacchetto. Si imposti il TTL con l'opzione <code>IP_MULTICAST_TTL</code> e <code>setsockopt()</code>. Il valore predefinito <code>1</code> significa che i pacchetti non sono inoltrati dal router oltre il segmento corrente di rete. Il valore può variare fino a <code>255</code> e dovrebbe essere rappresentato da un singolo byte packed.
+</testo_normale>
+<py_code>
+# socket_multicast_sender.py
+
+import socket
+import struct
+import sys
+
+message = b'dati molto importanti'
+multicast_group = ('224.3.29.71', 10000)
+
+# Crea il socket datagramm
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Imposta un timeout così che il socket non blocchi
+# indefinitivamente quando tenta di ricevere dati.
+sock.settimeout(0.2)
+
+# Imposta il time-to-live per i messaggi ad 1 in modo che non superino
+# il segmento di rete locale
+ttl = struct.pack('b', 1)
+sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+
+try:
+
+    # Invia dati al gluppo multicast
+    print('in invio {!r}'.format(message))
+    sent = sock.sendto(message, multicast_group)
+
+    # Cerca le risposte da tutti i destinatari
+    while True:
+        print('in attesa di ricevere')
+        try:
+            data, server = sock.recvfrom(16)
+        except socket.timeout:
+            print('tempo esaurito, non ci sono più risposte')
+            break
+        else:
+            print('ricevuti {!r} da {}'.format(
+                data, server))
+
+finally:
+    print('chiusura socket')
+    sock.close()
+</py_code>
+<testo_normale>
+Il resto del codice di invio sembra quello del client UDP, eccetto che si attende risposte multiple, quindi usa un ciclo per chiamare <code>recvfrom()</code> fino a che il tempo si esaurisce.
+</testo_normale>
+<titolo_3>
+Ricevere Messaggi Multicast
+</titolo_3>
+<testo_normale>
+Il primo passo per impostare un ricevitore multicast è creare il socket UDP. Dopo che il normale socket viene creato e collegato ad una porta, può essere aggiunto al gruppo multicast usando <code>setsockopt()</code> per modificare l'opzione <code>IP_ADD_MEMBERSHIP</code>. Il valore dell'opzione è una rappresentazione ad 8-byte packed dell'indirizzo del gruppo multicast seguito dall'interfaccia di rete sulla quale il server dovrebbe porsi in ascolto, identificata dal suo indirizzo IP. In questo caso, il ricevitore ascolta tutte le interfacce usando <code>INADDR_ANY</code>.
+</testo_normale>
+<py_code>
+# socket_multicast_receiver.py
+
+import socket
+import struct
+import sys
+
+multicast_group = '224.3.29.71'
+server_address = ('', 10000)
+
+# Crea il socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Collega l'indirizzo del server
+sock.bind(server_address)
+
+# Dice al sistema operativo di aggiungere il socket al
+# gruppo multicast su tutte le interfacce.
+group = socket.inet_aton(multicast_group)
+mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+sock.setsockopt(
+    socket.IPPROTO_IP,
+    socket.IP_ADD_MEMBERSHIP,
+    mreq)
+
+# Receive/respond loop
+while True:
+    print('\nin attesa di ricevere messaggi')
+    data, address = sock.recvfrom(1024)
+
+    print('ricevuti {} bytes da {}'.format(
+        len(data), address))
+    print(data)
+
+    print('invio riconoscimento a', address)
+    sock.sendto(b'ack', address)
+</py_code>
+<testo_normale>
+Il ciclo principale di ricezione è proprio come quello del normale server UDP
+</testo_normale>
+<titolo_3>
+Risultato dell'Esempio
+</titolo_3>
+<testo_normale>
+Questo esempio mostra il ricevitore multicast in esecuzione. A ha indirizzo 192.168.1.16 e B ha indirizzo 192.168.1.14
+</testo_normale>
+<py_output>
+[A]$ python3 socket_multicast_receiver.py
+
+in attesa di ricevere messaggi
+ricevuti 21 bytes da ('192.168.1.16', 53931)
+b'dati molto importanti'
+invio riconoscimento a ('192.168.1.16', 53931)
+
+in attesa di ricevere messaggi
+
+[B]$ python3 socket_multicast_receiver.py
+
+in attesa di ricevere messaggi
+ricevuti 21 bytes da ('192.168.1.16', 53931)
+b'dati molto importanti'
+invio riconoscimento a ('192.168.1.16', 53931)
+
+in attesa di ricevere messaggi
+
+</py_output>
+<testo_normale>
+Questo è l'output del mittente in esecuzione sull'host B
+</testo_normale>
+<py_code>
+[B]$ python3 socket_multicast_sender.py
+
+in invio b'dati molto importanti'
+in attesa di ricevere
+ricevuti b'ack' da ('192.168.1.16', 10000)
+in attesa di ricevere
+ricevuti b'ack' da ('192.168.1.14', 10000)
+in attesa di ricevere
+tempo esaurito, non ci sono più risposte
+chiusura socket
+</py_code>
 <vedi_anche>
-https://docs.python.org/3.5/library/selectors.html|selectors|La documentazione della libreria standard per questo modulo
-select.html|select|API di basso livello per gestire con efficienza I/O
+https://docs.python.org/3.5/library/socket.html|socket|La documentazione della libreria standard per questo modulo
+riferimenti_moduli_modificati.html#socketporting|Note di Portabilità|Note di portabilità per socket
+select.html|select|Il modulo select
+socketserver.html|socketserver|Creare server di rete.
+#|asyncio|Strumenti di concorrenza per I/O asincrono
+#|urllib e urllib2|La maggior parte dei client di rete dovrebbero usare queste librerie più convenienti per accedere alle risorse remote tramite URL
+https://docs.python.org/3/howto/sockets.html|Socket Programming HOWTO|Una guida di Gordon McMillan, compresa nella documentazione della libreria standard
+#|Foundations of Python Network Programming, 3/E|Brandon Rhodes e John Goerzen. Pubblicato da Apress, 2014. ISBN-10: 1430258543.
+#|Unix Network Programming, Volume 1: The Sockets Networking API|W. Richard Stevens, Bill Fenner, e Andrew M. Rudoff. Pubblicato da Addison-Wesley Professional, 2004. ISBN-10: 0131411551
+https://www.wikiwand.com/it/IPv6|Wikipedia: IPv6|Articolo sul protocollo internet versione 6 (IPv6)
+https://www.wikiwand.com/it/Open_Systems_Interconnection|Wikipedia: OSI model|L'articolo descrive il modello di implementazione della rete a sette strati.
+http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml|Assigned Internet Protocol Numbers|Elenco di nomi e numeri dei protocolli standard.
+https://www.wikiwand.com/it/Multicast|Wikipedia: Multicast|Descrive i dettagli tecnici del multicasting.
+https://www.wikiwand.com/it/IP_multicast|Wikipedia: IP Multicast|IP multicasting
 </vedi_anche>
 </documento_tradotto>

@@ -130,7 +130,7 @@ class MyHtml(object):
         dalla descrizione dell'url
         """
         assert isinstance(lista, list)
-        Biblio = namedtuple('Biblio', 'url,desc,definiz')
+        Biblio = namedtuple('Biblio', 'url, desc, definiz')
         output = [""]
         ddargs = {}
         if dd_class:
@@ -138,11 +138,14 @@ class MyHtml(object):
         for riga in [riga.split("|") for riga in lista if riga]:
             if len(riga) == 2:
                 riga.append("")
-            if len(riga) !=  3:
+            if len(riga) != 3:
                 print "Riga bibliografica malformata !!\n", riga
                 continue
             biblio = Biblio(*riga)
-            u = self.a(biblio.url, biblio.desc)
+            if biblio.url == '#':
+                u = biblio.desc
+            else:
+                u = self.a(biblio.url, biblio.desc)
             output.append(self._get_start_end_tag('dt', u))
             output.append(self._get_start_end_tag('dd', biblio.definiz, **ddargs))
         output.append("")
@@ -222,6 +225,7 @@ class MyHtml(object):
         return self._get_start_end_tag('pre', testo, **kwargs)
     
     def biblio(self, value, dd_class='indent', **kwargs):
+        """Prepara la parte bibliografica dell'articolo"""
         header = self.p(self.strong('Vedere anche:'))
         dl = self._vedi_anche(value, dd_class)
         return self._get_start_end_tag('div', header + dl, **kwargs)    
@@ -247,8 +251,7 @@ class MyHtml(object):
         Compone una tabella; ogni elemento in `values` è una lista
         """
         rows = []
-        if 'with_header' in kwargs:
-            with_header = True
+        with_header = 'with_header' in kwargs
         for i, row in enumerate(values):
             if with_header and i == 0:
                 rows.append(self.tr(self.td(row, True)))
@@ -285,6 +288,9 @@ class MyHtml(object):
         - warning (giallo)
         - success (verde)
         - danger (rosso)
+
+        °°Usare i metodi di convenienza info, warning, succes, danger
+        rispettivamente**
         """ 
         return self._get_start_end_tag(
             'div',
@@ -293,14 +299,22 @@ class MyHtml(object):
         )
         
     def warning(self, value, **kwargs):
-        """Metodi di convenienza che ottiene un box di avvertimento"""
+        """Metodo di convenienza che ottiene un box di avvertimento"""
         return self._alerts(value, class_='alert alert-warning')
 
-    def note(self, value, **kwargs):
-        """Metodi di convenienza che ottiene un box di informazioni"""
+    def info(self, value, **kwargs):
+        """Metodo di convenienza che ottiene un box di informazioni"""
         return self._alerts(value, class_='alert alert-info')
     
-    
+    def success(self, value, **kwargs):
+        """Metodo di convenienza che ottiene un box di successo"""
+        return self._alerts(value, class_='alert alert-success')
+
+    def danger(self, value, **kwargs):
+        """Metodo di convenienza che ottiene un box di attenzione"""
+        return self._alerts(value, class_='alert alert-danger')
+
+
 if __name__ == '__main__':
     print __doc__
     h = MyHtml()

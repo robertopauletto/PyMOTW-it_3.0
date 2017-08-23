@@ -110,7 +110,7 @@ Riga tre.
 Combinare Dedent e Fill
 </titolo_2>
 <testo_normale>
-Proseguendo, il testo deindentato può essere passato attraverso fill() con diversi valori di larghezza <em>width</em>.
+Proseguendo, il testo deindentato può essere passato attraverso <code>fill()</code> con diversi valori di larghezza <em>width</em>.
 </testo_normale>
 <py_code>
 # textwrap_fill_width.py
@@ -225,9 +225,6 @@ PARI desired.  It offers programmatic functionality
 PARI similar to the paragraph wrapping or filling
 PARI features found in many text editors.
 </py_output>
-<testo_normale>
-I valori di indentazione possono anche includere caratteri diversi dallo spazio, così che l'indentazione sospesa possa essere prefissata da un <code>*</code> per ottenere elementi puntati, etc. Questo mi tornò comodo quando dovetti convertire il contenuto del mio vecchio zwiki per importarlo in trac. Ho usato il pacchetto StructuredText da Zope per analizzare i dati da zwiki, quindi ho creato un formattatore per produrre il marcatore del trac di wiki come risultato. Usando <strong>textwrap</strong>, sono poi stato capace di formattare le pagine di output senza che quasi nessun intervento manuale sia stato necessario dopo la conversione.
-</testo_normale>
 <titolo_2>
 Indentazioni Sospese
 </titolo_2>
@@ -287,7 +284,7 @@ print('\nAccorciato:\n')
 print(shortened_wrapped)
 </py_code>
 <testo_normale>
-Se viene rimosso del testo diverso da spazio dal testo originale esso viene sostituito da un valore segnaposto. Il valore predefinito [...]  può essere modificato fornendo l'argomengo <code>placeholder</code> a <code>shorten()</code>
+Se viene rimosso del testo diverso da spazio dal testo originale esso viene sostituito da un valore segnaposto. Il valore predefinito [...]  può essere modificato fornendo l'argomento <code>placeholder</code> a <code>shorten()</code>
 </testo_normale>
 <py_output>
 $ python3 textwrap_shorten.py
