@@ -8,9 +8,10 @@
     <fieldset>
       {{ form.csrf_token }}
       <div class="pure-control-group">
-        <textarea rows="10", cols="75">{{ logcontent | safe }}</textarea><br><br>
+        <textarea rows="10", cols="85">{{ logcontent | safe }}</textarea><br><br>
       </div>
       <hr>
       <button class="pure-button pure-button-primary">Generatore</button>
+      <button class="pure-button pure-button-secondary">Vai alla pagina</button>
     </fieldset>
 {% endblock %}

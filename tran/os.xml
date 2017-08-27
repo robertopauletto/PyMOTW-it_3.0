@@ -172,6 +172,7 @@ Gestire i Permessi del File System
 </titolo_2>
 <testo_normale>
 E' possibile accedere ad informazioni dettagliate riguardo ad un file tramite <code>stat()</code> o <code>lstat</code> (per verificare lo stato di qualcosa che potrebbe essere un <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>collegamento simbolico</a>).
+<a name='permessifs'></a>
 </testo_normale>
 <py_code>
 # os_stat.py

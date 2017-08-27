@@ -52,3 +52,4 @@
 09.07.2017  select - Gestisce con efficienza l'attesa per I/O
 09.07.2017  selectors - Astrazioni Multiplexing per I/O
 13.08.2017  socket - Comunicazione di Rete
+26.08.2017  pathlib - Percorsi di Filesystem come Oggetti

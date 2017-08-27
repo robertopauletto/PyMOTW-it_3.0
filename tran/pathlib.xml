@@ -720,8 +720,8 @@ esiste dopo la rimozione: False
 </py_output>
 <vedi_anche>
 https://docs.python.org/3.5/library/pathlib.html|pathlib|La documentazione della libreria standard per questo modulo
-os.path.html|os.path|Manipolazione di nomi di file indipendentemente dalla piattaforma
-os.html|Gestire i Permessi del File System|Discussione su <code>os.stat()</code> ed <code>os.lstat()</code>
+#|os.path (In corso di traduzione)|Manipolazione di nomi di file indipendentemente dalla piattaforma
+os.html#permessifs|Gestire i Permessi del File System|Discussione su <code>os.stat()</code> ed <code>os.lstat()</code>
 glob.html|glob|Verifica di corrispondenza su modello per nomi di file in Unix
 https://www.python.org/dev/peps/pep-0428|PEP 428|Il modulo pathlib.
 </vedi_anche>
