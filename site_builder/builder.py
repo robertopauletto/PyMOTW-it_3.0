@@ -69,30 +69,35 @@ except ImportError as imperr:
 
 
 # TODO: Trasferire su file di configurazione la gestione dei parametri
-DEF_CHARSET='utf-8'
-TEMPLATE_DIRS = ['../templates']
-ZIP_FILES_DIR = r'../html/examples'
-EXAMPLES_DIR = r'../dumpscripts'
-TRAN_DIR = r'../tran'
-TEMPLATE_INDEX_NAME = 'index.html'
-TEMPLATE_MODULE_NAME = 'modulo.html'
-TEMPLATE_REF_NAME = 'ref.html'
-TEMPLATE_TABALFA_NAME = 'tabella_moduli.html'
-HTML_DIR = r'../html'
-INDICE_MODULI_PER_PAGINA = 12
-FILE_INDICE = 'index'
-HTML_EXT = '.html'
-TEST_XML_FILE = r'/home/robby/Dropbox/Code/python/pymotw-it/tran/abc.xml'
+#DEF_CHARSET='utf-8'
+#TEMPLATE_DIRS = ['../templates']  # passato a config
+# ZIP_FILES_DIR = r'../html/examples'
+# EXAMPLES_DIR = r'../dumpscripts'
+# TRAN_DIR = r'../tran'
+# TEMPLATE_INDEX_NAME = 'index.html'
+#TEMPLATE_MODULE_NAME = 'modulo.html'
+#TEMPLATE_REF_NAME = 'ref.html'
+#builder_conf["template_tabalfa_name"] = 'tabella_moduli.html'  # passato a config
+#HTML_DIR = r'../html'  # passato a config
+# INDICE_MODULI_PER_PAGINA = 12
+#FILE_INDICE = 'index'
+#HTML_EXT = '.html'
+#TEST_XML_FILE = r'/home/robby/Dropbox/Code/python/pymotw-it/tran/abc.xml'
 FOOTER = Footer(
     'PyMOTW-it 3',
     periodo='2017',
     data_agg=datetime.date.today().strftime("%d-%m-%Y")
 )
-RSS_REMOTE_ROOT_FOLDER = r'http://robyp.x10host.com/3/'
-RSS_FEED_NAME = r'pymotw-it3_feed.xml'
-RSS_FEED_TITLE = 'PyMOTW-it 3: Il modulo python della settimana'
-RSS_FEED_DESCR = "Traduzione italiana di 'The Python 3 Module of the Week (http://pymotw.com/3/)"
+#RSS_REMOTE_ROOT_FOLDER = r'http://robyp.x10host.com/3/'
+#RSS_FEED_NAME = r'pymotw-it3_feed.xml'
+#RSS_FEED_TITLE = 'PyMOTW-it 3: Il modulo python della settimana'
+#RSS_FEED_DESCR = "Traduzione italiana di 'The Python 3 Module of the Week (http://pymotw.com/3/)"
 
+
+builder_conf = {}
+def set_builder_conf(dictconf):
+    global builder_conf
+    builder_conf = dictconf
 
 def imposta_param_django(template_dirs):
     """(list of str)
@@ -114,6 +119,7 @@ def imposta_param_django(template_dirs):
                 ),
         )
 
+
 def build(template_file, context_dict, rendered_file):
     """(str, dict, str)
 
@@ -124,7 +130,7 @@ def build(template_file, context_dict, rendered_file):
         t = loader.get_template(template_file)
         open(rendered_file, mode='w').write(
             codecs.encode(t.render(
-                template.Context(context_dict)), DEF_CHARSET)
+                template.Context(context_dict)), builder_conf["def_charset"])
         )
     except Exception as ex:
         print traceback.format_exc()
@@ -189,7 +195,7 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
 
         dic = {'indice': i,}
         fn = '%s%s.html' % (file_indice, "_" + str(prg) if prg else '')
-        build(template_name, dic, os.path.join(HTML_DIR, fn))
+        build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
         prg += 1
         gm = []
     return
@@ -209,14 +215,14 @@ def crea_pagina_modulo(template_name, file_modulo, footer, log=None):
     """
     indice, main_content, is_ind, check_sintassi, zipfile = \
         modulo_xml2html.render_articolo(
-            file_modulo, EXAMPLES_DIR, ZIP_FILES_DIR, log
+            file_modulo, builder_conf["templates_dir"], builder_conf["zip_files_dir"], log
         )
     fn = os.path.splitext(os.path.basename(file_modulo))[0]
     modulo = Modulo.ottieni_modulo(fn)
     m = DjModulo(indice, main_content, modulo, footer, zipfile)
     fn += '.html'
     dic = {'modulo': m,}
-    build(template_name, dic, os.path.join(HTML_DIR, fn))
+    build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
     return is_ind
 
 
@@ -266,7 +272,7 @@ def crea_feed_rss(base_path, outfile, title, description=''):
 
     abbina_cronologia(get_cronologia(), moduli)
     moduli_ordinati = Modulo.ordina_per_data(moduli)
-    local_feed = os.path.join(HTML_DIR, outfile)
+    local_feed = os.path.join(builder_conf["html_dir"], outfile)
     outfile = urlparse.urljoin(base_path, outfile)
     feed = Feed(title, outfile, description)
     for modulo in moduli_ordinati:
@@ -299,7 +305,7 @@ def crea_tabella_indice(template_name):
     m = DjTabelleIndici(moduli, FOOTER)
     fn = 'indice_alfabetico.html'
     dic = {'modulo': m,}
-    build(template_name, dic, os.path.join(HTML_DIR, fn))
+    build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
 
 
 def _sintassi(pn):
@@ -308,33 +314,33 @@ def _sintassi(pn):
 
 def rebuild_all():
     crea_pagine_indice(
-        TEMPLATE_INDEX_NAME,
-        FILE_INDICE,
-        INDICE_MODULI_PER_PAGINA,
+        builder_conf["template_index_name"],
+        builder_conf["file_indice"],
+        builder_conf["modules_by_page"],
         FOOTER
     )
-    crea_tabella_indice(TEMPLATE_TABALFA_NAME)
+    crea_tabella_indice(builder_conf["template_tabalfa_name"])
 
-    pattern =  "%s/*.xml" % TRAN_DIR
+    pattern = "%s/*.xml" % builder_conf['tran_dir']
     for choice in glob.glob(pattern):
         if not os.path.exists(choice):
             exit(0)
         print "Costruzione pagina %s in corso ..." % os.path.basename(choice)
         if 'riferimenti_' in choice:
-            is_ind =  crea_pagina_modulo(TEMPLATE_REF_NAME, choice, FOOTER)
+            is_ind =  crea_pagina_modulo(builder_conf["template_ref_name"], choice, FOOTER)
         else:
-            is_ind =  crea_pagina_modulo(TEMPLATE_MODULE_NAME, choice, FOOTER)
+            is_ind =  crea_pagina_modulo(builder_conf["template_module_name"], choice, FOOTER)
         #crea_pagina_modulo(TEMPLATE_MODULE_NAME, choice, FOOTER)
 
 
 def pubblica(moduli):
     crea_pagine_indice(
-        TEMPLATE_INDEX_NAME,
-        FILE_INDICE,
-        INDICE_MODULI_PER_PAGINA,
+        builder_conf["template_index_name"],
+        builder_conf["file_indice"],
+        builder_conf["modules_by_page"],
         FOOTER
     )
-    crea_tabella_indice(TEMPLATE_TABALFA_NAME)
+    crea_tabella_indice(builder_conf["template_tabalfa_name"])
 
 
 def _norm_path(modulo, def_dir, def_ext='.xml'):
@@ -344,92 +350,53 @@ def _norm_path(modulo, def_dir, def_ext='.xml'):
     return os.path.abspath(os.path.join(def_dir, fn + ext))
 
 
+# Funzioni da utilizzare se modulo chiamato
 def build_module(moduli):
     """Funzione principale per i consumatori del modulo
 
     :param moduli: una lista di moduli da rendere (percorso completo)
     """
-    imposta_param_django(TEMPLATE_DIRS)
+    imposta_param_django([builder_conf["template_dirs"]])
     log = []
     for modulo in moduli:
 
-        modulo = _norm_path(modulo, TRAN_DIR)
+        modulo = _norm_path(modulo, builder_conf["tran_dir"])
         x = os.getcwd()
         if not os.path.exists(modulo):
             log.append("Modulo %s non trovato" % modulo)
             continue
         if 'riferimenti_' in modulo:
-            is_ind = crea_pagina_modulo(TEMPLATE_REF_NAME, modulo, FOOTER, log)
+            is_ind = crea_pagina_modulo(builder_conf["template_ref_name"], modulo, FOOTER, log)
         else:
-            is_ind = crea_pagina_modulo(TEMPLATE_MODULE_NAME, modulo, FOOTER, log)
+            is_ind = crea_pagina_modulo(builder_conf["template_module_name"], modulo, FOOTER, log)
         log.append("Costruzione pagina %s terminata" % os.path.basename(modulo))
+    return log
+
+
+def build_index():
+    """Crea pagine indice ed il feed rss"""
+    log = ['\nCreazione pagine indice']
+    crea_feed_rss(
+        builder_conf["rss_remote_folder"],
+        builder_conf["rss_feed_name"],
+        builder_conf["rss_feed_title"],
+        builder_conf["rss_feed_desc"]
+    )
+    crea_pagine_indice(
+        builder_conf["template_index_name"],
+        builder_conf["file_indice"],
+        builder_conf["modules_by_page"],
+        FOOTER
+    )
+    return log
+
+def build_module_table():
+    log = ['\nCreazione tabella moduli']
+    crea_tabella_indice(builder_conf['builder_conf["template_tabalfa_name"]'])
     return log
 
 
 if __name__ == '__main__':
     print __doc__
-    parms = sys.argv
-    clear_console()
-    # Per prima cosa si impostano i parametri per django
-    imposta_param_django(TEMPLATE_DIRS)
-
-    # Nessun parametro conferma per ricostruzione di tutti i moduli
-    if len(parms) == 1:
-        scelta = raw_input('Ricostruire tutto? (S/N)')
-        if scelta and scelta[0].lower() == 's':
-            rebuild_all()
-        exit(0)
-    dummy, choices = parms
-    # Se il primo argomento inizia con ind si ricostruisce la pagina indice
-    # ed il feed rss
-    if choices.lower().startswith('ind'):
-        crea_feed_rss(
-            RSS_REMOTE_ROOT_FOLDER,
-            RSS_FEED_NAME,
-            RSS_FEED_TITLE,
-            RSS_FEED_DESCR
-        )
-        crea_pagine_indice(
-            TEMPLATE_INDEX_NAME,
-            FILE_INDICE,
-            INDICE_MODULI_PER_PAGINA,
-            FOOTER
-        )
-    # Se il primo argomento inizia con tab si ricostruisce la tabella riepilogativa
-    elif choices.lower().startswith('tab'):
-        crea_tabella_indice(TEMPLATE_TABALFA_NAME)
-    else:
-        pubblica = False
-        da_pubblicare = []
-        if choices.lower().startswith('pubblica'):
-            pubblica = True
-            choices = choices[1:]
-
-        # si possono indicare tanti moduli quanto desiderati senza estensione
-        # ed intervallati da una virgola
-        for choice in choices.split(','):
-            if not os.path.splitext(choice)[1]:
-                choice += '.xml'
-                choice = os.path.join(TRAN_DIR, choice)
-                print os.path.abspath(choice)
-            if not os.path.exists(choice):
-                choice = os.path.join(TRAN_DIR, choice)
-                if not os.path.exists(choice):
-                    print "Il modulo %s non è stato trovato" % choice
-                    exit(-1)
-                #continue
-            if pubblica:
-                da_pubblicare.append(choice)
-            print "Costruzione pagina %s in corso ..." % os.path.basename(choice)
-            if 'riferimenti_' in choice:
-                is_ind =  crea_pagina_modulo(TEMPLATE_REF_NAME, choice, FOOTER)
-            else:
-                is_ind =  crea_pagina_modulo(TEMPLATE_MODULE_NAME, choice, FOOTER)
-            print "Costruzione pagina %s terminata" % os.path.basename(choice)
-
-        if is_ind:
-            pubblica(da_pubblicare)
-
-
+    print "Utilizzare l'interfaccia web"
     print "Fine"
-    #raw_input()

@@ -1,12 +1,12 @@
+# filecmp_mkexamples.py
+
 import os
 
 def mkfile(filename, body=None):
-    f = open(filename, 'w')
-    try:
+    with open(filename, 'w') as f:
         f.write(body or filename)
-    finally:
-        f.close()
     return
+
 
 def make_example_dir(top):
     if not os.path.exists(top):
@@ -34,7 +34,7 @@ def make_example_dir(top):
 
     mkfile('dir1/file_in_dir1', 'Questo è un file in dir1')
     os.mkdir('dir2/file_in_dir1')
-    
+
     os.chdir(curdir)
     return
 

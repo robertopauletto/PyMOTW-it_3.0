@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <form method="POST" action="" class="pure-form pure-form-aligned">
+    <legend>Configurazione</legend>
+    {% for k, v in config.iteritems() %}
+      <div class="pure-control-group">
+        <label>{{ k|e }}</label><input size="60"  name="{{ k|e }}" value="{{ v|e }}"><br>
+      </div>
+    {% endfor %}
+  </form>
+{% endblock %}

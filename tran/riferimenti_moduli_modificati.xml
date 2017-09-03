@@ -278,7 +278,7 @@ La funzione <code>os.unsetenv()</code> non ignora più gli errori <a href='http:
 os.path
 </titolo_2>
 <testo_normale>
-<code>os.path.walk()</code> è stata rimossa. Si usi <code>os.walk()</code>.
+<a name="ospath"></a><code>os.path.walk()</code> è stata rimossa. Si usi <code>os.walk()</code>.
 </testo_normale>
 <titolo_2>
 pdb

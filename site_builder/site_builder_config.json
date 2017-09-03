@@ -1,0 +1,17 @@
+{
+  "template_tabalfa_name": "tabella_moduli.html",
+  "template_dirs": "../templates",
+  "html_dir": "../html",
+  "tran_dir": "../tran",
+  "rss_remote_root_folder" : "http://robyp.x10host.com/3/",
+  "rss_feed_descr": "Traduzione italiana di 'The Python 3 Module of the Week (http://pymotw.com/3/)",
+  "rss_feed_title": "PyMOTW-it 3: Il modulo python della settimana",
+  "rss_feed_name": "pymotw-it3_feed.xml",
+  "template_module_name": "modulo.html",
+  "template_index_name": "index.html",
+  "examples_dir": "../dumpscripts",
+  "zip_files_dir": "../html/examples",
+  "def_charset": "utf-8",
+  "modules_by_page": 12
+
+}
