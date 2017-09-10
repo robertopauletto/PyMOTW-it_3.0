@@ -1,3 +1,6 @@
+# filecmp_dircmp_report_full_closure.py
+
 import filecmp
 
-filecmp.dircmp('esempio/dir1', 'esempio/dir2').report_full_closure()
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+dc.report_full_closure()

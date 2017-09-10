@@ -96,6 +96,7 @@ FOOTER = Footer(
 
 builder_conf = {}
 def set_builder_conf(dictconf):
+    """Imposta la configurazione per l'istanza"""
     global builder_conf
     builder_conf = dictconf
 
@@ -215,7 +216,8 @@ def crea_pagina_modulo(template_name, file_modulo, footer, log=None):
     """
     indice, main_content, is_ind, check_sintassi, zipfile = \
         modulo_xml2html.render_articolo(
-            file_modulo, builder_conf["templates_dir"], builder_conf["zip_files_dir"], log
+            file_modulo, builder_conf["examples_dir"],
+            builder_conf["zip_files_dir"],  log
         )
     fn = os.path.splitext(os.path.basename(file_modulo))[0]
     modulo = Modulo.ottieni_modulo(fn)

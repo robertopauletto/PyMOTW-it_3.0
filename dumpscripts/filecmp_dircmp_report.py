@@ -1,3 +1,6 @@
+# filecmp_dircmp_report.py
+
 import filecmp
 
-filecmp.dircmp('esempio/dir1', 'esempio/dir2').report()
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+dc.report()

@@ -122,10 +122,11 @@ def text2entity(file_name):
     return "\n".join(log)
 
 
-def load(xml_file):
-    """(str) -> list of dict 
+def load(xml_file, dir_esempi, log):
+    """(str, str) -> list of dict
     
-    Legge il contenuto di `xml_file` filtrando le righe con commenti
+    Legge il contenuto di `xml_file` filtrando le righe con commenti.
+
     Ritorna:
     
     - una lista composta da dizionari:
@@ -154,7 +155,13 @@ def load(xml_file):
             is_aperto = True
             tag = pulisci_tag(riga.lower())
         elif RE_TAG_END.match(riga) and is_my_tag(riga.lower()):
-            seq_elementi.append({'tag': tag, 'buffer': buffer, 'row':  i,})
+            if tag == 'py_code' and len(buffer) == 1:
+                buffer = _get_codice_di_esempio(buffer, dir_esempi, log)
+            elif tag == 'testo_normale':
+                _norm_testo_normale(buffer)
+            elif tag == 'py_output':
+                _norm_output(buffer)
+            seq_elementi.append({'tag': tag, 'buffer': buffer, 'row':  i})
             buffer = []
             tag = ''
             is_aperto = False
@@ -165,6 +172,58 @@ def load(xml_file):
     # di svuotare il buffer
     file_esempio = _get_file_esempio(seq_elementi)
     return seq_elementi, indicizza, file_esempio
+
+
+PUNTEGGIATURA = ('.', ';', ':')
+
+
+def _norm_testo_normale(buffer):
+    """(list of str)
+
+    Verifica se l'ultimo carattere della lista è un carattere di punteggiatura.
+    In caso contrario aggiunge un punto (assumendo che, trattandosi di un
+    paragrafo sia la punteggiatura più probabile se non fornita
+    """
+    if not buffer[-1].strip().endswith(PUNTEGGIATURA):
+        buffer[-1] += "."
+
+
+ENTITIES = {
+    '<': '&lt;',
+    '>': '&gt;'
+}
+
+
+def _norm_output(buffer):
+    """(list of str)
+
+    Sostituisce caratteri che non vengono resi dal motore html nelle
+    corrispondenti entità
+    """
+    for i, row in enumerate(buffer):
+        to_sub = []
+        for key in ENTITIES.keys():
+            if key in row:
+                to_sub.append(key)
+        for char in to_sub:
+            buffer[i] = buffer[i].replace(char, ENTITIES[char])
+    return buffer
+
+
+
+
+
+def _get_codice_di_esempio(buffer, dir_esempi, log):
+    if not buffer[0].startswith("#"):
+        return buffer
+    try:
+        _, filename = re.split(r'\s+', buffer[0].strip())
+        with open(os.path.join(dir_esempi, filename)) as fh:
+            return [row.strip() for row in fh.readlines()]
+    except:
+        prompt = "Fallita importazione del codice di esempio per %s" % buffer[0]
+        log.append(prompt)
+        return buffer
 
 
 def _get_file_esempio(seq_elementi):
@@ -288,7 +347,7 @@ def render_articolo(file_xml, example_folder, zip_folder, log=None):
     """
     if 'counter' in file_xml.lower():
         pass
-    seq_elementi, indicizza, lista_esempi = load(file_xml)
+    seq_elementi, indicizza, lista_esempi = load(file_xml, example_folder, log)
     outfile = os.path.splitext(os.path.basename(file_xml))[0]
     file_compresso = None
     if not lista_esempi:
@@ -308,5 +367,6 @@ def render_articolo(file_xml, example_folder, zip_folder, log=None):
 #     print h2("testo h2")
 
 if __name__ == '__main__':
-    print(__doc__)
+    c = ['Rig<a>1', '<Riga2', 'riga']
+    print(norm_output(c))
     # test_partial()
