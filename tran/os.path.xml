@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+os.path - Manipolazione Indipendente dalla Piattaforma di Nomi di File
+</titolo_1>
+<descrizione>
+Elabora, costruisce, verifica oppure lavora con nomi di file e percorsi.
+
+</descrizione>
+<testo_normale>
+L'utilizzo delle funzioni incluse nel modulo <strong>os.path</strong> facilita la scrittura di codice per lavorare su file su piattaforme multiple. Anche programmi non concepiti per essere portati su altri sistemi operativi dovrebbero usare questo modulo per una elaborazione affidabile dei nomi di file.
+</testo_normale>
+<titolo_2>
+Elaborare Percorsi
+</titolo_2>
+<testo_normale>
+Il primo insieme di funzioni in <strong>os.path</strong> può essere usato per elaborare stringhe che rappresentano nomi di file nelle loro componenti di percorso. E' importante comprendere che queste funzioni non dipendono dai percorsi effettivamente esistenti; esse operano esclusivamente su stringhe.
+</testo_normale>
+<testo_normale>
+L'elaborazione di un percorso dipende da alcune variabili definite in <a href='os.html' target='_blank'>os</a>
+</testo_normale>
+<lista>
+<code>os.sep</code> - Il separatore tra porzioni di percorso (es. <code>"/"</code> oppure <code>"\"</code>).
+<code>os.extsep</code> - Il separatore tra il nome del file e la sua estensione (es. <code>"."</code>)
+<code>os.pardir</code> - La componente di percorso che rappresenta la risalita di un livello dell'albero di directory (es. <code>".."</code>).
+<code>os.curdir</code> - La componente di percorso che rappresenta la  directory corrente (es. <code>"."</code>).
+</lista>
+<testo_normale>
+La funzione <code>split()</code> divide il percorso in due parti separate e ritorna una tupla con il risultato. Il secondo elemento della tupla è l'ultimo componente del percorso, ed il primo è tutto quello che lo precede.
+</testo_normale>
+<py_code>
+# ospath_split.py
+
+import os.path
+
+PATHS = [
+    '/uno/due/tre',
+    '/uno/due/tre/',
+    '/',
+    '.',
+    '',
+]
+
+for path in PATHS:
+    print('{!r:>17} : {}'.format(path, os.path.split(path)))
+</py_code>
+<testo_normale>
+Quando l'argomento in input termina con <code>os.sep</code>, l'ultimo elemento del percorso è una stringa vuota.
+</testo_normale>
+<py_output>
+$ python3 ospath_split.py
+
+   '/uno/due/tre' : ('/uno/due', 'tre')
+  '/uno/due/tre/' : ('/uno/due/tre', '')
+              '/' : ('/', '')
+              '.' : ('', '.')
+               '' : ('', '')
+</py_output>
+<testo_normale>
+La funzione <code>basename()</code> ritorna un valore che equivale alla seconda parte del valore di <code>split()</code>.
+</testo_normale>
+<py_code>
+# ospath_basename.py
+
+import os.path
+
+PATHS = [
+    '/uno/due/tre',
+    '/uno/due/tre/',
+    '/',
+    '.',
+    '',
+]
+
+for path in PATHS:
+    print('{!r:>17} : {!r}'.format(path, os.path.basename(path)))
+</py_code>
+<testo_normale>
+Il percorso completo viene ridotto all'ultimo elemento, senza considerare che si tratti di nome di file o di directory. Se il percorso finisce con il separatore di directory (<code>os.sep</code>). la porzione della base del nome viene considerata vuota.
+</testo_normale>
+<py_output>
+$ python3 ospath_basename.py
+
+   '/uno/due/tre' : 'tre'
+  '/uno/due/tre/' : ''
+              '/' : ''
+              '.' : '.'
+               '' : ''
+</py_output>
+<testo_normale>
+La funzione <code>dirname()</code> ritorna la prima parte del percorso diviso.
+</testo_normale>
+<py_code>
+# ospath_dirname.py
+
+import os.path
+
+PATHS = [
+    '/uno/due/tre',
+    '/uno/due/tre/',
+    '/',
+    '.',
+    '',
+]
+
+for path in PATHS:
+    print('{!r:>17} : {!r}'.format(path, os.path.dirname(path)))
+</py_code>
+<testo_normale>
+La combinazione dei risultati di <code>dirname()</code> e <code>basename()</code> ricostruisce il percorso completo originale.
+</testo_normale>
+<py_output>
+$ python3 ospath_dirname.py
+
+   '/uno/due/tre' : '/uno/due'
+  '/uno/due/tre/' : '/uno/due/tre'
+              '/' : '/'
+              '.' : ''
+               '' : ''
+</py_output>
+<testo_normale>
+<code>splitext()</code> agisce come <code>split()</code>, ma divide il percorso in base al separatore di estensione in luogo di quello di directory.
+</testo_normale>
+<py_code>
+# ospath_splitext.py
+
+import os.path
+
+PATHS = [
+    'nomefile.txt',
+    'nomefile',
+    '/percorso/a/nomefile.txt',
+    '/',
+    '',
+    'mio-filecompresso.tar.gz',
+    'no-estensione.',
+]
+
+for path in PATHS:
+    print('{!r:>21} : {!r}'.format(path, os.path.splitext(path)))
+</py_code>
+<testo_normale>
+Solo l'ultima occorrenza di <code>os.extsep</code> viene usata quando viene cercata l'estensione, quindi il risultato della separazione di un nome di file con estensioni multiple lascia parte dell'estensione nel prefisso.
+</testo_normale>
+<py_output>
+$ python3 ospath_splitext.py
+
+       'nomefile.txt' : ('nomefile', '.txt')
+           'nomefile' : ('nomefile', '')
+'/percorso/a/nomefile.txt' : ('/percorso/a/nomefile', '.txt')
+                  '/' : ('/', '')
+                   '' : ('', '')
+'mio-filecompresso.tar.gz' : ('mio-filecompresso.tar', '.gz')
+     'no-estensione.' : ('no-estensione', '.')
+</py_output>
+<testo_normale>
+<code>commonprefix()</code> riceve un elemco di percorsi come argomento e ritorna una singola stringa che rappresenta un prefisso comune presente in tutti i percorsi. Il valore pùò rappresentare un percorso che in realtà non esiste, ed il separatore di percorso non è incluso nella considerazione, quindi il prefisso potrebbe non fermarsi su di un elemento separatore.
+</testo_normale>
+<py_code>
+# ospath_commonprefix.py
+
+import os.path
+
+paths = ['/uno/due/tre/quattro',
+         '/uno/due/trequalchealtro',
+         '/uno/due/tre/'
+         ]
+for path in paths:
+    print('PERCORSO:', path)
+
+print()
+print('PREFISSO:', os.path.commonprefix(paths))
+</py_code>
+<testo_normale>
+In questo esempio, la stringa di prefisso comune è <code>/uno/due/tre</code>, anche se un percorso non comprende una directory che si chiami <code>tre</code>.
+</testo_normale>
+<py_output>
+$ python3 ospath_commonprefix.py
+PERCORSO: /uno/due/tre/quattro
+PERCORSO: /uno/due/trequalchealtro
+PERCORSO: /uno/due/tre/
+
+PREFISSO: /uno/due/tre
+</py_output>
+<testo_normale>
+<code>commonpath()</code> tiene conto dei separatori di percorso, e ritorna un prefisso che non include valori di percorso parziali.
+</testo_normale>
+<py_code>
+# ospath_commonpath.py
+import os.path
+
+paths = ['/uno/due/tre/quattro',
+         '/uno/due/trequalchealtro',
+         '/uno/due/tre/'
+         ]
+for path in paths:
+    print('PERCORSO:', path)
+
+print()
+print('PREFISSO:', os.path.commonpath(paths))
+</py_code>
+<testo_normale>
+Visto che <code>trequalchealtro</code> non ha un separatore di percorso dopo <code>"tre"</code>, il prefisso comune è <code>/uno/due</code>.
+</testo_normale>
+<py_output>
+$ python3 ospath_commonpath.py
+PERCORSO: /uno/due/tre/quattro
+PERCORSO: /uno/due/trequalchealtro
+PERCORSO: /uno/due/tre/
+
+PREFISSO: /uno/due
+</py_output>
+<titolo_2>
+Costruire Percorsi
+</titolo_2>
+<testo_normale>
+Oltre al separare percorsi in parti, è necessario frequentemente costruire percorsi da altre stringhe. Per combinare parecchie componenti di percorso in un unico valore si usi <code>join()</code>.
+</testo_normale>
+<py_code>
+# ospath_join.py
+
+import os.path
+
+PATHS = [
+    ('uno', 'due', 'tre'),
+    ('/', 'uno', 'due', 'tre'),
+    ('/uno', '/due', '/tre'),
+]
+
+for parts in PATHS:
+    print('{} : {!r}'.format(parts, os.path.join(*parts)))
+
+</py_code>
+<testo_normale>
+Un qualsiasi argomento che inizi con <code>os.sep</code> fa sì che tutti i precedenti argomenti siano ignorati ed il nuovo diventa l'inizio del valore ritornato.
+</testo_normale>
+<py_output>
+$ python3 ospath_join.py
+
+('uno', 'due', 'tre') : 'uno/due/tre'
+('/', 'uno', 'due', 'tre') : '/uno/due/tre'
+('/uno', '/due', '/tre') : '/tre'
+</py_output>
+<testo_normale>
+E' anche possibile lavorare con percorsi che includono componenti sotto forma di variabile, che possono essere espansi automaticamente. Ad esempio <code>expanduser()</code> converte il carattere tilde (<code>~</code>) nel nome della directory home dell'utente.
+</testo_normale>
+<py_code>
+# ospath_expanduser.py
+
+import os.path
+
+for user in ['', 'robby', 'nonesistente']:
+    lookup = '~' + user
+    print('{!r:>15} : {!r}'.format(
+        lookup, os.path.expanduser(lookup)))
+</py_code>
+<testo_normale>
+Se la directory home dell'utente non viene trovata, la stringa viene ritornata immutata, come nell'esempio <code>~nonesistente</code>.
+</testo_normale>
+<py_output>
+$ python3 ospath_expanduser.py
+
+            '~' : '/home/robby'
+       '~robby' : '/home/robby'
+'~nonesistente' : '~nonesistente'
+</py_output>
+<testo_normale>
+<code>expandvars()</code> è di utilizzo più generale, ed espande qualsiasi variabile di ambiente della shell presente nel percorso.
+</testo_normale>
+<py_code>
+# ospath_expandvars.py
+
+import os.path
+import os
+
+os.environ['MIAVAR'] = 'VALORE'
+
+print(os.path.expandvars('/percorso/a/$MIAVAR'))
+</py_code>
+<testo_normale>
+Non viene eseguita alcuna validazione per assicurarsi che il valore della variabile risulti in un nome di file che esiste già.
+</testo_normale>
+<py_output>
+$ python3 ospath_expandvars.py
+
+/percorso/a/VALORE
+</py_output>
+<titolo_2>
+Normalizzare Percorsi
+</titolo_2>
+<testo_normale>
+I percorsi assemblati da stringhe separate usando <code>join()</code> o con variabili incorporate potrebbero far risultare separatori extra o componenti di percorso relativo. Si usi <code>normpath()</code> per sistemarli.
+</testo_normale>
+<py_code>
+# ospath_normpath.py
+
+import os.path
+
+PATHS = [
+    'uno//due//tre',
+    'uno/./due/./tre',
+    'uno/../alt/due/tre',
+]
+
+for path in PATHS:
+    print('{!r:>22} : {!r}'.format(path, os.path.normpath(path)))
+
+</py_code>
+<testo_normale>
+I segmenti di percorso costituiti da <code>os.curdir</code> ed <code>os.pardir</code> sono esaminati  e collassati.
+</testo_normale>
+<py_output>
+$ python3 ospath_normpath.py
+       'uno//due//tre' : 'uno/due/tre'
+     'uno/./due/./tre' : 'uno/due/tre'
+  'uno/../alt/due/tre' : 'alt/due/tre'
+</py_output>
+<testo_normale>
+Per convertire un percorso relativo in uno nome di file assoluto si usi <code>abspath()</code>.
+</testo_normale>
+<py_code>
+# ospath_abspath.py
+
+import os
+import os.path
+
+os.chdir('/usr')
+
+PATHS = [
+    '.',
+    '..',
+    './uno/due/tre',
+    '../uno/due/tre',
+]
+
+for path in PATHS:
+    print('{!r:>21} : {!r}'.format(path, os.path.abspath(path)))
+</py_code>
+<testo_normale>
+Il risultato è un percorso completo, che parte al primo livello dell'albero del filesystem.
+</testo_normale>
+<py_output>
+$ python3 ospath_abspath.py
+
+                  '.' : '/usr'
+                 '..' : '/'
+      './uno/due/tre' : '/usr/uno/due/tre'
+     '../uno/due/tre' : '/uno/due/tre'
+</py_output>
+<titolo_2>
+Orari dei File
+</titolo_2>
+<testo_normale>
+Oltre a lavorare con i percorsi, <code>os.path</code> include funzioni per ottenere proprietà dei file, simili a quelle ritornate da <code>os.stat()</code>:
+</testo_normale>
+<py_code>
+# ospath_properties.py
+
+import os.path
+import time
+
+print('File           :', __file__)
+print('Ultimo accesso :', time.ctime(os.path.getatime(__file__)))
+print('Ultima modifica:', time.ctime(os.path.getmtime(__file__)))
+print('Creazione      :', time.ctime(os.path.getctime(__file__)))
+print('Dimensione     :', os.path.getsize(__file__))
+</py_code>
+<testo_normale>
+<code>os.path.getatime()</code> ritorna l'orario di accesso, <code>os.path.getmtime()</code> ritorna l'orario di modifica e <code>os.path.getctime()</code> ritorna l'orario di creazione. <code>os.path.getsize()</code> ritorna il totale di dati in un file, rappresentati in byte.
+</testo_normale>
+<py_output>
+$ python3 ospath_properties.py
+
+File           : ospath_properties.py
+Ultimo accesso : Sat Sep  2 11:59:36 2017
+Ultima modifica: Sat Sep  2 11:59:36 2017
+Change time    : Sat Sep  2 11:59:36 2017
+Dimensione     : 338
+</py_output>
+<titolo_2>
+Verificare i File
+</titolo_2>
+<testo_normale>
+Quando un programma ha a che fare con un nome di percorso, spesso deve conoscere se quel percorso si riferisce ad un file, una directory, un collegamento simbolico e se esiste. <strong>os.path</strong> fornisce funzioni per eseguire una verifica delle condizioni sopra elencate.
+</testo_normale>
+<py_code>
+# ospath_tests.py
+import os.path
+
+FILENAMES = [
+    __file__,
+    os.path.dirname(__file__),
+    '/',
+    './collegamento_interrotto',
+]
+
+for file in FILENAMES:
+    print('File                             : {!r}'.format(file))
+    print('Assoluto                         :', os.path.isabs(file))
+    print("E' un File?                      :", os.path.isfile(file))
+    print("E' una directory                 :", os.path.isdir(file))
+    print("E' un collegamento simbolico?    :", os.path.islink(file))
+    print('Punto di montaggio?              :', os.path.ismount(file))
+    print('Esiste?                          :', os.path.exists(file))
+    print('Esiste il collegamento simbolico?:', os.path.lexists(file))
+    print()
+</py_code>
+<testo_normale>
+Tutte le funzioni di verifica ritornano valori booleani.
+</testo_normale>
+<py_output>
+$ python3 ospath_tests.py
+File                             : 'ospath_tests.py'
+Assoluto                         : False
+E' un File?                      : True
+E' una directory                 : False
+E' un collegamento simbolico?    : False
+Punto di montaggio?              : False
+Esiste?                          : True
+Esiste il collegamento simbolico?: True
+
+File                             : ''
+Assoluto                         : False
+E' un File?                      : False
+E' una directory                 : False
+E' un collegamento simbolico?    : False
+Punto di montaggio?              : False
+Esiste?                          : False
+Esiste il collegamento simbolico?: False
+
+File                             : '/'
+Assoluto                         : True
+E' un File?                      : False
+E' una directory                 : True
+E' un collegamento simbolico?    : False
+Punto di montaggio?              : True
+Esiste?                          : True
+Esiste il collegamento simbolico?: True
+
+File                             : './collegamento_interrotto'
+Assoluto                         : False
+E' un File?                      : False
+E' una directory                 : False
+E' un collegamento simbolico?    : False
+Punto di montaggio?              : False
+Esiste?                          : False
+Esiste il collegamento simbolico?: False
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/os.path.html|os.path|La documentazione della libreria standard per questo modulo
+riferimenti_moduli_modificati.html#ospath|Note di portabilità per <strong>os.path</strong>|
+pathlib.html|pathlib|Percorsi come oggetti
+os.html|os|Dal modulo <strong>os</strong> discende <strong>os.path</srong>
+time.html|time|Il modulo <strong>time</strong> contiene funzioni per conversioni tra la rappresentazione usata dalle funzioni per la proprietà di orario usate in <strong>os.path</strong>
+</vedi_anche>
+</documento_tradotto>

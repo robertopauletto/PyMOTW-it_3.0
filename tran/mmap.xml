@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+mmap - Mappatura di File in Memoria
+</titolo_1>
+<descrizione>
+Mappa file in memoria invece di leggerne direttamente il contenuto
+
+</descrizione>
+<testo_normale>
+La mappatura in memoria di un file avviene tramite l'utilizzo del sistema di memoria virtuale del sistema operativo per accedere direttamente adi dati in un file nel filesystem, invece di utilizzare le normali funzioni di I/O. In genere le prestazioni di I/O sono migliorate con questa tecnica visto che non occorre eseguire chiamate di sistema separate per ogni accesso e non occorre copiare dati tra buffer - la memoria è indirizzata direttamente sia dal kernel che dall'applicazione dell'utente.
+</testo_normale>
+<testo_normale>
+I file mappati in memoria possono essere trattati come stringhe modificabili oppure oggetti di tipo file, a seconda delle necessità. Un file mappato supporta i previsti metodi <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a>, tipo <code>close()</code>, <code>flush()</code>, <code>read()</code>, <code>readline()</code>, <code>seek()</code>, <code>tell()</code> e <code>write()</code>. Supporta anche le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> delle stringhe, con caratteristiche come lo <em>slicing</em> (il trattare porzioni di iterabili) e metodi come <code>find()</code>.
+</testo_normale>
+<testo_normale>
+Tutti gli esempi usano il file <code>lorem.txt</code> di seguito stampato:
+</testo_normale>
+<py_code>
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+Donec egestas, enim et consectetuer ullamcorper, lectus ligula rutrum leo,
+a elementum elit tortor eu quam. Duis tincidunt nisi ut ante. Nulla
+facilisi. Sed tristique eros eu libero. Pellentesque vel
+arcu. Vivamus purus orci, iaculis ac, suscipit sit amet, pulvinar eu,
+lacus. Praesent placerat tortor sed nisl. Nunc blandit diam egestas
+dui. Pellentesque habitant morbi tristique senectus et netus et
+malesuada fames ac turpis egestas. Aliquam viverra fringilla
+leo. Nulla feugiat augue eleifend nulla. Vivamus mauris. Vivamus sed
+mauris in nibh placerat egestas. Suspendisse potenti. Mauris
+massa. Ut eget velit auctor tortor blandit sollicitudin. Suspendisse
+imperdiet justo.
+</py_code>
+<note>
+Ci sono differenze negli argomenti e nei comportamenti per <code>mmap()</code> tra Unix e Windows, che non sono interamente qui trattati. Per maggiori dettagli, fare riferimento alla documentazione della libreria standard.
+</note>
+<titolo_2>
+Lettura
+</titolo_2>
+<testo_normale>
+Si usi la funzione <code>mmap()</code> per creare un file mappato in memoria. Il primo argomento è un descrittore di file, ottenuto dal metodo <code>fileno()</code> oppure da <code>os.open()</code> oppure un oggetto <code>file</code>. Il chiamante è responsaible dell'apertura del file prima della chiamata di <code>mmap()</code> e della chiusura quando lo stesso non è più necessario.
+</testo_normale>
+<testo_normale>
+Il secondo argomento per <code>mmap()</code> è la dimensione in byte della porzione del file da mappare. Se il valore è <code>0</code> viene mappato l'intero file. Se la dimensione è maggiore della dimensione corrente del file, il file viene esteso.
+</testo_normale>
+<note>
+Windows non supporta la creazione di un mappatura con lunghezza zero.
+</note>
+<testo_normale>
+Un argomento nominale opzionale è <code>access</code>, supportato da entrambe le piattaforme. Si usi <code>ACCESS_READ</code> per accesso a sola lettura, <code>ACCESS_WRITE</code> per scrittura (gli assegnamenti alla memoria vanno direttamente nel file) ed <code>ACCESS_COPY</code> per copia in scrittura (gli assegnamenti alla memoria non sono scritti nel file).
+</testo_normale>
+<py_code>
+# mmap_read.py
+
+import mmap
+
+with open('lorem.txt', 'r') as f:
+    with mmap.mmap(f.fileno(), 0,
+                   access=mmap.ACCESS_READ) as m:
+        print('Primi 10 byte tramite read :', m.read(10))
+        print('Primi 10 byte tramite slice:', m[:10])
+        print('Secondi 10 byte tramite read :', m.read(10))
+</py_code>
+<testo_normale>
+Il puntatore al file traccia gli ultimi byte acceduti tramite una operazione di <em>slicing</em>. In questo esempio, il puntatore si sposta in avanti di 10 byte dopo la prima lettura. Poi viene reimpostato ad inizio file dall'operazione di <em>slicing</em> e successivamente spostato ancora di 10 byte, ancora dallo <em>slicing</em>. Dopo questa operazione, la chiamata di <code>read()</code> ritorna i byte compresi nelle posizioni da 11 a 20 nel file.
+</testo_normale>
+<py_output>
+$ python3 mmap_read.py
+
+Primi 10 byte tramite read : b'# lorem.tx'
+Primi 10 byte tramite slice: b'# lorem.tx'
+Secondi 10 byte tramite read : b't\n\nLorem i'
+</py_output>
+<titolo_2>
+Scrittura
+</titolo_2>
+<testo_normale>
+Per impostare un file mappato in memoria affinchè possa ricevere aggiornamenti, si inizi con lo specificare la modalità di apertura in <code>'r+'</code>, (non <code>'w'</code>) prima di mapparlo. Poi è possibile usare un qualunque metodo che modifichi i dati (<code>write()</code>, assgneazioni tramite <em>slicing</em> ecc.).
+</testo_normale>
+<testo_normale>
+Il successivo esempio usa la modalità di accesso predefinita <code>ACCESS_WRITE</code> e con una operazione di <em>slicing</em> modifica sul posto parte di una riga.
+</testo_normale>
+<py_code>
+# mmap_write_slice.py
+
+import mmap
+import shutil
+
+# Copia il file di esempio
+shutil.copyfile('lorem.txt', 'lorem_copy.txt')
+
+word = b'consectetuer'
+reversed = word[::-1]
+print('Ricerca di        :', word)
+print('Da sostituire con :', reversed)
+
+with open('lorem_copy.txt', 'r+') as f:
+    with mmap.mmap(f.fileno(), 0) as m:
+        print('Prima:\n{}'.format(m.readline().rstrip()))
+        m.seek(0)  # torna ad inizio file
+
+        loc = m.find(word)
+        m[loc:loc + len(word)] = reversed
+        m.flush()
+
+        m.seek(0)  # torna ad inizio file
+        print('Dopo  :\n{}'.format(m.readline().rstrip()))
+
+        f.seek(0)  # torna ad inizio file
+        print('File  :\n{}'.format(f.readline().rstrip()))
+</py_code>
+<testo_normale>
+La parola <code>consectetuer</code> viene sostituita nella prima riga in memoria e nel file.
+</testo_normale>
+<py_output>
+$ python3 mmap_write_slice.py
+Ricerca di        : b'consectetuer'
+Da sostituire con : b'reutetcesnoc'
+Prima:
+b'Lorem ipsum dolor sit amet, consectetuer adipiscing elit.'
+Dopo  :
+b'Lorem ipsum dolor sit amet, reutetcesnoc adipiscing elit.'
+File  :
+Lorem ipsum dolor sit amet, reutetcesnoc adipiscing elit.
+</py_output>
+<titolo_2>
+Modalità Copia
+</titolo_2>
+<testo_normale>
+Con l'impostazione di accesso <code>ACCESS_COPY</code> il file su disco non viene modificato.
+</testo_normale>
+<py_code>
+# mmap_write_copy.py
+import mmap
+import shutil
+
+# Copy the example file
+shutil.copyfile('lorem.txt', 'lorem_copy.txt')
+
+word = b'consectetuer'
+reversed = word[::-1]
+
+with open('lorem_copy.txt', 'r+') as f:
+    with mmap.mmap(f.fileno(), 0,
+                   access=mmap.ACCESS_COPY) as m:
+        print('Prima in memoria:\n{}'.format(
+            m.readline().rstrip()))
+        print('Dopo nel file   :\n{}\n'.format(
+            f.readline().rstrip()))
+
+        m.seek(0)  # torna ad inizio file
+        loc = m.find(word)
+        m[loc:loc + len(word)] = reversed
+
+        m.seek(0)  # torna ad inizio file
+        print('Prima in memoria :\n{}'.format(
+            m.readline().rstrip()))
+
+        f.seek(0)
+        print('Dopo nel file    :\n{}'.format(
+            f.readline().rstrip()))
+</py_code>
+<testo_normale>
+In questo esempio è necessario riportare il puntatore all'inizio del file sia nella versione su disco che su quella in memoria in quanto lo stato interno dei due oggetti viene mantenuto separatamente.
+</testo_normale>
+<py_output>
+$ python3 mmap_write_copy.py
+
+Prima in memoria:
+b'Lorem ipsum dolor sit amet, consectetuer adipiscing elit.'
+Dopo nel file   :
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+
+Prima in memoria :
+b'Lorem ipsum dolor sit amet, reutetcesnoc adipiscing elit.'
+Dopo nel file    :
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+</py_output>
+<titolo_2>
+Espressioni Regolari
+</titolo_2>
+<testo_normale>
+Visto che un file mappato in memoria può agire come se fosse una stringa, può essere usato con altri moduli che operano con stringhe tipo le espressioni regolari. Questo esempio trova tutte le frasi che contengono <code>"nulla"</code>.
+</testo_normale>
+<py_code>
+# mmap_regex.py
+
+import mmap
+import re
+
+pattern = re.compile(rb'(\.\W+)?([^.]?nulla[^.]*?\.)',
+                     re.DOTALL | re.IGNORECASE | re.MULTILINE)
+
+with open('lorem.txt', 'r') as f:
+    with mmap.mmap(f.fileno(), 0,
+                   access=mmap.ACCESS_READ) as m:
+        for match in pattern.findall(m):
+            print(match[1].replace(b'\n', b' '))
+</py_code>
+<testo_normale>
+Visto che il modello di ricerca comprende due gruppi, il valore ritornato da <code>findall()</code> è una sequenza di tuple. La funzione <code>print()</code> estrae le frasi che hanno trovato corrispondenza e sostituisce i ritorni a capo con spazi in modo che ciascun risultato venga stampato in una sola riga.
+</testo_normale>
+<py_output>
+$ python3 mmap_regex.py
+
+b'Nulla facilisi.'
+b'Nulla feugiat augue eleifend nulla.'
+</py_output>
+<vedi_anche>
+http://docs.python.org/3.5/library/mmap.html|mmap|La documentazione standard della libreria per questo modulo
+http://www.ddj.com/documents/s=1103/ddj8807c/|Pattern Matching: The Gestalt Approach|Discussione su di un algoritmo simile di John W. Ratcliff e D. E. Metzener pubblicato nel Dr. Dobb's Journal del luglio 1988 (in inglese).
+</vedi_anche>
+</documento_tradotto>

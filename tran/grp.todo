@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi specifici unix</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+grp - Database dei Gruppi di Unix
+</titolo_1>
+<descrizione>
+Legge dati sui gruppi dal database dei gruppi di Unix
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>grp</strong> può essere usato per leggere informazioni dal database dei gruppi (in genere <code>/etc/group</code>). L'interfaccia a sola lettura ritorna oggetti tipo tupla con attributi nominali per i campi standard di un record che rappresenta un gruppo.
+</testo_normale>
+<tabella_semplice>
+INDICE;ATTRIBUTO;SIGNIFICATO
+0;<code>gr_name</code>;Nome
+1;<code>gr_passwd</code>;La password, se esiste (criptata)
+2;<code>pw_gid</code>;Id Gruppo (intero)
+3;<code>pw_mem</code>;I nomi dei membri del gruppo
+</tabella_semplice>
+<testo_normale>
+I nomi e le password sono entrambi valori stringa, GID è un intero, ed i membri sono una lista di stringhe.
+</testo_normale>
+<titolo_2>
+Interrogare Tutti i Gruppi
+</titolo_2>
+<testo_normale>
+Questo esempio stampa un elenco di tutti i gruppi "reali" su di un sistema, compresi i loro membri  (laddove "reale" è inteso con chi ha un nome che non inizia per "_"). Per caricare l'intero database, si usa <code>getgrall()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrall.py
+
+import grp
+import textwrap
+
+# Carica tutti i dati dei gruppi, ordinati per nome
+all_groups = grp.getgrall()
+interesting_groups = {
+    g.gr_name: g
+    for g in all_groups
+    if not g.gr_name.startswith('_')
+}
+print(len(interesting_groups.keys()))
+
+# Trova la lunghezza massima di alcuni campi
+name_length = max(len(k) for k in interesting_groups) + 1
+gid_length = max(len(str(u.gr_gid))
+                 for u in interesting_groups.values()) + 1
+
+# Imposta la larghezza del campo dei membri per evitare il ritorno a campo
+# nelle colonne della tabella
+members_width = 19
+
+# Print report headers
+fmt = ' '.join(['{:<{name_length}}',
+                '{:{gid_length}}',
+                '{:<{members_width}}',
+                ])
+print(fmt.format('Nome',
+                 'GID',
+                 'Membri',
+                 name_length=name_length,
+                 gid_length=gid_length,
+                 members_width=members_width))
+print('-' * name_length,
+      '-' * gid_length,
+      '-' * members_width)
+
+# Stampa i dati
+prefix = ' ' * (name_length + gid_length + 2)
+for name, g in sorted(interesting_groups.items()):
+    # Formatta i membri in modo che partano nella colonna sulla stessa riga ma
+    # li racchiude come necessario con una indentazione sufficiente per
+    # inserire le righe seguenti alla stessa altezza nella colonna membri
+    # I due prefissi di indentazione devono essere uguali per calcolare
+    # propriamente l'indentazione ma il primo non dovrebbe essere stampato,
+    # quindi viene eliminato.
+    members = textwrap.fill(
+        ', '.join(g.gr_mem),
+        initial_indent=prefix,
+        subsequent_indent=prefix,
+        width=members_width + len(prefix),
+    ).strip()
+    print(fmt.format(g.gr_name,
+                     g.gr_gid,
+                     members,
+                     name_length=name_length,
+                     gid_length=gid_length,
+                     members_width=members_width))
+</py_code>
+<testo_normale>
+Il valore restituito è una lista non ordinata, quindi occorre ordinarla prima di stampare il risultato
+</testo_normale>
+<py_output>
+$ python3 grp_getgrall.py
+
+74
+Nome                 GID    Membri
+-------------------- ------ -------------------
+adm                       4 syslog, robby
+audio                    29 pulse
+avahi                   120
+avahi-autoipd           119
+backup                   34
+bin                       2
+bluetooth               121
+cdrom                    24 robby
+colord                  123
+crontab                 107
+daemon                    1
+dialout                  20
+dip                      30 robby
+disk                      6
+docker                  999 robby
+fax                      21
+floppy                   25
+games                    60
+geoclue                 130
+gnats                    41
+input                   106
+irc                      39
+kmem                     15
+lightdm                 114
+list                     38
+lp                        7
+lpadmin                 113 robby
+mail                      8
+man                      12
+messagebus              110
+mlocate                 117
+mongodb                 131 mongodb
+netdev                  109
+news                      9
+nogroup               65534
+nopasswdlogin           115
+nvidia-persistenced     129
+operator                 37
+plugdev                  46 robby
+postdrop                133
+postfix                 132
+proxy                    13
+pulse                   124
+pulse-access            125
+robby                  1000
+root                      0
+rtkit                   126
+sambashare              128 robby
+saned                   127
+sasl                     45
+scanner                 122 saned
+shadow                   42
+src                      40
+ssh                     118
+ssl-cert                112
+staff                    50
+sudo                     27 robby
+sys                       3
+syslog                  108
+systemd-bus-proxy       105
+systemd-journal         101
+systemd-network         103
+systemd-resolve         104
+systemd-timesync        102
+tape                     26
+tty                       5
+users                   100
+utmp                     43
+uucp                     10
+uuidd                   111
+video                    44
+voice                    22
+whoopsie                116
+www-data                 33
+</py_output>
+<titolo_2>
+Appartenenza ad un Gruppo per un Utente
+</titolo_2>
+<testo_normale>
+Un altro comune compito potrebbe essere quello di stampare una lista di tutti i gruppi dato un utente.
+</testo_normale>
+<py_code>
+# grp_groups_for_user.py
+
+import grp
+
+username = 'robby'
+group_names = set(
+    g.gr_name
+    for g in grp.getgrall()
+    if username in g.gr_mem
+)
+print(username, 'appartiene a:', ', '.join(sorted(group_names)))
+</py_code>
+<testo_normale>
+Un insieme di nomi di gruppo univoci viene ordinato prima di essere stampato.
+</testo_normale>
+<py_output>
+$ python3 grp_groups_for_user.py
+
+robby appartiene a: adm, cdrom, dip, docker, lpadmin, plugdev, sambashare, sudo
+</py_output>
+<titolo_2>
+Trovare un Gruppo per Nome
+</titolo_2>
+<testo_normale>
+Così come per <a href='pwd.html'>pwd</a> è anche possibile cercare informazioni circa uno specifico gruppo, sia per nome che per identificativo numerico.
+</testo_normale>
+<py_code>
+# grp_getgrnam.py
+
+import grp
+
+name = 'adm'
+info = grp.getgrnam(name)
+print('Nome    :', info.gr_name)
+print('GID     :', info.gr_gid)
+print('Password:', info.gr_passwd)
+print('Membri  :', ', '.join(info.gr_mem))
+</py_code>
+<testo_normale>
+Il gruppo <code>adm</code> ha due membri.
+</testo_normale>
+<py_output>
+$ python3 grp_getgrnam.py
+
+Nome    : adm
+GID     : 4
+Password: x
+Membri  : syslog, robby
+</py_output>
+<titolo_2>
+Trovare un Gruppo per IDentificativo
+</titolo_2>
+<testo_normale>
+Per identificare un gruppo cha ha in esecuzione il processo corrente, si combina <code>getgrgid()</code> con <code>os.getgid()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrgid_process.py
+
+import grp
+import os
+
+gid = os.getgid()
+group_info = grp.getgrgid(gid)
+print('Attualmente in esecuzione con GID={} nome={}'.format(
+    gid, group_info.gr_name))
+</py_code>
+<py_output>
+$ python3 grp_getgrgid_process.py
+
+Attualmente in esecuzione con GID=1000 nome=robby
+</py_output>
+<testo_normale>
+Per ottenere il nome del gruppo in base ai permessi su di un file, ci cerca il gruppo ritornato da <code>os.stat()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrgid_fileowner.py
+
+import grp
+import os
+
+filename = 'grp_getgrgid_fileowner.py'
+stat_info = os.stat(filename)
+owner = grp.getgrgid(stat_info.st_gid).gr_name
+
+print('Il proprietario di {} è {} ({})'.format(
+    filename, owner, stat_info.st_gid))
+</py_code>
+<testo_normale>
+Il record dello stato del file comprende i dati di permesso e proprietà per un file o directory.
+</testo_normale>
+<py_output>
+$ python3 grp_getgrgid_fileowner.py
+
+Il proprietario di grp_getgrgid_fileowner.py è robby (1000)
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/grp.html|grp|La documentazione della libreria standard per questo modulo.
+pwd.html|pwd|Il modulo <strong>pwd</strong> legge informazioni sugli utenti dal database delle password
+#|spwd|Accesso al database delle password sicuro per sistemi che utilizzano il <a href="https://www.wikiwand.com/it/Passwd"><em>password shadowing</em></a>.
+#|os|Interfacce di sistema operativo
+</vedi_anche>
+</documento_tradotto>

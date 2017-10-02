@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Il File System</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->\
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+filecmp - Confrontare File
+</titolo_1>
+<descrizione>
+Confronta file e directory nel filesystem.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>filecmp</strong> include funzioni ed una classe per confrontare i file e le directory nel filesystem.
+</testo_normale>
+<titolo_2>
+Dati di Esempio
+</titolo_2>
+<testo_normale>
+Gli esempi per questo articolo utilizzano una serie di file di prova creati con lo script <code>filecmp_mkexamples.py</code>
+</testo_normale>
+<py_code>
+# filecmp_mkexamples.py
+
+import os
+
+def mkfile(filename, body=None):
+    with open(filename, 'w') as f:
+        f.write(body or filename)
+    return
+
+
+def make_example_dir(top):
+    if not os.path.exists(top):
+        os.mkdir(top)
+    curdir = os.getcwd()
+    os.chdir(top)
+
+    os.mkdir('dir1')
+    os.mkdir('dir2')
+
+    mkfile('dir1/file_solo_in_dir1')
+    mkfile('dir2/file_solo_in_dir2')
+
+    os.mkdir('dir1/dir_solo_in_dir1')
+    os.mkdir('dir2/dir_solo_in_dir2')
+
+    os.mkdir('dir1/dir_comune')
+    os.mkdir('dir2/dir_comune')
+
+    mkfile('dir1/file_comune', 'questo file è lo stesso')
+    mkfile('dir2/file_comune', 'questo file è lo stesso')
+
+    mkfile('dir1/non_lo_stesso')
+    mkfile('dir2/non_lo_stesso')
+
+    mkfile('dir1/file_in_dir1', 'Questo è un file in dir1')
+    os.mkdir('dir2/file_in_dir1')
+
+    os.chdir(curdir)
+    return
+
+if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__) or os.getcwd())
+    make_example_dir('esempio')
+    make_example_dir('esempio/dir1/dir_comune')
+    make_example_dir('esempio/dir2/dir_comune')
+</py_code>
+<testo_normale>
+L'esecuzione dello script produce un alberatura di file sotto la directory <code>esempio</code>
+</testo_normale>
+<py_output>
+$ find esempio
+
+esempio
+esempio/dir1
+esempio/dir1/dir_comune
+esempio/dir1/dir_comune/dir1
+esempio/dir1/dir_comune/dir1/dir_comune
+esempio/dir1/dir_comune/dir1/dir_solo_in_dir1
+esempio/dir1/dir_comune/dir1/file_solo_in_dir1
+esempio/dir1/dir_comune/dir1/file_comune
+esempio/dir1/dir_comune/dir1/non_lo_stesso
+esempio/dir1/dir_comune/dir1/file_in_dir1
+esempio/dir1/dir_comune/dir2
+esempio/dir1/dir_comune/dir2/dir_comune
+esempio/dir1/dir_comune/dir2/file_solo_in_dir2
+esempio/dir1/dir_comune/dir2/dir_solo_in_dir2
+esempio/dir1/dir_comune/dir2/file_comune
+esempio/dir1/dir_comune/dir2/non_lo_stesso
+esempio/dir1/dir_comune/dir2/file_in_dir1
+esempio/dir1/dir_solo_in_dir1
+esempio/dir1/file_solo_in_dir1
+esempio/dir1/file_comune
+esempio/dir1/non_lo_stesso
+esempio/dir1/file_in_dir1
+esempio/dir2
+esempio/dir2/dir_comune
+esempio/dir2/dir_comune/dir1
+esempio/dir2/dir_comune/dir1/dir_comune
+esempio/dir2/dir_comune/dir1/dir_solo_in_dir1
+esempio/dir2/dir_comune/dir1/file_solo_in_dir1
+esempio/dir2/dir_comune/dir1/file_comune
+esempio/dir2/dir_comune/dir1/non_lo_stesso
+esempio/dir2/dir_comune/dir1/file_in_dir1
+esempio/dir2/dir_comune/dir2
+esempio/dir2/dir_comune/dir2/dir_comune
+esempio/dir2/dir_comune/dir2/file_solo_in_dir2
+esempio/dir2/dir_comune/dir2/dir_solo_in_dir2
+esempio/dir2/dir_comune/dir2/file_comune
+esempio/dir2/dir_comune/dir2/non_lo_stesso
+esempio/dir2/dir_comune/dir2/file_in_dir1
+esempio/dir2/file_solo_in_dir2
+esempio/dir2/dir_solo_in_dir2
+esempio/dir2/file_comune
+esempio/dir2/non_lo_stesso
+esempio/dir2/file_in_dir1
+</py_output>
+<testo_normale>
+La stessa struttura di directory è ripetuta una volta nelle sottodirectory <code>dir_comune</code> per fornire delle interessanti opzioni di confronto ricorsivo.
+</testo_normale>
+<titolo_2>
+Confrontare File
+</titolo_2>
+<testo_normale>
+<code>cmp()</code> confronta due file nel filesystem.
+</testo_normale>
+<py_code>
+# filecmp_cmp.py
+
+import filecmp
+
+print('file_comune  :', end=' ')
+print(filecmp.cmp('esempio/dir1/file_comune',
+                  'esempio/dir2/file_comune'),
+      end=' ')
+print(filecmp.cmp('esempio/dir1/file_comune',
+                  'esempio/dir2/file_comune',
+                  shallow=False))
+
+print('non_lo_stesso:', end=' ')
+print(filecmp.cmp('esempio/dir1/non_lo_stesso',
+                  'esempio/dir2/non_lo_stesso'),
+      end=' ')
+print(filecmp.cmp('esempio/dir1/non_lo_stesso',
+                  'esempio/dir2/non_lo_stesso',
+                  shallow=False))
+
+print('identici     :', end=' ')
+print(filecmp.cmp('esempio/dir1/file_solo_in_dir1',
+                  'esempio/dir1/file_solo_in_dir1'),
+      end=' ')
+print(filecmp.cmp('esempio/dir1/file_solo_in_dir1',
+                  'esempio/dir1/file_solo_in_dir1',
+                  shallow=False))
+</py_code>
+<testo_normale>
+L'argomento <code>shallow</code> indica a <code>cmp()</code> di cercare nel contenuto del file, oltre ai suoi metadati. Il comportamento predefinito è di esegure un confronto "superficiale" usando le informazioni disponibili da <code>os.stat()</code>. Se i risultati sono gli stessi, i file sono considerati gli stessi, quindi file della stessa dimensione creati allo stesso orario sono riportati come uguali, anche se il contenuto differisce. Quando <code>shallow</code> è <code>False</code>, il contenuto del file è sempre oggetto di confronto.
+</testo_normale>
+<py_output>
+$ python3 filecmp_cmp.py
+file_comune  : True True
+non_lo_stesso: True False
+identici     : True True
+</py_output>
+<testo_normale>
+Per confrontare un inseme di file in due directory senza ricorsione si usi <code>cmpfiles()</code>. Gli argomenti sono i nomi delle directory ed una lista di file da verificare nelle due locazioni. La lista dei file comuni passata dovrebbe contenere solo nomi di file e gli stessi devono essere presenti in entrambe le locazioni. Il prossimo esempio mostra un semplice modo per costruire la lista comune. Il confronto riceve anche l'argomento <code>shallow</code>, proprio come per <code>cmp()</code>.
+</testo_normale>
+<py_code>
+# filecmp_cmpfiles.py
+import filecmp
+import os
+
+# Determina gli elementi che esistono in entrambe le directory
+d1_contents = set(os.listdir('esempio/dir1'))
+d2_contents = set(os.listdir('esempio/dir2'))
+common = list(d1_contents & d2_contents)
+common_files = [
+    f
+    for f in common
+    if os.path.isfile(os.path.join('esempio/dir1', f))
+]
+print('File comuni:', common_files)
+
+# Confronta le directory
+match, mismatch, errors = filecmp.cmpfiles(
+    'esempio/dir1',
+    'esempio/dir2',
+    common_files,
+)
+print('Corrispondenze        :', match)
+print('Mancate corrispondenze:', mismatch)
+print('Errori                :', errors)
+</py_code>
+<testo_normale>
+<code>cmpfiles()</code> ritorna tre liste di nomi di file, quelli che hanno trovato corrispondenza, quelli senza corrispondenza e file per i quali non è stato possibile effettuare il confronto (a causa di prolemi di permessi o qualsiasi altra ragione).
+</testo_normale>
+<py_output>
+$ python3 filecmp_cmpfiles.py
+
+File comuni: ['non_lo_stesso', 'file_in_dir1', 'file_comune']
+Corrispondenze        : ['non_lo_stesso', 'file_comune']
+Mancate corrispondenze: ['file_in_dir1']
+Errori                : []
+</py_output>
+<titolo_2>
+Confrontare Directory
+</titolo_2>
+<testo_normale>
+Le funzioni descritte precedentemente sono indicate per confronti relativamente semplici. Per confronti ricorsivi di grandi alberature di directory o per analisi più complete, la classe <code>dircmp</code> è più utile. Nel suo caso d'uso più semplice, <code>report()</code> stampa il risultato del confronto di due directory.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_report.py
+
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+dc.report()
+</py_code>
+<testo_normale>
+Il risultato è una evidenza in testo semplice che mostra i risultati del solo contenuto delle due directory passate, senza ricorsione. In questo caso, il file <code>non_lo_stesso</code> è stato interpretato come identico in quanto il contenuto non è stato confrontato. Non c'è modo di effettuare confronti con <code>dircmp</code> nello stesso modo utilizzato da <code>cmp()</code> con i file.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_report.py
+
+diff esempio/dir1 esempio/dir2
+Only in esempio/dir1 : ['dir_solo_in_dir1', 'file_solo_in_dir1']
+Only in esempio/dir2 : ['dir_solo_in_dir2', 'file_solo_in_dir2']
+Identical files : ['file_comune', 'non_lo_stesso']
+Common subdirectories : ['dir_comune']
+Common funny cases : ['file_in_dir1']
+</py_output>
+<testo_normale>
+Per maggiori dettagli, ed un confronto ricorsivo, si usi <code>report_full_closure()</code>:
+</testo_normale>
+<py_code>
+# filecmp_dircmp_report_full_closure.py
+
+import filecmp
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+dc.report_full_closure()
+</py_code>
+<testo_normale>
+Il risultato comprende confronti con tutte le directory parallele.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_report_full_closure.py
+
+diff esempio/dir1 esempio/dir2
+Only in esempio/dir1 : ['dir_solo_in_dir1', 'file_solo_in_dir1']
+Only in esempio/dir2 : ['dir_solo_in_dir2', 'file_solo_in_dir2']
+Identical files : ['file_comune', 'non_lo_stesso']
+Common subdirectories : ['dir_comune']
+Common funny cases : ['file_in_dir1']
+
+diff esempio/dir1/dir_comune esempio/dir2/dir_comune
+Common subdirectories : ['dir1', 'dir2']
+
+diff esempio/dir1/dir_comune/dir1 esempio/dir2/dir_comune/dir1
+Identical files : ['file_comune', 'file_in_dir1', 'file_solo_in_dir1', 'non_lo_stesso']
+Common subdirectories : ['dir_comune', 'dir_solo_in_dir1']
+
+diff esempio/dir1/dir_comune/dir1/dir_solo_in_dir1 esempio/dir2/dir_comune/dir1/dir_solo_in_dir1
+
+diff esempio/dir1/dir_comune/dir1/dir_comune esempio/dir2/dir_comune/dir1/dir_comune
+
+diff esempio/dir1/dir_comune/dir2 esempio/dir2/dir_comune/dir2
+Identical files : ['file_comune', 'file_solo_in_dir2', 'non_lo_stesso']
+Common subdirectories : ['dir_comune', 'dir_solo_in_dir2', 'file_in_dir1']
+
+diff esempio/dir1/dir_comune/dir2/dir_solo_in_dir2 esempio/dir2/dir_comune/dir2/dir_solo_in_dir2
+
+diff esempio/dir1/dir_comune/dir2/file_in_dir1 esempio/dir2/dir_comune/dir2/file_in_dir1
+
+diff esempio/dir1/dir_comune/dir2/dir_comune esempio/dir2/dir_comune/dir2/dir_comune
+</py_output>
+<titolo_2>
+Usare le Differenze in un Programma
+</titolo_2>
+<testo_normale>
+Oltre alla produzione di risultati stampati, <code>dircmp</code> calcola liste di file che possono esserer usate direttamente nei programmi. Ognuno dei seguenti attirubti è calcolato solo quando richiesto, quindi creare istanze di <code>dircmp</code> non comporta un lavoro non necessario per i dati non utilizzati.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_list.py
+
+import filecmp
+import pprint
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print('Sinistra:')
+pprint.pprint(dc.left_list)
+
+print('\nDestra  :')
+pprint.pprint(dc.right_list)
+</py_code>
+<testo_normale>
+I file e le sottodirectory contenuti nelle directory oggetto di confronto sono elencati nelle liste <code>left_list</code> e <code>right_list</code>.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_list.py
+
+Sinistra:
+['dir_comune',
+ 'dir_solo_in_dir1',
+ 'file_comune',
+ 'file_in_dir1',
+ 'file_solo_in_dir1',
+ 'non_lo_stesso']
+
+Destra  :
+['dir_comune',
+ 'dir_solo_in_dir2',
+ 'file_comune',
+ 'file_in_dir1',
+ 'file_solo_in_dir2',
+ 'non_lo_stesso']
+</py_output>
+<testo_normale>
+I dati in entrata possono essere filtrati passando al costruttore un elenco di nomi da ignorare. Nella modalità predefinita i nomi <code>RCS</code>, <code>CVS</code> e <code>tags</code> sono ignorati.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_list_filter.py
+
+import filecmp
+import pprint
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2',
+                    ignore=['file_comune'])
+
+print('Sinistra:')
+pprint.pprint(dc.left_list)
+
+print('\nDestra  :')
+pprint.pprint(dc.right_list)
+</py_code>
+<testo_normale>
+In questo caso, il file <code>file_comune</code> non è stato incluso nella lista dei file da confrontare.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_list_filter.py
+
+Sinistra:
+['dir_comune',
+ 'dir_solo_in_dir1',
+ 'file_in_dir1',
+ 'file_solo_in_dir1',
+ 'non_lo_stesso']
+
+Destra  :
+['dir_comune',
+ 'dir_solo_in_dir2',
+ 'file_in_dir1',
+ 'file_solo_in_dir2',
+ 'non_lo_stesso']
+</py_output>
+<testo_normale>
+I nomi dei file comuni ad entrambe le directory confrontate sono salvati in <code>common</code> e i file univoci in ciascuna directory sono elencati in <code>left_only</code> e <code>right_only</code>.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_membership.py
+
+import filecmp
+import pprint
+
+dc = filecmp.dircmp('esempio/dir1', 'esempio/dir2')
+print('Comuni  :')
+pprint.pprint(dc.common)
+
+print('\nSinistra:')
+pprint.pprint(dc.left_only)
+
+print('\nDestra  :')
+pprint.pprint(dc.right_only)
+</py_code>
+<testo_normale>
+La directory di "sinistra" è il primo argomento per <code>dircmp()</code> e quella di "destra" il secondo.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_membership.py
+
+Comuni  :
+['file_comune', 'non_lo_stesso', 'dir_comune', 'file_in_dir1']
+
+Sinistra:
+['dir_solo_in_dir1', 'file_solo_in_dir1']
+
+Destra  :
+['file_solo_in_dir2', 'dir_solo_in_dir2']
+</py_output>
+<testo_normale>
+Il membri comuni possono essere successivamente divisi in file, directory ed elementi "<em>funny</em>" (qualunque cosa che sia di tipo diverso nelle due directory o quando si ottiene un errore da <code>os.stat()</code>).
+</testo_normale>
+<py_code>
+# filecmp_dircmp_common.py
+</py_code>
+<testo_normale>
+Nei dati di esempio, l'elemento chiamato <code>file_in_dir1</code> è un file in una directory ed una sottodirectory nell'altra. quindi viene inserito nella lista "<mm>funny</mm>"
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_common.py
+Comuni:
+['file_in_dir1', 'dir_comune', 'file_comune', 'non_lo_stesso']
+
+Directory:
+['dir_comune']
+
+File:
+['file_comune', 'non_lo_stesso']
+
+Funny:
+['file_in_dir1']
+</py_output>
+<testo_normale>
+Le differenze tra file sono destrutturate allo stesso modo.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_diff.py
+</py_code>
+<testo_normale>
+Il file <code>non_lo_stesso</code> viene confrontato solo tramite <code>os.stat()</code>, ed il suo contenuto non viene esaminato, quindi viene compreso nella lista dei file uguali (<code>same_files</code>).
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_diff.py
+
+Uguali : ['file_comune', 'non_lo_stesso']
+Diversi: []
+Funny  : []
+</py_output>
+<testo_normale>
+In ultimo, vengono salvate anche le sottodirectory in modo da consentire una facile comparazione ricorsiva.
+</testo_normale>
+<py_code>
+# filecmp_dircmp_subdirs.py
+</py_code>
+<testo_normale>
+L'attributo <code>subdirs</code> è un dizionario che mappa il nome della directory con i nuovi oggetti <code>dircmp</code>.
+</testo_normale>
+<py_output>
+$ python3 filecmp_dircmp_subdirs.py
+Sottodirectory:
+{'dir_comune': <filecmp.dircmp object at 0x7f9042446160>}
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/filecmp.html|filecmp|La documentazione della libreria standard per questo modulo
+difflib.html|difflib|Calcolare le differenze tra due sequenze.
+</vedi_anche>
+</documento_tradotto>

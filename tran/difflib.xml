@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="Latin-1"?>
+<?xml version="1.0" encoding="Latin-1"?>
 <target>3</target>
 <categoria>testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
 <!-- tag <testo_normale> contiene il testo normale dell'articolo -->
@@ -10,7 +10,7 @@
 difflib - Confrontare sequenze
 </titolo_1>
 <descrizione>
-Il modulo <strong>difflib</strong> contiene strumenti per calcolare e lavorare con differenze tra sequenze. E' particolarmente utile per confrontare testo.
+Il modulo difflib contiene strumenti per calcolare e lavorare con differenze tra sequenze. E' particolarmente utile per confrontare testo.
 
 </descrizione>
 <testo_normale>

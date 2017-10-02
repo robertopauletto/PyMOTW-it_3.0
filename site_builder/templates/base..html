@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titolo }}</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div id="header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a href={{ url_for("index") }} class="pure-menu-heading pure-menu-link">PyMOTW-it 3</a>
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="{{ url_for('generator') }}" class="pure-menu-link">Generatore</a></li>
+        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Uploader</a></li>
+      </ul>
+    </div>
+  </div>
+  <div id="content">
+    <div class="pure-g">
+      <div class="pure-u-1-5"></div>
+      <div class="pure-u-3-5">
+
+      </div>
+      <div class="pure-u-1-5"></div>
+    </div>
+  </div>
+  <div class="clearfooter"></div>
+  <div class="footer">
+    <div class="pure-g">
+      <div class="pure-u-1-5"></div>
+      <div class="pure-u-3-5">
+        <hr>
+         &copy; {{ titolo }}
+      </div>
+      <div class="pure-u-1-5"></div>
+    </div>
+  </div>
+</body>
+</html>

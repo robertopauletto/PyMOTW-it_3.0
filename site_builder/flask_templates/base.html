@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ titolo }}{% endblock %}</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div id="header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a href="{{ url_for("index") }}" class="pure-menu-heading pure-menu-lin">
+        <span style="color: green;">PyM</span><span style="color: white;">OTW</span><span style="color: red;">-it 3</span></a>
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="{{ url_for('generator') }}" class="pure-menu-link">Generatore</a></li>
+        <li class="pure-menu-item"><a href="#" class="pure-menu-link ">Uploader</a></li>
+        <li class="pure-menu-item"><a href="{{ url_for('config') }}" class="pure-menu-link ">Configurazione</a></li>
+      </ul>
+    </div>
+  </div>
+  <div id="content">
+    <div class="pure-g">
+      <div class="pure-u-4-24"></div>
+      <div class="pure-u-16-24">
+        {% block content %} {% endblock %}
+      </div>
+      <div class="pure-u-4-24"></div>
+    </div>
+  </div>
+  <div class="clearfooter"></div>
+  <div class="footer">
+    <div class="pure-g">
+      <div class="pure-u-4-24"></div>
+      <div class="pure-u-16-24">
+        {% block footer %}
+         &copy; {{ titolo }}
+        {% endblock %}
+      </div>
+      <div class="pure-u-4-24"></div>
+    </div>
+  </div>
+</body>
+</html>

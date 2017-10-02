@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpu di uno script python -->
+<documento_tradotto>
+<titolo_1>
+re - Espressioni Regolari
+</titolo_1>
+<descrizione>
+Ricerca all'interno e modifica di testo utilizzando modelli formali
+
+</descrizione>
+<testo_normale>
+Le <em>espressioni regolari</em> sono modelli per la corrispondenza di testo descritti con una sintassi formale. I modelli sono interpretati come un insieme di istruzioni, le quali sono eseguite con una stringa come input per produrre un sottoinsieme di corrispondenze od una versione modificata dell'originale. Il termine "espressione regolare" è spesso abbreviato in "regex" o "regexp" nel linguaggio di conversazione. Le espressioni possono includere corrispondenze letterali di testo, ripetizioni, composizioni di modello, diramazioni, ed altre regole sofisticate. Un grande numero di problemi di elaborazione sono più facili da risolvere con una espressione regolare, invece che creare un <a href='https://www.wikiwand.com/it/Analizzatore_lessicale' target='_blank'>analizzatore lessicale</a>  ed un <a href='https://www.wikiwand.com/it/Parsing' target='_blank'>parser</a> dedicati.
+</testo_normale>
+<testo_normale>
+Le espressioni regolari sono tipicamente usate nelle applicazioni che utilizzano molta elaborazione di testo. Ad esempio, sono comunemente usate come modelli di ricerca nei programmi di modifica del testo utilizzati dagli sviluppatore compresi vi, emacs ed i moderni ambienti integrati di sviluppo (IDE). Sono anche parte integrante delle utilità da riga di comando di Unix come sed, grep e awk. Molti linguaggi di programmazione supportano le espressioni regolari tramite estensioni di libreria.
+</testo_normale>
+<testo_normale>
+Esistono diverse implementazioni open source delle espressioni regolari, ognuna di esse con un nocciolo sintattico comune ma con estensioni differenti o modifiche alle caratteristiche avanzate. La sintassi usata nel modulo <strong>re</strong> di Python è basata sulla sintassi delle espressioni regolari in Perl, con alcuni miglioramenti specifici al linguaggio.
+</testo_normale>
+<note>
+Sebbene la definizione formale di "espressione regolare" sia limitata ad espressioni che descrivono linguaggi normali, alcune delle estensioni supportate da <strong>re</strong> vanno oltre la descrizione di linguaggi normali. Il termine "espressione regolare"  viene qui usato in un senso più generale per intendere qualsiasi espressione che possa essere valutata dal modulo.
+</note>
+<titolo_2>
+Torvare Modelli nel Testo
+</titolo_2>
+<testo_normale>
+L'utilizzo più comune per <strong>re</strong> è la ricerca di un modello nel testo. La funzione <code>search()</code> ottiene il modello ed il testo da analizzare e ritorna un oggetto <code>Match</code> quando il modello viene trovato. In caso contrario <code>search()</code> ritorna <code>None</code>.
+</testo_normale>
+<py_code>
+# re_simple_match.py
+
+import re
+
+pattern = 'questo'
+text = 'questo testo ha corrispondenza nel modello?'
+
+match = re.search(pattern, text)
+
+s = match.start()
+e = match.end()
+
+print('Trovato "{}"\nin "{}"\nda {} a {} ("{}")'.format(
+    match.re.pattern, match.string, s, e, text[s:e]))
+</py_code>
+<testo_normale>
+I metodi <code>starts()</code> ed <code>end()</code> ritornano gli indici all'interno della stringa, mostrando dove si strova il testo che trova corrispondenza nel modello.
+</testo_normale>
+<py_output>
+$ python3 re_simple_match.py
+
+Trovato "questo"
+in "questo testo ha corrispondenza nel modello?"
+da 0 a 6 ("questo")
+</py_output>
+<titolo_2>
+Compilare Espressioni
+</titolo_2>
+<testo_normale>
+Sebbene <strong>re</strong> includa funzioni a livello di modulo per lavorare con le espressioni regolari come stringhe di testo è più efficiente <em>compilare</em> le espressioni che un programma utilizza frequentemente. La funzione <code>compile()</code> converte una espressione in formato stringa in un oggetto <code>RegExObject</code>.
+</testo_normale>
+<py_code>
+# re_simple_compiled.py
+
+import re
+
+# Precompila i modelli
+regexes = [
+    re.compile(p)
+    for p in ['questo', 'quello']
+]
+text = 'questo testo ha corrispondenza nel modello?'
+
+print('Testo: {!r}\n'.format(text))
+
+for regex in regexes:
+    print('Ricerca di "{}" ->'.format(regex.pattern), end=' ')
+
+    if regex.search(text):
+        print('trovato!')
+    else:
+        print('non trovato')
+</py_code>
+<testo_normale>
+Le funzioni a livello di modulo mantengono una <a href='https://www.wikiwand.com/it/Cache' target='_blank'>cache</a> delle espressioni compilate, ma la dimensione della cache è limitata e l'utilizzo diretto delle espressioni compilate evita il sovraccarico determinato dalla ricerca nella cache. Un altro vantaggio è che la precompilazione di tutte le espressioni avviene quando il modulo viene caricato, e questo lavoro viene spostato nella fase di avvio dell'applicazione invece che avvenire in un punto del programma che potrebbe rispondere ad una azione dell'utente.
+</testo_normale>
+<py_output>
+$ python3 re_simple_compiled.py
+
+Testo: 'questo testo ha corrispondenza nel modello?'
+
+Ricerca di "questo" -> trovato!
+Ricerca di "quello" -> non trovato
+</py_output>
+<titolo_2>
+Corrispondenze multiple
+</titolo_2>
+<testo_normale>
+Fino a qui i modelli di esempio hanno usato tutti <code>search()</code> per cercare singole istanze delle stringhe letterali di testo. La funzione <code>findall()</code> ritorna tutte le sottostringhe dell'input che corrispondono al modello senza sovrapporsi.
+</testo_normale>
+<py_code>
+# re_findall.py
+
+import re
+
+text = 'abbaaabbbbaaaaa'
+
+pattern = 'ab'
+
+for match in re.findall(pattern, text):
+    print('Trovato {!r}'.format(match))
+</py_code>
+<testo_normale>
+Questa stringa in input di esempio comprende due istanze di <code>ab</code>.
+</testo_normale>
+<py_output>
+$ python3 re_findall.py
+
+Trovato 'ab'
+Trovato 'ab'
+</py_output>
+<testo_normale>
+La funzione <code>findfilter()</code> ritorna un iteratore che produce istanze di <code>Match</code> invece delle stringhe ritornate da <code>findall()</code>
+</testo_normale>
+<py_code>
+# re_finditer.py
+
+import re
+
+text = 'abbaaabbbbaaaaa'
+
+pattern = 'ab'
+
+for match in re.finditer(pattern, text):
+    s = match.start()
+    e = match.end()
+    print('Trovato {!r} a {:d}:{:d}'.format(
+        text[s:e], s, e))
+</py_code>
+<testo_normale>
+In questo esempio si cercano le stesse due occorrenze di <code>ab</code>, e l'istanza di <code>Match</code> mostra dove sono state trovate nell'input originale.
+</testo_normale>
+<py_output>
+$ python3 re_finditer.py
+
+Trovato 'ab' a 0:2
+Trovato 'ab' a 5:7
+</py_output>
+<vedi_anche>
+
+http://docs.python.org/3.5/library/mmap.html|mmap|La documentazione standard della libreria per questo modulo
+http://www.ddj.com/documents/s=1103/ddj8807c/|Pattern Matching: The Gestalt Approach|Discussione su di un algoritmo simile di John W. Ratcliff e D. E. Metzener pubblicato nel Dr. Dobb's Journal del luglio 1988 (in inglese).
+</vedi_anche>
+</documento_tradotto>

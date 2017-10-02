@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="pure-form pure-form-aligned" action="{{ url_for('generator') }}" method="post" name="htmlgenerator">
+  {{ form.hidden_tag() }}
+  <legend>Generatore Pagine Moduli Tradotti</legend>
+  <fieldset>
+    {{ form.csrf_token }}
+    <div class="pure-control-group">
+      <label for="moduli" ">Moduli</label>
+      {{ form.modules(size=50, placeholder="Nomi modulo da generare separati da spazio", value=defname) }}<br><br>
+      <label>Indici</label> {{ form.rebuild_index }} Spuntare per ricostruire gli indici<br><br>
+      <label>Tabella Moduli</label> {{ form.rebuild_table }} Spuntare per ricostruire i file indice<br><br>
+    </div>
+    <hr>
+    <button class="pure-button pure-button-primary siimple-color--navy">Genera Pagina</button>
+  </fieldset>
+</form>
+<h3>{{ log | safe }}</h3>
+{% endblock %}
