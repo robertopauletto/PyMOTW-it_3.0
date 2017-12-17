@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# gettext_find.py
 
 import gettext
 
-catalogs = gettext.find('gettext_example', 'locale', all=True)
-print 'Cataloghi:', catalogs
+catalogs = gettext.find('example', 'locale', all=True)
+print('Cataloghi:', catalogs)

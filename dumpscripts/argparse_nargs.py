@@ -1,3 +1,5 @@
+# argparse_nargs.py
+
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -8,4 +10,4 @@ parser.add_argument('--tutti', nargs='*', dest='all')
 parser.add_argument('--uno-o-piu', nargs='+')
 
 
-print parser.parse_args()
+print(parser.parse_args())

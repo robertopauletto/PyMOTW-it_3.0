@@ -1,19 +1,21 @@
-#!/usr/binf/env python
-# -*- coding: UTF-8 -*-
+# locale_grouping.py
 
 import locale
 
-sample_locales = [ ('USA',        'en_US'),
-                   ('Francia',    'fr_FR'),
-                   ('Spagna',     'es_ES'),
-                   ('Portogallo', 'pt_PT'),
-                   ('Polonia' ,   'pl_PL'),
-                   ]
+sample_locales = [
+    ('USA', 'en_US'),
+    ('Francia', 'fr_FR'),
+    ('Spagna', 'es_ES'),
+    ('Portogallo', 'pt_PT'),
+    ('Polonia', 'pl_PL'),
+]
 
-print '%20s %15s %20s' % ('Localizzazione', 'Interi', 'Virgola variabile')
+print('{:>14} {:>10} {:>15}'.format(
+    'Localizzazione', 'Intero', 'Virgola mobile')
+)
 for name, loc in sample_locales:
     locale.setlocale(locale.LC_ALL, loc)
 
-    print '%20s' % name,
-    print locale.format('%15d', 123456, grouping=True),
-    print locale.format('%20.2f', 123456.78, grouping=True)
+    print('{:>14}'.format(name), end=' ')
+    print(locale.format('%10d', 123456, grouping=True), end=' ')
+    print(locale.format('%15.2f', 123456.78, grouping=True))

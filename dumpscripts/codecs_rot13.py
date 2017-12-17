@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# codecs_rot13.py
 
 import codecs
-from cStringIO import StringIO
+import io
 
-buffer = StringIO()
+buffer = io.StringIO()
 stream = codecs.getwriter('rot_13')(buffer)
 
 text = 'abcdefghijklmnopqrstuvwxyz'
@@ -12,5 +11,5 @@ text = 'abcdefghijklmnopqrstuvwxyz'
 stream.write(text)
 stream.flush()
 
-print 'Originale:', text
-print 'ROT-13   :', buffer.getvalue()
+print('Originale:', text)
+print('ROT-13   :', buffer.getvalue())

@@ -2,7 +2,7 @@
 
 import re
 
-# Precompile the patterns
+# Precompila i modelli
 regexes = [
     re.compile(p)
     for p in ['questo', 'quello']

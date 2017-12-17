@@ -205,6 +205,7 @@ json
 <testo_normale>
 L'api di <strong>json</strong> è stata aggiornata per supportare solamente <code>str</code> e non <code>bytes</code> visto che la specifica di JSON è definita usando Unicode.
 </testo_normale>
+<a name="porting-locale"></a>
 <titolo_2>
 locale
 </titolo_2>

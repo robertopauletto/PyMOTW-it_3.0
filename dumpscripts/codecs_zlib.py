@@ -1,29 +1,28 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# codecs_zlib.py
 
 import codecs
-from cStringIO import StringIO
+import io
 
 from codecs_to_hex import to_hex
 
-buffer = StringIO()
+buffer = io.BytesIO()
 stream = codecs.getwriter('zlib')(buffer)
 
-text = 'abcdefghijklmnopqrstuvwxyz\n' * 50
+text = b'abcdefghijklmnopqrstuvwxyz\n' * 50
 
 stream.write(text)
 stream.flush()
 
-print 'Lunghezza originale      :', len(text)
+print('Lunghezza originale:', len(text))
 compressed_data = buffer.getvalue()
-print 'Compressione ZIP         :', len(compressed_data)
+print('ZIP compresso      :', len(compressed_data))
 
-buffer = StringIO(compressed_data)
+buffer = io.BytesIO(compressed_data)
 stream = codecs.getreader('zlib')(buffer)
 
 first_line = stream.readline()
-print 'Lettura della prima riga :', repr(first_line)
+print('Legge la prima riga:', repr(first_line))
 
 uncompressed_data = first_line + stream.read()
-print 'Non compresso            :', len(uncompressed_data)
-print 'Uguale                   :', text == uncompressed_data
+print('Decompressi        :', len(uncompressed_data))
+print('Uguali             :', text == uncompressed_data)

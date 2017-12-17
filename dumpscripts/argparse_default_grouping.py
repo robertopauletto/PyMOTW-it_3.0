@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# argparse_default_grouping.py
 
 import argparse
 
-parser = argparse.ArgumentParser(conflict_handler='resolve')
+parser = argparse.ArgumentParser(description='Piccola semplice app')
 
-parser.add_argument('-a', action="store")
-parser.add_argument('-b', action="store", help='Solo corta')
-parser.add_argument('--long-b', '-b', action="store", help='Lunga e corta insieme')
+parser.add_argument('--opzionale', action="store_true",
+                    default=False)
+parser.add_argument('posizionale', action="store")
 
-print parser.parse_args(['-h'])
+print(parser.parse_args())

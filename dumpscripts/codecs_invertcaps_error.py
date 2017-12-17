@@ -1,14 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# codecs_invertcaps_error.py
 
 import codecs
 from codecs_invertcaps_charmap import encoding_map
 
-text = u'pi: π'
+text = 'pi: \u03c0'
 
-for error in [ 'ignore', 'replace', 'strict' ]:
+for error in ['ignore', 'replace', 'strict']:
     try:
-        encoded = codecs.charmap_encode(text, error, encoding_map)
-    except UnicodeEncodeError, err:
+        encoded = codecs.charmap_encode(
+            text, error, encoding_map)
+    except UnicodeEncodeError as err:
         encoded = str(err)
-    print '{:7}: {}'.format(error, encoded)
+    print('{:7}: {}'.format(error, encoded))

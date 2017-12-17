@@ -870,7 +870,7 @@ Multiriga    :
   ('', 'riga.')
 </py_output>
 <testo_normale>
-<code>DOTALL</code> è l'altro flag legato al testo multilinea. Normalmente il carattere "punto" (.) trova corrispondenza con qualunque testo in entrata tranne il carattere di ritorno a capo. Il flag consente al punto di trovare corrispondenza anche con i ritorni a capo.
+<code>DOTALL</code> è l'altro flag legato al testo multilinea. Normalmente il carattere "punto" (<code>.</code>) trova corrispondenza con qualunque testo in entrata tranne il carattere di ritorno a capo. Il flag consente al punto di trovare corrispondenza anche con i ritorni a capo.
 </testo_normale>
 <py_code>
 # re_flags_dotall.py
@@ -915,10 +915,10 @@ Unicode : ['François', 'złoty', 'Österreich']
 Sintassi Verbosa dell'Espressione
 </titolo_3>
 <testo_normale>
-Il formato compatto della sintassi dell'espressione regolare può diventare un ostacolo mano a mano che le espressioni diventano più complicate. Quando il numero dei gruppi in una espresisone aumenta, ci sarà molto più lavoro per tenere traccia del perchè ciascun elemento è necessario e come interagiscono esattamente le parti dell'espressione. L'utilizzo di gruppi nominali allevia questi disagi, ma una soluzione migliore è quella di usare la modalità <em>verbosa</em> nelle espresioni, la quale consente di incorporare commenti e spazi supplementari nel modello.
+Il formato compatto della sintassi dell'espressione regolare può diventare un ostacolo mano a mano che le espressioni diventano più complicate. Quando il numero dei gruppi in una espresisone aumenta, ci sarà molto più lavoro per tenere traccia del perchè ciascun elemento è necessario e come interagiscono esattamente le parti dell'espressione. L'utilizzo di gruppi nominativi allevia questi disagi, ma una soluzione migliore è quella di usare la modalità <em>verbosa</em> nelle espressioni, la quale consente di incorporare commenti e spazi supplementari nel modello.
 </testo_normale>
 <testo_normale>
-Un modello per validare indirizzi email illustrerà come la modalità verbosa facilita il lavorare con le espressioni regolari. La prima versione riconosce gli inidirizzi che terminano in une di primi 3 livelli principali dei domini: <code>.com</code>, <code>.org</code> od <code>.edu</code>.
+Un modello per validare indirizzi email illustrerà come la modalità verbosa facilita il lavorare con le espressioni regolari. La prima versione riconosce gli indirizzi che terminano in uno dei primi 3 livelli principali dei domini: <code>.com</code>, <code>.org</code> od <code>.edu</code>.
 </testo_normale>
 <py_code>
 # re_email_compact.py
@@ -940,6 +940,9 @@ Convertire l'espressione in un formato più verboso ne faciliterà l'estensione.
 <py_code>
 # re_email_verbose.py
 </py_code>
+<testo_normale>
+L'espressione trova corrispondenza con lo stesso testo in entrata, ma in questo formato esteso è più facile da leggere. I commenti aiutano anche ad identificare le parti differenti del modello in modo che possano essere espanse per trovare corrispondenza con ulteriore testo in entrata.
+</testo_normale>
 <py_output>
 $ python3 re_email_verbose.py
 
@@ -949,8 +952,8 @@ valid-address@mail.example.com  Corrispondenza
 not-valid@example.foo           Nessuna Corrispondenza
 </py_output>
 <testo_normale>
-L'espressione trova corrispondenza con lo stesso testo in entrata, ma in questo formato esteso è più facile da leggere, così come potrebbe apparire in una intestazione email. Il nome viene prima e rimane a se stante, poi segue l'indirizzo email, racchiuso tra parentesi angolari (<code><</code> e <code>></code>).
-</testo_normale>)
+ Questa versione estesa elabora testo in entrata che comprende il nome della persona e l'indirizzo email, così come potrebbe apparire in una intestazione email. Il nome viene prima e rimane a se stante, poi segue l'indirizzo email, racchiuso tra parentesi angolari (<code><</code> e <code>></code>).
+</testo_normale>
 <py_code>
 # re_email_with_name.py
 </py_code>
@@ -1009,7 +1012,7 @@ Modello       : (?i)\bQ\w+
 Corrispondenza: ['Questo', 'quello']
 </py_output>
 <testo_normale>
-Le abbraviazioni per tutti i flag sono elencati qui sotto:
+Le abbreviazioni per tutti i flag sono elencati qui sotto:
 </testo_normale>
 <tabella_semplice>
 FLAG;ABBREVIAZIONE
@@ -1020,19 +1023,19 @@ DOTALL;s
 VERBOSE;x
 </tabella_semplice>
 <testo_normale>
-I flag incorporati possono essere combinati piazzandoli all'interno dello stesso gruppo. Ad esempio <code>(?im)</code> attiva la corrispondenza indipendente dal maiuscolo-minuscolo per le stringa che ritorni a capo.
+I flag incorporati possono essere combinati piazzandoli all'interno dello stesso gruppo. Ad esempio <code>(?im)</code> attiva la corrispondenza indipendente dal maiuscolo-minuscolo per le stringhe multiriga.
 </testo_normale>
 <titolo_2>
 Guardare Avanti od Indietro
 </titolo_2>
 <testo_normale>
-In molti casi, è utile cercare corrispondenza con una parte del modello solo se ne corrisponde anche un'altra parte. Ad esempio nell'espressione che elabora l'email, le parentesi angolari sono marcate come opzionali. Realisticamente, esse dovrebbero essere accoppiate, e l'espressione dovrebbe trovare corrispondenza solo se entrambe sono presenti oppure nessuna di esse. Questa versione modificata dell'espressione usa una asserzione <em>positive look ahead</em> (guardare avanti positiva - n.d.t.) per trovare la corrispondenza con la coppia. La sintassi di questa asserzione è <code>(?=modello)</code>.
+In molti casi, è utile cercare corrispondenza con una parte del modello solo se ne corrisponde anche un'altra parte. Ad esempio nell'espressione che elabora l'email, le parentesi angolari sono marcate come opzionali. Realisticamente, esse dovrebbero essere accoppiate, e l'espressione dovrebbe trovare corrispondenza solo se entrambe sono presenti, oppure nessuna di esse. Questa versione modificata dell'espressione usa una asserzione <em>positive look ahead</em> (guardare avanti positiva - n.d.t.) per trovare la corrispondenza con la coppia. La sintassi di questa asserzione è <code>(?=modello)</code>.
 </testo_normale>
 <py_code>
 # re_look_ahead.py
 </py_code>
 <testo_normale>
-Ci sono diverse importanti modifiche in questa versione dell'espresisone. Per prima cosa la porzione del nome non è più opzionale. Il che vuol dire che indirizzi da soli non trovano corrispondenza, il previene anche la corrispondenza di combinazioni nome/indirizzo formattate impropriamente. La regola <em>positive look ahead</em> dopo il gruppo "name" asserisce che il resto della stringa è racchiusa tra parentesi angolari oppure non ci sono parentesi dispari; entrambe o nessuna parentesi è presente. L'asserzione è espresso come gruppo, ma la ricerca di corrispondenza con un gruppo <em>look ahead</em> non consume alcuna parte del testo in input, quindi il resto del modello parte dallo stesso punto dopo che si è trovata la corrispondenza <me>look ahead</me>.
+Ci sono diverse importanti modifiche in questa versione dell'espressione. Per prima cosa la porzione del nome non è più opzionale. Il che vuol dire che indirizzi da soli non trovano corrispondenza, ma viene anche evitata la corrispondenza di combinazioni nome/indirizzo formattate impropriamente. La regola <em>positive look ahead</em> dopo il gruppo "name" asserisce che il resto della stringa è racchiusa tra parentesi angolari oppure non ci sono parentesi diasaccoppiate; entrambe o nessuna parentesi sono presenti. L'asserzione è espressa come gruppo, ma la ricerca di corrispondenza con un gruppo <em>look ahead</em> non consuma alcuna parte del testo in input, quindi il resto del modello riprende dallo stesso punto dopo che si è trovata la corrispondenza <me>look ahead</me>.
 </testo_normale>
 <py_output>
 $ python3 re_look_ahead.py
@@ -1049,7 +1052,7 @@ Candidato: Parentesi di chiusura first.last@example.com>
   Nessuna corrispondenza
 </py_output>
 <testo_normale>
-Una asserzione <em>negative look ahead</em> (guardare aventi negativa - n.d.t) (<code>(?!modello)</code>) dice che il modello non trova corrispondenza con il testo che segue il punto corrente. Ad esempio il modello di riconoscimente dell'email può essere modificato affichè ignori gli indirizzi <code>noreply</code> che sono usati comunemente dai sistemi automatici.
+Una asserzione <em>negative look ahead</em> (guardare avanti negativa - n.d.t) (<code>(?!modello)</code>) dice che il modello non trova corrispondenza con il testo che segue il punto corrente. Ad esempio il modello di riconoscimente dell'email può essere modificato affichè ignori gli indirizzi <code>noreply</code> che sono usati comunemente dai sistemi automatici.
 </testo_normale>
 <py_code>
 # re_negative_look_ahead.py
@@ -1066,13 +1069,13 @@ Candidati: noreply@example.com
   Nessuna corrispondenza
 </py_output>
 <testo_normale>
-Invece che cercare in avanti per <code>noreply</code> nella porzione del nome utente nell'indirizzo utente, il modello può essere scritto in alternativa con l'asserzione <em>negative look behind</em> (guardare indietro negativa - n.d.t.) dopo che il nome utente viene trovato usando la sintassi <code>(?&lt;!modello)</code>.
+Invece che cercare in avanti per <code>noreply</code> nella porzione del nome utente nell'indirizzo email, il modello può essere scritto in alternativa con l'asserzione <em>negative look behind</em> (guardare indietro negativa - n.d.t.) dopo che il nome utente viene trovato usando la sintassi <code>(?&lt;!modello)</code>.
 </testo_normale>
 <py_code>
 # re_negative_look_behind.py
 </py_code>
 <testo_normale>
-La ricerca a ritroso funzione in modo leggermente diverso da quella in avanati, nel senza che l'espressione deve usare un modella a lunghezza fissa. Le ripetizioni sono concesse, fintanto che ce ne sono un numero prefissato (nessun carattere jolli od intervalli).
+La ricerca a ritroso funziona in modo leggermente diverso da quella in avanti, nel senso che l'espressione deve usare un modella a lunghezza fissa. Le ripetizioni sono concesse, fintanto che ce ne sono un numero prefissato (nessun carattere jolly od intervalli).
 </testo_normale>
 <py_output>
 $ python3 re_negative_look_behind.py
@@ -1134,7 +1137,7 @@ L'elaboratore di espressioni di Python include una estensione che usa <code>(?P=
 # re_refer_to_named_group.py
 </py_code>
 <testo_normale>
-L'espressione dell'indirizzo è compilata con attivato il flag <code>IGNORECASE</code>, visto che i nomi propri in genere hanno la prima lettera mauscola am gli indirizzi email no.
+L'espressione dell'indirizzo è compilata con attivato il flag <code>IGNORECASE</code>, visto che i nomi propri in genere hanno la prima lettera mauscola ma gli indirizzi email no.
 </testo_normale>
 <py_output>
 $ python3 re_refer_to_named_group.py
@@ -1152,13 +1155,13 @@ Candidate: Nome S. Cognome <nome.cognome@example.com>
   Corrispondenza con email: nome.cognome@example.com
 </py_output>
 <testo_normale>
-L'altro meccanismo per utilizzare riferimenti all'indietro nelle espressioni sceglie un modello diverso in base all'eventuale corrispondenza con il gruppo precedente. Il modello email può essere corretto in modo che le parentesi angolari siano richieste se è presente un nome, e non richieste se l'indirizzo email è a se stante. La sintassi per verificare se un gruppo ha trovato corrispondenza è <code>(?(id)espressione-sì|espressione-no)</code>, <code>id</code> è il nome od il numero del gruppo, <code>espressione-si</code> è il modello da usare se il gruppo ha un valore ed <code>espressione-no</code> è il modello da usare altrimenti.
+L'altro meccanismo per utilizzare riferimenti all'indietro nelle espressioni sceglie un modello diverso in base all'eventuale corrispondenza con un gruppo precedente. Il modello email può essere corretto in modo che le parentesi angolari siano richieste se è presente un nome, e non richieste se l'indirizzo email è a se stante. La sintassi per verificare se un gruppo ha trovato corrispondenza è <code>(?(id)espressione-sì|espressione-no)</code>, dove <code>id</code> è il nome od il numero del gruppo, <code>espressione-si</code> è il modello da usare se il gruppo ha un valore ed <code>espressione-no</code> è il modello da usare altrimenti.
 </testo_normale>
 <py_code>
 # re_id.py
 </py_code>
 <testo_normale>
-In questa versione dell'elaboratore di stringhe email usa due test. Se il gruppo del nome ha corrispondenza, allora l'asserzione <em>look ahead</em> richiede entrambe le parentesi angolari ed imposta il gruppo <code>brackets</code>, se il nome non è corrisposto l'asserzione richiede che il resto del testo non sia racchiuso tra parentesi angolari. SUccessivamente, se il gruppo <code>Brackets</code> è impostato, il reale codice di corrispondenza del modello consuma le parentesi nella stringa in entrata usanto modelli letterali, altrimenti consuma qualsiasi spazio bianco.
+Questa versione dell'elaboratore di stringhe email usa due test. Se il gruppo del nome ha corrispondenza, allora l'asserzione <em>look ahead</em> richiede entrambe le parentesi angolari ed imposta il gruppo <code>brackets</code>, se il nome non è corrisposto l'asserzione richiede che il resto del testo non sia racchiuso tra parentesi angolari. Successivamente, se il gruppo <code>brackets</code> è impostato, il reale codice di corrispondenza del modello consuma le parentesi nella stringa in entrata usanto modelli letterali, altrimenti consuma qualsiasi spazio bianco.
 </testo_normale>
 <py_output>
 $ python3 re_id.py
@@ -1180,7 +1183,7 @@ Candidate: no.parentesi@example.com
 Modificare Stringhe con i Modelli
 </titolo_3>
 <testo_normale>
-Altre alla ricerca nel testo, <strong>re</strong> ne supporta anche la modifica usando le espressioni regolari come meccanismo di ricerca, e la sostituzione può fare riferimento ai gruppoi che hanno trovato corrispondenza nel modello come parte del testo in sostituzione. Si usi <code>sub()</code> per sostituire tutte le occorrenze di un modello con un'altra stringa.
+Altre alla ricerca nel testo, <strong>re</strong> ne supporta anche la modifica usando le espressioni regolari come meccanismo di ricerca, e la sostituzione può fare riferimento ai gruppi che hanno trovato corrispondenza nel modello come parte del testo in sostituzione. Si usi <code>sub()</code> per sostituire tutte le occorrenze di un modello con un'altra stringa.
 </testo_normale>
 <py_code>
 # re_sub.py
@@ -1195,13 +1198,13 @@ Testo: Rendi questo  in **grassetto**. Anche **questo**.
 Grassetto: Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.
 </py_output>
 <testo_normale>
-Per usare gruppi nominativi nelle sostituzioni, si usi la sintassi <code>\g<nome></code>.
+Per usare gruppi nominativi nelle sostituzioni, si usi la sintassi <code>\g&lt;nome&gt;</code>.
 </testo_normale>
 <py_code>
 # re_sub_named_groups.py
 </py_code>
 <testo_normale>
-La sintassi <code>\g<nome></code> funziona anche con riferimenti numerati, ed usandola si eliminano le ambiguità tra gruppi numerati ed le cifre letterali circostanti.
+La sintassi <code>\g&lt;nome&gt;</code> funziona anche con riferimenti numerati, ed usandola si eliminano le ambiguità tra gruppi numerati ed cifre letterali circostanti.
 </testo_normale>
 <py_output>
 $ python3 re_sub_named_groups.py
@@ -1243,7 +1246,7 @@ Grassetto: ('Rendi questo  in <b>grassetto</b>. Anche <b>questo</b>.', 2)
 Dividere con i Modelli
 </titolo_3>
 <testo_normale>
-<code>str.split()</code> è uno dei metodi più comunemente usati per separare stringhe per elaborarle. Tuttavia upporta solo l'uso di valori letterali some separatori e talvolta è necessaria una espressione regolare se il testo in entrata non è formattato consistentemente. Ad esempio molti linguaggi di marcatura di testo semplice definiscono i separatori di paragrafi come due o più caratteri di ritorno a capo (<code>\n</code>). In questo caso <code>str.split()</code> non può essere usato data la parte "o più" della definizione.
+<code>str.split()</code> è uno dei metodi più comunemente usati per separare stringhe per elaborarle. Tuttavia supporta solo l'uso di valori letterali come separatori e talvolta è necessaria una espressione regolare se il testo in entrata non è formattato consistentemente. Ad esempio molti linguaggi di marcatura di testo semplice definiscono i separatori di paragrafi come due o più caratteri di ritorno a capo (<code>\n</code>). In questo caso <code>str.split()</code> non può essere usato data la parte "o più" della definizione.
 </testo_normale>
 <testo_normale>
 Una strategia per identificare paragrafi è l'utilizzo di <code>findall()</code> con un modello come   <code>(.+?)\n{2,}</code>.
@@ -1317,7 +1320,7 @@ https://docs.python.org/3.5/howto/regex.html|Regular Expression HOWTO|Introduzio
 http://kodos.sourceforge.net/|Kodos|Uno strumento di verifica interattivo delle espressioni regolari di Phil Schwartz.
 http://pythex.org/|pythex|Uno strumento web per verificare le espressioni regolari di Gabriel Rodriguez. Ispirato da Rubular.
 https://www.wikiwand.com/it/Espressione_regolare|Espressione Regolare|La voce di Wikipedia sull'argomento
-|locale|Il modulo locale consente di inmpostare la configurazione della lingua quando si lavora con testo Unicode.
-|unicodedata|Accesso programmatico al database delle proprietà di Unicode.
+#|locale|Il modulo locale consente di impostare la configurazione della lingua quando si lavora con testo Unicode.
+#|unicodedata|Accesso programmatico al database delle proprietà di Unicode.
 </vedi_anche>
 </documento_tradotto>

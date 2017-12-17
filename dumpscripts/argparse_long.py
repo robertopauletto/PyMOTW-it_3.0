@@ -1,12 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# argparse_long.py
 
 import argparse
 
-parser = argparse.ArgumentParser(description='Esempio con nomi di opzione lunghi')
+parser = argparse.ArgumentParser(
+    description='Esempio con nomi di opzione lunghi',
+)
 
-parser.add_argument('--noarg', action="store_true", default=False)
-parser.add_argument('--witharg', action="store", dest="witharg")
-parser.add_argument('--witharg2', action="store", dest="witharg2", type=int)
+parser.add_argument('--nessunargomento', action="store_true",
+                    default=False)
+parser.add_argument('--conargomenti', action="store",
+                    dest="conargomenti")
+parser.add_argument('--conargomenti2', action="store",
+                    dest="conargomenti2", type=int)
 
-print parser.parse_args([ '--noarg', '--witharg', 'val', '--witharg2=3' ])
+print(
+    parser.parse_args(
+        ['--nessunargomento', '--conargomenti', 'val', '--conargomenti2=3']
+    )
+)

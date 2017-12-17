@@ -1,4 +1,7 @@
+# argparse_custom_action.py
+
 import argparse
+
 
 class AzionePersonalizzata(argparse.Action):
     def __init__(self,
@@ -24,37 +27,37 @@ class AzionePersonalizzata(argparse.Action):
                                  help=help,
                                  metavar=metavar,
                                  )
-        print
-        print 'Inizializzazione di AzionePersonalizzata'
-        for name,value in sorted(locals().items()):
+        print('Inizializzazione di AzionePersonalizzata')
+        for name, value in sorted(locals().items()):
             if name == 'self' or value is None:
                 continue
-            print '  %s = %r' % (name, value)
+            print('  {} = {!r}'.format(name, value))
+        print()
         return
 
     def __call__(self, parser, namespace, values, option_string=None):
-        print
-        print 'Elaborazione di AzionePersonalizzata per "%s"' % self.dest
-        print '  parser = %s' % id(parser)
-        print '  values = %r' % values
-        print '  option_string = %r' % option_string
-        
-        # Do some arbitrary processing of the input values
+        print('Elaborazione di AzionePersonalizzata per {}'.format(self.dest))
+        print('  parser = {}'.format(id(parser)))
+        print('  values = {!r}'.format(values))
+        print('  option_string = {!r}'.format(option_string))
+
         # Si esegue qualche arbitraria elaborazione dei valori in input
         if isinstance(values, list):
-            values = [ v.upper() for v in values ]
+            values = [v.upper() for v in values]
         else:
             values = values.upper()
         # Si salvano i risultati nello spazio dei nomi utilizzando
         # la variabile di destinazione passata al costruttore
         setattr(namespace, self.dest, values)
+        print()
+
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-a', action=AzionePersonalizzata)
 parser.add_argument('-m', nargs='*', action=AzionePersonalizzata)
-parser.add_argument('positional', action=AzionePersonalizzata)
 
-results = parser.parse_args(['-a', 'value', '-m' 'multi-valore', 'valore-posizionale'])
-print
-print results
+results = parser.parse_args([
+                            '-a', 'value', '-m',
+                            'multi-valore', 'valore-posizionale'])
+print(results)

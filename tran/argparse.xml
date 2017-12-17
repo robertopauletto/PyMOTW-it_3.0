@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+argparse - Analizzatore di opzioni e di argomenti di riga di comando
+</titolo_1>
+<descrizione>
+Analizza le opzioni e gli argomenti di riga di comando
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>argparse</strong> include strumenti per costruire processori di argomenti ed opzioni da riga di comando. E' stato aggiunto a Python 2.7 come rimpiazzo per optparse. L'implementazione di <strong>argparse</strong> supporta caratteristiche che non sarebbe stato facile aggiungere ad optparse, e che avrebbe richiesto modifiche all'API incompatibili con le versioni precedenti; così è stato portato nella libreria un nuovo modulo. optparse è ora deprecato.
+</testo_normale>
+<titolo_2>
+Impostare un Analizzatore
+</titolo_2>
+<testo_normale>
+Quando si usa <strong>argparse</strong>, il primo passo consiste nel creare un oggetto analizzatore, il quale può poi essere usato per elaborare gli argomenti di riga di comando quando il programma viene eseguito.
+Il costruttore per la classe <code>ArgumentParser</code> riceve diversi argomenti per impostare le descrizioni usate nel testo di aiuto per il programma e per altri comportamenti od impostazioni globali.
+</testo_normale>
+<py_code>
+import argparse
+
+parser = argparse.ArgumentParser(
+  description='Questo è un programma di esempio di PyMOTW',
+)
+</py_code>
+<titolo_2>
+Definire gli Argomenti
+</titolo_2>
+<testo_normale>
+<strong>argparse</strong> è una libreria completa per l'elaborazione degli argomenti. Essi possono attivare diverse azioni, specificate dall'argomento <em>action</em> di <code>add_argument()</code>. Le azioni supportate comprendono la memorizzazione dell'argomento (singolarmente o come parte di una lista), la memorizzazione di un valore costante quando viene rilevato l'argomento (compresa la gestione speciale per i valori true/false degli switch booleani), il conteggio del numero di volte nelle quali viene rilevato un argomento e la chiamata di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> per usare istruzioni di elaborazione personalizzate.
+</testo_normale>
+<testo_normale>
+L'azione predefinita è la memorizzazione del valore dell'argomento. In questo caso, se viene passato un tipo, il valore viene convertito in quel tipo prima di essere memorizzato. Se viene passato l'argomento <em>dest</em> il valore viene salvato usando quel nome quando la riga di comando viene analizzata.
+</testo_normale>
+<titolo_2>
+Analizzare una Riga di Comando
+</titolo_2>
+<testo_normale>
+Una volta che tutti gli argomenti sono definiti, si può analizzare la riga di comando passando una sequenza di stringhe di argomento a <code>parse_args()</code>. Nella modalità predefinita, gli argomenti sono recuperati da <code>sys.argv[1:]</code>, ma si può passare anche una propria lista. Le opzioni sono elaborate usando la sintassi GNU/POSIX, in modo che opzioni e valori di argomenti possano essere mescolati nella sequenza.
+</testo_normale>
+<testo_normale>
+Il valore restituito da <code>parse_args()</code> è un <strong>Namespace</strong> che contiene gli argomenti del comando. L'oggetto contiene i valori degli argomenti come attributi, in modo che se l'argomento <code>dest</code> è <code>"miaopzione"</code>, al suo valore si potrà accedere come <code>args.miaopzione</code>
+</testo_normale>
+<titolo_2>
+Semplici Esempi
+</titolo_2>
+<testo_normale>
+Ecco un semplice esempio con tre diverse opzioni: una booleana (<code>-a</code>), una stringa (<code>-b</code>) ed un intero (<code>-c</code>)
+</testo_normale>
+<py_code>
+# argparse_short.py
+</py_code>
+<testo_normale>
+Ci sono modi diversi per passare valori alle opzioni a carattere singolo: l'esempio di cui sopra usa due forme diverse, <code>-bvalore</code> e <code>-c 3</code>
+</testo_normale>
+<py_output>
+$ python3 argparse_short.py
+
+Namespace(a=True, b='valore', c=3)
+</py_output>
+<testo_normale>
+Il tipo del valore associato a <code>'c'</code>.nell'output è un intero, visto che ad <code>ArgumentParser</code> è stato detto di convertire l'argomento prima di memorizzarlo.
+</testo_normale>
+<testo_normale>
+I nomi di opzione "lunghi", con un nome composto da più caratteri, sono gestiti allo stesso modo
+</testo_normale>
+<py_code>
+# argparse_long.py
+</py_code>
+<testo_normale>
+Ed i risultati sono simili:
+</testo_normale>
+<py_output>
+$ python3 argparse_long.py
+
+Namespace(conargomenti='val', conargomenti2=3, nessunargomento=True)
+</py_output>
+<testo_normale>
+<strong>argparse</strong> è uno strumento completo per analizzare la riga di comando, e gestisce argomenti sia opzionali che richiesti.
+</testo_normale>
+<py_code>
+# argparse_arguments.py
+</py_code>
+<testo_normale>
+In questo esempio, l'argomento <em>count</em> è un intero, e l'argomento <em>units</em> viene salvato come stringa. Se entrambi non vengono passati nella riga di comando, oppure il valore fornito non può essere convertito nel tipo corretto, viene riportato un errore.
+</testo_normale>
+<py_output>
+$ python3 argparse_arguments.py 3 centimetri
+
+Namespace(count=3, units='centimetri')
+
+$ python3 argparse_arguments.py alcuni centimetri
+
+usage: argparse_arguments.py [-h] count units
+argparse_arguments.py: error: argument count: invalid int value: 'alcuni'
+
+$ python3 argparse_arguments.py
+
+usage: argparse_arguments.py [-h] count units
+argparse_arguments.py: error: the following arguments are required: count, units
+</py_output>
+<titolo_3>
+Azioni degli argomenti
+</titolo_3>
+<testo_normale>
+Una qualsiasi delle sei azioni built-in possono essere attivate quando viene rilevato un argomento:
+</testo_normale>
+<deflist>
+<code>store</code>|Conserva il valore, dopo averlo opzionalmente convertito in un tipo diverso. Questa è l'azione predefinita intrapresa se non viene specificato esplicitamente.
+<code>store_const</code>|Conserva un valore definito come parte della specifica dell'argomento piuttosto che un valore che proviene dal argomento in analisi. Tipicamente usato per implementare dei flag di riga di comando che non sono booleani.
+<code>store_true</code> / <code>store_false</code>|Conserva il valore booleano appropriato. Queste azioni sono usate per implementare gli switch booleani
+<code>append</code>|Conserva il valore in una lista. Se l'argomento è ripetuto i valori multipli vengono conservati.
+<code>append_const</code>|Conserva un valore definito nella specifica dell'argomento in una lista
+<code>version</code>|Stampa i dettagli della versione del programma quindi esce.
+</deflist>
+<py_code>
+# argparse_action.py
+</py_code>
+<py_output>
+$ python3 argparse_action.py -h
+usage: argparse_action.py [-h] [-s SIMPLE_VALUE] [-c] [-t] [-f]
+                          [-a COLLECTION] [-A] [-B] [--versione]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -s SIMPLE_VALUE  Conserva un valore semplice
+  -c               Conserva un valore costante
+  -t               Imposta un interruttore a True
+  -f               Imposta un interruttore a False
+  -a COLLECTION    Aggiunge velori ripetuti in una lista
+  -A               Aggiunge valori diversi ad una lista
+  -B               Aggiunge valori diversi ad una lista
+  --versione       show program's version number and exit
+
+$ python3 argparse_action.py -s valore
+valore_semplice  = 'valore'
+valore_costante  = None
+booleano_true    = False
+booleano_false   = True
+collezione       = []
+collezione_cost. = []
+
+$ python3 argparse_action.py -c
+valore_semplice  = None
+valore_costante  = 'value-to-store'
+booleano_true    = False
+booleano_false   = True
+collezione       = []
+collezione_cost. = []
+
+$  python3 argparse_action.py -t
+valore_semplice  = None
+valore_costante  = None
+booleano_true    = True
+booleano_false   = True
+collezione       = []
+collezione_cost. = []
+
+$  python3 argparse_action.py -f
+valore_semplice  = None
+valore_costante  = None
+booleano_true    = False
+booleano_false   = False
+collezione       = []
+collezione_cost. = []
+
+
+$ python3 argparse_action.py -a uno -a due -a tre
+valore_semplice  = None
+valore_costante  = None
+booleano_true    = False
+booleano_false   = True
+collezione       = ['uno', 'due', 'tre']
+collezione_cost. = []
+
+$ python3 argparse_action.py -B -A
+valore_semplice  = None
+valore_costante  = None
+booleano_true    = False
+booleano_false   = True
+collezione       = []
+collezione_cost. = ['value-2-to-append', 'value-1-to-append']
+
+$ python3 argparse_action.py --versione
+argparse_action.py 1.0
+</py_output>
+<titolo_3>
+Prefissi di Opzione
+</titolo_3>
+<testo_normale>
+La sintassi predefinita per le opzioni è basata sulla convenzione Unix di contraddistinguere gli switch da riga di comando usando il prefisso "-". <strong>argparse</strong> supporta altri prefissi, quindi si può rendere il proprio programma conforme ai valori predefiniti della piattaforma locale (es.: usare "/" in Windows) oppure seguire una diversa convenzione.
+</testo_normale>
+<py_code>
+# argparse_prefix_chars.py
+</py_code>
+<testo_normale>
+Impostare il parametro <em>prefix_chars</em> per <strong>ArgumentParser</strong> ad una stringa che contiene tutti i caratteri ammessi che dovrebbero identificare una opzione. E' importante comprendere che, sebbene <em>prefix_chars</em> determini i caratteri concessi per gli switch, la definizione dei singoli argomenti specifica la sintassi per un certo switch. Questo fornisce un controllo esplicito sul fatto che le opzioni chu usano prefissi diversi siano alias (come potrebbe essere il caso per la sintassi di una riga di comando indipendente dalla piattaforma) od alternative (es. usare &quot;+&quot; per indicare l'attivazione di uno switch e &quot;-&quot; per la disattivazione). Nell'esempio qui sopra, <code>+a</code> e <code>-1</code> sono argomenti distinti, e <pwevm>//noarg</pwevm> può anche essere passato come <code>++noarg</code> ma non <code>--noarg</code>.
+</testo_normale>
+<py_output>
+$ python3 argparse_prefix_chars.py -h
+
+usage: argparse_prefix_chars.py [-h] [-a] [+a] [//noarg]
+
+Modifica i caratteri del prefisso di opzione
+
+optional arguments:
+  -h, --help        show this help message and exit
+  -a                Disattiva A
+  +a                Attiva A
+  //noarg, ++noarg
+
+$ python3 argparse_prefix_chars.py +a
+
+Namespace(a=True, noarg=False)
+
+$ python3 argparse_prefix_chars.py -a
+
+Namespace(a=False, noarg=False)
+
+$ python3 argparse_prefix_chars.py //noarg
+
+Namespace(a=None, noarg=True)
+
+$ python3 argparse_prefix_chars.py ++noarg
+
+Namespace(a=None, noarg=True)
+
+$ python3 argparse_prefix_chars.py --noarg
+
+usage: argparse_prefix_chars.py [-h] [-a] [+a] [//noarg]
+argparse_prefix_chars.py: error: unrecognized arguments: --noarg
+</py_output>
+<titolo_3>
+Origini degli argomenti
+</titolo_3>
+<testo_normale>
+Negli esempi fino a qui, l'elenco degli argomenti forniti al parser provenivano da un elenco passato esplicitamente, oppure erano recuperati in modo implicito da <code>sys.argv</code>. Passare esplicitamente un elenco è utile quando si usa <strong>argparse</strong> per elaborare istruzioni tipo riga di comando che non provengono dalla riga di comando stessa (tipo da un file di configurazione).
+</testo_normale>
+<py_code>
+# argparse_with_shlex.py
+</py_code>
+<testo_normale>
+Questo esempio usa il modulo configparser per leggere un file di configurazione.
+</testo_normale>
+<py_output>
+[cli]
+options = -a -b 2
+</py_output>
+<testo_normale>
+<a href='shlex.html'>shlex</a> facilita la divisione della stringa memorizzata nel file di configurazione.
+</testo_normale>
+<py_output>
+$ python3 argparse_with_shlex.py
+
+Da configurazione : -a -b 2
+Da lista argomenti: ['-a', '-b', '2']
+Risulati          : Namespace(a=True, b='2', c=None)
+</py_output>
+<testo_normale>
+Un'alternativa all'elaborare il file di configurazione nel codice dell'applicazione è di dire ad <strong>argparse</strong> come riconoscere un argomento che fa riferimento ad un file di input che contiene un insieme di argomenti da elaborare tramite <code>fromfile_prefix_chars</code>.
+</testo_normale>
+<py_code>
+# argparse_fromfile_prefix_chars.py
+</py_code>
+<testo_normale>
+In questo esempio il programma si interrompe quando trova un argomento prefissato da <strong>@</strong>, quindi legge il file il cui nome ha ricevuto come argomento per trovare ulteriori argomenti. Ad esempio se il file di input  <code>argparse_fromfile_prefix_chars.txt</code> contiene una serie di argomenti, uno per riga:
+</testo_normale>
+<py_output>
+-a
+-b
+2
+</py_output>
+<testo_normale>
+L'output prodotto quando viene elaborato il file è:
+</testo_normale>
+<py_output>
+$ python3 argparse_fromfile_prefix_chars.py
+
+Namespace(a=True, b='2', c=None)
+</py_output>
+<titolo_2>
+Stampa di Aiuto
+</titolo_2>
+<titolo_3>
+Opzioni di Aiuto Generate Automaticamente
+</titolo_3>
+<testo_normale>
+<strong>argparse</strong> aggiungerà automaticamente le opzioni per generare l'aiuto, se opportunamente configurato. L'argomento <code>add_help</code> di <code>ArgumentParser</code> controlla le opzioni legate all'aiuto.
+</testo_normale>
+<py_code>
+# argparse_with_help.py
+</py_code>
+<testo_normale>
+Le opzioni di aiuto (<code>-h</code> ed <code>--help</code>) sono aggiunte in modalità predefinita; possono essere disabilitate impostando <em>add_help</em> a <em>false</em>.
+</testo_normale>
+<py_code>
+import argparse
+
+parser = argparse.ArgumentParser(add_help=False)
+
+parser.add_argument('-a', action="store_true", default=False)
+parser.add_argument('-b', action="store", dest="b")
+parser.add_argument('-c', action="store", dest="c", type=int)
+
+print parser.parse_args()
+</py_code>
+<testo_normale>
+Sebbene <code>-h</code> ed <code>--help</code> siano uno standard defacto per i nomi di opzioni per richiedere aiuto; alcune applicazioni od usi di <strong>argparse</strong> potrebbero non avere necessità di fornire un aiuto oppure potrebbero usare questi nomi di opzione per altri scopi.
+</testo_normale>
+<py_output>
+$ python3 argparse_with_help.py -h
+
+usage: argparse_with_help.py [-h] [-a] [-b B] [-c C]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -a
+  -b B
+  -c C
+
+$ python3 argparse_without_help.py -h
+
+usage: argparse_without_help.py [-a] [-b B] [-c C]
+argparse_without_help.py: error: unrecognized arguments: -h
+</py_output>
+<titolo_3>
+Personalizzare l'Aiuto
+</titolo_3>
+<testo_normale>
+Per applicazioni che devono gestire la stampa dell'aiuto direttamente, alcuni metodi di convenienza di <code>ArgumentParser</code> sono utili per la creazione di <a href='argparse.html#custact'>azioni personalizzate</a> per la stampa di aiuto con informazioni addizionali.
+</testo_normale>
+<py_code>
+# argparse_custom_help.py
+</py_code>
+<testo_normale>
+<code>print_usage()</code> stampa il messaggio breve, e <code>print_help()</code> stampa l'aiuto completo.
+</testo_normale>
+<py_output>
+$ python3 argparse_custom_help.py
+print_usage output:
+usage: argparse_custom_help.py [-h] [-a] [-b B] [-c C]
+
+print_help output:
+usage: argparse_custom_help.py [-h] [-a] [-b B] [-c C]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -a
+  -b B
+  -c C
+</py_output>
+<testo_normale>
+<code>ArgumentParser</code> usa una classe di formattazione per controllare l'aspetto della stampa di aiuto. Per modificare questa classe si passi <code>formatter_class</code> quando si istanzia <code>ArgumentParser</code>.
+</testo_normale>
+<py_code>
+# argparse_raw_description_help_formatter.py
+</py_code>
+<testo_normale>
+Tutto il testo nella descrizione e conclusione del comando rimane immutato.
+</testo_normale>
+<py_output>
+$ python3 argparse_raw_description_help_formatter.py
+
+usage: argparse_raw_description_help_formatter.py [-h] [-a]
+
+    descrizione
+        su piu'
+           righe
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -a          argomento di aiuto viene stampato su di una sola riga
+
+    conclusione
+      su piu'
+         righe
+
+</py_output>
+<testo_normale>
+<code>RawTextHelperFormatter</code> considera tutto il testo di aiuto come pre-formattato.
+</testo_normale>
+<py_code>
+# argparse_raw_text_help_formatter.py
+</py_code>
+<testo_normale>
+Il testo di aiuto per l'argomento <code>-a</code> non appare più su di una sola riga.
+</testo_normale>
+<py_output>
+$ python3 argparse_raw_text_help_formatter.py
+
+usage: argparse_raw_text_help_formatter.py [-h] [-a]
+
+    descrizione
+        su piu'
+           righe
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -a          argomento
+                  di aiuto non
+                  viene stampato su di una sola riga
+
+
+    conclusione
+      su piu'
+         righe
+</py_output>
+<testo_normale>
+I formattatori <code>Raw</code> potrebbero essere utili per applicazioni con esempio nella descrizione o nella conclusione, laddove modificare il formato del testo potrebbe rendere gli esempi non validi.
+</testo_normale>
+<testo_normale>
+<code>MetavarTypeHelpFormatter</code> stampa il nome del tipo di ciascuna opzione, invece della variabile di destinazione, il che può essere utile per applicazioni con molte opzioni di tipo diverso.
+</testo_normale>
+<py_code>
+# argparse_metavar_type_help_formatter.py
+</py_code>
+<testo_normale>
+Invece che visualizzare il valore di <code>dest</code>, viene stampato il nome del tipo associato all'opzione.
+</testo_normale>
+<py_output>
+$ python3 argparse_metavar_type_help_formatter.py
+
+usage: argparse_metavar_type_help_formatter.py [-h] [-i int] [-f float]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -i int
+  -f float
+</py_output>
+<titolo_2>
+Organizzazione del Parser
+</titolo_2>
+<testo_normale>
+<strong>argparse</strong> comprende diverse caratteristiche per l'organizzazione dei propri parser di argomenti, per facilitarne l'implementazione o per migliorare l'usabilità dell'output di aiuto.
+</testo_normale>
+<titolo_3>
+Condividere Regole di Elaborazione
+</titolo_3>
+<testo_normale>
+I programmatori in genere hanno bisogno di implementare un insieme di strumenti da riga di comando che ricevono tutti un insieme di argomenti, per poi specializzarsi in un qualche modo. Ad esempio, se i tutti i programmi necessitano di una autenticazione dell'utente prima di intraprendere una azione effettiva, potrebbero avere tutti bisogno di supportare le opzioni <code>--user</code> e <code>--password</code>. Piuttosto che aggiungere esplicitamente le opzioni ad ogni <code>ArgumentParser</code>, si può definire un parser "genitore" con le opzioni condivise, poi fare da esso ereditare ai parser dei singoli programmi le sue opzioni.
+</testo_normale>
+<testo_normale>
+Il primo passo è impostare il parser con le definizioni degli argomenti comuni. Visto che ogni utilizzatore del parser genitore vorrà cercare di aggiungere le stesse opzioni di aiuto, causando una eccezione, occorre disabilitare la generazione di aiuto automatico nel parser di base.
+</testo_normale>
+<py_code>
+# argparse_parent_base.py
+</py_code>
+<testo_normale>
+Quindi si crea un altro parser con impostato <em>parents</em>;
+</testo_normale>
+<py_code>
+# argparse_uses_parent.py
+</py_code>
+<testo_normale>
+Ed il programma risultante otterrà tutte e tre le opzioni:
+</testo_normale>
+<py_output>
+$ python3 argparse_uses_parent.py -h
+
+usage: argparse_uses_parent.py [-h] [--user USER] [--password PASSWORD]
+                               [--local-arg]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --user USER
+  --password PASSWORD
+  --local-arg
+</py_output>
+<titolo_3>
+Opzioni in Conflitto
+</titolo_3>
+<testo_normale>
+L'esempio precedente evidenziava che l'aggiunta di due gestori di argomenti ad un parser usando lo stesso nome di argomento causa una eccezione. Per modificare il comportamento per la risoluzione dei conflitti si passa <em>conflict_handler</em>. I due gestori built-in sono <code>error</code> (il predefinito) e <code>resolve</code>, il quale sceglie un gestore in base all'ordine nel quale sono stati aggiunti.
+</testo_normale>
+<py_code>
+# argparse_conflict_handler_resolve.py
+</py_code>
+<testo_normale>
+Visto che viene usato l'ultimo gestore con uno specifico nome di argomento, in questo esempio l'opzione a carattere singolo <code>-b</code> viene mascherata dall'alias per <code>--long-b</code>.
+</testo_normale>
+<py_output>
+$ python3 argparse_conflict_handler_resolve.py
+
+usage: argparse_conflict_handler_resolve.py [-h] [-a A] [--long-b LONG_B]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a A
+  --long-b LONG_B, -b LONG_B
+                        Opzione breve e verbosa insieme
+</py_output>
+<testo_normale>
+L'inversione dell'ordine delle chiamate a <code>add_argument()</code>, "smaschera" l'opzione a carattere singolo
+</testo_normale>
+<py_code>
+# argparse_conflict_handler_resolve2.py
+</py_code>
+<testo_normale>
+Ora entrambe le opzioni possono essere usate insieme.
+</testo_normale>
+<py_output>
+$  python3 argparse_conflict_handler_resolve2.py
+usage: argparse_conflict_handler_resolve2.py [-h] [-a A] [--long-b LONG_B]
+                                             [-b B]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -a A
+  --long-b LONG_B  Opzione breve e verbosa insieme
+  -b B             Solo opzione breve
+</py_output>
+<titolo_3>
+Gruppi di Argomenti
+</titolo_3>
+<testo_normale>
+<strong>argparse</strong> combina le definizioni degli argomenti in "gruppi". Nella modalità predefinita usa due gruppi, uno per le opzioni ed un altro per argomenti richiesti basati sula posizione degli stessi.
+</testo_normale>
+<py_code>
+# python3 argparse_default_grouping.py
+</py_code>
+<testo_normale>
+Il raggruppamento viene rispecchiato nelle sezioni separate "positional arguments" (argomenti posizionali) ed "optional arguments" (argomenti opzionali) nell'output di aiuto:
+</testo_normale>
+<py_output>
+$ python3 argparse_default_grouping.py -h
+usage: argparse_default_grouping.py [-h] [--opzionale] posizionale
+
+Piccola semplice app
+
+positional arguments:
+  posizionale
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --opzionale
+</py_output>
+<testo_normale>
+Si può modificare il raggruppamento per renderlo più logico nell'aiuto, in modo che le opzioni od i valori correlati siano documentati assieme. L'esempio di opzioni condivise fatto precedentemente potrebbe essere scritto usando un raggruppamento personalizzato in modo che le opzioni di autenticazione siano mostrate assieme nell'aiuto.
+</testo_normale>
+<testo_normale>
+Si crea un gruppo "autenticazione" tramite <code>add_argument_group()</code>, quindi si aggiunge ciascuna delle opzioni legate all'autenticazione al gruppo, invece che al parser di base.
+</testo_normale>
+<py_code></py_code>
+<py_output>
+# argparse_parent_with_group.py
+</py_output>
+<testo_normale>
+Il programma che usa gli elenchi basati sul gruppo del genitore li elenca nel valore <code>parents</code>, proprio come prima:
+</testo_normale>
+<py_code>
+# argparse_uses_parent_with_group.py
+</py_code>
+<testo_normale>
+L'output di aiuto ora mostra le opzioni di autenticazione assieme:
+</testo_normale>
+<py_output>
+$ python3 argparse_uses_parent_with_group.py -h
+
+usage: argparse_uses_parent_with_group.py [-h] [--user USER]
+                                          [--password PASSWORD] [--locale-arg]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --locale-arg
+
+autenticazione:
+  --user USER
+  --password PASSWORD
+</py_output>
+<titolo_3>
+Opzioni a Mutua Esclusione
+</titolo_3>
+<testo_normale>
+Una tipologia speciale della caratteristica di raggruppamento è la definizione di opzioni mutualmente esclusive, che si ottiene usando <code>add_mutually_exclusive_group()</code> invece che <code>add_argument_group()</code>.
+</testo_normale>
+<py_code>
+# argparse_mutually_exclusive.py
+</py_code>
+<testo_normale>
+<strong>argparse</strong> si occupa della forzatura della mutua esclusività, in modo che solo una delle opzioni dal gruppo possa essere fornita.
+</testo_normale>
+<py_output>
+$ python3 argparse_mutually_exclusive.py  -h
+
+usage: argparse_mutually_exclusive.py [-h] [-a | -b]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -a
+  -b
+
+$ python3 argparse_mutually_exclusive.py  -a
+
+Namespace(a=True, b=False)
+
+$ python3 argparse_mutually_exclusive.py  -b
+
+Namespace(a=False, b=True)
+
+$ python3 argparse_mutually_exclusive.py  -a -b
+
+usage: argparse_mutually_exclusive.py [-h] [-a | -b]
+argparse_mutually_exclusive.py: error: argument -b: not allowed with argument -a
+</py_output>
+<titolo_3>
+Annidare i Parser
+</titolo_3>
+<testo_normale>
+L'approccio tramite parser "genitore" descritto qui sopra è un modo per condividere opzioni tra comandi correlati. Un approccio alternativo è quello di combinare i comandi in un programma singolo, utilizzando dei "subparser" per gestire ciascuna porzione della riga di comando. Il risultato viene espresso allo stesso modo di programmi come fanno <code>svn</code>, <code>hg</code> ed altri con azioni multiple da riga di comando, o sotto comandi.
+</testo_normale>
+<testo_normale>
+Un programma che lavori con directory nel file system potrebbe definire dei comandi per creare, eliminare ed elencare il contenuto di una directory-
+</testo_normale>
+<py_code>
+# argparse_subparsers.py
+</py_code>
+<testo_normale>
+L'output di aiuto mostra i "subparse" identificati come "comandi" che possono essere specificati nella riga di comando come argomenti posizionali
+</testo_normale>
+<py_output>
+$ python3 argparse_subparsers.py -h
+
+usage: argparse_subparsers.py [-h] {elenca,crea,elimina} ...
+
+positional arguments:
+  {elenca,crea,elimina}
+                        comandi
+    elenca              Elenco contenuto
+    crea                Crea una directory
+    elimina             Elimina una directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+</py_output>
+<testo_normale>
+Ciascun "subparser" ha anche il proprio aiuto, che descrive gli argomenti e le opzioni per quel comando.
+</testo_normale>
+<py_output>
+$ python3 argparse_subparsers.py crea -h
+usage: argparse_subparsers.py crea [-h] [--sola-lettura] nomedir
+
+positional arguments:
+  nomedir         Nuova directory da creare
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --sola-lettura  Imposta i permessi per evitare di scrivere alla directory
+</py_output>
+<testo_normale>
+Quando gli argomenti sono elaborati, l'oggetto <code>Namespace</code> ritornato da <code>parse_args()</code> include solo i valori relativi al comando specificato.
+</testo_normale>
+<py_output>
+$ python3 argparse_subparsers.py elimina -r foo
+
+Namespace(nomedir='foo', ricorsiva=True)
+</py_output>
+<titolo_2>
+Elaborazione di Argomenti Avanzata
+</titolo_2>
+<testo_normale>
+Fino ad ora gli esempi hammo mostrato semplici flag booleani, opzioni con argomenti stringa o numerici ed argomenti posizionali. <strong>argparse</strong> supporta anche sofisticate specifiche di argomenti per elenchi di argomenti a lunghezza variabile, enumerazioni e valori costanti.
+</testo_normale>
+<titolo_3>
+Elenchi Variabili di Argomenti
+</titolo_3>
+<testo_normale>
+E' possibile configurare una singola definizione di argomento per consumare argomenti multipli sulla riga di comando mentre vengono elaborati. Occorre impostare <code>nargs</code> ad uno dei flag seguenti, in base al numero di argomenti specificati od attesi.
+</testo_normale>
+<tabella_semplice>
+Valore;Significato
+N;Il numero di argomenti assoluto (es. 3)
+?;0 od 1 argomento
+*;0 o tutti gli argomenti
++;Tutti od almeno un argomento
+</tabella_semplice>
+<py_code>
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--tre', nargs=3)
+parser.add_argument('--opzionale', nargs='?')
+parser.add_argument('--tutti', nargs='*', dest='all')
+parser.add_argument('--uno-o-piu', nargs='+')
+
+
+print parser.parse_args()
+
+</py_code>
+<testo_normale>
+Il parser applica le istruzioni di conteggio degli argomenti, e genera un accurato diagramma di sintassi come parte del testo di aiuto del comando.
+</testo_normale>
+<py_output>
+$ python3 argparse_nargs.py -h
+usage: argparse_nargs.py [-h] [--tre TRE TRE TRE] [--opzionale [OPZIONALE]]
+                         [--tutti [ALL [ALL ...]]]
+                         [--uno-o-piu UNO_O_PIU [UNO_O_PIU ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --tre TRE TRE TRE
+  --opzionale [OPZIONALE]
+  --tutti [ALL [ALL ...]]
+  --uno-o-piu UNO_O_PIU [UNO_O_PIU ...]
+
+$ python3 argparse_nargs.py
+
+Namespace(all=None, opzionale=None, tre=None, uno_o_piu=None)
+
+$ python argparse_nargs.py --tre
+usage: argparse_nargs.py [-h] [--tre TRE TRE TRE] [--opzionale [OPZIONALE]]
+                         [--tutti [ALL [ALL ...]]]
+                         [--uno-o-piu UNO_O_PIU [UNO_O_PIU ...]]
+argparse_nargs.py: error: argument --tre: expected 3 argument(s)
+
+$ python3 argparse_nargs.py --tre a b c
+
+Namespace(all=None, opzionale=None, tre=['a', 'b', 'c'], uno_o_piu=None)
+
+$ python3 argparse_nargs.py --opzionale
+
+Namespace(all=None, opzionale=None, tre=None, uno_o_piu=None)
+
+$ python3 argparse_nargs.py --opzionale con_valore
+
+Namespace(all=None, opzionale='con_valore', tre=None, uno_o_piu=None)
+
+$ python3 argparse_nargs.py --tutti con valori multipli
+
+Namespace(all=['con', 'valori', 'multipli'], opzionale=None, tre=None, uno_o_piu=None)
+
+$ python3 argparse_nargs.py --uno-o-piu con_valore
+
+Namespace(all=None, opzionale=None, tre=None, uno_o_piu=['con_valore'])
+
+$ python3 argparse_nargs.py --uno-o-piu con valori multipli
+
+Namespace(all=None, opzionale=None, tre=None, uno_o_piu=['con', 'valori', 'multipli'])
+
+$ python3 argparse_nargs.py --uno-o-piu
+usage: argparse_nargs.py [-h] [--tre TRE TRE TRE] [--opzionale [OPZIONALE]]
+                         [--tutti [ALL [ALL ...]]]
+                         [--uno-o-piu UNO_O_PIU [UNO_O_PIU ...]]
+argparse_nargs.py: error: argument --uno-o-piu: expected at least one argument
+
+</py_output>
+<titolo_3>
+Tipi di Argomento
+</titolo_3>
+<testo_normale>
+<strong>argparse</strong> tratta tutti i valori degli argomenti come stringhe, a meno che non gli si dica di convertire la stringa in altro tipo. Il parametro <code>type</code> di <code>add_argument()</code> definisce una funzione di conversione utilizzata da <code>ArgumentParser</code> per trasformare il valore dell'argomento da stringa a qualche altro tipo.
+</testo_normale>
+<py_code>
+# argparse_type.py
+</py_code>
+<testo_normale>
+Qualsiasi chiamabile che riceve una stringa singola come argomento può essere passato a <code>type</code>, compresi i tipi <em>built-in</em> come <code>int</code> e <code>float</code>, oppure <code>open()</code>.
+</testo_normale>
+<py_output>
+$ python3 argparse_type.py -i 1
+
+Namespace(f=None, file=None, i=1)
+
+$ python3 argparse_type.py -f 3.14
+
+Namespace(f=3.14, file=None, i=None)
+
+$ python3 argparse_type.py --file argparse_type.py
+
+Namespace(f=None, file=&lt;open file 'argparse_type.py', mode 'r' at 0x7f49e8d32300&gt;, i=None)
+</py_output>
+<testo_normale>
+Se la conversione di tipo fallisce, <strong>argparse</strong> solleva eccezioni <code>TypeError</code> e <code>ValueError</code> che sono intercettate automaticamente e convertite in un semplice messaggio di errore per l'utente. Altre eccezioni, tipo <code>IOError</code> nell'esempio qui sotto, sollevata laddove il file di input non esiste, deve essere gestita dal chiamante.
+</testo_normale>
+<py_output>
+$ python3 argparse_type.py -i a
+
+usage: argparse_type.py [-h] [-i I] [-f F] [--file FILE]
+argparse_type.py: error: argument -i: invalid int value: 'a'
+
+$ python3 argparse_type.py -f 3.14.15
+
+usage: argparse_type.py [-h] [-i I] [-f F] [--file FILE]
+argparse_type.py: error: argument -f: invalid float value: '3.14.15'
+
+$ python3 argparse_type.py --file file_non_esiste.txt
+
+usage: argparse_type.py [-h] [-i I] [-f F] [--file FILE]
+argparse_type.py: error: [Errno 2] No such file or directory: 'file_non_esiste.txt'
+</py_output>
+<testo_normale>
+Per limitare un argomento in input ad un valore all'interno di un insieme predefinito, si utilizza il parametro <code>choices</code>.
+</testo_normale>
+<py_code>
+# argparse_choices.py
+</py_code>
+<testo_normale>
+Se l'argomento per <code>--modo</code> non è tra quelli consentiti, viene generato un errore e l'elaborazione viene interrotta.
+</testo_normale>
+<py_output>
+$ python3 argparse_choices.py -h
+
+usage: argparse_choices.py [-h] [--modo {sola-lettura,lettura-scrittura}]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --modo {sola-lettura,lettura-scrittura}
+
+$ python3 argparse_choices.py --modo sola-lettura
+
+Namespace(modo='sola-lettura')
+
+$ python argparse_choices.py --modo accodamento
+
+usage: argparse_choices.py [-h] [--modo {sola-lettura,lettura-scrittura}]
+argparse_choices.py: error: argument --modo: invalid choice: 'accodamento'
+(choose from 'sola-lettura', 'lettura-scrittura')
+</py_output>
+<titolo_3>
+Argomenti di File
+</titolo_3>
+<testo_normale>
+Gli oggetti <code>File</code> possano essere istanziati con un solo argomento stringa, tuttavia questo approccio non consente di ottenere un argomento che specifichi il tipo di accesso. <code>FileType</code> fornisce un modo più flessibile per specificare che un argomento dovrebbe essere un file, incluso la modalità di apertura e la dimensione del buffer.
+</testo_normale>
+<py_code>
+# argparse_FileType.py
+</py_code>
+<testo_normale>
+Il valore associato al nome dell'argomento è l'<em>handle</em> del file aperto. Il programmatore è responsabile della chiusura del file, quando lo stesso non viene più usato.
+</testo_normale>
+<py_output>
+$ python3 argparse_FileType.py -h
+
+usage: argparse_FileType.py [-h] [-i file-in-entrata] [-o file-in-uscita]
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -i file-in-entrata
+  -o file-in-uscita
+
+$ python3 argparse_FileType.py -i argparse_FileType.py -o file_temporaneo.txt
+
+File in entrata: &lt;open file 'argparse_FileType.py', mode 'rt' at 0x7ff7be56c300&gt;
+File in uscita: &lt;open file 'file_temporaneo.txt', mode 'wt' at 0x7ff7be56c390&gt;
+
+$ python3 argparse_FileType.py -i file_non_esiste.txt
+
+usage: argparse_FileType.py [-h] [-i file-in-entrata] [-o file-in-uscita]
+argparse_FileType.py: error: argument -i: can't open 'file_non_esiste.txt': [Errno 2] No such file or directory: 'file_non_esiste.txt'
+</py_output>
+<titolo_3>
+Azioni Personalizzate
+</titolo_3>
+<testo_normale>
+In aggiunta alle azioni <em>built-in</em> definite in precedenza, è possibile definire azioni personalizzate fornendo un oggetto che implementi l'API <strong>Action</strong>. L'oggetto passato ad <code>add_argument()</code> come <code>action</code> dovrebbe ottenere parametri che descrivono l'argomento che si sta definendo (tutti gli stessi argomenti dati ad <code>add_argument()</code>) e ritornare un oggetto chiamabile che riceve come parametro il <code>parser</code> che sta elaborando gli argomenti, lo spazio dei nomi (<code>namespace</code>) che conserva i risultati dell'elaborazione, il valore (<code>value</code>) dell'argomento sul quale si sta agendo, e la stringa di opzione (<code>option_string</code>) che ha fatto partire l'azione.
+</testo_normale>
+<testo_normale>
+Una classe <code>Action</code> viene fornita come punto di partenza per definire nuove azioni. Il costruttore gestisce la definizione degli argomenti, in modo che si debba solamente sovrascrivere  <code>__call__()</code> nella sottoclasse.
+</testo_normale>
+<py_code>
+# argparse_custom_action.py
+</py_code>
+<testo_normale>
+Il tipo di valori dipende dal valore di <code>nargs</code>. Se l'argomento consente valori multipli, <code>values</code> sarà una lista anche se contiene un singolo valore.
+</testo_normale>
+<testo_normale>
+Il valore di <code>option_string</code> dipende anche dalla specifica originale degli argomenti. Per argomenti richiesti e posizionali <code>option_string</code> è sempre <code>None</code>
+</testo_normale>
+<py_output>
+$ python3 argparse_custom_action.py
+
+Inizializzazione di AzionePersonalizzata
+  dest = 'a'
+  option_strings = ['-a']
+  required = False
+
+Inizializzazione di AzionePersonalizzata
+  dest = 'm'
+  nargs = '*'
+  option_strings = ['-m']
+  required = False
+
+Elaborazione di AzionePersonalizzata per a
+  parser = 139818318005136
+  values = 'value'
+  option_string = '-a'
+
+Elaborazione di AzionePersonalizzata per m
+  parser = 139818318005136
+  values = ['multi-valore', 'valore-posizionale']
+  option_string = '-m'
+
+Namespace(a='VALUE', m=['MULTI-VALORE', 'VALORE-POSIZIONALE'])
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/argparse.html|argparse|La documentazione della libreria standard per questo modulo.
+#|ConfigParser|Legge e scrive file di configurazione
+#|shlex|Analizza sintassi tipo shell
+riferimenti_moduli_modificati.html#argparse|Note di portabilità per argparse|
+</vedi_anche>
+</documento_tradotto>
+</testo_normale>

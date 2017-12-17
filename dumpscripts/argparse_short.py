@@ -1,18 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# argparse_short.py
 
 import argparse
 
-parser = argparse.ArgumentParser(description='Change the option prefix characters',
-                                 prefix_chars='-+/',
-                                 )
+parser = argparse.ArgumentParser(description='Breve app di esempio')
 
-parser.add_argument('-a', action="store_false", default=None,
-                    help='Turn A off',
-                    )
-parser.add_argument('+a', action="store_true", default=None,
-                    help='Turn A on',
-                    )
-parser.add_argument('//noarg', '++noarg', action="store_true", default=False)
+parser.add_argument('-a', action="store_true", default=False)
+parser.add_argument('-b', action="store", dest="b")
+parser.add_argument('-c', action="store", dest="c", type=int)
 
-print parser.parse_args()
+print(parser.parse_args(['-a', '-bvalore', '-c', '3']))

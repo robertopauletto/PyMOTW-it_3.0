@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# argparse_conflict_handler_resolve.py
 
 import argparse
 
 parser = argparse.ArgumentParser(conflict_handler='resolve')
 
 parser.add_argument('-a', action="store")
-parser.add_argument('-b', action="store", help='Solo corta')
-parser.add_argument('--long-b', '-b', action="store", help='Lunga e corta assieme')
+parser.add_argument('-b', action="store", help='Solo opzione breve')
+parser.add_argument('--long-b', '-b',
+                    action="store",
+                    help='Opzione breve e verbosa insieme')
 
-print parser.parse_args(['-h'])    
+print(parser.parse_args(['-h']))
