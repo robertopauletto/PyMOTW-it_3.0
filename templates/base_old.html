@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Il modulo Python 3 della settimana, traduzione autorizzata di PyMOTW"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>{{ indice.titolo_pagina }}  </title>
+    <!-- Optional theme 
+      <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    -->
+    <!-- Custom styles for this template -->
+    <link href="css/offcanvas.css" rel="stylesheet">
+    <link href="css/my.css" rel="stylesheet">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link href="js/jquery-ui-1.10.4.custom/css/base/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="../assets/js/html5shiv.js"></script>
+    <script src="../assets/js/respond.min.js"></script>
+    <![endif]-->
+
+    <!--
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>      -->
+    <!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+
+    <!-- Minified Cookie Consent served from our CDN -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
+    <!--<script src="//s3.amazonaws.com/cc.silktide.com/cookieconsent.latest.min.js"></script>-->
+    <script type="text/javascript">
+        window.cookieconsent_options = {"message":"Questo sito utilizza i cookie  per migliorarne l'utilizzo e l'esperienza di navigazione ","dismiss":"Ho capito!","learnMore":"Più informazioni","link":"http://www.shinystat.com/it/informativa_privacy_generale_free.html","theme":"dark-bottom"};
+    </script>
+
+    <!-- <script type="text/javascript" src="cookieconsent.js"></script> -->
+    <!-- End Cookie Consent plugin -->
+
+</head>
+<body>
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#" ><span style='color: green;'>PyM</span><span style='color: white;'>OTW</span><span style='color: red'>-it 3</span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-main">
+            <ul class="nav navbar-nav">
+                <li><a href="index.html" >Home</a></li>
+                <li><a href="indice_alfabetico.html" title='Indice alfabetico dei moduli'>Indice Moduli</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle='dropdown' href="#" id='riferimenti'>Note di Portabilità<span class='caret'></span></a>
+                    <ul class="dropdown-menu" aria-labelledby="themes">
+                        <li><a href="riferimenti_ref.html">Riferimenti</a></li>
+                        <li><a href="riferimenti_moduli_rinominati.html">Moduli Rinominati</a></li>
+                        <li><a href="riferimenti_moduli_nuovi.html">Moduli Nuovi</a></li>
+                        <li><a href="riferimenti_moduli_deprecati.html">Moduli Deprecati</a></li>
+                        <li><a href="riferimenti_moduli_modificati.html">Riepilogo Modifiche ai Moduli</a></li>
+                   </ul>
+                </li>
+                <li>
+
+                </li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="privacy.html" >Privacy</a></li>
+                <li>
+                    <li><a href="pymotw-it3_feed.xml" >
+                    <img src="img/feed-icon-28x28.png" ></a></li>
+                </li>
+            </ul>
+        </div><!-- /.nav-collapse -->
+    </div><!-- /.container -->
+</div><!-- /.navbar -->
+
+<div class="container">
+
+    {% block content %}{% endblock %}
+</div><!--/.container-->
+
+<!-- Forza il refresh della pagina -->
+<script type='text/javascript'>
+    window.onload = function() {
+        if(!window.location.hash) {
+            window.location = window.location + '#loaded';
+            window.location.reload();
+        }
+    }
+</script>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="assets/js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="assets/js/offcanvas.js"></script>
+<script src="js/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+<!-- Begin Shinystat code -->
+<script type="text/javascript" src="http://codice.shinystat.com/cgi-bin/getcod.cgi?USER=pymotwit"></script>
+<noscript>
+<a href="http://www.shinystat.com" target="_top">
+<img src="http://www.shinystat.com/cgi-bin/shinystat.cgi?USER=pymotwit" alt="Free hit counters" border="0" /></a>
+</noscript>
+<!-- End Shinystat code -->
+
+</body>
+</html>
+

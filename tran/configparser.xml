@@ -1,0 +1,680 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+configparser - Lavora con i File di Configurazione
+</titolo_1>
+<descrizione>
+Leggere/scrivere file di configurazione simili ai file INI di Windows
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>configparser</strong> si usa per gestire dei file di configurazione per un'applicazione che siano modificabii dall'utente. Il contenuto dei file di configurazione può essere organizzato in gruppi, e sono supportate parecchie opzioni di tipi di valore, inclusi interi, valori a virgola mobile e booleani. I valori delle opzioni possono essere combinati usando le stringhe di formattazione di Python, per costruire valori più grandi tipo URL da parti degli stessi tipo nomi host e numeri di porte.
+</testo_normale>
+<titolo_2>
+Formato del File di Configurazione
+</titolo_2>
+<testo_normale>
+Il formato di file usato da <strong>configparser</strong> è simile a quello usato dalle vecchie versioni di Microsoft Windows. Consiste in una o più <em>sezioni</em> nominative, ognuna delle quali può contenere <em>opzioni</em> individuali con nomi e valori.
+</testo_normale>
+<testo_normale>
+Le sezioni del file di configurazione sono identificate cercando delle righe che iniziano con <code>[</code> e finiscono con <code>]</code>. Il valore racchiuso tra le parentesi quadre è il nome della sezione, e può contenere qualsiasi carattere ad eccezione delle parentesi quadre.
+</testo_normale>
+<testo_normale>
+Le opzioni sono elencate una per riga all'interno di una sezione. La riga inizia con il nome dell'opzione, la quale è separata dal valore dai due punti (<code>:</code>) oppure dall'uguale (<code>=</code>). I caratteri whitespace (spazi, tabulazioni ecc.) attorno al separatore vengono ignorati mentre il file viene elaborato.
+</testo_normale>
+<testo_normale>
+Il seguente è un file di configurazione di esempio con una sezione chiamata <code>bug_tracker</code>, con tre opzioni: <code>url</code>, <code>username</code> e <code>password</code>.
+</testo_normale>
+<py_output>
+# Questo è un semplice esempio con commenti
+[bug_tracker]
+url = http://localhost:8080/bugs/
+username = dhellmann
+; Non si dovrebbero memorizzare password in chiaro nei file
+; di configurazione.
+password = SEGRETO
+</py_output>
+<titolo_2>
+Leggere i File di Configurazione
+</titolo_2>
+<testo_normale>
+L'uso più comune per un file di configurazione è quello di avere un utente od un amministratore di sistema che lo modifichi con un normale editor di testi per impostare i comportamenti predefiniti dell'applicazione, quindi il file vien fatto leggere dall'applicazione, che lo elabora ed agisce in base al suo contenuto. Per leggere il file di configurazione si usi il metodo <code>read()</code> di <code>ConfigParser</code>.
+</testo_normale>
+<py_code>
+# configparser_read.py
+</py_code>
+<testo_normale>
+Il programma legge il file <code>simple.ini</code> visto qui sopra e stampa il valore dell'opzione <code>url</code> dalla sezione <code>bug_tracker</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_read.py
+
+http://localhost:8080/bugs/
+</py_output>
+<testo_normale>
+Il metodo <code>read()</code> accetta anche un elenco di nomi di file. Ciascun nome viene scorso a turno, e se il file esiste viene aperto e letto.
+</testo_normale>
+<py_code>
+# configparser_read_many.py
+</py_code>
+<testo_normale>
+<code>read()</code> restituisce un elenco che contiene i nomi dei file caricati con successo, in modo che il programma possa scoprire quali file di configurazione sono mancanti e decidere se ignorarli oppure se trattare questa condizione come un errore.
+</testo_normale>
+<py_output>
+$ python3 configparser_read_many.py
+
+File configurazione trovati: ['multisezione.ini', 'semplice.ini']
+File mancanti              : ['anche_questo_non_esiste.ini', 'non_esiste.ini']
+</py_output>
+<titolo_2>
+Dati Unicode in Configurazione
+</titolo_2>
+<testo_normale>
+I file di configurazione che contengono dati Unicode dovrebbero essere letti usando il valore di codifica appropriato. Nel file di esempio seguente è stato modificato il valore della password originale inserendovi caratteri Unicode, poi il file è stato codificato usando UTF-8.
+</testo_normale>
+<py_output>
+# unicode.ini
+
+[bug_tracker]
+url = http://localhost:8080/bugs/
+username = dhellmann
+password = ßéç®é†
+</py_output>
+<testo_normale>
+Il file viene aperto con il decodificatore appropriato, convertendo i dati UTF-8 nelle stringhe Unicode native.
+</testo_normale>
+<py_code>
+# configparser_unicode.py
+</py_code>
+<testo_normale>
+Il valore restituito da <code>get()</code> è una stringa <code>Unicode</code>, quindi per stamparlo in sicurezza deve essere ricodificato come UTF-8.
+</testo_normale>
+<py_output>
+$ python3 configparser_unicode.py
+
+Password: b'\xc3\x9f\xc3\xa9\xc3\xa7\xc2\xae\xc3\xa9\xe2\x80\xa0'
+Tipo    : <class 'str'>
+repr()  : 'ßéç®é†'
+</py_output>
+<titolo_2>
+Accedere alle Impostazioni di Configurazione
+</titolo_2>
+<testo_normale>
+<code>ConfigParser</code> comprende metodi per esaminare la struttura della configurazione elaborata, compreso l'elenco delle sezioni ed opzioni, ed il recupero dei loro valori. Questo file di configurazione include due sezioni per servizi web separati.
+</testo_normale>
+<py_output>
+[bug_tracker]
+url = http://localhost:8080/bugs/
+username = dhellmann
+password = SECRET
+
+[wiki]
+url = http://localhost:8080/wiki/
+username = dhellmann
+password = SECRET
+</py_output>
+<testo_normale>
+Questo semplice programma applica alcuni dei metodi per cercare i dati di configurazione, inclusi <code>sections()</code>, <code>options()</code> ed <code>items()</code>.
+</testo_normale>
+<py_code>
+# configparser_structure.py
+</py_code>
+<testo_normale>
+Sia <code>sections()</code> che <code>options()</code> ritornano liste di stringhe, mentre <code>items()</code> ritorna una lista di tuple che contengono coppie di nomi-valori.
+</testo_normale>
+<py_output>
+$ python3 configparser_structure.py
+
+Sezione: bug_tracker
+  Opzioni: ['url', 'username', 'password']
+  url = http://localhost:8080/bugs/
+  username = dhellmann
+  password = SECRET
+
+Sezione: wiki
+  Opzioni: ['url', 'username', 'password']
+  url = http://localhost:8080/wiki/
+  username = dhellmann
+  password = SECRET
+</py_output>
+<testo_normale>
+<code>ConfigParser</code> supporta anche la stessa API di mappautra dei dizionari, <code>ConfigParser</code> funge infatti da dizionario che contiene dizionari separati per ogni sezione.
+</testo_normale>
+<py_code>
+# configparser_structure_dict.py
+</py_code>
+<testo_normale>
+Usando l'API di mappatura per accedere allo stesso file di configurazione si ottiene lo stesso output.
+</testo_normale>
+<py_output>
+$ python3 configparser_structure_dict.py
+
+Sezione: DEFAULT
+  Opzioni: []
+
+Sezione: bug_tracker
+  Opzioni: ['url', 'username', 'password']
+  url = http://localhost:8080/bugs/
+  username = dhellmann
+  password = SECRET
+
+Sezione: wiki
+  Opzioni: ['url', 'username', 'password']
+  url = http://localhost:8080/wiki/
+  username = dhellmann
+  password = SECRET
+</py_output>
+<titolo_3>
+Verificare Se Sono Presenti Valori
+</titolo_3>
+<testo_normale>
+Per verificare se una sezione esiste, si usi <code>has_section()</code> passando il nome della sezione.
+</testo_normale>
+<py_code>
+# configparser_has_section.py
+</py_code>
+<testo_normale>
+Se si verifica se una sezione esiste prima di chiamare <code>get()</code> si evitano le eccezioni per dati mancanti.
+</testo_normale>
+<py_output>
+$ python3 configparser_has_section.py
+
+wiki        : True
+bug_tracker : True
+dvcs        : False
+</py_output>
+<testo_normale>
+Si usi <code>has_option()</code>  per verificare se una opzione esiste all'interno di una sezione.
+</testo_normale>
+<py_code>
+# configparser_has_option.py
+</py_code>
+<testo_normale>
+Se la sezione non esiste, <code>has_section()</code> ritorna <code>False</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_has_option.py
+
+wiki sezione esiste: True
+wiki.username      : True
+wiki.password      : True
+wiki.url           : True
+wiki.descrizione   : False
+
+none sezione esiste: False
+none.username      : False
+none.password      : False
+none.url           : False
+none.descrizione   : False
+</py_output>
+<titolo_3>
+Tipi di Valore
+</titolo_3>
+<testo_normale>
+Tutti i nomi di sezione ed opzione sono trattati come stringhe, ma i valori delle opzioni possono essere stringhe, interi, valori a virogla mobile, booleani. Vi è un intervallo di possibili valori booleani che possono essere convertiti a vero o falso. Il file di esempio seguente ne include uno per tipo
+</testo_normale>
+<py_output>
+# types.ini
+
+[interi]
+positive = 1
+negative = -5
+
+[virgola mobile]
+positive = 0.2
+negative = -3.14
+
+[booleani]
+number_true = 1
+number_false = 0
+yn_true = yes
+yn_false = no
+tf_true = true
+tf_false = false
+onoff_true = on
+onoff_false = false
+</py_output>
+<testo_normale>
+<code>ConfigParser</code> non effettua alcun tentativo di comprendere il tipo dell'opzione. Spetta all'applicazione di utilizzare il metodo corretto per recuperare il valore nel tipo desiderato. <code>get()</code> ritorna sempre una stringa. Si usi <code>getint()</code> per gli interi, <code>getfloat()</code> per i valori a virgola mobile e <code>getboolean()</code> per i valori booleani.
+</testo_normale>
+<py_code>
+# configparser_value_types.py
+</py_code>
+<testo_normale>
+L'esecuzione di questo programma con l'input di esempio produce il seguente risultato.
+</testo_normale>
+<py_output>
+$ python3 configparser_value_types.py
+
+Interi:
+  positivo     : '1'     -> 1
+  negativo     : '-5'    -> -5
+
+Virgola Mobile:
+  positivo     : '0.2'   -> 0.20
+  negativo     : '-3.14' -> -3.14
+
+Booleani:
+  numero_vero  : '1'     -> True
+  numero_falso : '0'     -> False
+  sino_vero    : 'yes'   -> True
+  sino_false   : 'no'    -> False
+  verofalso_vero : 'true'  -> True
+  verofalso_false : 'false' -> False
+  accesospento_vero : 'on'    -> True
+  accesospento_false : 'false' -> False
+</py_output>
+<testo_normale>
+E' possibile aggiungere convertitori di tipo personalizzati passando le funzioni di conversione tramite l'argomento <code>converters</code> di <code>ConfigParser</code>. Ogni convertitore riceve un singolo valore in input e dovrebbe trasformare quel valore nell'appropriato tipo di valore da ritornare.
+</testo_normale>
+<py_code>
+# configparser_custom_types.py
+</py_code>
+<testo_normale>
+L'aggiunta di un convertitore fa sì che <code>ConfigParser</code> crei automaticamente un metodo per quel tipo, usando il nome del tipo come specificato in <code>converters</code>. In questo esempio il convertitore <code>'datetime'</code> provoca l'aggiunta di un nuovo metodo <code>getdatetime()</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_custom_types.py
+
+parse_iso_datetime('2015-11-08T11:30:05.905898')
+data_scadenza : '2015-11-08T11:30:05.905898' -> datetime.datetime(2015, 11, 8, 11, 30, 5, 905898)
+</py_output>
+<testo_normale>
+E' anche possibile aggiungere metodi di conversione direttamente ad una sottoclasse di <code>ConfigParser</code>.
+</testo_normale>
+<titolo_3>
+Opzioni com Flag
+</titolo_3>
+<testo_normale>
+In genere il parser richiede un valore esplicito per ogni opzione, tuttavia impostando il parametro dell'argomento <code>allow_no_value</code> a <code>True</code>   di <code>ConfigParser</code> una opzione può presentarsi a se stante in una riga nel file di configurazione ed essere usata come flag.
+</testo_normale>
+<py_code>
+# configparser_allow_no_value.py
+</py_code>
+<testo_normale>
+Quando una opzione non ha uno specifico valore, <code>has_option()</code> riporta che l'opzione esiste e <code>get()</code> ritorna <code>None</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_allow_no_value.py
+
+Non posso elaborare: Source contains parsing errors: 'consenti_no_valori.ini'
+  [line  4]: 'abilita_caratteristica_attivata\n'
+
+Riprovo con allow_no_value=True
+
+ abilita_caratteristica_attivata
+  has_option: True
+         get: None
+
+ abilita_altra_caratteristica_attivata
+  has_option: False
+</py_output>
+<titolo_3>
+Stringhe Multiriga
+</titolo_3>
+<testo_normale>
+I valori stringa possono essere espressi su più righe, se le righe sottostanti sono indentate.
+</testo_normale>
+<py_output>
+# multiriga.ini
+
+[esempio]
+messaggio = Questa è una stringa multiriga.
+    Con due paragrafi.
+
+    Essi sono separati da una riga vuota.
+</py_output>
+<py_code>
+# configparser_multiline.py
+</py_code>
+<testo_normale>
+All'interno di valori multiriga indentati, la righe vuote sono trattate come parte del valore e preservate.
+</testo_normale>
+<py_output>
+$ python3 configparser_multiline.py
+
+Questa è una stringa multiriga.
+Con due paragrafi.
+
+Essi sono separati da una riga vuota.
+</py_output>
+<titolo_2>
+Modificare le Impostazioni
+</titolo_2>
+<testo_normale>
+Sebbene <code>ConfigParser</code> sia principalmente concepito per la lettura di impostazioni da file, è anche possibile popolare le impostazioni chiamando <code>add_section()</code> per creare una nuova sezione, e <code>set()</code> per aggiungere o modificare un'opzione.
+</testo_normale>
+<py_code>
+# configparser_populate.py
+</py_code>
+<testo_normale>
+Tutte le opzioni devono essere impostate come stringhe, anche se poi saranno recuperate come interi, valori a virgola mobile o booleani.
+</testo_normale>
+<py_output>
+$ python3 configparser_populate.py
+
+bug_tracker
+  url = 'http://localhost:8080/bugs'
+  username = 'dhellmann'
+  password = 'secret'
+</py_output>
+<testo_normale>
+Sezioni ed opzioni possono essere rimosse da un oggetto <code>ConfigParser</code> rispettivamente con <code>remove_section()</code> e <code>remove_option()</code>.
+</testo_normale>
+<py_code>
+# configparser_remove.py
+</py_code>
+<testo_normale>
+La rimozione di una sezione comporta l'eliminazione di tutte le opzioni in  essa contenute.
+</testo_normale>
+<py_output>
+$ python3 configparser_remove.py
+
+Lettura valori:
+
+bug_tracker
+  url = 'http://localhost:8080/bugs/'
+  username = 'dhellmann'
+  password = 'SECRET'
+wiki
+  url = 'http://localhost:8080/wiki/'
+  username = 'dhellmann'
+  password = 'SECRET'
+
+Modifica valori:
+
+bug_tracker
+  url = 'http://localhost:8080/bugs/'
+  username = 'dhellmann'
+</py_output>
+<titolo_2>
+Salvare File di Configurazione
+</titolo_2>
+<testo_normale>
+Una volta che <code>ConfigParser</code> è stato popolato con i dati desiderati, può essere salvato ad un file chiamando il metodo <code>write()</code>. Questo rende possibile fornire una interfaccia utente per la modifica delle impostazioni di configurazione, senza dover scrivere altro codice per gestire il file.
+</testo_normale>
+<py_code>
+# configparser_write.py
+</py_code>
+<testo_normale>
+Il metodo <code>write()</code> riceve un oggetto di tipo file come argomento. Scrive i dati nel formato INI in modo che possano essere nuovamente elaborati da <code>ConfigParser</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_write.py
+
+[bug_tracker]
+url = http://localhost:8080/bugs
+username = dhellmann
+password = secret
+</py_output>
+<avvertimento>
+I commenti nel file di configurazione originale non sono preservati in lettura, modifica o riscrittura del file di configurazione.
+</avvertimento>
+<titolo_2>
+Percorso per la Ricerca delle Opzioni
+</titolo_2>
+<testo_normale>
+<code>ConfigParser</code> usa un processo di ricerca a fasi multiple quando cerca una opzione.
+</testo_normale>
+<testo_normale>
+Prima di iniziare la ricerca di una opzione, viene verificato il nome della sezione. Se la sezione non esiste, ed il nome non è il valore speciale <code>DEFAULT</code>, viene sollevata l'eccezione <code>NoSectionError</code>.
+</testo_normale>
+<lista_ordinata>
+Se il nome opzione appare nel dizionario <code>vars</code> passato a <code>get()</code>, viene ritornato il valore da <code>vars</code>.
+Se il nome opzione appare nella sezione specificata, viene ritornato il valore da quella sezione.
+Se il nome opzione appare nella sezione <code>DEFAULT</code> viene ritornato quel valore.
+Se il nome opzione appare nel dizionario <code>defaults</code> passato al costruttore, viene ritornato quel valore.
+</lista_ordinata>
+<testo_normale>
+Se il nome non viene trovato in alcuna delle locazioni sopra citate, viene sollevata una eccezione <code>NoOptionError</code>.
+</testo_normale>
+<testo_normale>
+Il comportamento del percorso di ricerca può essere verificato usando questo file di configurazione.
+</testo_normale>
+<py_output>
+# with-defaults.ini
+
+[DEFAULT]
+file-only = valore dalla sezione DEFAULT
+init-and-file = valore dalla sezione DEFAULT
+from-section = valore dalla sezione DEFAULT
+from-vars = valore dalla sezione DEFAULT
+
+[sect]
+section-only = valore dalla sezione nel file
+from-section = valore dalla sezione nel file
+from-vars = valore dalla sezione nel file
+</py_output>
+<testo_normale>
+Il programma di esempio include impostazioni predefinite per le opzioni non specificate nel file di configurazione, e sovrascrive alcuni valori che sono definiti nel file.
+</testo_normale>
+<py_code>
+# configparser_defaults.py
+</py_code>
+<testo_normale>
+Il risultato mostra le origini del valore per ciascuna opzione ed illustra il modo nel quale impostazioni predefinite da sorgenti diverse sovrascrivano valori esistenti.
+</testo_normale>
+<py_output>
+$ python3  configparser_defaults.py
+
+Default prima di caricare il file:
+  from-default    = 'valore da DEFAULTS passato ad init'
+  from-section    = 'valore da DEFAULTS passato ad init'
+  init-only       = 'valore da DEFAULTS passato ad init'
+  init-and-file   = 'valore da DEFAULTS passato ad init'
+  from-vars       = 'valore da DEFAULTS passato ad init'
+
+Default dopo il caricamento del file:
+  from-default    = 'valore da DEFAULTS passato ad init'
+  from-section    = 'valore dalla sezione DEFAULT'
+  file-only       = 'valore dalla sezione DEFAULT'
+  init-only       = 'valore da DEFAULTS passato ad init'
+  init-and-file   = 'valore dalla sezione DEFAULT'
+  from-vars       = 'valore dalla sezione DEFAULT'
+
+Ricerca opzioni:
+  from-default    = 'valore da DEFAULTS passato ad init'
+  from-section    = 'valore dalla sezione nel file'
+  section-only    = 'valore dalla sezione nel file'
+  file-only       = 'valore dalla sezione DEFAULT'
+  init-only       = 'valore da DEFAULTS passato ad init'
+  init-and-file   = 'valore dalla sezione DEFAULT'
+  from-vars       = 'valori da vars'
+
+Casi di errore:
+No option 'no-option' in section: 'sect'
+No section: 'no-sect'
+</py_output>
+<titolo_2>
+Combinare Valori con Interpolazione
+</titolo_2>
+<testo_normale>
+<code>ConfigParser</code> fornisce una caratteristica chiamata <em>interpolazione</em> che può essere usata per combinare valori insieme. Valori che contengono stringhe di formattazione standard Python attivano l'interpolazione quando sono recuperati. Nomi di opzione espressi all'interno del valore che si sta acquisendo sono sostituiti con i loro valori, uno per uno, fino a che non sono più necessarie altre sostituzioni.
+</testo_normale>
+<testo_normale>
+Gli esempi di URL dal file INI mostrati in precedenza possono essere riscritti usando l'interpolazione in modo che sia più facile modificarne solo una parte del valore. Ad esempio, in questo file di configurazione il protocollo, il nome host e la porta di un URL vengono espressi come opzioni separate.
+</testo_normale>
+<py_output>
+# interpolazione.ini
+
+[bug_tracker]
+protocol = http
+server = localhost
+port = 8080
+url = %(protocol)s://%(server)s:%(port)s/bugs/
+username = dhellmann
+password = SECRET
+</py_output>
+<testo_normale>
+L'interpolazione viene eseguita in modalità predefinita ogni volta che viene chiamato <code>get()</code>. Si passi <code>True</code> come parametro per l'argomento <code>raw</code> per ottenere il valore originale, senza interpolazione.
+</testo_normale>
+<py_code>
+# configparser_interpolation.py
+</py_code>
+<testo_normale>
+Visto che il valore viene calcolato da <code>get()</code>, la modifica di una delle impostazioni utilizzate per il valore <code>url</code> modificherà il valore ritornato.
+</testo_normale>
+<py_output>
+$ python3 configparser_interpolation.py
+
+Valore originale       : http://localhost:8080/bugs/
+Valore porta modificato: http://localhost:9090/bugs/
+Senza interpolazione   : %(protocol)s://%(server)s:%(port)s/bugs/
+</py_output>
+<titolo_2>
+Usare Opzioni Predefinite
+</titolo_2>
+<testo_normale>
+I valori per l'interpolazione non devono apparire nella stessa sezione dell'opzione originale. Le opzioni predefinite possono essere mescolate a valori sovrascritti
+</testo_normale>
+<py_output>
+# interpolazione_predefiniti.ini
+
+[DEFAULT]
+url = %(protocol)s://%(server)s:%(port)s/bugs/
+protocol = http
+server = bugs.example.com
+port = 80
+
+[bug_tracker]
+server = localhost
+port = 8080
+username = dhellmann
+password = SECRET
+</py_output>
+<testo_normale>
+Con questa configurazione, il valore per <code>url</code> proviene dalla sezione <code>DEFAULT</code>, e il processo di sostituzione inizia cercando in <code>bug_tracker</code> poi arriva a <code>DEFAULT</code> per le parti che non trova.
+</testo_normale>
+<py_code>
+# configparser_interpolation_defaults.py
+</py_code>
+<testo_normale>
+I valori del nome dell'host e della porta provengono dalla sezione <code>bug_tracker</code>, ma <code>protocol</code> proviene da <code>DEFAULT</code>
+</testo_normale>
+<py_output>
+$ python3 configparser_interpolation_defaults.py
+
+URL: http://localhost:8080/bugs/
+</py_output>
+<titolo_3>
+Errori in Sostituzione
+</titolo_3>
+<testo_normale>
+Le sostituzioni si interrompono dopo il numero di passi definito in <code>MAX_INTERPOLATION_DEPTH</code> per evitare problemi dovuti a riferimenti ricorsivi.
+</testo_normale>
+<py_code>
+# configparser_interpolation_recursion.py
+</py_code>
+<testo_normale>
+Una eccezione <code>InterpolationDepthError</code> viene sollevata se ci sono troppi passi di sostituzione.
+</testo_normale>
+<py_output>
+$ python3 configparser_interpolation_recursion.py
+
+ERRORE: Recursion limit exceeded in value substitution: option 'opt' in section 'sect' contains an interpolation key which cannot be substituted in 10 steps. Raw value: '%(opt)s'
+</py_output>
+<testo_normale>
+Valori mancanti danno luogo ad una eccezione <code>InterpolationMissingOptionError</code>.
+</testo_normale>
+<py_code>
+# configparser_interpolation_error.py
+</py_code>
+<testo_normale>
+Visto che non è stato definito alcun valore <code>server</code>, <code>url</code> non può essere costruito.
+</testo_normale>
+<py_output>
+$ python3 configparser_interpolation_error.py
+
+ERRORE: Bad value substitution: option 'url' in section 'bug_tracker' contains an interpolation key 'server' which is not a valid option name. Raw value: 'http://%(server)s:%(port)s/bugs'
+</py_output>
+<titolo_3>
+Caratteri Speciali
+</titolo_3>
+<testo_normale>
+Visto che <code>%</code> fa partire le istruzioni di interpolazione, se è necessario un <code>%</code> nel valore dell'opzione occorre farlo precedere da un altro carattere di percentuale (<code>%%</code>).
+</testo_normale>
+<py_output>
+# escape.ini
+
+[escape]
+value = un %% nel valore ritornato si esprime raddoppiandolo
+</py_output>
+<testo_normale>
+Leggere il valore non richiede altre considerazioni particolari.
+</testo_normale>
+<py_code>
+# configparser_escape.py
+</py_code>
+<testo_normale>
+Quando viene letto il valore, <code>%%</code> viene automaticamente convertito in <code>%</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_escape.py
+
+un % nel valore ritornato si esprime raddoppiandolo
+</py_output>
+<titolo_3>
+Interpolazione Estesa
+</titolo_3>
+<testo_normale>
+<code>ConfigParser</code> supporta implementazioni alternative di interpolazione. Passando un oggetto che supporta l'API definita da <code>Interpolation</code> nel parametro <code>interpolation</code>. Ad esempio, usando <code>ExtendedInterpolation</code> in luogo della predefinita <code>BasicInterpolation</code> si ha accesso a diverse sintassi usando <code>${}</code> come indicatore di variabile.
+</testo_normale>
+<py_code>
+# configparser_extendedinterpolation.py
+</py_code>
+<testo_normale>
+L'interpolazione estesa supporta l'accesso a valori da altri sezioni del file di configurazione prefissando il nome della variabile dal nome della sezione e dal simbolo dei due punti (:).
+</testo_normale>
+<py_output>
+# interpolazione_estesa.ini
+
+[intranet]
+server = localhost
+port = 8080
+
+[bug_tracker]
+url = http://${intranet:server}:${intranet:port}/bugs/
+username = dhellmann
+password = SECRET
+</py_output>
+<testo_normale>
+Facendo riferimento a valori in altre sezioni del file rende possibile condividere una gerarchia di valori, senza piazzare tutti quelli predefiniti nella sezione <code>DEFAULTS</code>.
+</testo_normale>
+<py_output>
+$ python3 configparser_extendedinterpolation.py
+
+Valore originale     : http://localhost:8080/bugs/
+Valore porta alterato: http://localhost:9090/bugs/
+Senza interpolazione : http://${intranet:server}:${intranet:port}/bugs/
+</py_output>
+<titolo_3>
+Disabilitare l'Interpolazione
+</titolo_3>
+<testo_normale>
+Per disabilitare l'interpolazione, si passi <code>None</code> in luogo di un oggetto <code>Interpolation</code>.
+</testo_normale>
+<py_code>
+# configparser_nointerpolation.py
+</py_code>
+<testo_normale>
+Questo fa sì che qualsiasi sintassi che possa essere elaborata dall'oggetto di interpolazione venga ignorata in sicurezza.
+</testo_normale>
+<py_output>
+$ python3 configparser_nointerpolation.py
+
+Senza interpolazione: %(protocol)s://%(server)s:%(port)s/bugs/
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/configparser.html|configparser|La documentazione della libreria standard per questo modulo.
+http://configobj.readthedocs.org/en/latest/configobj.html|ConfigObj|Un avanzato elaboratore di file di configurazione con supporto di caratteristiche tipo la validazione del contenuto.
+riferimenti_moduli_modificati.html#configparser|Note di portabiità per configparser.
+</vedi_anche>
+</documento_tradotto>
