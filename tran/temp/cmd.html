@@ -1,0 +1,123 @@
+cmd - Processori di Comando orientati alla Riga
+
+Crea processori di comando orientati alla riga.
+
+Il modulo <strong>cmd</strong> contiene una classe pubblica, <code>Cmd</code> progettata per essere usata come classe base per shell interattive ed altri interpreti di comando. Nella modalità predefinita, usa <a href='readline.html' target='_blank'>readline</a> per gestire un prompt interattivo, modifica da riga di comando e completamento di comando.
+
+Elaborare Comandi
+
+Un interprete di comandi creato con <strong>cmd</strong> usa un ciclo per leggere dal suo input, elaborarlo, quindi passare il comando al gestore di comando appropriato (<em>command handler</em>). Le righe in input sono elaborate in due parti: il comando e qualsiasi altro testo nella riga. Se l'utente digita <code>foo bar</code>, e la classe interprete include un metodo chiamato <code>do_foo()</code>, viene chiamato con "<code>bar</code>" come solo argomento.
+
+Il marcatore di fine del file viene passato a <code>do_EOF()</code>. Se un gestore di comando ritorna un valore <code>True</code>, il programma uscirà in modo pulito. Quindi per dare all'interprete un modo pulito per uscire, ci si assicuri di implementare <code>do_EOF()</code> in modo che ritorni <code>True</code>.
+
+Questo semplice programma supporta il comando "greet".
+
+# cmd_simple.py
+
+Eseguendo il programma interattivamente, viene dimostrato come i comandi sono inviati ed alcune caratteristiche incluse in <code>Cmd</code>.
+
+La prima cosa da notare il prompt di comando, <code>(Cmd)</code>. Il prompt può essere configurato tramite l'attributo <code>prompt</code>. Il valore di prompt è dinamico, e se il gestore di comando modifica l'attributo del prompt il nuovo valore è usato per interrogare il comando successivo.
+
+Il comando <code>help</code> è <em>built-in</em> in <code>Cmd</code>. Senza argomenti, <code>help</code> mostra l'elenco dei comandi disponibili. Se l'input include un nome di comando, l'output è più dettagliato e limitato ai dettagli di quel comando, quando disponibile.
+
+Se il comando é <code>greet</code>, <code>do_greet()</code> viene chiamato per gestirlo.
+
+Se la classe non include uno specifico gestore per un comando, il metodo <code>default</code> viene chiamato con l'intera riga di input come argomento. L'implementazione <em>built-in</em> di <code>default()</code> riporta un errore.
+
+Visto che <code>do_EOF()</code> ritorna <code>True</code>, digitando Ctrl-D si provoca la chiusura dell'interprete.
+
+Non viene spampata una nuova riga all'uscita, quindi i risultati sono un poco confusi.
+
+Argomenti del Comando
+
+Quest esempio comprende alcuni miglioramenti per eliminare alcune dei fastiti ad aggiunge aiuto per il comando <code>greet</code>.
+
+# cmd_arguments.py
+
+La <a href='https://it.wikipedia.org/wiki/Docstring' target='_blank'>docstring</a> aggiunta a <code>do_greet()</code> diventa il testo di aiuto per il comando.
+
+Il risultato mostra un argomento opzionale a <code>greet</code>, <code>person</code>. Sebbene l'argomento sia opzionale, vi è una distinzione tra il comando ed il metodo di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a>. Il metodo riceve sempre l'argomento, ma talvolta il valore è una stringa vuota. E' lasciato al gestore di comando determinare se un argomento vuoto sia valido, oppure eseguire una ulteriore elaborazione e trattare il comando. In questo esempio, se un nome di persona viene passato il benvenuto è personalizzato.
+
+A prescindere dal fatto che l'argomento sia dato dall'utente oppure no, il valore passato al gestore di comando non include il comando in sè. Questo semplifica l'elaborazione del gestore di comando, specialmente se sono necessari argomenti multipli.
+
+Aiuto dal Vivo
+
+Nell'esempio precedente, la formattazione del testo di aiuto lascia un poco a desiderare. Visto che proviene dalla docstring, mantiene l'indentazione del file sorgente. Il sorgente potrebbe essere cambiato per eliminare gli spazi supplementari, il che però farebbe sembrare il codice mal formattato. Una soluzione migliore è di implementare un gestore di help per il comando <code>greet</code>, chiamato <code>greet_help()</code>. Il gestore di aiuto viene chiamato per produrre testo di aiuto per il comando specificato.
+
+# cmd_do_help.py
+
+In questo esempio il testo è statico ma meglio formattato. Sarebbe anche stato possibile usare stati precedenti di comando per adattare il contenuto del testo di aiuto al contesto corrente.
+
+E' lasciata al gestore di aiuto la stampa effettiva del messaggio di aiuto, e non semplicemente ritornare il testo di aiuto da gestire altrove.
+
+Auto Completamento
+
+<code>Cmd</code> include supporto per il completamento del comando in base ai nomi dei comandi con metodi di gestione. L'utente attiva il completamento tramite il tasto tab al prompt. Quando sono possibili completamenti multipli, premendo tab due volte si ottiene la stampa delle lista delle opzioni.
+
+<note>
+Le libreria GNU necessarie a <code>readline</code> non sono disponibili su tutte le piattaforme in modalità predefinita. In questi casi, il completamento con tab potrebbe non funzionare. Si veda <a href='readline.html' target='_blank'>readline</a> per suggerimenti sull'installazione delle librerie necessarie se la propria installazione Python non ne fosse provvista.
+</note>
+
+Una volta che il comando è noto, il completamento degli argomenti vine gestito da metodi con il prefisso <code>complete_</code>. Questo consente ai nuovi gestori di completamento di assemblare una lisat di possibili completamenti usando criteri arbitrari (es. interrogare una database oppure cercare un file o directory nel file system). In questo caso, il programma ha codificato un insieme di "amici" che riceveranno un benvenuto meno formale rispetto a persone non incluse od anonimi. Un programma reale probabilmente salvarebbe questo elenco altrove e lo leggerebbe una sola volta poi metterebbe in <a href='https://it.wikipedia.org/wiki/Cache' target='_blank'>cache</a> il contenuto per accedervi quando serve.
+
+# cmd_arg_completion.py
+
+Quando c'è testo in input, <code>complete_greet()</code> ritorna una lista di amici che corrisponde al testo immesso. Altrimenti viene ritornata l'intera lista di amici.
+
+Se il nome dato non è presente nella lista degli amici, viene esposto il benvenuto formale.
+
+Sovrascrivere Metodi della Classe Base
+
+<code>Cmd</code> include parecchi metodi che possono essere sovrascritti come agganci per eseguire delle azioni o per alterare il comportamento della classe base. Questo esempio non è esaustivo, ma contiene molti dei metodi utili nell'uso comune.
+
+# cmd_illustrate_methods.py
+
+<code>cmd_loop()</code> è il ciclo di processo principale dell'interprete. Sovrascrivere questo metodo in genere non è necessario, visto che <code>preloop()</code> e <code>postloop()</code> sono disponibili.
+
+Ciascuna iterazione attraverso <code>cmdloop()</code> chiama <code>onecmd()</code> per passare il comando al suo gestore. L'effettiva riga di input viene elaborata con <code>parseline()</code> per creare una tuple che contiene il comando e la rimanente porzione della riga.
+
+Se la riga è vuota, viene chiamato <code>emptyline()</code>. L'implementazione predefinita esegue nuovamente il comando precedente. Se la riga contiene un comando, prima viene chiamato <code>precmd()</code>, poi il gestore viene cercato ed invocato. Se non si trova nulla, viene chiamato <code>default()</code>. Alla fine, viene chiamato <code>postcmd()</code>.
+
+Ecco una sessione di esempio con istruzioni <code>print</code> aggiunte.
+
+Configurare Cmd Tramite Attributi
+
+Oltre ai metodi descritti precedentemente, ci sono parecchi attributi per controllare gli interpreti di comando. <code>prompt</code> può essrer impostato come stringa che possa essere stampata ogni volta che all'utente si richiede un nuovo comando. <code>intro</code> è il messaggio di benvenuto stampato all'inizio del programma. <code>cmdloop()</code> riceve un argomento per questo valore oppure può essere direttamente impostato sulla classe. Quando si stampa l'aiuto, vengono usati gli attributi <code>doc_header</code>, <code>misc_header</code>, <code>undoc_header</code> e <code>ruler</code> per la formattazione del risultato.
+
+# cmd_attributes.py
+
+Questa classe di esempio mostra un gestore di comando che consente all'utente di controllare il prompt per la sessione interattiva.
+
+Eseguire Comandi Shell
+
+Per integrare l'elaborazione di comando standard, <code>Cmd</code> include due prefissi di comando speciali. Un punto interrogativo (?) equivale al comando <em>built-in</em> <code>help</code> e può essere usato allo stesso modo. Un punto esclamativo (!) equivale a <code>do_shell()</code> ed è concepito per "uscire dalla shell" per eseguire altri comandi, come in questo esempio.
+
+# cmd_do_shell.py
+
+L'implementazione del comando <code>echo</code> sostituisce la stringa <code>$out</code> nel suo argomento con l'output del comando shell precedente.
+
+Input Alternativi
+
+Mentre in modalità predefinita <code>Cmd()</code> interagisce con l'utente attraverso la libreria <a href='readline.html' target='_blank'>readline</a> è anche possibile passare una serie di comandi allo standard input usando la redirezione standard della shell Unix.
+
+Per fare in modo che il programma legga un file script direttamente, potrebbero essere necessari pochi ulteriori cambiamenti. Visto che <a href='readline.html' target='_blank'>readline</a> interagisce con il dispositivo terminal/tty, invece del canale standard input, questi dovrebbe essere disabilitato quando lo script verrà letto da un file. Inoltre, per evitare la stampa di prompt superflui, il prompt può essere impostato a stringa vuota. Questo esempio mostra come aprire un file e passarlo come input ad una modificata versione dell'esempio <code>HelloWorld</code>.
+
+# cmd_file.py
+
+Con <code>raw_input</code> impostato a <code>False</code> e <code>prompt</code> impostato a stringa vuota, lo script può essere chiamato con un file di input che contiene un comando su ogni riga.
+
+Eseguendo lo script di esempio con l'input di esempio produce il seguente risultato.
+
+Comandi da sys.argv
+
+Gli argomenti da riga di comando per il programma possono anche essre elaborati come comandi per la classe dell'interprete, invece di leggere comandi da console o da file. Per usare gli argomenti da riga di comando, si chiami <code>onecmd()</code> direttamente, come in questo esempio.
+
+# cmd_argv.py
+
+Visto che <code>onecmd()</code> riceve una singola stringa come input, gli argomenti al programma devono essere uniti prima di essere passati.
+
+https://docs.python.org/3.5/library/cmd.html
+http://pypi.python.org/pypi/cmd2|cmd2|Rimpiazzo per <code>cmd</code> con caratteristiche aggiuntive.
+http://tiswww.case.edu/php/chet/readline/rltop.html|GNU readline|La libreria GNU Readline fornisce funzioni che consentono agli utenti di modificare righe in input mentre sono digitate.
+readline.html|readline|L'interfaccia della libreria standard Python a readline
+subprocess.html|subprocess|Gestisce altri processi ed il loro output

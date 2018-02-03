@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>navigazione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+pydoc - Aiuto in Linea per Moduli
+</titolo_1>
+<descrizione>
+Genera aiuto per i moduli e le classi Python dal codice.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>pydoc</strong> importa un modulo Python ed usa il suo contenuto per generare testo di aiuto in fase di esecuzione. Il risultato comprende <a href='https://www.wikiwand.com/it/Docstring' target='_blank'>docstring</a> per qualunque oggetto che ne sia provvisto, e sono descritte tutte le classi, metodi e funzioni del modulo.
+</testo_normale>
+<titolo_2>
+Aiuto in Formato Testo Semplice
+</titolo_2>
+<testo_normale>
+Eseguendo <code>pydoc</code> come programma da riga di comando passando il nome del modulo, produce testo di aiuto per il modulo ed il suo contenuto stampato sulla console, utilizzando un programma di paginazione, se configurato. Ad esempio, per vedere testo di aiuto per il modulo <code>atexit</code>, si esegua <code>pydoc atexit</code>.
+</testo_normale>
+<py_output>
+$ pydoc atexit
+
+Help on built-in module atexit:
+
+NAME
+    atexit - allow programmer to define multiple exit functions to be executedupon normal program termination.
+
+DESCRIPTION
+    Two public functions, register and unregister, are defined.
+
+FUNCTIONS
+    register(...)
+        register(func, *args, **kwargs) -> func
+
+        Register a function to be executed upon normal program termination
+
+            func - function to be called at exit
+            args - optional arguments to pass to func
+            kwargs - optional keyword arguments to pass to func
+
+            func is returned to facilitate usage as a decorator.
+
+    unregister(...)
+        unregister(func) -> None
+
+        Unregister an exit function which was previously registered using
+        atexit.register
+
+            func - function to be unregistered
+
+FILE
+    (built-in)
+</py_output>
+<titolo_2>
+Aiuto in formato HTML
+</titolo_2>
+<testo_normale>
+<strong>pydoc</strong> può anche generare output in HTML, sia scrivendo verso un file statico in una directory locale oppure facendo partire un server web per scorrere la documentazione in linea.
+</testo_normale>
+<py_output>
+$ pydoc3 -w atexit
+
+wrote atexit.html
+</py_output>
+<testo_normale>
+Nella directory corrente viene creato il file <code>atexit.html</code>
+</testo_normale>
+<py_output>
+$ pydoc3 -p 5000
+Server ready at http://localhost:5000/
+Server commands: [b]rowser, [q]uit
+server> q
+Server stopped
+</py_output>
+<testo_normale>
+Fa partire un server web in ascolto su <code>http://localhost:5000/</code>. Il server genera la documentazione al volo mentre si naviga. Si usi il comando <code>b</code> per aprire una finestra di browser automaticamente, e <code>q</code> per interrompere il server.
+</testo_normale>
+<titolo_2>
+Aiuto Interattivo
+</titolo_2>
+<testo_normale>
+<strong>pydoc</strong> aggiunge anche una funzione <code>help()</code> in <code>__builtins__</code> in modo che la stessa informazione possa essere fruita dal prompt dell'interprete di Python.
+</testo_normale>
+<py_output>
+$ python3
+
+Python 3.5.2+ (default, Sep 22 2016, 12:18:14)
+[GCC 6.2.0 20160927] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> help('atexit')
+Help on built-in module atexit:
+
+NAME
+    atexit - allow programmer to define multiple exit functions to be executedupon normal program termination.
+...
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/pydoc.html|pydoc|La documentazione della libreria standard per questo modulo.
+#|inspect (di prossima traduzione)|Il modulo inspect può essere usato per ottenere docstring da un oggetto programmaticamente
+</vedi_anche>
+</documento_tradotto>

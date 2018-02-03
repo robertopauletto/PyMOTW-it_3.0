@@ -1,0 +1,29 @@
+getpass - Prompt per Password Sicura
+
+Richiede all'utente un valore, in genere una password, senza visualizzare quanto digitato alla console.
+
+Molti programmi che interagiscono con l'utente tramite terminale devono chiedere allo stesso valori di password senza mostrare quello che l'utente digita sullo schermo. Il modulo <strong>getpass</strong> fornisce una modalità portabile per gestire in sicurezza dette richieste di password.
+
+Esempio
+
+La funzione <code>getpass()</code> stampa un prompt, quindi legge l'input dall'utente fino a che non viene premuto Invio. L'input viene ritornato come stringa al chiamante.
+
+# getpass_defaults.py
+
+Il prompt predefinito, se non viene altrimenti specificato dal chiamante, è "Password:".
+
+Il prompt può essere cambiato nel valore desiderato.
+
+# getpass_prompt.py
+
+Alcuni programmi chiedono una <a href='https://it.wikipedia.org/wiki/Passphrase' target='_blank'>Passphrase</a> in luogo di una semplice password, per fornire una miglior sicurezza.
+
+Nella modalità predefinita, <code>getpass()</code> usa <code>sys.stdout</code> per stampare la stringa di prompt. Per un programma che potrebbe produrre dell'output utile all'utente in <code>sys.stdout</code>, è quasi sempre meglio inviare il prompt ad un altro canale tipo <code>sys.stderr</code>.
+
+# getpass_stream.py
+
+Usando <code>sys.stderr</code> per il prompt significa che lo standard output può essere redirezionato (ad un pipe od un file) senza vedere il prompt della password. Il valore digitato dall'utente comunque non viene stampato sullo schermo.
+
+Usare getpass Senza un Terminale
+
+Sotto Unix, <code>getpass()</code> richiede sempre un tty che possa controllare via <code>termios</code>, in modo che si possa disabilitare la stampa dei caratteri digitati. Il che vuol dire che i valori non saranno letti da un canale non-terminale redirezionato allo standard input. <code>getpass</code> invece cerca di ottenere

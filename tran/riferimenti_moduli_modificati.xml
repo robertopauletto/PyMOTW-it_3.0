@@ -29,6 +29,7 @@ anydbm
 <testo_normale>
 Il modulo è stato rinominato in dbm in Python 3
 </testo_normale>
+<a name='argparse'></a>
 <titolo_2>
 argparse
 </titolo_2>
@@ -36,17 +37,17 @@ argparse
 L'argomento di versione per <code>ArgumentParser</code> è stato rimosso in favore di un tipo speciale <code>action</code>  (<a href="http://bugs.python.org/issue13248">Ptyhon issue 13248</a>)
 </testo_normale>
 <testo_normale>
-Sostituire
+La vecchia forma passava <code>version</code> come argomento
 </testo_normale>
 <py_code>
 parser = argparse.ArgumentParser(version='1.0')
 </py_code>
 <testo_normale>
-con qualcosa tipo:
+La nuova forma richiede l'aggiunta di una definizione specifica di argomento.
 </testo_normale>
 <py_code>
 parser = argparse.ArgumentParser(version='1.0')
-parser.add_argument('--version', action='version',
+parser.add_argument('--versione', action='version',
                     version='%(prog)s 1.0')
 </py_code>
 <testo_normale>
@@ -102,18 +103,19 @@ commands
 </titolo_2>
 <testo_normale>
 Le funzioni <code>getoutput()</code> e <code>getstatusoutput()</code> sono state spostate in <strong>subprocess</strong> e <code>commands</code> è stato eliminato
+<a name=configparser></a>
 </testo_normale>
 <titolo_2>
 configparser
 </titolo_2>
 <testo_normale>
-Il vecchio modulo <code>ConfigParser</code> è stato rinominato <code>configparser</code>.
+Il vecchio modulo <code>ConfigParser</code> è stato rinominato <a href='configparser.html'><code>configparser</code></a>.
 </testo_normale>
 <testo_normale>
 La vecchia classe <code>ConfigParser</code> è stata rimossa a favore di <code>SafeConfigParser</code> che a sua volta è stata rinominata in <code>ConfigParser</code>. Il comportamento deprecato di interpolazione è disponibile tramite <code>LegacyInterpolation</code>.
 </testo_normale>
 <testo_normale>
-Il metodo <code>read()</code> ora supporta un argomento <code>encoding</code>, in modo che non sia più necessario utilizzare <code>codecs</code> per leggere file di configurazione che hanno dei valori Unicode
+Il metodo <code>read()</code> ora supporta un argomento <code>encoding</code>, in modo che non sia più necessario utilizzare <a href='codecs'><code>codecs</code></a> per leggere file di configurazione che hanno dei valori Unicode.
 </testo_normale>
 <testo_normale>
 L'utilizzo del vecchio <code>RawConfigParser</code> è sconsigliato. I nuovi progetti dovrebbero utilizzare <code>ConfigParser(interpolation=None)</code> per ottenere lo stesso comportamento.
@@ -186,10 +188,11 @@ imaplib
 <testo_normale>
 In Python3 imaplib ritorna stringhe di byte codificate come UTF-8. C'è supporto per accettare stringhe unicode e codificarle automaticamente mentre vengono spediti come comandi in uscita oppure come utente/password per autenticazione su di un server.
 <a name='itertools_porting'></a>
+<a name='inspect_porting'></a>
 </testo_normale>
-<titolo_>
+<titolo_2>
 inspect
-</titolo_>
+</titolo_2>
 <testo_normale>
 Le funzioni <code>getargspec()</code>, <code>getfullargspec()</code>, <code>getargvalues()</code>, <code>getcallargs()</code>, <code>getargvalues()</code>, <code>formatargspec()</code>, e <code>formatargvalues()</code> sono state deprecate a beneficio di <code>signature()</code> (<a href='http://bugs.python.org/issue20438'>Python issue 20438</a>)
 </testo_normale>

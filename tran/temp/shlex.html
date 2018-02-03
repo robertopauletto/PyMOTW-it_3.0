@@ -1,0 +1,82 @@
+shlec - Elabora Sintassi Tipo Shell
+
+Analisi lessicale di sintatti tipo shell
+
+Elaborare Stringhe Tra Apici
+
+Un problema comune quando si lavora con testo in input è di identificare una sequenza di parole racchiuse tra apici come una singola entità. La divisione del testo in base agli apici non sempre dà i risultati desiderati, specialmente in caso di livelli annidati di apici. Si prenda ad esempio il seguente testo:
+
+Questa stringa ha incorporati "doppi apici" e 'singoli apici', ed anche un 
+" un 'esempio di annidamento'".
+
+Un approccio ingenuo potrebbe essere di costruire una espressione regolare per cercare le parti di testo al di fuori degli apici, per separarle dal testo all'interno degli stessi, o viceversa. Questo sarebbe inutilmente complicato ed incline ad errori risultanti da casi limite tipo apostrofi oppure errori di battitura. Una soluzione migliore sarebbe l'utilizzo di un vero elaboratore (parser) tipo quello fornito dal modulo <strong>shlex</strong>. Ecco un semplice esempio che stampa i <a href='https://it.wikipedia.org/wiki/Analisi_lessicale'>token</a> identificati nel file di esempio usando la classe <code>shlex</code>.
+
+# shlex_example.py
+
+Rendere Sicure le Stringhe per le Shell
+
+La funzione <code>quote()</code> esegue l'operazione inversa, ignorando gli apici esistenti ed aggiungendo gli apici mancanti per le stringhe per renderne sicuro l'utilizzo nel comandi di shell.
+
+# shlex_quote.py
+
+In genere è comunque più sicuro usare una lista di argomenti quando si usa <code>subprocess.Popen, ma in situazioni dove non sia possibile, <code>quote()</code> fornisce una qualche protezione assicurando che i caratteri speciali e i caratteri <em>whitespace</em> sono racchiusi propriamente tra apici.
+
+Commenti Inseriti
+
+Visto che il parser è concepito per l'uso con linguaggi di comando, deve gestire i commenti. Nella modalità predefinita, qualsiasi testo che segue un <code>#</code> viene considerato parte di un commento ed ignorato. A causa della natura del parser, sono prefissi di commento a singolo carattere sono supportati. L'insieme di caratteri di commento usati può essere configurato tramite la proprietà <code>commenters</code>.
+
+Dividere Stringhe in Token
+
+Per dividere una stringa esistente nei token che la compongono, la funzione di convenienza è <code>split()</code> che è un semplice <em>wrapper</em> attorno al parser.
+
+# shlex_split.py
+
+Il risultato è una lista.
+
+Includere Altre Sorgenti di Token
+
+La classe <code>shlex</code> include parecchie proprietà di configurazione che controllano il suo comportamento. La proprietà <code>source</code> abilita una caratteristica per il riutilizzo del codice (o della configurazione) consentendo ad un flusso di token di includerne un altro. Questo è simile all'oeratore <code>source</code> della <a href='https://it.wikipedia.org/wiki/Bourne_shell' target='_blank'>shell Bourne</a>, da qui il nome.
+
+# shlex_source.py
+
+La stringa "<code>source apici.txt" nel testo originale riceve un trattamento speciale. Viso che la proprietà <code>source</code> dell'<a href='https://it.wikipedia.org/wiki/Analizzatore_lessicale' target='_blank'>analizzatore lessicale</a> è impostato a "<code>source</code>", quando viene rilevata la parola chiave, il contenuto del file il cui nome che appare di seguito viene incluso automaticamente. Per fare sì che il nome del file appaia in un singolo token, il carattere <code>.</code> deve assere aggiunto alla lista di caratteri che sono inclusi nelle parole (altrimenti "<code>apici.txt</code>" genera tre token, "<code>apici</code>", "<code>.</code>" e "<code>txt</code>"). Ecco il risultato.
+
+La caratteristica <em>source</em> usa un metodo chiamato <code>sourcehook()</code> per caricara la sorgente di input addizionale, quindi una sottoclasse di <code>shlex</code> può fornire una implementazione alternativa che carica da sorgenti diverse dai file.
+
+Controllare l'elaboratore
+
+Un esempio precedente dimostrava che la modifica del valore <code>wordchars</code> controllava quali caratteri includere nelle parole. E' anche possibile impostare il carattere <code>quotes</code> per usare caratteri addizionali od alternativi. Ciascun valore deve essere un singolo carattere, quindi non è possibile avere differenti caratteri di apertura e chiusura (le parentesi non verrebbero elaborate, ad esempio).
+
+# shlex_table.py
+
+In questo esempio, ciascuna cella di tabella viene racchiusa tra barre verticali.
+
+E' anche possibile controllare i caratteri <em>whitespace</em> usati per dividere le parole.
+
+# shlex_whitespace.py
+
+Se lo script <code>shlex_example.py</code> viene modificato includendo punti e virgole, il risultato cambia.
+
+# shlex_whitespace.py
+
+Gestione Errori
+
+Quando l'elaboratore raggiunge la fine dell'input prima che tutte le stringhe tra apici siano chiuse, solleva un <code>ValueError</code>. Quando questo si verifica, è utile esaminare alcune delle proprietà conservate dall'elaboratore mentre elabora l'input. Ad esempio, <code>infile</code> fa riferimento al nome del file che si sta elaborando (il quale potrebbe essere diverso dal file originale, se un file chiama <code>source</code> sull'altro). <code>lineno</code> riporta la riga dove l'errore si è verificato. Tipicamente <code>lineno</code> rappresenta la fine del file, che potrebbe essere molto lontana dal primo apice. L'attributo <code>token</code> contiene la porzione di testo che non è ancora stata inclusa in un token valido. Il metodo <code>error_leader() fornisce un prefisso di messaggio nello stile simile ai compilatori Unix, che abilita editor testi tipo <code>emacs</code> di elaborare l'errore e portare l'utente direttamente alla riga non valida.
+
+# shlex_errors.py
+
+L'esempio produce questo risultato.
+
+Elaborazione POSIX contro Non-POSIX
+
+Il comportamento predefinito per il parser è l'utilizzao di uno stile retro compatibile che non è conforme POSIX. Per un comportamento POSIX, si imposti l'argomento <code>posix</code> quando di costruisce l'elaboratore.
+
+# shlex_posix.py
+
+Ecco alcuni esempi delle differenze nel comportamento dell'elaboratore.
+
+
+https://docs.python.org/3.5/library/shlex.html|shlex|
+https://pymotw.com/3/cmd/index.html#module-cmd|cmd|Strumenti per costruire interpreti di comando interattivi
+https://pymotw.com/3/argparse/index.html#module-argparse|argparse|Elaborazione di opzioni da riga di comando
+https://pymotw.com/3/subprocess/index.html#module-subprocess|subprocess|Esegue comandi dopo l'elaborazione della riga di comando.

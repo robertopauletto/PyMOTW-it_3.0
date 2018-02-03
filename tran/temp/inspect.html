@@ -1,0 +1,107 @@
+inspect - Ispeziona Oggetti Vivi
+
+Fornisce funzioni per l'introspezione di oggetti in vita e del loro codice sorgenti
+
+Il modulo <strong>inspect</strong> fornisce funzioni per ottenere informazioni su oggetti in vita, compresi moduli, classi, istanze, funzioni e metodi. Le funzioni in questo modulo possono essere usate per recuperare il codice sorgente per una funzione, per trovare gli argomenti per un metodo nello stack, ed estrarre quel tipo di informazioni utili per produrre documentazione di libreria per il codice sorgente.
+
+Modulo di Esempio
+
+Il resto degli esempi in questo articolo usano il file <code>example.py</code>
+
+# example.py
+
+Ispezionare Moduli
+
+Il primo tipo di introspezione sonda gli oggetti vivi per ottenerne informazioni. Si usi <code>getmemebers()</code> per scoprire gli attributi membro dell'oggetto. I tipi di membro che potrebbero essere ritornati dipendono dal tipo di oggetto analizzato. I moduli possono contenere classi e funzioni, le classi possono contenere metodi ed attributi ecc.
+
+Gli argomenti per <code>getmembers()</code> sono un oggetto da analizzare (modulo, classe od istanza) ed una funzione predicato opzionale che viene usata per filtrare gli oggetti ritornati. Il valore ritornato è una lista di tuple con due valori: il nome del membro ed il tipo del membro. Il modulo <strong>inspect</strong> contiene parecchie di queste funzioni predicato con nomi tipo <code>ismodule()</code>, <code>isclass()</code>, ecc.
+
+# inspect_getmembers_module.py
+
+Questo esempio stampa i membri del modulo <code>example</code>. I moduli hanno parecchi attributi privati che sono usati come parte dell'implementazione dell'importazione così come un insieme di <code>__builtins__</code>. Tutto ciò viene ignorato nel risultato per questo esempio poichè non sono realmente parte del modulo e l'elenco è lungo.
+
+L'argomento <code>predicate</code> può esserer usato per filtrare i tipi di oggetto ritornati.
+
+# inspect_getmembers_module_class.py
+
+Ora solo le classi sono incluse nel risultato.
+
+Ispezionare Classi
+
+Le classi sono analizzate usando <code>getmembers()</code> allo stesso modo dei moduli, anche se i tipi di membro sono differenti.
+
+# inspect_getmembers_class.py
+
+Visto che non viene applicato alcun filtro, il risultato mostra attributi, metodi, <em>slot</em> ed altri membri della classe.
+
+Per trovare i metodi della classe, si usi il predicato <code>isfunction()</code>. Il predicato <code>ismethod()</code> riconosce sono metodi connessi di istanze 
+
+# inspect_getmembers_class_methods.py
+
+Ora sono ritornati solo i metodi non connessi
+
+Il risultato per <code>B</code> include anche la sovrascrittura del metodo <code>get_name</code>, ed il metodo ereditato <code>__init__()</code> implementato in A.
+
+# inspect_getmembers_class_methods_b.py
+
+I metodi ereditati da <code>A</code> tipo <code>__init__()</code>, sono identificati come metodi di <code>B</code>.
+
+Ispezionare Istanze
+
+L'introspezione delle istanze funziona allo stesso modo degli altri oggetti.
+
+# inspect_getmembers_instance.py
+
+Il predicato <code>ismethod()</code> riconosce due metodi connessi da <code>A</code> nell'istanza di esempio.
+
+Stringhe di documentazione
+
+La <a href='https://it.wikipedia.org/wiki/Docstring' target='_blank'>docstring</a> per un oggetto può essere recuperato con <code>getdoc()</code>. Il valore di ritorno è nell'attributo <code>__doc__</code> con i caratteri di tabulazione convertiti in spazi con l'indentazione resa uniforme.
+
+# inspect_getdoc.py
+
+La seconda rica della docstring è indentata quando viene recuperata direttamente dall'attributo, poi viene spostato il margine sinistro da <code>getdoc()</code>.
+
+Oltre all'effettiva docstring, è possibile recuperare i commenti dal file sorgente dove un oggetto è implementato, se la sorgente è disponibile. La funzione <code>getcomments()</code> cerca nella sorgente dell'oggetto e cerca i commenti sulle righe.
+
+# inspect_getcomments_method.py
+
+Le righe ritornate comprendono il prefisso del commento con i <em>whitespace</em> eliminati.
+
+Quando viene passato un metodo a <code>getcomments()</code>, il valore di ritorno è sempre il primo commento nel modulo.
+
+# inspect_getcomments_module.py
+
+Le righe contigue dal file di esempio sono incluse come singolo commento, ma non appena appare una riga vuota il commento si interrompe.
+
+Recuperare Sorgente
+
+Se il file <code>.py</code> è disponibile per un modulo, il codice sorgente originale per la classe od il metodo può essere recuperato usando <code>getsource()</code> e <code>getsourcelines()</code>.
+
+# inspect_getsource_class.py
+
+Quando viene passata una classe, sono inclusi nel risultato tutti i metodi della classe.
+
+Per recuperare il sorgente di un singolo metodo, si passi il riferimento del metodo a <code>getsource()</code>.
+
+# inspect_getsource_method.py
+
+In questo caso, il livello di indentazione originale viene conservato.
+
+Si usi <code>getsourcelines()</code> invece che <code>getsource()</code> per recuperare le righe del sorgente divise in stringhe individuali.
+
+# inspect_getsourcelines_method.py
+
+Il valore di ritorno da <code>getsourcelines()</code> è una tuple che contiene una lista di stringhe (le righe dal file sorgente), ed un numero di riga di partenza nel file sorgente dove appare.
+
+Se il file sorgente non è disponibile, <code>getsource()</code> e <code>getsourcelines()</code> sollevano un errore <code>IOError</code>.
+
+Firme di Metodo e Funzione
+
+Oltre alla documentazione per una funzione o metodo, è possibile richiedere una specifica completa degli argomenti che il chiamabile ottiene, compresi i valori predefiniti. La funzione <code>signature()</code> ritorna una istanza <code>Signature</code> che contiene informazioni circa gli ar
+
+# inspect_signature_function.py
+
+Gli argomenti della funzione sono disponibili tramite l'attributo <code>parameters</code> di <code>Signature</code>. <code>parameters</code> è un dizionario ordinato che mappa i nomi alle istanze di <code>Parameter</code> che descrivono l'argomento. In questo esempio il primo argomento alla funzione, <code>arg1</code> non ha un valore predefinito, al contrario di <code>arg2</code>
+
+La firma di una funzione può essere usata da decoratori od altre funzioni per validare input, fornire valori predefiniti differenti, ecc. Scrivere un decoratore di validazione riutilizzabile e sufficientemente generico presenta una sfida particolare, poichè può essere complicato far corrispondere gli argomenti in entrata con i loro nomi pper funzioni che accettano una combinazione di argomenti posizionali e nominativi. I metodi <code>bind()</code> e <code>bind_partial</code> forniscono la logica necessaria per la gestione della mappatura. Essi ritornano una istanza di <code>BoundArguments</code> popolata con gli argomenti necessari associati con i nomi degli argomenti di una funzione specificata

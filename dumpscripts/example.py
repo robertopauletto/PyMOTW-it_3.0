@@ -1,29 +1,42 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# example.py
+# Questo commento appare per primo
+# e si trova du due righe.
 
-import imp
-import inspect
-import sys
+# Questo commento non viene visualizzato nel risultato di getcomments().
 
-if len(sys.argv) >= 2:
-    filename = sys.argv[1]
-else:
-    filename = 'example.py'
+"""File di esempio che serve come base per gli esempi di ispezione.
+"""
 
-try:
-    (name, suffix, mode, mtype)  = inspect.getmoduleinfo(filename)
-except TypeError:
-    print "Non si riesce a determinare il tipo di %s" % filename
-else:
-    mtype_name = { imp.PY_SOURCE:'sorgente',
-                   imp.PY_COMPILED:'compilato',
-                   }.get(mtype, mtype)
 
-    mode_description = { 'rb':'(lettura-binario)',
-                         'U':'(universal newline)',
-                         }.get(mode, '')
+def module_level_function(arg1, arg2='default', *args, **kwargs):
+    """Questa funzione viene dichiarata nel modulo."""
+    local_variable = arg1 * 2
+    return local_variable
 
-    print 'NOME     :', name
-    print 'SUFFISSO :', suffix
-    print "MODALITA':", mode, mode_description
-    print 'MTYPE    :', mtype_name
+
+class A(object):
+    """La classe A."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def get_name(self):
+        "Ritorna il nome dell'istanza"
+        return self.name
+
+
+instance_of_a = A('sample_instance')
+
+
+class B(A):
+    """Questa è la classe B.
+    Derivata da A.
+    """
+
+    # Questo metodo non fa parte di A.
+    def do_something(self):
+        """Esegue qualche operazione"""
+
+    def get_name(self):
+        "Sovrascrive la versione da A"
+        return 'B(' + self.name + ')'

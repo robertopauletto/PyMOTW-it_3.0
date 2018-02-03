@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+inspect - Ispeziona Oggetti Vivi
+</titolo_1>
+<descrizione>
+Fornisce funzioni per l'introspezione di oggetti in vita e del loro codice sorgente
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>inspect</strong> fornisce funzioni per ottenere informazioni su oggetti vivi, compresi moduli, classi, istanze, funzioni e metodi. Le funzioni in questo modulo possono essere usate per recuperare il codice sorgente per una funzione, per trovare gli argomenti per un metodo nello <a href='https://www.wikiwand.com/it/Pila_(informatica)' target='_blank'>stack</a>, ed estrarre quel tipo di informazioni utili per produrre documentazione di libreria per il codice sorgente.
+</testo_normale>
+<titolo_2>
+Modulo di Esempio
+</titolo_2>
+<testo_normale>
+Il resto degli esempi in questo articolo usano il file <code>example.py</code>
+</testo_normale>
+<py_code>
+# example.py
+</py_code>
+<titolo_2>
+Ispezionare Moduli
+</titolo_2>
+<testo_normale>
+Il primo tipo di introspezione sonda gli oggetti in vita per ottenerne informazioni. Si usi <code>getmembers()</code> per scoprire gli attributi membro dell'oggetto. I tipi di membro che potrebbero essere ritornati dipendono dal tipo di oggetto analizzato. I moduli possono contenere classi e funzioni, le classi possono contenere metodi ed attributi ecc.
+</testo_normale>
+<testo_normale>
+Gli argomenti per <code>getmembers()</code> sono un oggetto da analizzare (modulo, classe od istanza) ed una funzione predicato opzionale che viene usata per filtrare gli oggetti ritornati. Il valore ritornato è una lista di tuple con due valori: il nome del membro ed il tipo del membro. Il modulo <strong>inspect</strong> contiene parecchie di queste funzioni predicato con nomi tipo <code>ismodule()</code>, <code>isclass()</code>, ecc.
+</testo_normale>
+<py_code>
+# inspect_getmembers_module.py
+</py_code>
+<testo_normale>
+Questo esempio stampa i membri del modulo <code>example</code>. I moduli hanno parecchi attributi privati che sono usati come parte dell'implementazione dell'importazione così come un insieme di <code>__builtins__</code>. Tutto ciò viene ignorato nel risultato per questo esempio poichè non sono realmente parte del modulo e l'elenco è lungo.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmembers_module.py
+
+A : <class 'example.A'>
+B : <class 'example.B'>
+instance_of_a : <example.A object at 0x7fe6709338d0>
+module_level_function : <function module_level_function at 0x7fe67092f620>
+</py_output>
+<testo_normale>
+L'argomento <code>predicate</code> può essere usato per filtrare i tipi di oggetto ritornati.
+</testo_normale>
+<py_code>
+# inspect_getmembers_module_class.py
+</py_code>
+<testo_normale>
+Ora solo le classi sono incluse nel risultato.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmembers_module_class.py
+
+A : <class 'example.A'>
+B : <class 'example.B'>
+</py_output>
+<titolo_2>
+Ispezionare Classi
+</titolo_2>
+<testo_normale>
+Le classi sono analizzate usando <code>getmembers()</code> allo stesso modo dei moduli, anche se i tipi di membro sono differenti.
+</testo_normale>
+<py_code>
+# inspect_getmembers_class.py
+</py_code>
+<testo_normale>
+Visto che non viene applicato alcun filtro, il risultato mostra attributi, metodi, <em>slot</em> ed altri membri della classe.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmembers_class.py
+
+[('__class__', &lt;class 'type'&gt;),
+ ('__delattr__',
+  &lt;slot wrapper '__delattr__' of 'object' objects&gt;),
+ ('__dict__',
+  mappingproxy({'__dict__': &lt;attribute '__dict__' of 'A' objects&gt;,
+                '__doc__': 'La classe A.',
+                '__init__': &lt;function A.__init__ at 0x7fdf46b1bd90&gt;,
+                '__module__': 'example',
+                '__weakref__': &lt;attribute '__weakref__' of 'A' objects&gt;,
+                'get_name': &lt;function A.get_name at 0x7fdf46b1be18&gt;})),
+ ('__dir__', &lt;method '__dir__' of 'object' objects&gt;),
+ ('__doc__', 'La classe A.'),
+ ('__eq__', &lt;slot wrapper '__eq__' of 'object' objects&gt;),
+ ('__format__', &lt;method '__format__' of 'object' objects&gt;),
+ ('__ge__', &lt;slot wrapper '__ge__' of 'object' objects&gt;),
+ ('__getattribute__',
+  &lt;slot wrapper '__getattribute__' of 'object' objects&gt;),
+ ('__gt__', &lt;slot wrapper '__gt__' of 'object' objects&gt;),
+ ('__hash__', &lt;slot wrapper '__hash__' of 'object' objects&gt;),
+ ('__init__', &lt;function A.__init__ at 0x7fdf46b1bd90&gt;),
+ ('__le__', &lt;slot wrapper '__le__' of 'object' objects&gt;),
+ ('__lt__', &lt;slot wrapper '__lt__' of 'object' objects&gt;),
+ ('__module__', 'example'),
+ ('__ne__', &lt;slot wrapper '__ne__' of 'object' objects&gt;),
+ ('__new__',
+  &lt;built-in method __new__ of type object at 0x556d332d5f60&gt;),
+ ('__reduce__', &lt;method '__reduce__' of 'object' objects&gt;),
+ ('__reduce_ex__', &lt;method '__reduce_ex__' of 'object' objects&gt;),
+ ('__repr__', &lt;slot wrapper '__repr__' of 'object' objects&gt;),
+ ('__setattr__',
+  &lt;slot wrapper '__setattr__' of 'object' objects&gt;),
+ ('__sizeof__', &lt;method '__sizeof__' of 'object' objects&gt;),
+ ('__str__', &lt;slot wrapper '__str__' of 'object' objects&gt;),
+ ('__subclasshook__',
+  &lt;built-in method __subclasshook__ of type object at 0x556d3390dbf8&gt;),
+ ('__weakref__', &lt;attribute '__weakref__' of 'A' objects&gt;),
+ ('get_name', &lt;function A.get_name at 0x7fdf46b1be18&gt;)]
+</py_output>
+<testo_normale>
+Per trovare i metodi della classe, si usi il predicato <code>isfunction()</code>. Il predicato <code>ismethod()</code> riconosce solo metodi connessi di istanze.
+</testo_normale>
+<py_code>
+# inspect_getmembers_class_methods.py
+</py_code>
+<testo_normale>
+Ora sono ritornati solo i metodi non connessi
+</testo_normale>
+<py_output>
+$ python3  inspect_getmembers_class_methods.py
+
+[('__init__', <function A.__init__ at 0x7fa2b0a07d90>),
+ ('get_name', <function A.get_name at 0x7fa2b0a07e18>)]
+</py_output>
+<testo_normale>
+Il risultato per <code>B</code> include anche la sovrascrittura del metodo <code>get_name()</code>, ed il metodo ereditato <code>__init__()</code> implementato in <code>A</code>.
+</testo_normale>
+<py_code>
+# inspect_getmembers_class_methods_b.py
+</py_code>
+<testo_normale>
+I metodi ereditati da <code>A</code> tipo <code>__init__()</code>, sono identificati come metodi di <code>B</code>.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmembers_class_methods_b.py
+
+[('__init__', &lt;function A.__init__ at 0x7f3da01afd90&gt;),
+ ('do_something', &lt;function B.do_something at 0x7f3da01afea0&gt;),
+ ('get_name', &lt;function B.get_name at 0x7f3da01aff28&gt;)]
+</py_output>
+<titolo_2>
+Ispezionare Istanze
+</titolo_2>
+<testo_normale>
+L'introspezione delle istanze funziona allo stesso modo degli altri oggetti.
+</testo_normale>
+<py_code>
+# inspect_getmembers_instance.py
+</py_code>
+<testo_normale>
+Il predicato <code>ismethod()</code> riconosce due metodi connessi da <code>A</code> nell'istanza di esempio.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmembers_instance.py
+[('__init__',
+  &lt;bound method A.__init__ of &lt;example.A object at 0x7f3ba43b89b0&gt;&gt;),
+ ('get_name',
+  &lt;bound method A.get_name of &lt;example.A object at 0x7f3ba43b89b0&gt;&gt;)]
+</py_output>
+<titolo_2>
+Stringhe di documentazione
+</titolo_2>
+<testo_normale>
+La <a href='https://it.wikipedia.org/wiki/Docstring' target='_blank'>docstring</a> per un oggetto può essere recuperato con <code>getdoc()</code>. Il valore di ritorno è nell'attributo <code>__doc__</code> con i caratteri di tabulazione convertiti in spazi con l'indentazione resa uniforme.
+</testo_normale>
+<py_code>
+# inspect_getdoc.py
+</py_code>
+<testo_normale>
+La seconda riga della docstring è indentata quando viene recuperata direttamente dall'attributo, poi viene spostata al margine sinistro da <code>getdoc()</code>.
+</testo_normale>
+<py_output>
+$ python3 inspect_getdoc.py
+
+B.__doc__:
+Questa è la classe B.
+    Derivata da A.
+
+
+getdoc(B):
+Questa è la classe B.
+Derivata da A.
+</py_output>
+<testo_normale>
+Oltre all'effettiva docstring, è possibile recuperare i commenti dal file sorgente dove un oggetto è implementato, se la sorgente è disponibile. La funzione <code>getcomments()</code> cerca nella sorgente dell'oggetto e trova i commenti sulle righe che precedono l'implementazione.
+</testo_normale>
+<py_code>
+# inspect_getcomments_method.py
+</py_code>
+<testo_normale>
+Le righe ritornate comprendono il prefisso del commento con spazi, tabulazioni ritorni a capo eliminati.
+</testo_normale>
+<py_output>
+$ python3 inspect_getcomments_method.py
+
+# Questo metodo non fa parte di A.
+</py_output>
+<testo_normale>
+Quando viene passato un modulo a <code>getcomments()</code>, il valore di ritorno è sempre il primo commento nel modulo.
+</testo_normale>
+<py_code>
+# inspect_getcomments_module.py
+</py_code>
+<testo_normale>
+Le righe contigue dal file di esempio sono incluse come singolo commento, ma non appena appare una riga vuota il commento si interrompe.
+</testo_normale>
+<py_output>
+$ python3 inspect_getcomments_module.py
+
+# example.py
+# Questo commento appare per primo
+# e si trova du due righe.
+</py_output>
+<titolo_2>
+Recuperare il Sorgente
+</titolo_2>
+<testo_normale>
+Se il file <code>.py</code> è disponibile per un modulo, il codice sorgente originale per la classe od il metodo può essere recuperato usando <code>getsource()</code> e <code>getsourcelines()</code>.
+</testo_normale>
+<py_code>
+# inspect_getsource_class.py
+</py_code>
+<testo_normale>
+Quando viene passata una classe, sono inclusi nel risultato tutti i metodi della classe.
+</testo_normale>
+<py_output>
+$ python3 inspect_getsource_class.py
+
+class A(object):
+    """La classe A."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def get_name(self):
+        "Ritorna il nome dell'istanza"
+        return self.name
+</py_output>
+<testo_normale>
+Per recuperare il sorgente di un singolo metodo, si passi il riferimento del metodo a <code>getsource()</code>.
+</testo_normale>
+<py_code>
+# inspect_getsource_method.py
+</py_code>
+<testo_normale>
+In questo caso, il livello di indentazione originale viene conservato.
+</testo_normale>
+<py_output>
+$ python3 inspect_getsource_method.py
+
+    def get_name(self):
+        "Ritorna il nome dell'istanza"
+        return self.name
+</py_output>
+<testo_normale>
+Si usi <code>getsourcelines()</code> invece che <code>getsource()</code> per recuperare le righe del sorgente divise in stringhe individuali.
+</testo_normale>
+<py_code>
+# inspect_getsourcelines_method.py
+</py_code>
+<testo_normale>
+Il valore di ritorno da <code>getsourcelines()</code> è una tupla che contiene una lista di stringhe (le righe dal file sorgente), ed un numero di riga di partenza nel file sorgente dove appare.
+</testo_normale>
+<py_output>
+$ python3 inspect_getsourcelines_method.py
+
+(['    def get_name(self):\n',
+  '        "Ritorna il nome dell\'istanza"\n',
+  '        return self.name\n'],
+ 23)
+</py_output>
+<testo_normale>
+Se il file sorgente non è disponibile, <code>getsource()</code> e <code>getsourcelines()</code> sollevano un errore <code>IOError</code>.
+</testo_normale>
+<titolo_2>
+Firme di Metodo e Funzione
+</titolo_2>
+<testo_normale>
+Oltre alla documentazione per una funzione o metodo, è possibile richiedere una specifica completa degli argomenti che il chiamabile ottiene, compresi i valori predefiniti. La funzione <code>signature()</code> ritorna una istanza <code>Signature</code> che contiene informazioni circa gli argomenti della funzione.
+</testo_normale>
+<py_code>
+# inspect_signature_function.py
+</py_code>
+<testo_normale>
+Gli argomenti della funzione sono disponibili tramite l'attributo <code>parameters</code> di <code>Signature</code>. <code>parameters</code> è un dizionario ordinato che mappa i nomi alle istanze di <code>Parameter</code> che descrivono l'argomento. In questo esempio il primo argomento alla funzione, <code>arg1</code> non ha un valore predefinito, al contrario di <code>arg2</code>
+</testo_normale>
+<py_output>
+$ python3 inspect_signature_function.py
+
+module_level_function(arg1, arg2='default', *args, **kwargs)
+
+Dettagli parametro:
+  arg1
+  arg2='default'
+  *args
+  **kwargs
+</py_output>
+<testo_normale>
+La firma (<code>Signature</code>) di una funzione può essere usata da decoratori od altre funzioni per validare input, fornire valori predefiniti differenti, ecc. Scrivere un decoratore di validazione riutilizzabile e sufficientemente generico presenta una sfida particolare, poichè può essere complicato far corrispondere gli argomenti in entrata con i loro nomi per funzioni che accettano una combinazione di argomenti posizionali e nominativi. I metodi <code>bind()</code> e <code>bind_partial()</code> forniscono la logica necessaria per la gestione della mappatura. Essi ritornano una istanza di <code>BoundArguments</code> popolata con gli argomenti  associati con i nomi degli argomenti di una funzione specificata
+</testo_normale>
+<py_code>
+# inspect_signature_bind.py
+</py_code>
+<testo_normale>
+L'istanza di <code>BoundArguments</code> ha gli attributi <code>args</code> e <code>kwargs</code> che possono essere usati per chiamare la funzione usando la sintassi per espandere la tupla ed il dizionario come argomenti.
+</testo_normale>
+<py_output>
+$ python3 inspect_signature_bind.py
+
+Argomenti:
+arg1 = 'questo è arg1'
+arg2 = 'questo è arg2'
+args = ('questo è un argomento supplementare posizionale',)
+kwargs = {'extra_named_arg': 'value'}
+
+Chiamata:
+questo è arg1questo è arg1
+</py_output>
+<testo_normale>
+Se sono disponibili solo alcuni argomenti, <code>bind_partial()</code> potrà ancora creare una istanza di <code>BoundArguments</code>. Potrebbe tuttavia non essere completamente utilizzabile fino a che non sono inclusi gli argomenti mancanti.
+</testo_normale>
+<py_code>
+# inspect_signature_bind_partial.py
+</py_code>
+<testo_normale>
+<code>apply_defaults()</code> aggiungerà qualunque valore dai parametri predefiniti.
+</testo_normale>
+<py_output>
+$ python3 inspect_signature_bind_partial.py
+
+Senza predefiniti:
+arg1 = 'questo è arg1'
+
+Con predefiniti:
+arg1 = 'questo è arg1'
+arg2 = 'default'
+args = ()
+kwargs = {}
+</py_output>
+<titolo_2>
+Gerarchie di Classi
+</titolo_2>
+<testo_normale>
+<strong>inspect</strong> include due metodi per lavorare direttamente con gerarchie di classi. Il primo, <code>getclasstree()</code>, crea una struttura dati tipo albero basato sulle classi fornite e le loro classi base. CIascun elemento nella lista restituito è una tupla con una classe e la sua classe base od un'altra lista che contiene tuple per le sottoclassi.
+</testo_normale>
+<py_code>
+# inspect_getclasstree.py
+</py_code>
+<testo_normale>
+Il risultato di questo esempio è l'albero di ereditarietà per le classi <code>A</code>, <code>B</code>, <code>C</code> e <code>D</code>. <code>D</code> appare due volte, visto che eredita sia da <code>C</code> che da <code>A</code>.
+</testo_normale>
+<py_output>
+$ python3 inspect_getclasstree.py
+
+A, B, C, D:
+ object
+   A
+     D
+     B
+       C
+         D
+</py_output>
+<testo_normale>
+Se <code>getclasstree()</code> viene chiamato con <code>unique</code> impostato a <code>True</code>, il risultato è diverso.
+</testo_normale>
+<py_code>
+# inspect_getclasstree_unique.py
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<py_output>
+$ python3 inspect_getclasstree_unique.py
+
+ object
+   A
+     B
+       C
+         D
+</py_output>
+<titolo_2>
+Ordine di Risoluzione dei Metodi
+</titolo_2>
+<testo_normale>
+L'altra funzione per lavorare con gerarchie di classi è <code>getmro()</code> che ritorna una tupla di classi nell'ordine nel quale dovrebbero essere scorse quando si risolve un attributo che potrebbe essere ereditato da una classe base usanto l'<em>Ordine di Risoluzione del Metodo</em> (MRO). Ciascuna classe nella sequenza appare una sola volta.
+</testo_normale>
+<py_code>
+# inspect_getmro.py
+</py_code>
+<testo_normale>
+Il risultato dimostra la natura della ricerca di MRO come "prima la profondità". Per <code>B_First</code>, <code>A</code> viene prima di <code>C</code> nell'ordine di ricerca, visto che <code>B</code> è derivato da <code>A</code>.
+</testo_normale>
+<py_output>
+$ python3 inspect_getmro.py
+
+B_First:
+  B_First
+  B
+  A
+  C
+  object
+
+C_First:
+  C_First
+  C
+  B
+  A
+  object
+</py_output>
+<titolo_2>
+Stack e Frame
+</titolo_2>
+<testo_normale>
+Oltre alla intraspezione degli oggetti di codice, <strong>inspect</strong> comprende anche funzioni per ispezionare l'ambiente di esecuzione mentre un programma sta girando. La maggior parte di queste funzioni lavorano con le chiamate allo <a href='https://www.wikiwand.com/it/Pila_(informatica)' target='_blank'>stack</a>, ed operano su *call frame* (subroutine all'interno di una chiamata di stack). Questi oggetti conservano il contesto di esecuzione corrente, incluso i riferimenti al codice in esecuzione, l'operazione che si sta eseguendo così come i valori delle variabili locali e globali. Tipicamente queste informazioni sono usate per costruire *traceback* quando vengono sollevate eccezioni. Possono anche essere utili per registrazioni o per debug di programmi, visto che i frame dello stack possono essere interrogati per scoprire i valori degli argomenti passati alle funzioni.
+</testo_normale>
+<testo_normale>
+<code>currentframe()</code> ritorna il frame alla sommità dello stack (per la funzione corrente).
+</testo_normale>
+<py_code>
+# inspect_currentframe.py
+</py_code>
+<testo_normale>
+I valori dell'argomento di <code>recurse()</code> sono inclusi nel dizionario delle variabili locali del frame.
+</testo_normale>
+<py_output>
+$ python3 inspect_currentframe.py
+
+riga 11 di inspect_currentframe.py
+locali:
+{'frame': <frame object at 0x7f69a4292048>,
+ 'keyword': "modificato valore dell'argomento",
+ 'kwonly': 'deve essere nominativo',
+ 'limit': 2,
+ 'local_variable': '..'}
+
+riga 11 di inspect_currentframe.py
+locali:
+{'frame': <frame object at 0x55f7c1545b78>,
+ 'keyword': "modificato valore dell'argomento",
+ 'kwonly': 'deve essere nominativo',
+ 'limit': 1,
+ 'local_variable': '.'}
+
+riga 11 di inspect_currentframe.py
+locali:
+{'frame': <frame object at 0x55f7c15ba038>,
+ 'keyword': "modificato valore dell'argomento",
+ 'kwonly': 'deve essere nominativo',
+ 'limit': 0,
+ 'local_variable': ''}
+</py_output>
+<testo_normale>
+Usando <code>stack()</code> è anche possibile accedere a tutti i frame degli stack dal frame corrente al primo chiamante. Questo esempio è simile a quello mostrato in precedenza, eccetto che attende fino a che viene raggiunta la fine della ricorsione per stampare le informazioni dello stack.
+</testo_normale>
+<py_code>
+# inspect_stack.py
+</py_code>
+<testo_normale>
+L'ultima parte del risultato rappresenta il programma principale, all'esterno della funzione <code>recurse()</code>.
+</testo_normale>
+<py_output>
+$ python3 inspect_stack.py
+
+inspect_stack.py[8]
+  -&gt; for level in inspect.stack():
+{'level': FrameInfo(frame=&lt;frame object at 0x7f78927b7980&gt;, filename='inspect_stack.py', lineno=8, function='show_stack', code_context=['    for level in inspect.stack():\n'], index=0)}
+
+inspect_stack.py[21]
+  -&gt; show_stack()
+{'limit': 0, 'local_variable': ''}
+
+inspect_stack.py[23]
+  -&gt; recurse(limit - 1)
+{'limit': 1, 'local_variable': '.'}
+
+inspect_stack.py[23]
+  -&gt; recurse(limit - 1)
+{'limit': 2, 'local_variable': '..'}
+
+inspect_stack.py[28]
+  -&gt; recurse(2)
+{'__builtins__': &lt;module 'builtins' (built-in)&gt;,
+ '__cached__': None,
+ '__doc__': None,
+ '__file__': 'inspect_stack.py',
+ '__loader__': &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f78940137f0&gt;,
+ '__name__': '__main__',
+ '__package__': None,
+ '__spec__': None,
+ 'inspect': &lt;module 'inspect' from '/usr/lib/python3.5/inspect.py'&gt;,
+ 'pprint': &lt;module 'pprint' from '/usr/lib/python3.5/pprint.py'&gt;,
+ 'recurse': &lt;function recurse at 0x7f7892764c80&gt;,
+ 'show_stack': &lt;function show_stack at 0x7f789405e048&gt;}
+</py_output>
+<testo_normale>
+Ci sono altre funzioni per costruire liste di frame in contesti differenti, tipo quando viene elaborata una eccezione. Si veda la documentazione per <code>trace()</code>, <code>getouterframes()</code>, e <code>getinnerframes()</code> per maggiori dettagli.
+</testo_normale>
+<titolo_2>
+Interfaccia da Riga di Comando
+</titolo_2>
+<testo_normale>
+Il modulo <strong>inspect</strong> include anche una interfaccia da riga di comando per ottenere dettagli circa gli oggetti senza dover scrivere le chiamate in un programma Python separato. L'input è un nome di modulo ed oggetto (opzionale) all'interno del modulo. Il risultato predefinito è il codice sorgente per l'oggetto passato. Usando l'argomento <code>--details</code> verranno stampati i metadati in luogo del sorgente.
+</testo_normale>
+<py_output>
+$ python3 -m inspect -d example
+
+Target: example
+Origin: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/example.py
+Cached: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/__pycache__/example.cpython-35.pyc
+Loader: &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f8ce5eed908&gt;
+</py_output>
+<py_output>
+$ python3 -m inspect -d example:A
+
+Target: example:A
+Origin: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/example.py
+Cached: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/__pycache__/example.cpython-35.pyc
+Line: 17
+</py_output>
+<py_output>
+$ python3 -m inspect -d example:A.get_name
+
+Target: example:A.get_name
+Origin: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/example.py
+Cached: /home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/__pycache__/example.cpython-35.pyc
+Line: 23
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/inspect.html|inspect|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#itertools_porting|Note di portabilità per inspect|
+http://www.python.org/download/releases/2.3/mro/|Python 2.3 Method Resolution Order|Documentazione per l'ordine di risoluzione del metodo usato da Python 2.3 e superiore
+#|pyclbr (di prossima traduzione)|Il modulo pyclbr fornisce accesso ad alcune delle stesse informazioni di inspect esaminando il modulo senza importarlo.
+https://www.python.org/dev/peps/pep-0362|PEP 362|Funzione per Firma Oggetto
+</vedi_anche>
+</documento_tradotto>

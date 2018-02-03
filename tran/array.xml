@@ -223,7 +223,7 @@ $ python3 array_byteswap.py
 </py_output>
 <vedi_anche>
 http://docs.python.org/3.5/library/array.html|array|La documentazione della libreria standard per questo modulo.
-#|struct|Il modulo struct
+#|struct (di prossima traduzione)|Il modulo struct
 http://www.scipy.org/|Numerical Python| NumPy è una libreria Python per lavorare con efficacia con grandi insiemi di dati
 riferimenti_moduli_modificati.html#array|Note di portabilità per array|
 </vedi_anche>
