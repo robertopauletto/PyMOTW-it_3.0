@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+pyclbr - Browser di Classe
+</titolo_1>
+<descrizione>
+Implementa una <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> atta all'utilizzo in un editor di codice per creare un browser di classe.
+
+</descrizione>
+<testo_normale>
+<strong>pyclbr</strong> può scorrere un sorgente Python per trovare classi e funzioni a se stanti. Le informazioni su classi, metodi, nomi di funzioni e numeri di riga sono raccolte usando <code>tokenize</code> <em>senza</em> importare il codice.
+</testo_normale>
+<testo_normale>
+Gli esempi in questa sezione utilizzano il file sorgente seguente come input.
+</testo_normale>
+<py_code>
+# pyclbr_example.py
+</py_code>
+<titolo_2>
+Alla Ricerca delle Classi
+</titolo_2>
+<testo_normale>
+Ci sono due funzioni pubbliche esposte da <strong>pyclbr</strong>. La prima, <code>readmodule()</code>, riceve il nome del modulo come argomento e ritorna una mappatura di nomi di classi ed oggetti <code>Class</code> che contengono i metadati circa il sorgente della classe.
+</testo_normale>
+<py_code>
+# pyclbr_readmodule.py
+</py_code>
+<testo_normale>
+I metadati per la classe includono il file ed il numero di riga dove è definito, assieme ai nomi delle classi super. I metodi della classe sono salvati in una mappatura tra nome metodo e numero di riga. Il risultato mostra le classi ed i metodi elencati in ordine in base al loro numero di riga nel file sorgente.
+</testo_normale>
+<py_output>
+# pyclbr_readmodule.py
+</py_output>
+<titolo_2>
+Alla Ricerca di Funzioni
+</titolo_2>
+<testo_normale>
+L'altra funzione pubblica, <code>readmodule_ex()</code>, fa tutto quello che fa <code>readmodule()</code>, ed aggiunge le funzioni all'insieme dei risultati.
+</testo_normale>
+<py_code>
+# pyclbr_readmodule_ex.py
+</py_code>
+<testo_normale>
+Ciascun oggetto <code>Function</code> ha proprietà molto simili a quelle dell'oggetto <code>Class</code>.
+</testo_normale>
+<py_output>
+# pyclbr_readmodule_ex.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/pyclbr.html|pyclbr|La documentazione della libreria standard per questo modulo.
+inspect.html|inspect|Il modulo inspect può scoprire maggiori metadati circa classi e funzioni, ma richiede l'importazione del codice.
+#|tokenize|Il modulo tokenize scinde il codice sorgente Python in token.
+</vedi_anche>
+</documento_tradotto>
