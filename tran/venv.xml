@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+venv - Crea Ambienti Virtuali
+</titolo_1>
+<descrizione>
+Crea contesti isolati di installazione ed esecuzione.
+
+</descrizione>
+<testo_normale>
+Gli ambienti virtuali Python, gestiti da <strong>venv</strong>, sono impostati per installare pacchetti ed eseguire programmi in modo tale da isolarli dagli altri pacchetti installati nel resto del sistema. Poichè ciascun ambiente ha il suo proprio interprete eseguibile e le sua proprie directory per l'installazione dei pacchetti, è facile creare ambienti configurati con varie combinazioni di versioni di Python e di pacchetti sullo stesso computer.
+</testo_normale>
+<titolo_2>
+Create Ambienti
+</titolo_2>
+<testo_normale>
+L'interfaccia primaria da riga di comando per <strong>venv</strong> conta sulla capacità di Python di eseguire la funzione "main" di un modulo usando l'opzione <code>-m</code>.
+</testo_normale>
+<py_output>
+$ python3 -m venv /tmp/demovenv
+
+</py_output>
+<testo_normale>
+Potrebbe essere installata una applicazione da riga di comando: <code>pyvenv</code>, a seconda di come l'interprete Python è stato compilato e distribuito. Il comando seguente ha lo stesso effetto di quello dell'esempio precedente
+</testo_normale>
+<py_output>
+$ pyvenv /tmp/demovenv
+
+</py_output>
+<testo_normale>
+E' preferibile usare la prima versione poichè è richiesta esplicitamente la selezione di un interprete Python, in modo che non ci sia confusione circa il numero di versione od il percorso di importazione associato al risultante ambiente virtuale.
+</testo_normale>
+<titolo_2>
+Contenuti di un Ambiente Virtuale
+</titolo_2>
+<testo_normale>
+Ciascun ambiente virtuale contiene una directory <code>bin</code>, dove sono installati l'interprete locale e qualsiasi script eseguibile, una directory <code>include</code> per i file collegati alla costruzione di estensioni C, ed una directory <code>lib</code>, con una locazione <code>site-packages</code> separata per l'installazione dei pacchetti.
+</testo_normale>
+<py_output>
+$ ls -F /tmp/demoenv
+
+bin/
+include/
+lib/
+pyvenv.cfg
+</py_output>
+<testo_normale>
+La directory <code>bin</code> predefinita contiene script di "attivazione" per parecchie varianti di shell Unix. Essi possono essere usati per installare l'ambiente virtuale nel percorso di ricerca della shell per assicurarsi che la stessa faccia riferimento ai programmi installati nell'ambiente. Non è necessario attivare un ambiente per utilizzare i programmi in esso installati ma può essere più conveniente.
+</testo_normale>
+<py_output>
+$ ls -F /tmp/demoenv/bin
+
+activate
+activate.csh
+activate.fish
+easy_install*
+easy_install-3.5*
+pip*
+pip3*
+pip3.5*
+python@
+python3@
+</py_output>
+<testo_normale>
+Sulle piattaforme che li supportano, vengono usati link simbolici invece che copiare gli eseguibili come l'interprete Python. In questo ambiente, <code>pip</code> viene installato come copia locale, ma l'interprete è un link simbolico.
+</testo_normale>
+<testo_normale>
+In ultimo, l'ambiente include un file <code>pyvenv.cfg</code> con le impostazioni che descrivono come è configurato l'ambiente e come dovrebbe comportarsi. La variabile <code>home</code> punta alla locazione dell'interprete Python dove <code>venv</code> è stato eseguito per creare l'ambiente. <code>include-system-site-packages</code> è un valore booleano che indica se i pacchetti installati al di fuori dell'ambiente virtuale, a livello di sistema, debbano essere visibili all'interno dell'ambiente virtuale. <code>version</code> è la versione Python usata per creare l'ambiente.
+</testo_normale>
+<py_output>
+$ cat  /tmp/demovenv/pyvenv.cfg
+
+home = /usr/bin
+include-system-site-packages = false
+version = 3.5.2
+</py_output>
+<testo_normale>
+Un ambiente virtuale è più utile con strumenti come <code>pip</code> o <code>setuptools</code> sono a disponibili per installare altri pacchetti, quindi <code>pyvenv</code> li installa nella modalità predefinita. Per creare un ambiente senza questi strumenti, si passi l'opzione <code>--without-pip</code> alla riga di comando.
+</testo_normale>
+<titolo_2>
+Usare Ambienti Virtuali
+</titolo_2>
+<testo_normale>
+Gli ambienti virtuali sono comunemente usati per eseguire versioni diverse di  programmi oppure per verificare una data versione di un programma con versioni diverse delle sue dipendenze. Ad esempio prima di eseguire un upgrade da una versione di <a href='http://www.sphinx-doc.org/en/stable/' target='_blank'>Sphinx</a> ad un'altra, è utile verificare i file di documentazione in input usando sia la vecchia che la nuova versione.
+</testo_normale>
+<py_output>
+$ python3 -m venv /tmp/sphinx1
+$ python3 -m venv /tmp/sphinx2
+</py_output>
+<testo_normale>
+Poi installare la versione degli strumenti da verificare.
+</testo_normale>
+<py_output>
+$ /tmp/sphinx1/bin/pip install Sphinx==1.3.6
+
+Collecting Sphinx==1.3.6
+  Using cached Sphinx-1.3.6-py2.py3-none-any.whl
+Collecting Jinja2>=2.3 (from Sphinx==1.3.6)
+  Using cached Jinja2-2.8-py2.py3-none-any.whl
+Collecting Pygments>=2.0 (from Sphinx==1.3.6)
+  Using cached Pygments-2.1.3-py2.py3-none-any.whl
+Collecting babel!=2.0,>=1.3 (from Sphinx==1.3.6)
+  Using cached Babel-2.3.4-py2.py3-none-any.whl
+Collecting snowballstemmer>=1.1 (from Sphinx==1.3.6)
+  Using cached snowballstemmer-1.2.1-py2.py3-none-any.whl
+Collecting alabaster<0.8,>=0.7 (from Sphinx==1.3.6)
+  Using cached alabaster-0.7.9-py2.py3-none-any.whl
+Collecting six>=1.4 (from Sphinx==1.3.6)
+  Using cached six-1.10.0-py2.py3-none-any.whl
+Collecting sphinx-rtd-theme<2.0,>=0.1 (from Sphinx==1.3.6)
+  Using cached sphinx_rtd_theme-0.1.9-py3-none-any.whl
+Collecting docutils>=0.11 (from Sphinx==1.3.6)
+  Using cached docutils-0.13.1-py3-none-any.whl
+Collecting MarkupSafe (from Jinja2>=2.3->Sphinx==1.3.6)
+Collecting pytz>=0a (from babel!=2.0,>=1.3->Sphinx==1.3.6)
+  Using cached pytz-2016.10-py2.py3-none-any.whl
+Installing collected packages: MarkupSafe, Jinja2, Pygments,
+pytz, babel, snowballstemmer, alabaster, six, sphinx-rtd-theme,
+docutils, Sphinx
+Successfully installed Jinja2-2.8 MarkupSafe-0.23 Pygments-2.1.3
+Sphinx-1.3.6 alabaster-0.7.9 babel-2.3.4 docutils-0.13.1
+pytz-2016.10 six-1.10.0 snowballstemmer-1.2.1 sphinx-rtd-
+theme-0.1.9
+
+$ /tmp/sphinx2/bin/pip install Sphinx==1.4.4
+
+Collecting Sphinx==1.4.4
+  Using cached Sphinx-1.4.4-py2.py3-none-any.whl
+Collecting Jinja2>=2.3 (from Sphinx==1.4.4)
+  Using cached Jinja2-2.8-py2.py3-none-any.whl
+Collecting imagesize (from Sphinx==1.4.4)
+  Using cached imagesize-0.7.1-py2.py3-none-any.whl
+Collecting Pygments>=2.0 (from Sphinx==1.4.4)
+  Using cached Pygments-2.1.3-py2.py3-none-any.whl
+Collecting babel!=2.0,>=1.3 (from Sphinx==1.4.4)
+  Using cached Babel-2.3.4-py2.py3-none-any.whl
+Collecting snowballstemmer>=1.1 (from Sphinx==1.4.4)
+  Using cached snowballstemmer-1.2.1-py2.py3-none-any.whl
+Collecting alabaster<0.8,>=0.7 (from Sphinx==1.4.4)
+  Using cached alabaster-0.7.9-py2.py3-none-any.whl
+Collecting six>=1.4 (from Sphinx==1.4.4)
+  Using cached six-1.10.0-py2.py3-none-any.whl
+Collecting docutils>=0.11 (from Sphinx==1.4.4)
+  Using cached docutils-0.13.1-py3-none-any.whl
+Collecting MarkupSafe (from Jinja2>=2.3->Sphinx==1.4.4)
+Collecting pytz>=0a (from babel!=2.0,>=1.3->Sphinx==1.4.4)
+  Using cached pytz-2016.10-py2.py3-none-any.whl
+Installing collected packages: MarkupSafe, Jinja2, imagesize,
+Pygments, pytz, babel, snowballstemmer, alabaster, six,
+docutils, Sphinx
+Successfully installed Jinja2-2.8 MarkupSafe-0.23 Pygments-2.1.3
+Sphinx-1.4.4 alabaster-0.7.9 babel-2.3.4 docutils-0.13.1
+imagesize-0.7.1 pytz-2016.10 six-1.10.0 snowballstemmer-1.2.1
+</py_output>
+<testo_normale>
+In questo modo è possibile eseguire diverse versioni di Sphinx separatamente da ciascun ambiente virtuale, per verificarle con gli stessi file in input.
+</testo_normale>
+<py_output>
+$ /tmp/sphinx1/bin/sphinx-build --version
+
+Sphinx (sphinx-build) 1.3.6
+
+$ /tmp/sphinx2/bin/sphinx-build --version
+
+Sphinx (sphinx-build) 1.4.4
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/venv.html|venv|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-0405|PEP 405|Ambienti Virtuali Python
+https://pypi.python.org/pypi/virtualenv|virtualenv|Una versione di ambienti virtuali Python che funziona per Python 2 e 3.
+https://pypi.python.org/pypi/virtualenvwrapper|virtualenvwrapper|un insieme di wrapper di shell per virtualenv per facilitare la gestione di un gran numero di ambienti.
+http://www.sphinx-doc.org/en/stable/|Sphinx|Uno strumento per convertire file in input in formato reStructuredText in HTML, LaTex ed altri formati per l'utilizzo.
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+ensurepip - Installare Python Package Installer
+</titolo_1>
+<descrizione>
+installa pip, l'installatore di pacchetti di Python.
+
+</descrizione>
+<testo_normale>
+Sebbne Python sia un linguaggio di programmazione "batterie incluse" e sia corredato da una larga varietà di moduli nella libreria standard, ci sono anche più librerie, framework e strumenti disponibili per l'installazione da <a href='https://pypi.python.org/pypi' target='_blank'>Python Package Index</a>. Per installare questi pacchetti, uno sviluppatore ha bisogno dello strumento di installazione <code>pip</code>. Installare uno strumento atto all'installazione di strumenti presenta un interessante problema di <em>bootstrapping</em> che <strong>ensurepip</strong> risolve.
+</testo_normale>
+<titolo_2>
+Installare pip
+</titolo_2>
+<testo_normale>
+Questo esempio utiizza un ambiente virtuale configurato senza <code>pip</code> installato
+</testo_normale>
+<py_output>
+$ python3 -m venv --without-pip /tmp/demoenv
+$ ls -F /tmp/demoenv/bin
+
+activate  activate.csh  activate.fish  python@  python3@
+</py_output>
+<testo_normale>
+Si esegua <code>ensurepip</code> da riga di comando usando l'opzione <code>-m</code> per l'interprete Python. In modalità predefinita, una copia di pip viene consegnata quando viene installata la libreria standard. Questa versione può poi essere usata per installare una versione aggiornata di pip. Per assicurarsi che una versione recente di pip venga installata immediatamente, si usi l'opzione <code>--upgrade</code> con <code>ensurepip</code>.
+</testo_normale>
+<py_output>
+$ /tmp/demoenv/bin/python3 -m ensurepip --upgrade
+
+Ignoring indexes: https://pypi.python.org/simple
+Collecting setuptools
+Collecting pip
+Collecting pkg_resources
+Installing collected packages: setuptools, pip, pkg-resources
+Successfully installed pip-8.1.2 pkg-resources-0.0.0 setuptools-26.1.1
+</py_output>
+<testo_normale>
+Vengono così installati come comandi nell'ambiente virtuale <code>pip3</code> e <code>pip3.5</code>, con le dipendenze di <code>setuptools</code> necessarie per il supporto dei comando sopra elencati.
+</testo_normale>
+<py_output>
+$ ls -F /tmp/demoenv/bin
+
+activate  activate.csh  activate.fish  easy_install-3.5*  pip3*  pip3.5*  python@  python3@
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/ensurepip.html|ensurepip|La documentazione della libreria standard per questo modulo.
+https://docs.python.org/3.5/library/venv.html|venv|Ambienti virtuali
+https://www.python.org/dev/peps/pep-0453|PEP0453|Boostrap esplicito di pip nelle installazioni Python
+https://docs.python.org/3.5/installing/index.html#installing-index|Installare Moduli Python|Istruzioni per installare pacchetti extra da usare con Python (in inglese)
+https://pypi.python.org/pypi|Python Package Index|Sito che ospita moduli di estensione per i programmatori Python
+https://pypi.python.org/pypi/pip|pip|Strumento per installare pacchetti Python.
+</vedi_anche>
+</documento_tradotto>
