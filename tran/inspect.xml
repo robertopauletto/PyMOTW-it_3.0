@@ -540,7 +540,7 @@ Line: 23
 https://docs.python.org/3.5/library/inspect.html|inspect|La documentazione della libreria standard per questo modulo.
 riferimenti_moduli_modificati.html#itertools_porting|Note di portabilità per inspect|
 http://www.python.org/download/releases/2.3/mro/|Python 2.3 Method Resolution Order|Documentazione per l'ordine di risoluzione del metodo usato da Python 2.3 e superiore
-#|pyclbr (di prossima traduzione)|Il modulo pyclbr fornisce accesso ad alcune delle stesse informazioni di inspect esaminando il modulo senza importarlo.
+pyclbr.html|pyclbr|Il modulo pyclbr fornisce accesso ad alcune delle stesse informazioni di inspect esaminando il modulo senza importarlo.
 https://www.python.org/dev/peps/pep-0362|PEP 362|Funzione per Firma Oggetto
 </vedi_anche>
 </documento_tradotto>

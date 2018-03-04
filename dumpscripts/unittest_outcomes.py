@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# unittest_outcomes.py
 
 import unittest
+
 
 class OutcomesTest(unittest.TestCase):
 
@@ -9,10 +9,7 @@ class OutcomesTest(unittest.TestCase):
         return
 
     def testFail(self):
-        self.failIf(True)
+        self.assertFalse(True)
 
     def testError(self):
         raise RuntimeError('Errore nel test!')
-
-if __name__ == '__main__':
-    unittest.main()

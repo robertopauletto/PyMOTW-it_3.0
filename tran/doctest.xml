@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+doctest - Test Tramite Documentazione
+</titolo_1>
+<descrizione>
+Scrivere test automatici come parte della documentazione per un modulo.
+
+</descrizione>
+<testo_normale>
+<strong>doctest</strong> verifica codice sorgente eseguendo esempi incorporati nella documentazione, assicurandosi che essi producano il risultato atteso. Funziona analizzando il testo di aiuto per trovare esempi, eseguirli, quindi confrontandone il risultato con il valore atteso. Molti sviluppatori trovano <strong>doctest</strong> più facile da usare rispetto ad unittest, visto che, nella sua forma più semplice, non ci sono <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> da imparare prima di usarlo. Tuttavia, mano a mano che gli esempi diventano più complessi, la mancanza di caratteristiche di gestione può rendere la scrittura di test con <strong>doctest</strong> meno conveniente rispetto all'uso di unittest.
+</testo_normale>
+<testo_normale>
+Partiamo
+</testo_normale>
+<testo_normale>
+Il primo passo per impostare <strong>doctest</strong> è usare l'interprete interattivo per creare esempi, quindi copiarli nelle <a href='https://www.wikiwand.com/it/Docstring' target='_blank'>docstring</a> del modulo. Qui, <code>my_function()</code> contiene due esempi.
+</testo_normale>
+<py_code>
+# doctest_simple.py
+</py_code>
+<testo_normale>
+Per eseguire i test, si usa <code>doctest</code> come programma principale tramite l'opzione <code>-m</code>. In genere non viene prodotto alcun risultato mentre i test sono in esecuzione, quindi il prossimo esempio include l'opzione <code>-v</code> per rendere il risultato più verboso.
+</testo_normale>
+<py_output>
+# python3 -m doctest -v doctest_simple.py
+</py_output>
+<testo_normale>
+Gli esempi di chiamata in genere non possono autonomamente servire come spiegazione di una funzione, quindi <strong>doctest</strong> consente anche di inserire del testo prima o dopo le dichiarazioni. Cerca righe che iniziano con il prompt dell'interprete (>>>) per trovare l'inizio di un caso di test, che viene chiuso quanto viene trovata una riga vuota o l'inizio del prossimo prompt dell'interprete. Tutto il resto del testo viene ignorato, e può avere qualunque formato fintanto che non possa essere scambiato per un caso di test.
+</testo_normale>
+<py_code>
+# doctest_simple_with_docs.py
+</py_code>
+<testo_normale>
+Il testo circostante nelle docstring aggiornate lo rende più utile al lettore umano. Visto che viene ignorato da <strong>doctest</strong> il risultato è lo stesso.
+</testo_normale>
+<py_output>
+# python3 -m doctest -v doctest_simple_with_docs.py
+</py_output>
+<titolo_2>
+Gestire Risultati Imprevedibili
+</titolo_2>
+<testo_normale>
+Ci sono altri casi dove l'esatto risultato non può essere previsto, ma dovrebbe comunque essere verificabile. Ad esempio data ed ora localizzate ed identificativi di oggetti cambiano ad ogni esecuzione del test, la precisione predefinita usata per la rappresentazione dei valori a virgola mobile dipende dalle opzioni del compilatore, e la rappresentazione stringa di oggetti contenitore tipo dizionari potrebbero essere impossibili da determinare. Sebbene queste condizioni non possano essere controllate, si sono tecniche per gestirle.
+</testo_normale>
+<testo_normale>
+Ad esempio in CPython, gli identificativi di oggetti sono basati sull'indirizzo di memoria della struttura dati che contiene l'oggetto.
+</testo_normale>
+<py_code>
+# doctest_unpredictable.py
+</py_code>
+<testo_normale>
+Questi valori di identificativo cambiano ogni volta che un programma viene eseguito, visto che viene caricato in una diversa parte di memoria.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_unpredictable.py
+
+Trying:
+    unpredictable(MyClass())
+Expecting:
+    [<doctest_unpredictable.MyClass object at 0x10055a2d0>]
+**********************************************************************
+File "/home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts/doctest_unpredictable.py", line 9, in doctest_unpredictable.unpredictable
+Failed example:
+    unpredictable(MyClass())
+Expected:
+    [<doctest_unpredictable.MyClass object at 0x10055a2d0>]
+Got:
+    [<doctest_unpredictable.MyClass object at 0x7fe6d87fb630>]
+2 items had no tests:
+    doctest_unpredictable
+    doctest_unpredictable.MyClass
+**********************************************************************
+1 items had failures:
+   1 of   1 in doctest_unpredictable.unpredictable
+1 tests in 3 items.
+0 passed and 1 failed.
+***Test Failed*** 1 failures.
+</py_output>
+<testo_normale>
+Quando i test includono valori che si ritiene cambino in modo imprevedibile, laddove il valore effettivo non è importante per il risultato del test, si usi l'opzione <code>ELLIPSIS</code> per dire a <strong>doctest</strong> di ignorare porzioni di verifica del valore.
+</testo_normale>
+<py_code>
+# doctest_ellipsis.py
+</py_code>
+<testo_normale>
+Il commento '<code>#doctest: +ELLIPSIS</code>' dopo la chiamata ad <code>unpredictable()</code> dice a <strong>doctest</strong> di attivare l'opzione <code>ELLIPSIS</code> per quel test. La stringa '<code>...</code>' rimpiazza l'indirizzo di memoria nell'identificativo dell'oggetto, quindi quella perzione del valore atteso viene ignorata e il risultato effettivo corrisponde ed il test viene superato.
+</testo_normale>
+<py_output>
+# python3 -m doctest -v doctest_ellipsis.py
+</py_output>
+<testo_normale>
+Ci sono casi nei quali il valore non prevedibibile non può essere ignorato, poichè renderebbe il test incompleto od inaccurato. Ad esempio dei semplici test diventano velocemente più complicati quando si ha a che fare con tipi di dati la cui arppresentazione stringa è inconsistente. Il formato stringa di un dizionario, ad esempio, potrebbe cambiare in base all'ordine nel quale vengono aggiunte le chiavi.
+</testo_normale>
+<py_code>
+# doctest_hashed_values.py
+</py_code>
+<testo_normale>
+Visto la casualità della procedura di hashing e delle potenziali collisioni di chiavi, la lista interna delle chiavi potrebbe essere in ordine diverso nel dizionario ogni volta che viene eseguito lo script. Gli insiemi (set) usano lo stesso algoritmo di hash e mostrano lo stesso problema
+</testo_normale>
+<py_output>
+# python3 doctest_hashed_values.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/venv.html|venv|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-0405|PEP 405|Ambienti Virtuali Python
+https://pypi.python.org/pypi/virtualenv|virtualenv|Una versione di ambienti virtuali Python che funziona per Python 2 e 3.
+https://pypi.python.org/pypi/virtualenvwrapper|virtualenvwrapper|un insieme di wrapper di shell per virtualenv per facilitare la gestione di un gran numero di ambienti.
+http://www.sphinx-doc.org/en/stable/|Sphinx|Uno strumento per convertire file in input in formato reStructuredText in HTML, LaTex ed altri formati per l'utilizzo.
+</vedi_anche>
+</documento_tradotto>

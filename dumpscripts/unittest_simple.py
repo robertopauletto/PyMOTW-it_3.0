@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# unittest_simple.py
 
 import unittest
+
 
 class SimplisticTest(unittest.TestCase):
 
     def test(self):
-        self.failUnless(True)
-
-if __name__ == '__main__':
-    unittest.main()
-
-
-
+        a = 'a'
+        b = 'a'
+        self.assertEqual(a, b)

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+unittest - Struttura per Automatizzare Test
+</titolo_1>
+<descrizione>
+Struttura per Automatizzare Test
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>unittest</strong> è basato sulla struttura progettata XUnit progettata da Kent Beck ed Erich Gamma. Lo stesso modello viene ripetuto in molti altri linguaggi, compresi C, Perl, Java e Smalltalk. La struttura implementata da <strong>unittest</strong> supporta impianti, serie di test ed un esecutore di test che consente l'automatizzazione dei test.
+</testo_normale>
+<titolo_2>
+Struttura Base di Test
+</titolo_2>
+<testo_normale>
+I test, definiti da <strong>unittest</strong>, hanno due parti: codice per gestire le dipendenze (detti <em>fixtures</em>) ed il test stesso. Test individuali sono creati subclassando <code>TestCase</code> e sovrascrivendo od aggiungendo i metodi appropriati. Nell'esempio seguente, <code>SimplisticTest</code> ha un singolo metodo <code>test()</code>, che fallirà se il contenuto di  <code>a</code> è diverso dal contenuto di <code>b</code>.
+</testo_normale>
+<py_code>
+# unittest_simple.py
+</py_code>
+<titolo_2>
+Eseguire Test
+</titolo_2>
+<testo_normale>
+Il modo più semplice per eseguire test di <strong>unittest</strong> è utilizzare il rilevamento automatico tramite l'interfaccia da riga di comando.
+</testo_normale>
+<py_output>
+$ python3 -m unittest unittest_simple.py
+</py_output>
+<testo_normale>
+Questo risultato abbreviato comprende il tempo impiegato nell'esecuzione del test, con un indicatore di stato per ciascun test (Il valore "." nella prima riga del risultato significa che un test è stato passato). Per un risultato più dettagliato si includa l'opzione <code>-v</code>
+</testo_normale>
+<py_output>
+# python3 -m unittest -v unittest_simple.py
+</py_output>
+<titolo_2>
+Esiti del Test
+</titolo_2>
+<testo_normale>
+Ci sono tre possibili esiti, come da tabella di seguito:
+</testo_normale>
+<tabella_semplice>
+ESITO;DESCRIZIONE
+ok;Test superato
+FAIL;Test non superato, ed ha sollevato una eccezione <code>AssertionError</code>
+ERROR;Il test  ha sollevato una qualunque eccezione diversa da <code>AssertionError</code>
+</tabella_semplice>
+<testo_normale>
+Non ci sono modi espliciti per forzare il superamento di un test, quindi lo stato di un test dipende dalla presenza o meno di una eccezione.
+</testo_normale>
+<py_code>
+# unittest_outcomes.py
+</py_code>
+<testo_normale>
+Quando un test fallisce o genera un errore, il <em>traceback</em> viene incluso nel risultato.
+</testo_normale>
+<py_output>
+$ python3 -m unittest unittest_outcomes.py
+</py_output>
+<testo_normale>
+Nell'esempio precedente, <code>testFail()</code> fallisce ed il <em>traceback</em> mostra la riga di codice cha ha provocato il fallimento. Spetta alla persona che legge il risultato del test scoprire il significato del fallimento.
+</testo_normale>
+<py_code>
+# unittest_failwithmessage.py
+</py_code>
+<testo_normale>
+Per facilitare la comprensione della natura di un fallimento di test, i metodi <code>fail*()</code> ed <code>assert*()</code> accettano tutti un argomento <code>msg</code> che può essere usato per produrre un messaggio di errore più dettagliato.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_failwithmessage.py
+</py_output>
+<titolo_2>
+Asserire la Verità
+</titolo_2>
+<testo_normale>
+La maggior parte dei test asseriscono la veridicità di una qualche condizione. Ci sono due modi diversi per scrivere test che verifichino una condizione di vero, a seconda della prospettiva dell'autore del test e del risultato desiderato dal codice in fase di test.
+</testo_normale>
+<py_code>
+# unittest_truth.py
+</py_code>
+<testo_normale>
+Se il codice produce un valore che può essere valutato come vero, il metodo <code>assertTrue()</code> dovrebbe essere utilizzato. Se il codice produce un valore falso, avrebbe più senso utilizzare il metodo <code>assertFalse()</code>.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_truth.py
+</py_output>
+<titolo_2>
+Verificare Uguaglianza
+</titolo_2>
+<testo_normale>
+Come caso particolare, <strong>unittest</strong> include metodi per verificare l'uguaglianza di due valori.
+</testo_normale>
+<py_code>
+# unittest_equality.py
+</py_code>
+<testo_normale>
+Quando falliscono, questi metodi particolari producono messaggi di errore che includono il valore utilizzato per il confronto.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_equality.py
+</py_output>
+<titolo_2>
+Quasi Uguali?
+</titolo_2>
+<testo_normale>
+Oltre alla corrispondenza stretta, è anche possibile verificare una corrispondenza relativa per valori a virgola mobile usando <code>assertAlmostEqual()</code> e <code>assertAlmostNotEqual()</code>.
+</testo_normale>
+<py_code>
+# unittest_almostequal.py
+</py_code>
+<testo_normale>
+Gli argomenti sono i valori da confrontare ed il numero di cifre decimali da usare per il confronto.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_almostequal.py
+</py_output>
+<titolo_2>
+Contenitori
+</titolo_2>
+<testo_normale>
+Oltre ai generici <code>assertEqual()</code> e <code>assertNotEqual()</code>, ci sono metodi speciali per confrontare oggetti contenitore come <code>list</code>, <code>dict</code> e <code>set</code>.
+</testo_normale>
+<py_code>
+# unittest_equality_container.py
+</py_code>
+<testo_normale>
+Ciascun metodo rileva la non uguaglianza utilizzando un formato che ha senso rispetto al tipo in input, rendendo il fallimento del test più facile da comprendere e correggere
+</testo_normale>
+<py_output>
+$ python3 -m unittest unittest_equality_container.py
+</py_output>
+<testo_normale>
+Si usi <code>assertIn()</code> per verificare l'appartenenza ad un contenitore.
+</testo_normale>
+<py_code>
+# unittest_in.py
+</py_code>
+<testo_normale>
+Qualsiasi oggetto che supporta l'operatore <code>in</code> o le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> dei contenitori possono essere usati con <code>assertIn()</code>.
+</testo_normale>
+<py_output>
+$ python3 -m unittest unittest_in.py
+</py_output>
+<titolo_2>
+Verificare Eccezioni
+</titolo_2>
+<testo_normale>
+Come accennato in precedenza, se un test solleva una eccezione diversa da <code>AssertionError</code> viene considerato come un errore. Questo è molto utile per scoprire errori mentre si sta modificando codice che ha una copertura di test esistente. Ci sono circostanze nelle quali, comunque, il test dovrebbe verificare che un certo codice produce una eccezione. Ad esempio, se un valore non valido viene dato ad un attributo di un oggetto. In questi casi, <code>assertRaises()</code> rende il codice più pulito rispetto al catturare l'eccezione nel test. Si confrontino questi due test:
+</testo_normale>
+<py_code>
+# unittest_exception.py
+</py_code>
+<testo_normale>
+Il risultato è lo stesso per entrambi, ma il secondo test, che usa <code>assertRaises()</code> è più conciso.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_exception.py
+</py_output>
+<titolo_2>
+Impianti di Test
+</titolo_2>
+<testo_normale>
+Gli impianti (<em>fixtures</em>) sono risorse esterne necessarie ad un test. Ad esempio per verificare una classe potrebbe servire una istanza di un'altra classe che fornisce impostazioni di configurazione od altre risorse condivise. Altri impianti di test potrebbero includere connessioni di database e file temporanei (molte persone potrebbero argomentare che l'utilizzo di risorse esterne rende i test "non unitari", ma sono comunque test e sono comunque utili).
+</testo_normale>
+<testo_normale>
+<strong>unittest</strong> include agganci speciali per configurare e pulire un qualunque impianto serva ai test. Per attivare impianti per ciasun caso di test individuale, si sovrascriva <code>setUp()</code> su <code>TestCase</code>. Per pulirli si sovrascriva <code>tearDown()</code>. Per gestire un insieme di impianti per tutte le istanze di una classe di test si sovrascrivano i metodi della classe <code>setUpClass()</code> e <code>tearDownClass()</code>. Per gestire operazioni di impostazione particolarmente esose per tutti i test all'interno di un modulo, si usino le funzioni a livello di modulo <code>setUpModule()</code> e <code>tearDownModule()</code>.
+</testo_normale>
+<py_code>
+# unittest_fixtures.py
+</py_code>
+<testo_normale>
+Quando questo test di esempio viene eseguito, l'ordine di esecuzione dell'impianto e dei metodi di test è evidente.
+</testo_normale>
+<py_output>
+$ python3 -u -m unittest -v unittest_fixtures.py
+</py_output>
+<testo_normale>
+Il metodi <code>tearDown</code> potrebbero non essere chiamati se si verificano errori nel processo di pulizia degli impianti. Per assicurarsi che un impianto venga sempre rilasciato correttamente si usi <code>addCleanUp()</code>.
+</testo_normale>
+<py_code>
+# unittest_addcleanup.py
+</py_code>
+<testo_normale>
+Questo esempio di test crea una directory temporanea, quindi usa <a href='shutil.html' target='_blank'>shutil</a> per la pulizia una volta terminato il test.
+</testo_normale>
+<py_output>
+$ python3 -u -m unittest -v unittest_addcleanup.py
+</py_output>
+<titolo_2>
+Ripetere Test con Input Differenti
+</titolo_2>
+<testo_normale>
+E' spesso utile eseguire la stessa logica di test con input diversi. Invece che definire un metodo di test separato per ciascun piccolo caso, un sistema comunemente adottato è di utilizzare un metodo di test che contiene diverse chiamate di asserzioni. Il problema con questo approccio è che non appena fallisce una asserzione, il resto viene saltato. Una soluzione migliore è l'utilizzo di <code>subTest()</code> per creare un contesto per un test all'interno del metodo di test. Se il test fallisce, il fallimento viene riportato e le verifiche rimanenti continuano.
+</testo_normale>
+<py_code>
+# unittest_subtest.py
+</py_code>
+<testo_normale>
+In questo esempio, il metodo <code>test_combined()</code> non esegue mail le asserzioni per i modelli '<code>c</code>' e '<code>d</code>'. Il metodo <code>test_with_subtest()</code> lo fa e riporta correttamente i fallimenti rimanenti. Si noti che l'esecutore del test considera che ci siano solo due casi di test, nonostante siano riportati tre fallimenti.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_subtest.py
+</py_output>
+<titolo_2>
+Saltare Test
+</titolo_2>
+<testo_normale>
+E' spesso utile poter saltare un test se una qualche condizione esterna non viene corrisposta. Ad esempio, quando si scrivono test per verificare il comportamento di una libreria sotto una versione specifica di Python non c'è ragione di eseguire detti test sotto altre versioni di Pyhton. Le classi di test ed i metodi possono essere decorati con <code>skip()</code> per saltare sempre i test. I decoratori <code>skipIf()</code> e <code>skipUnless()</code> possono essere utilizzati per verificare una condizione prima di saltare i test corrispondenti.
+</testo_normale>
+<py_code>
+# unittest_skip.py
+</py_code>
+<testo_normale>
+Per condizioni complesse che è difficile esprimere in una singola condizione passata a <code>skip(f()</code> o <code>skipUnless()</code>, un caso di test potrebbe sollevare direttamente <code>skipTest</code> per far sì che il test venga saltato.
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_skip.py
+</py_output>
+<titolo_>
+Ignorare Test falliti
+</titolo_>
+<testo_normale>
+Invece che eliminare test che sono persistentemente rotti, si possono marcare con il decoratore <code>expectedFailure()</code> in modo che il fallimento venga ignorato.
+</testo_normale>
+<py_code>
+# unittest_expectedfailure.py
+</py_code>
+<testo_normale>
+Se un test che ci si attende fallisca viceversa venisse superato, quella condizione viene trattata come uno speciale tipo di fallimento e viene riportato come un <em>unexpected success</em> (successo inatteso - n.d.t.).
+</testo_normale>
+<py_output>
+$ python3 -m unittest -v unittest_expectedfailure.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/unittest.html|unittest|La documentazione della libreria standard per questo modulo.
+doctest.html|doctest|Un modo alternativo di eseguire test incorporati in docstring o file esterni di documentazione.
+https://nose.readthedocs.io/en/latest/|nose|Un esecutore di test di terze parti con caratteristiche di scoperta sofisticate.
+http://doc.pytest.org/en/latest/|pytest|Un popolare esecutore di test di terze parti con supporto per l'esecuzione distribuita ed un sistema di gestione di impianti alternativo.
+http://testrepository.readthedocs.io/en/latest/|testrepository|Un esecutore di test di terze parti usato dal progetto OpenStack, con supporto per l'esecuzione parallela e la tracciatura dei fallimenti.
+</vedi_anche>
+</documento_tradotto>

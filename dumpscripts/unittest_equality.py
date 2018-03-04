@@ -1,15 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# unittest_equality.py
 
 import unittest
 
+
 class EqualityTest(unittest.TestCase):
 
-    def testEqual(self):
-        self.failUnlessEqual(1, 3-2)
+    def testExpectEqual(self):
+        self.assertEqual(1, 3 - 2)
 
-    def testNotEqual(self):
-        self.failIfEqual(2, 3-2)
+    def testExpectEqualFails(self):
+        self.assertEqual(2, 3 - 2)
 
-if __name__ == '__main__':
-    unittest.main()
+    def testExpectNotEqual(self):
+        self.assertNotEqual(2, 3 - 2)
+
+    def testExpectNotEqualFails(self):
+        self.assertNotEqual(1, 3 - 2)

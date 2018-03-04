@@ -1,21 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# unittest_truth.py
 
 import unittest
 
-class TruthTest(unittest.TestCase):
 
-    def testFailUnless(self):
-        self.failUnless(True)
+class TruthTest(unittest.TestCase):
 
     def testAssertTrue(self):
         self.assertTrue(True)
 
-    def testFailIf(self):
-        self.failIf(False)
-
     def testAssertFalse(self):
         self.assertFalse(False)
-
-if __name__ == '__main__':
-    unittest.main()

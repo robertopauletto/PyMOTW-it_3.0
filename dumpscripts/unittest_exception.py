@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# unittest_exception.py
 
 import unittest
 
+
 def raises_error(*args, **kwds):
-    print args, kwds
     raise ValueError('Valore non valido: ' + str(args) + str(kwds))
+
 
 class ExceptionTest(unittest.TestCase):
 
@@ -15,10 +15,12 @@ class ExceptionTest(unittest.TestCase):
         except ValueError:
             pass
         else:
-            self.fail('Non si vede ValueError')
+            self.fail('Non rilevato ValueError')
 
-    def testFailUnlessRaises(self):
-        self.failUnlessRaises(ValueError, raises_error, 'a', b='c')
-
-if __name__ == '__main__':
-    unittest.main()
+    def testAssertRaises(self):
+        self.assertRaises(
+            ValueError,
+            raises_error,
+            'a',
+            b='c',
+        )
