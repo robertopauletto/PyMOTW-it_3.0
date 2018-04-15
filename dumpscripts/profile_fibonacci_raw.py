@@ -1,24 +1,25 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# profile_fibonacci_raw.py
 
 import profile
 
+
 def fib(n):
-    # from http://en.literateprograms.org/Fibonacci_numbers_(Python)
+    # da literateprograms.org
+    # http://bit.ly/hlOQ5m
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
-        return fib(n-1) + fib(n-2)
+        return fib(n - 1) + fib(n - 2)
+
 
 def fib_seq(n):
-    seq = [ ]
+    seq = []
     if n > 0:
-        seq.extend(fib_seq(n-1))
+        seq.extend(fib_seq(n - 1))
     seq.append(fib(n))
     return seq
 
-print 'RAW'
-print '=' * 80
-profile.run('print fib_seq(20); print')
+
+profile.run('print(fib_seq(20)); print()')

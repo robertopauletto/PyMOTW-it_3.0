@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_ellipsis.py
 
-class MyClass(object):
+class MyClass:
     pass
+
 
 def unpredictable(obj):
     """Ritorna una nuova lista che contiene obj.

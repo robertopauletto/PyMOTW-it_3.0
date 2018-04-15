@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shlex_source.py
 
 import shlex
 
-text = """Questo testo dice di includere source quotes.txt prima di continuare."""
-print 'ORIGINALE:', repr(text)
-print
+text = "Questo testo dice di passare a source apici.txt prima di continuare."
+print('ORIGINALE: {!r}'.format(text))
+print()
 
 lexer = shlex.shlex(text)
 lexer.wordchars += '.'
 lexer.source = 'source'
 
-print 'TOKEN:'
+print('TOKEN:')
 for token in lexer:
-    print repr(token)
+    print('{!r}'.format(token))

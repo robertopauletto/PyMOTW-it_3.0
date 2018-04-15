@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+profile e pstats - Analisi delle Prestazioni
+</titolo_1>
+<descrizione>
+Analisi delle prestazioni dei programmi Python
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>profile</strong> fornisce le <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per collezionare ed analizzare dati statistici sul modo nel quale il sorgente Pyhton utilizza le risorse del processore.
+</testo_normale>
+<note>
+Il risultato dell'esecuzione della profilazione può variare a seconda dell'equipaggiamento della macchina nella quale vengono eseguiti gli esempi.
+</note>
+<titolo_2>
+Eseguire il Profilatore
+</titolo_2>
+<testo_normale>
+Il punto più basico da cui partire nel modulo <strong>profile</strong> è <code>run()</code>. Riceve una singola istruzione come argomento, e crea un report con il tempo trascorso per l'esecuzione delle varie righe di codice mentre viene eseguita l'istruzione.
+</testo_normale>
+<py_code>
+# profile_fibonacci_raw.py
+</py_code>
+<testo_normale>
+Questa funzione ricorsiva per un calcolatore di sequenze di Fibonacci è particolarmente utile per la dimostrazione di <strong>profile</strong> visto che le prestazioni possono essere migliorate in modo significativo. Il formato standard del report mostra un sommario seguito dai dettagli per ciascuna funzione eseguita.
+</testo_normale>
+<py_output>
+$ python3 profile_fibonacci_raw.py
+</py_output>
+<testo_normale>
+La versione grezza richiede 57359 chiamate di funzione separate ed impiega per l'esecuzione più o meno 0.100 secondi. Il fatto che si siano solo 69 chiamate <em>primitive</em> dice che la vasta maggioranza delle 57 mila e passa chiamate sono ricorsive. Il dettaglio sul dove il tempo è stato speso è per funzione nel listato che mostra il numero di chiamate, il tempo totale trascorso nella funzione, il tempo per chiamata (tottime/ncalls), il tempo cumulativo trascorso nella funzione ed il rapporto tra tempo cumulativo e chiamate primitive.
+</testo_normale>
+<testo_normale>
+Meno che sorprendentemente, la maggior parte del tempo viene speso chiamando <code>fib()</code> ripetutamente. L'aggiunta di un decoratore di cache riduce il numero di chiamate ricorsive, ed ha un grosso impatto sulle prestazioni di questa funzione.
+</testo_normale>
+<py_code>
+# profile_fibonacci_memoized.py
+</py_code>
+<testo_normale>
+Trattenendo in memoria il valore di Fibonacci ad ogni livello, la maggior parte della ricorsione viene evitata e l'esecuzione si riduce ad 89 chiamate che richiedono solo 0.001 secondi. Il conteggio di <code>ncalls</code> per <code>fib()</code> mostra che non viene <em>mai</em> chiamata ricorsivamente.
+</testo_normale>
+<py_output>
+$ python3 profile_fibonacci_memoized.py
+</py_output>
+<titolo_2>
+Esecuzione in un Contesto
+</titolo_2>
+<testo_normale>
+Talvolta, invece che costruire una espressione complessa per <code>run()</code>, è più facile costruire una espressione semplice e passarle parametri tramite un contesto, usando <code>runctx()</code>.
+</testo_normale>
+<py_code>
+# profile_runctx.py
+</py_code>
+<testo_normale>
+In questo esempio, il valore di <code>n</code> è passato tramite la variabile locale di contesto invece che essere direttamente incorporata nell'istruzione passata a <code>runctx()</code>.
+</testo_normale>
+<py_output>
+$ python3 profile_runctx.py
+</py_output>
+<titolo_2>
+pstats: Salvare e Lavorare con le Statistiche
+</titolo_2>
+<testo_normale>
+Il report standard creato dalle funzioni in <strong>profile</strong> non è molto flessibile. Possono comunque essere prodotti report personalizzati salvado la profilatura grezza dei dati in uscita da <code>run()</code> e <code>runctx()</code>, quindi elaborandoli separatamente con la classe <code>pstats.Stats</code>.
+</testo_normale>
+<testo_normale>
+Questo esempio esegue parecchie iterazioni per lo stesso test e combina i risultati.
+</testo_normale>
+<py_code>
+# profile_stats.py
+</py_code>
+<testo_normale>
+Il report in uscita è in ordine discendente per tempo cumulativo trascorso nella funzione  ed i nomi di directory sono rimossi dai nomi dei file stampati per risparmiare spazio orizzontale nella pagina.
+</testo_normale>
+<py_output>
+$ python3 profile_stats.py
+</py_output>
+<titolo_2>
+Limitare il Contenuto del Report
+</titolo_2>
+<testo_normale>
+Il risultato può essere circoscritto per funzione. Questa versione mostra solo le informazioni circa le prestazioni per <code>fib()</code> e <code>fib_seq()</code> usando una espressione regolare per trovare corrispondenza con i valori desiderati per <code>filename:lineno(function)</code>.
+</testo_normale>
+<py_code>
+# profile_stats_restricted.py
+</py_code>
+<testo_normale>
+L'espressione regolare include una parentesi sinistra letterale (<code>(</code>) per trovare corrispondenza con la porzione del nome di funzione del valore.
+</testo_normale>
+<py_output>
+$ python3 profile_stats_restricted.py
+</py_output>
+<titolo_2>
+Grafi di Chiamante e Chiamato
+</titolo_2>
+<testo_normale>
+<code>Stats</code> include anche metodi per stampare i chiamanti e le chiamate di funzioni.
+</testo_normale>
+<py_code>
+# profile_stats_callers.py
+</py_code>
+<testo_normale>
+Gli argomenti per <code>print_callers()</code> e <code>print_callees()</code> funzionano allo stesso modo degli argomenti di restrizione per <code>print_stats()</code>. Il risultato mostra il chiamante, il chiamato, il numero di chiamate ed il tempo cumulativo.
+</testo_normale>
+<py_output>
+$ python3 profile_stats_callers.py
+</py_output>
+<testo_normale>
+
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/profile.html|profile|La documentazione della libreria standard per questo modulo.
+functools.html#lru-cache|functools.lru-cache()|Il decoratore cache usato per migliorare le prestazioni in questi esempi
+https://docs.python.org/3.5/library/profile.html#the-stats-class|The Stats Class|La documentazione della libreria standard per <code>pstats.Stats</code>
+http://code.google.com/p/jrfonseca/wiki/Gprof2Dot|Gprof2Dot|Strumento di visualizzazione dei dati forniti da <strong>profile</strong>
+<!-- http://avinashv.net/2008/04/python-decorators-syntactic-sugar/|Python Decorators: Syntactic Sugar|Un altro generatore di sequenze di Fibonacci in Python con memoizzazione. -->
+https://github.com/dhellmann/smiley|Smiley|Tracciatore per Applicazioni Python
+</vedi_anche>
+</documento_tradotto>

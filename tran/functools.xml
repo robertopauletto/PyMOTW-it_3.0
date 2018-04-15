@@ -617,7 +617,7 @@ MyObject(5)
 Caching
 </titolo_2>
 <testo_normale>
-Il decoratore <code>lru_cache()</code> impacchetta una funzione in una <a href="https://it.wikipedia.org/wiki/Cache">cache</a> con algoritmo <em>least-recently-used</em> (vale a dire che vengono scaricati per primi dalla cache gli elementi meno recenti - n.d.t.). Gli argomenti della funzione sono utilizzati per costruire una chiave <a href="https://it.wikipedia.org/wiki/Hash#In_informatica">hash</a>, che viene poi abbinata al risultato. Chiamate successive effettuate con gli stessi argomenti recupereranno il valore dalla <a href="https://it.wikipedia.org/wiki/Cache">cache</a> invece di chiamare la funzione. Il decoratore aggiunge anche metodi alla funzione per esaminare la stato della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> (<code>cache_info()</code>) e per svuotarla (<code>cache_clear()</code>).
+<a name='lru-cache'></a>Il decoratore <code>lru_cache()</code> impacchetta una funzione in una <a href="https://it.wikipedia.org/wiki/Cache">cache</a> con algoritmo <em>least-recently-used</em> (vale a dire che vengono scaricati per primi dalla cache gli elementi meno recenti - n.d.t.). Gli argomenti della funzione sono utilizzati per costruire una chiave <a href="https://it.wikipedia.org/wiki/Hash#In_informatica">hash</a>, che viene poi abbinata al risultato. Chiamate successive effettuate con gli stessi argomenti recupereranno il valore dalla <a href="https://it.wikipedia.org/wiki/Cache">cache</a> invece di chiamare la funzione. Il decoratore aggiunge anche metodi alla funzione per esaminare la stato della <a href="https://it.wikipedia.org/wiki/Cache">cache</a> (<code>cache_info()</code>) e per svuotarla (<code>cache_clear()</code>).
 </testo_normale>
 <py_code>
 # functools_lru_cache.py

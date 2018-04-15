@@ -1,32 +1,33 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shlex_posix.py
 
 import shlex
 
-for s in [ 'Da"Non"Separare',
-           '"Da"Separare',
-           'Escape \e Carattere non tra virgolette',
-           'Escape "\e" Carattere tra virgolette',
-           "Escape '\e' Carattere tra apici singoli",
-           r"Escape '\'' \"\'\" singolo apice",
-           r'Escape "\"" \'\"\' virgolette',
-           "\"'Elimina uno strato extra di virgolette'\"",
-           ]:
-    print 'ORIGINALE :', repr(s)
-    print 'non-POSIX:',
+examples = [
+    'Da"Non"Separare',
+    '"Da"Separare',
+    'Ignorare il Carattere \e se non tra apici',
+    'Ignorare il Carattere "\e" se tra doppi apici',
+    "Ignorare il Carattere '\e' se tra singoli apici",
+    r"Ignorare '\'' \"\'\" tra singoli apici",
+    r'Ignorare "\"" \'\"\' tra doppi apici',
+    "\"'Togliere uno strato di apici supplementare'\"",
+]
+
+for s in examples:
+    print('ORIGINALE : {!r}'.format(s))
+    print('non-POSIX : ', end='')
 
     non_posix_lexer = shlex.shlex(s, posix=False)
     try:
-        print repr(list(non_posix_lexer))
-    except ValueError, err:
-        print 'errore(%s)' % err
+        print('{!r}'.format(list(non_posix_lexer)))
+    except ValueError as err:
+        print('errore({})'.format(err))
 
-    
-    print 'POSIX    :',
+    print('POSIX     : ', end='')
     posix_lexer = shlex.shlex(s, posix=True)
     try:
-        print repr(list(posix_lexer))
-    except ValueError, err:
-        print 'errore(%s)' % err
+        print('{!r}'.format(list(posix_lexer)))
+    except ValueError as err:
+        print('error({})'.format(err))
 
-    print
+    print()

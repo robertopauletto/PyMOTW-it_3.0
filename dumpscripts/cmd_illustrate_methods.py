@@ -1,53 +1,62 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# cmd_illustrate_methods.py
+
+# Imposta gnureadline come readline se installato.
+try:
+    import gnureadline
+    import sys
+    sys.modules['readline'] = gnureadline
+except ImportError:
+    pass
 
 import cmd
 
+
 class Illustrate(cmd.Cmd):
-    "Illustra l'uso dei metodi base della classe."
-    
+    "Illustra l'uso del metodo della classe base."
+
     def cmdloop(self, intro=None):
-        print 'cmdloop(%s)' % intro
+        print('cmdloop({})'.format(intro))
         return cmd.Cmd.cmdloop(self, intro)
-    
+
     def preloop(self):
-        print 'preloop()'
-    
+        print('preloop()')
+
     def postloop(self):
-        print 'postloop()'
-        
+        print('postloop()')
+
     def parseline(self, line):
-        print 'parseline(%s) =>' % line,
+        print('parseline({!r}) =>'.format(line), end='')
         ret = cmd.Cmd.parseline(self, line)
-        print ret
+        print(ret)
         return ret
-    
+
     def onecmd(self, s):
-        print 'onecmd(%s)' % s
+        print('onecmd({})'.format(s))
         return cmd.Cmd.onecmd(self, s)
 
     def emptyline(self):
-        print 'emptyline()'
+        print('emptyline()')
         return cmd.Cmd.emptyline(self)
-    
+
     def default(self, line):
-        print 'default(%s)' % line
+        print('default({})'.format(line))
         return cmd.Cmd.default(self, line)
-    
+
     def precmd(self, line):
-        print 'precmd(%s)' % line
+        print('precmd({})'.format(line))
         return cmd.Cmd.precmd(self, line)
-    
+
     def postcmd(self, stop, line):
-        print 'postcmd(%s, %s)' % (stop, line)
+        print('postcmd({}, {})'.format(stop, line))
         return cmd.Cmd.postcmd(self, stop, line)
-    
+
     def do_greet(self, line):
-        print 'Salve,', line
+        print('Salve,', line)
 
     def do_EOF(self, line):
-        "Uscita"
+        "Exit"
         return True
+
 
 if __name__ == '__main__':
     Illustrate().cmdloop('Illustrazione dei metodi di cmd.Cmd')

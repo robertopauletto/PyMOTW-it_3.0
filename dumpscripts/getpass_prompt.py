@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getpass_prompt.py
 
 import getpass
 
-p = getpass.getpass(prompt="Qual'è il tuo colore preferito? ")
+p = getpass.getpass(prompt='Quale è il colore preferito? ')
 if p.lower() == 'blu':
-    print 'Corretto, puoi proseguire.'
+    print('Bene. Puoi andare.')
 else:
-    print 'Auuuuugh!'
+    print('Auuuuugh!')

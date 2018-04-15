@@ -1,8 +1,11 @@
+# pdb_no_jump.py
+
 #!/usr/bin/env python
 # encoding: utf-8
 #
 # Copyright (c) 2010 Doug Hellmann.  All rights reserved.
 #
+
 
 def f(n):
     if n < 0:
@@ -18,15 +21,15 @@ def f(n):
 
 if __name__ == '__main__':
     try:
-        print f(5)
+        print(f(5))
     finally:
-        print 'Always printed'
+        print('Sempre stampato')
 
     try:
-        print f(-5)
+        print(f(-5))
     except:
-        print 'There was an error'
+        print('Nessun errore')
     else:
-        print 'There was no error'
+        print('Nessun errore')
 
-    print 'Last statement'
+    print('Ultima istruzione')

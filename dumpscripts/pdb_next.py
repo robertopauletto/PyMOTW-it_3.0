@@ -1,3 +1,5 @@
+# pdb_next.py
+
 #!/usr/bin/env python
 # encoding: utf-8
 #
@@ -13,7 +15,7 @@ def calc(i, n):
 def f(n):
     for i in range(n):
         j = calc(i, n)
-        print i, j
+        print(i, j)
     return
 
 if __name__ == '__main__':

@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# trace_run.py
 
 import trace
-from trace_example.recurse import recurse
-
+from esempio_trace.recurse import recurse
 
 tracer = trace.Trace(count=False, trace=True)
 tracer.run('recurse(2)')

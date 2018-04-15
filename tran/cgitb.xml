@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+cgitb - Report Dettagliati di Traceback
+</titolo_1>
+<descrizione>
+Fornisce informazioni di <em>traceback</em> più dettagliate rispetto al modulo <a href='traceback.html'>traceback</a>.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>cgitb</strong> è un prezioso strumento di <a href='https://www.wikiwand.com/it/Debugging' target='_blank'>debugging</a> nella libreria standard. Originariamente progettato per mostrare errori ed informazioni di debug nelle applicazioni web, è stato recentemente aggiornato per includere anche risultati in testo semplice, ma sfortunatamente non è mai stato rinominato, il che lo ha reso poco appariscente e non utilizzato così spesso come meriterebbe.
+</testo_normale>
+<titolo_2>
+Scaricamenti del Traceback Standard
+</titolo_2>
+<testo_normale>
+Il comportamento predefinito di Python nella gestione delle eccezioni è stampare un <em>traceback</em> nel canale di errore standard in uscita con lo stack di chiamata che conduce fino alla posizione dell'errore. Questo basico risultato spesso contiene sufficienti informazioni per capire la causa dell'eccezione e consentirne una risoluzione.
+</testo_normale>
+<py_code>
+# cgitb_basic_traceback.py
+</py_code>
+<testo_normale>
+Questo programma di esempio ha un errore in <code>func2()</code>.
+</testo_normale>
+<py_output>
+$ python3 cgitb_basic_traceback.py
+</py_output>
+<titolo_2>
+Abilitare Traceback Dettagliati
+</titolo_2>
+<testo_normale>
+Sebbene il <em>traceback</em> basico includa sufficienti informazioni per identificare l'errore, abilitando <strong>cgitb</strong> si ottengono maggiori dettagli. Il modulo sostituisce <code>sys.excepthook</code> con una funzione che fornisce <em>traceback</em> arricchiti.
+</testo_normale>
+<py_code>
+# cgitb_local_vars.py
+</py_code>
+<testo_normale>
+Il rapporto dell'errore da questo esempio è molto più estensivo dell'originale. Ciascuna struttura dello stack viene elencata, assieme a:
+</testo_normale>
+<lista>
+il percorso completo del file sorgente, in luogo del nome del file
+i valori degli argomenti per ciascuna funzione nello stack
+qualche riga di contesto del sorgente attorno alla riga nel percorso dell'errore
+i valori delle variabili nell'espressione che ha causato l'errore
+</lista>
+<testo_normale>
+Avere l'accesso alle variabili coinvolte nello stack di erorre può aiutare a trovare un errore logico che si manifesta da qualche parte più in alto rispetto alla riga nella quale l'effettiva eccezione è stata generata.
+</testo_normale>
+<py_output>
+$ python3 cgitb_local_vars.py
+</py_output>
+<testo_normale>
+Nel caso di questo codice con un errore <code>ZeroDivisionError</code> è evidente che il problema è stato introdotto nel calcolo del valore di <code>c</code> in <code>func1()</code> e non dove il valore è stato usato in <code>func2()</code>.
+</testo_normale>
+<testo_normale>
+Alla fine del risultato viene anche incluso il dettaglio completo dell'oggetto di eccezione (nel caso abbia altri attributi oltre a <code>message</code> che potrebbero essere utili per il <a href='urlhttps://www.wikiwand.com/it/Debugging' target='_blank'>debugging</a>  e la forma originale dello scaricamento del <em>traceback</em>).
+</testo_normale>
+<titolo_2>
+Variabili Locali nel Traaceback
+</titolo_2>
+<testo_normale>
+Il codice in <strong>cgitb</strong> che esamina le variabili usate nella struttura dello stack che conduce all'errore è sufficientemente intelligente per valutare gli attributi dell'oggetto e per visualizzarli.
+</testo_normale>
+<py_code>
+# cgitb_with_classes.py
+</py_code>
+<testo_normale>
+Se una funzione od un metodo include molti commenti in linea, caratteri di spaziatura verticali od orizzontali od altro codice che li rende molto lunghi, avere il contesto predefinito di cinque righe non fornirebbe indicazioni sufficienti. Quando il corpo di una funzione viene spinto al di fuori della finestra di codice mostrato nel risultato, non c'è sufficiente contesto per comprendere la locazione dell'errore. Usando un valore di contesto più grande con <strong>cgitb</strong> risolve il problema.  Passando un intero come argomento di <code>context</code> per <code>enable()</code>  si controlla il numero di righe di codice visualizzate per ciascuna riga di <em>traceback</em>
+</testo_normale>
+<testo_normale>
+Questo risultato mostra che <code>self.a</code> e <code>self.b</code> sono coinvolte in questo codice soggetto ad errori.
+</testo_normale>
+<py_output>
+$ python3 cgitb_with_classes.py
+</py_output>
+<titolo_2>
+Proprietà dell'Eccezione
+</titolo_2>
+<testo_normale>
+Oltre alle variabili locali da ciascuna struttura di stack, <strong>cgitb</strong> mostra tutte le proprietà dell'oggetto di eccezione. Proprietà extra su tipi di eccezione personalizzata sono stampate come parte del rapporto di errore.
+</testo_normale>
+<py_code>
+# cgitb_exception_properties.py
+</py_code>
+<testo_normale>
+In questo esempio, la proprietà <code>bad_value</code> viene inclusa assieme ai valori standard di <code>message</code> ed <code>args</code>.
+</testo_normale>
+<py_output>
+$ python3 cgitb_exception_properties.py
+</py_output>
+<titolo_2>
+Risultato in HTML
+</titolo_2>
+<testo_normale>
+Questo esposto non sarebbe esaustivo senza menzionare il formato di rapporto originale HTML di <strong>cgitb</strong>, visto che fu in origine sviluppato per gestire eccezioni in applicazioni web. Per produrre un rapporto in formato HTML si escluda l'argomento <code>format</code> (oppure si specifichi "<code>html</code>"). Le applicazioni web di oggi sono costruite usando una struttura che include un servizio di rapporto di errori, quindi la forma HTML è in gran parte obsoleta.
+</testo_normale>
+<titolo_2>
+Registrare i Traceback
+</titolo_2>
+<testo_normale>
+In molte situazioni, la stampa dei dettagli del <em>traceback</em> al canale di errore standard è la soluzione migliore. Tuttavia, in un sistema in produzione registrare gli errori è anche meglio. La funzione <code>enable()</code> include un argomento opzionale, <code>logdir</code>, che consente la registrazione dell'errore. Quando viene passato un nome di directory, ciascuna eccezione viene registrata nel suo proprio file nella directory indicata.
+</testo_normale>
+<py_code>
+# cgitb_log_exception.py
+</py_code>
+<testo_normale>
+Sebbene sia disabilitata la visualizzazione dell'errore, viene stampato un messaggio che descrive dove trovare la registrazione dell'errore.
+</testo_normale>
+<py_output>
+$ python3 cgitb_log_exception.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/cgitb.html|cgitb|La documentazione della libreria standard per questo modulo.
+traceback.html|traceback|Il modulo della libreria standard per lavorare con i <em>traceback</em>
+inspect.html|inspect|Il modulo inspect include altre funzioni per sondare stutture nello stack
+https://lists.gt.net/python/dev/802885|improved traceback module|Discussione nella <em>mailing list</em> dello sviluppo di Python circa i miglioramenti al modulo <strong>traceback</strong> ed altre migliorie che gli sviluppatori utilizzano localmente.
+</vedi_anche>
+</documento_tradotto>

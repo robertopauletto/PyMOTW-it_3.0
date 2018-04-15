@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>moduli e pacchetti</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+importlib - Il Meccanismo di Importazione di Python
+</titolo_1>
+<descrizione>
+Espone l'implementazione dell'istruzione import di Python
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>importlib</strong> include funzioni che implementano il meccanismo di importazione di Python per il caricamento di codice in moduli e pacchetti. Costituisce un punto di accesso per importare dinamicamente i moduli, utile in taluni casi dove il nome del modulo che deve essere importato non è noto quando il codice viene scritto (ad esempio per <me>plugin</me> od estensioni ad una applicazione).
+</testo_normale>
+<titolo_2>
+Pacchetto di esempio
+</titolo_2>
+<testo_normale>
+Gli esempi di questo articolo usano un pacchetto chiamato <code>esempio</code> con <code>__init__.py</code>.
+</testo_normale>
+<py_code>
+# esempio/__init__.py
+</py_code>
+<testo_normale>
+Il pacchetto contiene anche <code>submodule.py</code>.
+</testo_normale>
+<py_code>
+# esempio/submodule.py
+</py_code>
+<testo_normale>
+Prestare attenzione al testo stampato dalle chiamate a <code>print()</code> quando il pacchetto od il modulo viene importato.
+</testo_normale>
+<titolo_2>
+Tipi di Modulo
+</titolo_2>
+<testo_normale>
+Python supporta parecchi stili di moduli, ognuno dei quali richiede il suo proprio modo di gestione quando viene aperto ed aggiunto allo spazio dei nomi, ed il supporto per i formati varia a seconda della piattaforma. Ad esempio, sotto Microsoft Windows, le librerie condivise sono caricate da file con estensioni <code>.dll</code> o <code>.pyd</code>, invece che <code>.so</code>. Anche le estensioni per i moduli C potrebbero cambiare quando si usa una compilazione per debug dell'interprete invece che una normale compilazione di rilascio, visto che possono anche essere compilati con informazioni di debug incluse. Se una estensione di libreria C od altro modulo non viene caricato nel modo atteso, si utilizzino le costanti definite in <code>importlib.machinery</code> per trovare i tipi supportati dalla piattaforma corrente, ed i parametri per caricarle.
+</testo_normale>
+<py_code>
+# importlib_suffixes.py
+</py_code>
+<testo_normale>
+Il valore ritornato è una sequenza di tuple che contengono l'estensione del file, la modalità usata per aprire il file contenente il modulo ed un tipo codice da una costante definita nel modulo. Questa tabella è incompleta visto che alcuni dei tipi importabili di modulo o pacchetto non corrispondono a singoli file.
+</testo_normale>
+<py_output>
+$ python3 importlib_suffixes.py
+</py_output>
+<titolo_2>
+Importare Moduli
+</titolo_2>
+<testo_normale>
+L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di alto livello in <strong>importlib</strong> rende semplice importare un modulo dato un nome assoluto o relativo. Quando si usa un nome di modulo relativo, si specifichi il pacchetto che contiene il modulo come argomento separato.
+</testo_normale>
+<py_code>
+# importlib_import_module.py
+</py_code>
+<testo_normale>
+Il valore ritornato da <code>import_module()</code> è l'oggetto del modulo che era stato creato dall'importazione.
+</testo_normale>
+<py_output>
+$ python3 importlib_import_module.py
+
+Importazione pacchetto di esempio
+Importazione di submodule
+<module 'esempio.submodule' from '.../esempio/submodule.py'>
+<module 'esempio.submodule' from '.../esempio/submodule.py'>
+True
+</py_output>
+<testo_normale>
+Se il modulo non può essere importato, <code>import_module()</code> solleva una eccezione <code>ImportError</code>.
+</testo_normale>
+<py_code>
+# importlib_import_module_error.py
+</py_code>
+<testo_normale>
+Il messaggio di errore include il nome del modulo mancante.
+</testo_normale>
+<py_output>
+$ python3 importlib_import_module_error.py
+</py_output>
+<testo_normale>
+Per ricaricare un modulo esistente, si usi <code>reload()</code>.
+</testo_normale>
+<py_code>
+# importlib_reload.py
+</py_code>
+<testo_normale>
+Il valore di ritorno da <code>reload()</code> è il nuovo modulo. A seconda del tipo di caricatore usato, potrebbe essere la stessa istanza del modulo.
+</testo_normale>
+<py_output>
+$ python3 importlib_reload.py
+
+Importazione pacchetto di esempio
+Importazione di submodule
+<module 'esempio.submodule' from '.../esempio/submodule.py'>
+Importazione di submodule
+True
+</py_output>
+<titolo_2>
+Caricatori
+</titolo_2>
+<testo_normale>
+L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di alto livello in <strong>importlib</strong> fornisce l'accesso agli oggetti di caricamento, Per ottenere un caricatore per un modulo si usi <code>find_loader()</code>. Poi per recuperare il modulo si usi il metodo <code>load_module()</code>.
+</testo_normale>
+<py_code>
+# importlib_find_loader.py
+</py_code>
+<testo_normale>
+Questo esempio carica il livello superiore del pacchetto <code>esempio</code>.
+</testo_normale>
+<py_output>
+$ python3 importlib_find_loader.py
+
+Caricatore: <_frozen_importlib_external.SourceFileLoader object at 0x7fe2aac50fd0>
+Importazione pacchetto di esempio
+Modulo: <module 'esempio' from '.../esempio/__init__.py'>
+</py_output>
+<testo_normale>
+I sottomoduli all'interno dei pacchetti devono essere caricati separatamente usatndo il percorso dal pacchetto. Nell'esempio seguente, il pacchetto prima viene caricato, quindi il suo percorso viene passato a <code>find_loader()</code> per creare un caricatore in grado di caricare il sottomodulo.
+</testo_normale>
+<py_code>
+# importlib_submodule.py
+</py_code>
+<testo_normale>
+Diversamente da <code>import_module()</code>, il nome del sottomodulo dovrebbe essere passato senza alcun prefisso di percorso relativo, visto che il caricatore sarà già limitato dal percorso del pacchetto.
+</testo_normale>
+<py_output>
+$ python3 importlib_submodule.py
+
+Importazione pacchetto di esempio
+Caricatore: <_frozen_importlib_external.SourceFileLoader object at 0x7f893b8de1d0>
+Importazione di submodule
+Modulo: <module 'submodule' from '.../esempio/submodule.py'>
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/importlib.html|importlib|La documentazione della libreria standard per questo modulo.
+#|Moduli e importazioni|Agganci per importazione, il percorso di ricerca del modulo ed altri meccanismi correlati nel modulo sys (in corso di traduzione)
+inspect.html|inspect|Carica programmaticamente informazioni da un modulo.
+https://www.python.org/dev/peps/pep-0302|PEP 302|Nuovi agganci per l'importazione
+https://www.python.org/dev/peps/pep-0302|PEP 369|Agganci dopo l'importazione
+https://www.python.org/dev/peps/pep-0302|PEP 488|Eliminazione dei file PYO
+</vedi_anche>
+</documento_tradotto>

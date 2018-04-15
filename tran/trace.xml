@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+trace - Seguire il Flusso del Programma
+</titolo_1>
+<descrizione>
+Controlla quali istruzioni e funzioni sono eseguite quando il programma è in esecuzione per produrre informazioni di copertura e grafi di chiamata.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>trace</strong> è utile per comprendere il modo nel quale un programma viene eseguito. Osserva le istruzioni eseguite, produce report di copertura ed aiuta ad investigare le relazioni tra funzioni che si chiamano le une con le altre.
+</testo_normale>
+<titolo_2>
+Programma di esempio
+</titolo_2>
+<testo_normale>
+Questo programma verrà usato negli esempi che seguono. Importa un altro modulo chiamato <code>recurse</code> e da esso esegue una funzione.
+</testo_normale>
+<py_code>
+# esempio_trace/main.py
+</py_code>
+<testo_normale>
+La funzione <code>recurse()</code> chiama se stessa fino a che l'argomento <code>level</code> raggiunge 0.
+</testo_normale>
+<py_code>
+# esempio_trace/recurse.py
+</py_code>
+<titolo_2>
+Tracciare l'Esecuzione
+</titolo_2>
+<testo_normale>
+E' facile usare <strong>trace</strong> direttamente dalla riga di comando. Le istruzioni che vengono eseguite mentre il programma gira vengono stampate se viene fornita l'opzione <code>--trace</code>. Questo esempio ignora anche la locazione della libreria standard di Python per evitare la tracciatura di <a href='importlib.html' targer='_blank'>importlib</a> ed altri moduli che potrebbero essere più interessanti includere in un altro esempio, ma che in questo caso farebbero solo confusione nella stampa dei risultati.
+</testo_normale>
+<py_output>
+$ python3 -m trace --ignore-dir=/usr/lib/python3.5 --trace esempio_trace/main.py
+</py_output>
+<testo_normale>
+La prima parte del risultato mostra le operazioni di impostazione effettuate da <code>trace</code> . Il resto mostra l'entrata in ciascuna funzione, compreso il modulo dove la funzione risiede, quindi le righe del file sorgente così come sono eseguite. <code>recurse()</code> viene eseguita tre volte, come ci si attende in base al modo di chiamata in <code>main()</code>.
+</testo_normale>
+<titolo_2>
+Copertura del Codice
+</titolo_2>
+<testo_normale>
+Eseguendo <code>trace</code> da riga di comando con l'opzione <code>--count</code> verranno prodttie informazioni di copertura di codice, dettagliando quali righe sono state eseguite e quali sono state saltate. Visto che un programma complesso in genere è composto da diversi file, viene prodotto un report di copertura separato per ciascuno. Nella modalità predefinita i file di report sono scritti nella stessa directory del modulo, attribuendogli il nome del modulo con estensione <code>.cover</code> invece che <code>.py</code>.
+</testo_normale>
+<py_output>
+$ python3 -m trace --count esempio_trace/main.py
+</py_output>
+<testo_normale>
+Sono prodotti due file in output, <code>esempio_trace/main.cover</code> :
+</testo_normale>
+<py_code>
+# esempio_trace/main.cover
+</py_code>
+<testo_normale>
+ed <code>esempio_trace/recurse.cover</code>
+</testo_normale>
+<py_code>
+# esempio_trace/recurse.cover
+</py_code>
+<note>
+Sebbene la riga <code>recurse(level):</code> abbia un conteggio di 1, non significa che quella funzione è stata eseguita una sola volta. Significa che la <em>definizione</em> della funzione è stata eseguita una volta. Lo stesso vale per <code>not_called():</code> visto che la definizione della funzione è comunque valutata anche se la stessa non viene mai chiamata.
+</note>
+<testo_normale>
+E' anche possibile eseguire il programma diverse volte, forse con diverse opzioni, per salvare i dati di copertura e produrre un report combinato. La prima volta che  <code>trace</code> viene eseguito con un file in uscita, riporta un errore quando tenta di caricare dati esistenti da combinare con i nuovi risultati prima di creare il file.
+</testo_normale>
+<py_output>
+$ python3 -m trace --coverdir coverdir3 --count --file coverdir3/coverage_report.dat esempio_trace/main.py
+
+Questo è il programma principale.
+recurse(2)
+recurse(1)
+recurse(0)
+Skipping counts file 'coverdir3/coverage_report.dat': [Errno 2] No such file or directory: 'coverdir3/coverage_report.dat'
+
+$ python3 -m trace --coverdir coverdir3 --count --file coverdir3/coverage_report.dat esempio_trace/main.py
+
+Questo è il programma principale.
+recurse(2)
+recurse(1)
+recurse(0)
+
+$ python3 -m trace --coverdir coverdir3 --count --file coverdir3/coverage_report.dat esempio_trace/main.py
+
+Questo è il programma principale.
+recurse(2)
+recurse(1)
+recurse(0)
+
+$ ls coverdir3
+coverage_report.dat
+</py_output>
+<testo_normale>
+Per produrre report una volta che le informazioni di copertura sono registrate nei file <code>.cover</code> si usi l'opzione <code>--report</code>
+</testo_normale>
+<py_output>
+$ python3 -m trace --coverdir coverdir1 --report --summary --missing --file coverdir1/coverage_report.dat esempio_trace/main.py
+</py_output>
+<testo_normale>
+Visto che il programma viene eseguito tre volte, il report di copertura mostra valori tre volte più alti del primo report. L'opzione <code>--summary</code> aggiunge la percentuale di informazioni coperte al risultato. Il modulo <code>recurse</code> è coperto solo per l'83%. Guardando il file .cover per <code>recurse</code> si nota che il corpo della funzione <code>not_called()</code> in effetti non è mai eseguito, indicato dal prefisso <code>>>>>>></code>.
+</testo_normale>
+<py_code>
+# coverdir1/esempio_trace.recurse.cover
+</py_code>
+<titolo_2>
+Relazioni tra Chiamate
+</titolo_2>
+<testo_normale>
+Oltre alle informazioni di copertura, <code>trace</code> raccoglie e riporta circa le relazioni tra funzioni che si chiamano le une con le altre.
+</testo_normale>
+<testo_normale>
+Per una semplice lista delle funzioni chiamate si usi <code>--listfuncs</code>
+</testo_normale>
+<py_output>
+$ python3 -m trace --listfuncs esempio_trace/main.py | grep -v importlib
+</py_output>
+<testo_normale>
+Per maggiori dettagli circa chi effettua la chiamata si usi <code>-trackcalls</code>
+</testo_normale>
+<py_output>
+$ python3 -m trace --listfuncs --trackcalls esempio_trace/main.py | grep -v importlib
+</py_output>
+<note>
+Nè <code>--listfuncs</code> nè <code>--trackcalls</code> onorano gli argomenti <code>--ignore-dirs</code> o <code>--ignore-mods</code>, quindi la parte di risultato da questo esempio è estratta usando <code>grep</code>.
+</note>
+<titolo_2>
+Interfaccia di Programmazione
+</titolo_2>
+<testo_normale>
+Per un maggior controllo sulla sua interfaccia, <code>trace</code> può essere chiamato da un altro programma tramite un oggetto <code>Trace</code>. <code>Trace</code> supporta l'impostazione di impianti ed altre dipendenze prima di eseguire una singola funzione od un comando Python da tracciare.
+</testo_normale>
+<py_code>
+# trace_run.py
+</py_code>
+<testo_normale>
+Visto che l'esempio traccia solo la funzione <code>recurse()</code> non sono incluse nel risultato le informazioni da <code>main.py</code>.
+</testo_normale>
+<py_output>
+$ python3 trace_run.py
+</py_output>
+<testo_normale>
+Lo stesso risultato può essere ottenuto anche con il metodo <code>runfunc()</code>.
+</testo_normale>
+<py_code>
+# trace_runfunc.py
+</py_code>
+<testo_normale>
+<code>runfunc()</code> accetta argomenti arbitrari posizionali e nominativi, che sono passati alla funzione quando è chiamata dal tracciatore.
+</testo_normale>
+<py_output>
+$ python3 trace_runfunc.py
+</py_output>
+<titolo_2>
+Salvare i Dati del Risultato
+</titolo_2>
+<testo_normale>
+Anche le informazioni di conteggio e copertura possono essere registrate, proprio come nella interfaccia da riga di comando. I dati devono essere salvati esplicitamente, usando l'istanza <code>CoverageResults</code> dall'oggetto <code>Trace</code>.
+</testo_normale>
+<py_code>
+# trace_CoverageResults.py
+</py_code>
+<testo_normale>
+Questo esempio salva i risultati di copertura nella directory <code>coverdir2</code>.
+</testo_normale>
+<py_output>
+$ python3 trace_CoverageResults.py
+</py_output>
+<py_output>
+$ find coverdir2
+
+coverdir2
+coverdir2/esempio_trace.recurse.cover
+</py_output>
+<testo_normale>
+Il file in uscita contiene
+</testo_normale>
+<py_code>
+# coverdir2/esempio_trace.recurse.cover
+</py_code>
+<testo_normale>
+Per salvare i dati di conteggio per generare report, si usino gli argomenti <code>infile</code> e <code>outfile</code> di <code>Trace</code>.
+</testo_normale>
+<py_code>
+# trace_report.py
+</py_code>
+<testo_normale>
+Si passi un nome di file ad <code>infile</code>  per leggere dati salvati in precedenza, ed un nome di file ad <code>outfile</code> per scrivere i nuovi risultati dopo la tracciatura. Se <code>infile</code> ed <code>outfile</code> sono uguali, si crea l'effetto di aggiornare il file con dati cumulativi.
+</testo_normale>
+<py_output>
+$ python3 trace_report.py
+
+recurse(2)
+recurse(1)
+recurse(0)
+lines   cov%   module   (path)
+    6    50%   esempio_trace.recurse   (.../esempio_trace/recurse.py)
+</py_output>
+<titolo_2>
+Opzioni
+</titolo_2>
+<testo_normale>
+Il costruttore di <code>Trace</code> riceve parecchi parametri opzionali per controllare il comportamento in fase di esecuzione.
+</testo_normale>
+<tabella_semplice>
+PARAMETRO;TIPO;DESCRIZIONE
+<code>count</code>;Booleano;Attiva il conteggio del numero di riga. Predefinito <code>True</code>
+<code>countfuncs</code>;Booleano;Attiva l'elenco delle funzioni chiamate in fase di esecuzione. Predefinito <code>False</code>
+<code>countcallers</code>;Booleano;Attiva la tracciatura di chiamanti e chiamati. Predefinito <code>False</code>
+<code>ignoremods</code>;Sequenza;Lista di moduli e pacchetti da ignorare nella tracciatura della copertura. Predefinito una tupla vuota
+<code>ignoredirs</code>;Sequenza;Lista di directory contenenti moduli e pacchetti da ignorare. Predefinito una tupla vuota
+<code>infile</code>;Stringa;Nome del file contenente i valori di conteggio in cache. Predefinito <code>None</code>
+<code>outfile</code>;Stringa;Nome del file da usare per conservare i file di conteggio. Predefinito <code>None</code> ed i dati non sono conservati.
+</tabella_semplice>
+<vedi_anche>
+https://docs.python.org/3.5/library/trace.html|trace|La documentazione della libreria standard per questo modulo.
+#|Tracciare un programma in fase di esecuzione|Il modulo sys include servizi per aggiungere una funzione di tracciatura personalizzata all'interprete in fase di esecuzione (in corso di traduzione)
+http://nedbatchelder.com/code/modules/coverage.html|coverage.py|Il modulo coverage di Neil Batchelder.
+http://darcs.idyll.org/~t/projects/figleaf/doc/|figleaf|L'applicazione di copertura di Titus Brown
+</vedi_anche>
+</documento_tradotto>

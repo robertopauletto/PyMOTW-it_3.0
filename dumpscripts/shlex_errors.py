@@ -1,22 +1,21 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# shlex_errors.py
 import shlex
 
-text = """Questa riga va bene.
-Questa riga ha un "virgolettato non completato.
-Anche questa va bene.
+text = """Questa riga è a posto.
+Questa riga ha un "apice non chiuso.
+Anche questa riga è a posto.
 """
 
-print 'ORIGINALE:', repr(text)
-print
+print('ORIGINALE: {!r}'.format(text))
+print()
 
 lexer = shlex.shlex(text)
 
-print 'TOKEN:'
+print('TOKEN:')
 try:
     for token in lexer:
-        print repr(token)
-except ValueError, err:
+        print('{!r}'.format(token))
+except ValueError as err:
     first_line_of_error = lexer.token.splitlines()[0]
-    print 'ERRORE:', lexer.error_leader(), str(err), 'dopo "' + first_line_of_error + '"'
+    print('ERRORE: {} {}'.format(lexer.error_leader(), err))
+    print('segue {!r}'.format(first_line_of_error))

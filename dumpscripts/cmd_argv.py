@@ -1,16 +1,19 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# cmd_argv.py
 
 import cmd
 
+
 class InteractiveOrCommandLine(cmd.Cmd):
-    """Accetta comandi tramite il normale prompt interattivo o da riga di comando"""
-    
+    """Accetta comandi tramite il normale prompt
+    interattivo o sulla riga di comando
+    """
+
     def do_greet(self, line):
-        print 'Salve,', line
-    
+        print('Salve,', line)
+
     def do_EOF(self, line):
         return True
+
 
 if __name__ == '__main__':
     import sys

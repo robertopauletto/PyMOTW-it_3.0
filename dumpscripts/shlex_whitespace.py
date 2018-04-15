@@ -1,20 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shlex_whitespace.py
 
 import shlex
 import sys
 
 if len(sys.argv) != 2:
-    print 'Per favore specificare un nome di file nella riga di comando.'
+    print('Prego specificare un nome di file da riga di comando.')
     sys.exit(1)
 
 filename = sys.argv[1]
-body = file(filename, 'rt').read()
-print 'ORIGINALE:', repr(body)
-print
+with open(filename, 'r') as f:
+    body = f.read()
+print('ORIGINALE: {!r}'.format(body))
+print()
 
-print 'TOKEN:'
+print('TOKEN:')
 lexer = shlex.shlex(body)
 lexer.whitespace += '.,'
 for token in lexer:
-    print repr(token)
+    print('{!r}'.format(token))

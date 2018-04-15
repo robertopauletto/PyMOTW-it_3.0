@@ -1,25 +1,24 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# cmd_arguments.py
 
 import cmd
 
+
 class HelloWorld(cmd.Cmd):
-    """Semplice esempio di processore di comando."""
-    
+
     def do_greet(self, person):
-        """greet [persona]
-        Saluta la persona"""
+        """greet [person]
+        Saluta person"""
         if person:
-            print "ciao,", person
+            print("Salve,", person)
         else:
-            print 'ciao'
-    
+            print('Salve')
+
     def do_EOF(self, line):
         return True
-    
+
     def postloop(self):
-        print
+        print()
+
 
 if __name__ == '__main__':
     HelloWorld().cmdloop()
-

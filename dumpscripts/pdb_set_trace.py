@@ -1,3 +1,5 @@
+# pdb_set_trace.py
+
 #!/usr/bin/env python
 # encoding: utf-8
 #
@@ -5,6 +7,7 @@
 #
 
 import pdb
+
 
 class MyObj(object):
 
@@ -14,7 +17,7 @@ class MyObj(object):
     def go(self):
         for i in range(self.count):
             pdb.set_trace()
-            print i
+            print(i)
         return
 
 if __name__ == '__main__':

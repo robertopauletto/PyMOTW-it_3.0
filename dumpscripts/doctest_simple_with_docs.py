@@ -1,18 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_simple_with_docs.py
 
 def my_function(a, b):
-    """Ritorna a * b.
+    """Retorna a * b.
 
-    Funziona con le cifre:
-    
+    Lavora con numeri:
+
     >>> my_function(2, 3)
     6
 
-    e le stringhe:
-    
+    e stringhe:
+
     >>> my_function('a', 3)
     'aaa'
     """
     return a * b
-    

@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shlex_split.py
 
 import shlex
 
-text = """Questo testo ha "parti virgolettate" al suo interno."""
-print 'ORIGINALE:', repr(text)
-print
+text = """Questo testo ha "parti tra apici" al suo interno."""
+print('ORIGINALE: {!r}'.format(text))
+print()
 
-print 'TOKEN:'
-print shlex.split(text)
+print('TOKEN:')
+print(shlex.split(text))

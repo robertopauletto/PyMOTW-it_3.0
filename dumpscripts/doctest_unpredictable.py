@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
-class MyClass(object):
+# doctest_unpredictable.py
+class MyClass:
     pass
+
 
 def unpredictable(obj):
     """Ritorna una nuova lista che contiene obj.

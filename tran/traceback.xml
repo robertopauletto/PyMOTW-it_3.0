@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+traceback - Eccezioni e Tracciature di Stack
+</titolo_1>
+<descrizione>
+Estrae, formatta e stampa eccezioni e tracciature di stack
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>traceback</strong> lavora con lo <a href='https://www.wikiwand.com/it/Pila_(informatica)' target='_blank'>stack</a> di chiamate per fornire messaggi di errore. Un <em>traceback</em> è una tracciatura dello stack dal punto di un gestore di eccezione scendendo nella catena di chiamate fino al punto dove l'eccezione è stata sollevata. I <em>traceback</em> possono essere indirizzati dallo stack di chiamata corrente risalendo fino al punto di una chiamata (senza il contesto di un errore), il che è utile per rilevare i percorsi seguiti da una funzione.
+</testo_normale>
+<testo_normale>
+L'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> di alto livello in <strong>traceback</strong> usa istanze di <code>StackSummary</code> e <code>FrameSummary</code> per mantenere una rappresentazione dello stack. Queste classi possono essere costruite da un <em>traceback</em> o dallo stack di esecuzione corrente, quindi elaborate allo stesso modo.
+</testo_normale>
+<testo_normale>
+Le funzioni di basso livello in <strong>traceback</strong> sono suddivise in diverse comuni categorie. Ci sono funzioni per estrarre <em>traceback</em> grezzi dall'ambiente di esecuzione corrente (sia un gestore di eccezione per un <em>traceback</em> che lo stack normale). La tracciatura dello stack estratta è una sequenza di tuple che contengono il nome del file, il numero di riga, il nome della funzione ed il testo della riga di sorgente.
+</testo_normale>
+<testo_normale>
+Una volta estratta, la tracciatura dello stack può essere formattata usando funzioni come <code>format_exception()</code>, <code>format_stack()</code>, ecc.; le funzioni di formattazione ritornano una lista di stringhe con messaggi formattati per la stampa. Ci anche sono funzioni scorciatoia per stampare i valori formattati.
+</testo_normale>
+<testo_normale>
+Sebbene le funzioni in <strong>traceback</strong> ricalchino il comportamento dell'interprete interattivo nella modalità predefinita, sono anche utili per gestire eccezioni in situazioni nelle quali scaricare l'intera tracciatura dello stack alla console non è consigliabile. Ad esempio, una applicazione web potrebbe aver bisogno di formattare il <em>traceback</em> in modo che sia leggibile in HTML, mentre un <a href='https://www.wikiwand.com/it/Integrated_development_environment' target='_blank'>IDE</a> potrebbe dover convertire gli elementi nella tracciatura dello stack in voci cliccabili che consentano all'utente di scorrere il sorgente.
+</testo_normale>
+<titolo_2>
+Funzioni a Supporto
+</titolo_2>
+<testo_normale>
+Gli esempi in questo articolo usano il modulo <code>traceback_example.py</code>
+</testo_normale>
+<py_code>
+# traceback_example.py
+</py_code>
+<titolo_2>
+Esaminare lo Stack
+</titolo_2>
+<testo_normale>
+Per esaminare lo stack corrente, si costruisca l'oggetto <code>StackSummary</code> da <code>walk_stack()</code>.
+</testo_normale>
+<py_code>
+# traceback_stacksummary.py
+</py_code>
+<testo_normale>
+IL metodo <code>format()</code> produce una sequenza di stringhe formattate pronte per la stampa.
+</testo_normale>
+<py_output>
+$ python3 traceback_stacksummary.py
+</py_output>
+<testo_normale>
+<code>StackSummary</code>  è un contenitore iterabile che contiene istanze di <code>FrameSummary</code>.
+</testo_normale>
+<py_code>
+# traceback_framesummary.py
+</py_code>
+<testo_normale>
+Ogni <code>FrameSummary</code> descrive una struttura dello stack, incluse informazioni circa la locazione del contesto di eseczuione nei file sorgente del programma.
+</testo_normale>
+<py_output>
+$ python3 traceback_framesummary.py
+</py_output>
+<titolo_2>
+TracebackException
+</titolo_2>
+<testo_normale>
+La classe <code>TracebackException</code> è una interfaccia di alto livello per costruire un oggetto <code>StackSummary</code> mentre si esamina un <em>traceback</em>.
+</testo_normale>
+<py_code>
+# traceback_tracebackexception.py
+</py_code>
+<testo_normale>
+Il metodo <code>format()</code> produce una versione formattata dell'intero <em>traceback</em>, mentre <code>format_exception_only()</code> mostra solo il messaggio di eccezione.
+</testo_normale>
+<py_output>
+$ python3 traceback_tracebackexception.py
+</py_output>
+<titolo_2>
+API di Eccezione di Basso Livello
+</titolo_2>
+<testo_normale>
+Un altro modo di gestire la segnalazione di eccezioni è tramite <code>print_exec()</code>. Utilizza <code>sys.exc_info()</code> per ottenere le informazioni dell'eccezione per il <a href='https://www.wikiwand.com/it/Processo_(informatica)#/Processi_e_thread' target='_blank'>thread</a>, formatta il risultato e stampa il testo verso <code>sys.stderr</code> nella modalità predefinta.
+</testo_normale>
+<py_code>
+# traceback_print_exc.py
+</py_code>
+<testo_normale>
+In questo esempio, il <em>file handle</em> per <code>sys.stdout</code> è modificato in modo che i messaggi informativi e di <em>traceback</em> siano integrati correttamente.
+</testo_normale>
+<py_output>
+$ python3 traceback_print_exc.py
+</py_output>
+<testo_normale>
+<code>print_exc()</code> è semplicemente una scorciatoia per <code>print_exception()</code>, che richiede argomenti espliciti.
+</testo_normale>
+<py_code>
+# traceback_print_exception.py
+</py_code>
+<testo_normale>
+Gli argomenti per <code>print_exception()</code> sono forniti da <code>sys.exc_info()</code>.
+</testo_normale>
+<py_output>
+$ python3 traceback_print_exception.py
+</py_output>
+<testo_normale>
+<code>print_exception()</code> usa <code>format_exception()</code> per preparare il testo.
+</testo_normale>
+<py_code>
+# traceback_format_exception.py
+</py_code>
+<testo_normale>
+Gli stessi tre argomenti, tipo eccezione, valore eccezione e <em>traceback</em>, sono usati con <code>format_exception()</code>.
+</testo_normale>
+<py_output>
+$ python3 traceback_format_exception.py
+</py_output>
+<testo_normale>
+Per elaborare il <em>traceback</em> in qualche altro modo, tipo formattarlo diversamente, si usi <code>extract_tb()</code> per ottenere i dati una forma utilizzabile.
+</testo_normale>
+<py_code>
+# traceback_extract_tb.py
+</py_code>
+<testo_normale>
+Il valore ritornato è una lista di voci da ciascun livello dello stack rappresentato da <em>traceback</em>. Ogni voce è una tupla con quattro parti: il nome del file sorgente, il numero di riga in quel file, il nome della funzione ed il testo sorgente da quelle riga, dedotti spazi ed altri caratteri di spaziatura orizzontale o verticale (se la sorgente è disponibile).
+</testo_normale>
+<py_output>
+$ python3 traceback_extract_tb.py
+</py_output>
+<titolo_2>
+API di Basso Livello dello Stack
+</titolo_2>
+<testo_normale>
+Ci sono simili insiemi di funzioni per eseguire le stesse operazioni con lo stack di chiamata corrente invece che un <em>traceback</em>. <code>print_stack()</code> stampa lo stack corrente, senza generare una eccezione.
+</testo_normale>
+<py_code>
+# traceback_print_stack.py
+</py_code>
+<testo_normale>
+Il risultato assomiglia ad un <em>traceback</em> senza messaggio di errore.
+</testo_normale>
+<py_output>
+$ python3 traceback_print_stack.py
+</py_output>
+<testo_normale>
+<code>format_stack()</code> prepara la tracciatura dello stack nello stesso modo nel quale <code>format_exception()</code> prepara il <em>traceback</em>.
+</testo_normale>
+<py_code>
+# traceback_format_stack.py
+</py_code>
+<testo_normale>
+Restituisce una lista di stringhe, ognuna delle quali compone una riga del risultato.
+</testo_normale>
+<py_output>
+$ python3 traceback_format_stack.py
+</py_output>
+<testo_normale>
+La funzione <code>extract_stack()</code> funziona come <code>extract_tb()</code>.
+</testo_normale>
+<py_code>
+# traceback_extract_stack.py
+</py_code>
+<testo_normale>
+Accetta anche argomenti, non mostrati qui, per partire da un punto alternativo in una struttura dello stack oppure per limitare il livello di profondità di attraversamento.
+</testo_normale>
+<py_output>
+$ python3 traceback_extract_stack.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/traceback.html|traceback|La documentazione della libreria standard per questo modulo.
+inspect.html|inspect|Il modulo inspect include altre funzioni per sondare stutture nello stack
+#|cgitb  (Di prossima traduzione)|Un altro modulo per formattare <em>traceback</em>
+</vedi_anche>
+</documento_tradotto>

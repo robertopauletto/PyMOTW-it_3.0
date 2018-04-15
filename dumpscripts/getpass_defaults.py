@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getpass_defaults.py
 
 import getpass
 
-p = getpass.getpass()
-print 'Hai digitato:', p
+try:
+    p = getpass.getpass()
+except Exception as err:
+    print('ERRORE:', err)
+else:
+    print('Hai digitato:', p)
