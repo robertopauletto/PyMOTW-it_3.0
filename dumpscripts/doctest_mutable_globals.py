@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_mutable_globals.py
 
 _module_data = {}
 
-class TestGlobals(object):
+
+class TestGlobals:
 
     def one(self):
         """
@@ -18,4 +18,3 @@ class TestGlobals(object):
         >>> 'var' in _module_data
         False
         """
-        

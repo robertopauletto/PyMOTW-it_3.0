@@ -1,6 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+#compileall_compile_dir.py
 
 import compileall
+import glob
 
-compileall.compile_dir('examples')
+
+def show(title):
+    print(title)
+    for filename in glob.glob('esempi/**',
+                              recursive=True):
+        print('  {}'.format(filename))
+    print()
+
+
+show('Prima')
+
+compileall.compile_dir('esempi')
+
+show('\nDopo')

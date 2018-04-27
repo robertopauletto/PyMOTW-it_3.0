@@ -1,4 +1,5 @@
 # doctest_unpredictable.py
+
 class MyClass:
     pass
 

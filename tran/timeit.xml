@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+timeit - Cronometra l'esecuzione di piccoli frammenti di codice Python.
+</titolo_1>
+<descrizione>
+Cronometra l'esecuzione di piccoli frammenti di codice Python
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>timeit</strong> fornisce una semplica interfaccia per determinare il tempo di esecuzione di piccoli frammenti di codice Python. Usa una funzione di cronometraggio specifica alla piattaforma per fornire un calcolo del tempo più accurato possibile e ridurre l'impatto dei costi di partenza e chiusura dello script rispetto al calcolo del tempo eseguendo il codice ripetutamente.
+</testo_normale>
+<titolo_2>
+Contenuti del Modulo
+</titolo_2>
+<testo_normale>
+<strong>timeit</strong> definisce una singola classe pubblica, <code>Timer</code>. Il costruttore per <code>Timer</code> riceve una istruzione da cronometrare ed una istruzione di "impostazione" (usata ad esempio per inizializzare variabili). Le istruzioni Python dovrebbero essere stringhe e possono includere ritorni a capo.
+</testo_normale>
+<testo_normale>
+Il metodo <code>timeit()</code> esegue una volta l'istruzione di impostazione, poi esegue l'istruzione primaria ripetutamente e ritorna il valore del tempo trascorso. Un argomento di <code>timeit()</code> regola il numero di ripetizioni per l'istruzione; nella modalità predefinita è 1.000.000.
+</testo_normale>
+<titolo_2>
+Esempio Base
+</titolo_2>
+<testo_normale>
+Per illustrare come vengono usati i vari argomenti per <code>Timer</code>, ecco un semplice esempio che stampa un valore specificato quando viene eseguita ciascuna istruzione.
+</testo_normale>
+<py_code>
+# timeit_example.py
+</py_code>
+<testo_normale>
+Quando eseguito, il risultato mostra l'esito delle chiamate ripetute a <code>print()</code>.
+</testo_normale>
+<py_output>
+$ python3 timeit_example.py
+</py_output>
+<testo_normale>
+<code>timeit()</code> esegue l'istruzione di impostazione una volta, poi chiama l'istruzione principale un numero di volte pari a <code>count</code>. Ritorna un singolo valore a virgola mobile che rappresenta il valore cumulativo del tempo trascorso nell'esecuzione dell'istruzione principale.
+</testo_normale>
+<testo_normale>
+Quando viene usato <code>repeat()</code>, esso chiama <code>timeit()</code> diverse volte (3 in questo caso) e tutte le risposte sono ritornate in una lista.
+</testo_normale>
+<titolo_2>
+Conservare i Valori in un Dizionario
+</titolo_2>
+<testo_normale>
+Questo esempio più complesso  confronta il tempo trascorso per popolare un dizionario con un gran numero di valori utilizzando vari metodi. Per prima cosa sono necessarie alcune costanti per configurare <code>Timer</code>. La variabile <code>setup_statement</code> inizializza una lista di tuple che contengono stringhe ed interi che saranno usati dalle istruzioni principali per costruire dizionari usando le stringhe come chiave e conservando gli interi come valori associati.
+</testo_normale>
+<testo_normale>
+Il programma di esempio è <code>timeit_dictionary.py</code> e viene di seguito illustrato nelle sue componenti principali:
+</testo_normale>
+<py_code>
+# Alcune costanti
+range_size = 1000
+count = 1000
+setup_statement = ';'.join([
+    "l = [(str(x), x) for x in range(1000)]",
+    "d = {}",
+])
+</py_code>
+<testo_normale>
+Una funzione di utilità, <code>show_results()</code>, viene definita per stampare i risultati in un formato consono. Il metodo <code>timeit()</code> ritorna il tempo trascorso per eseguire l'istruzione ripetutamente. Il risultato di <code>show_results()</code> lo converte nel tempo trascorso per iterazione, successivamente riduce il valore alla media di tempo trascorso per inserire un valore nel dizionario.
+</testo_normale>
+<py_code>
+def show_results(result):
+    "Stampa i microsecondi per passaggio e per elemento"
+    global count, range_size
+    per_pass = 1000000 * (result / count)
+    print('{:6.2f} usec/pass'.format(per_pass), end=' ')
+    per_item = per_pass / range_size
+    print('{:6.2f} usec/item'.format(per_item))
+
+
+print("{} elementi".format(range_size))
+print("{} iterazioni".format(count))
+print()
+</py_code>
+<testo_normale>
+Per stabilire una linea base, la prima configurazione provata usa <code>__setitem__()</code>. Tutte le altre varianti evitano di sovrascrivere valori se sono già nel dizionario, quindi questa versione dell'esempio dovrebbe essere la più veloce.
+</testo_normale>
+<testo_normale>
+Il primo argomento di <code>Timer</code> è una stringa multi riga, con spazi conservati in modo che possa essere interpretata correttamente quando eseguita. Il secondo argomento è una costante impostata per inizializzare la lista di valori ed il dizionario.
+</testo_normale>
+<py_code>
+# Usa __setitem__ senza prima verificare se i valori esistono
+print('__setitem__:', end=' ')
+t = timeit.Timer(
+    textwrap.dedent(
+        """
+        for s, i in l:
+            d[s] = i
+        """),
+    setup_statement,
+)
+show_results(t.timeit(number=count))
+</py_code>
+<testo_normale>
+La variante successiva usa <code>setdefault()</code> per assicurarsi che i valori già nel dizionario non vengano sovrascritti.
+</testo_normale>
+<py_code>
+# Usa setdefault
+print('setdefault :', end=' ')
+t = timeit.Timer(
+    textwrap.dedent(
+        """
+        for s, i in l:
+            d.setdefault(s, i)
+        """),
+    setup_statement,
+)
+show_results(t.timeit(number=count))
+</py_code>
+<testo_normale>
+Questo metodo aggiunge il valore solo se viene sollevata una eccezione <code>KeyError</code> durante la ricerca per un valore esistente.
+</testo_normale>
+<py_code>
+# Usa eccezioni
+print('KeyError   :', end=' ')
+t = timeit.Timer(
+    textwrap.dedent(
+        """
+        for s, i in l:
+            try:
+                existing = d[s]
+            except KeyError:
+                d[s] = i
+        """),
+    setup_statement,
+)
+show_results(t.timeit(number=count))
+</py_code>
+<testo_normale>
+L'ultimo metodo usa <code>in</code> per determinare se un dizionario ha una particolare chiave.
+</testo_normale>
+<py_code>
+# Usa "in"
+print('"not in"   :', end=' ')
+t = timeit.Timer(
+    textwrap.dedent(
+        """
+        for s, i in l:
+            if s not in d:
+                d[s] = i
+        """),
+    setup_statement,
+)
+</py_code>
+<testo_normale>
+Quando lo script viene eseguito produce il seguente risultato:
+</testo_normale>
+<py_output>
+$ python3 timeit_dictionary.py
+
+1000 elementi
+1000 iterazioni
+
+__setitem__:  64.32 usec/pass   0.06 usec/item
+setdefault : 198.63 usec/pass   0.20 usec/item
+KeyError   :  53.17 usec/pass   0.05 usec/item
+"not in"   :  43.53 usec/pass   0.04 usec/item
+</py_output>
+<testo_normale>
+Il risultato potrebbe variare in base alla macchina nella quale viene eseguito lo script e in base a quali altri programmi sono in esecuzione nel sistema. Si esperimenti con le variabili <code>range_size</code> e <code>count</code>, visto che combinazioni diverse produrrano diversi risultati.
+</testo_normale>
+<titolo_2>
+Da Riga di Comando
+</titolo_2>
+<testo_normale>
+Oltre all'interfaccia da programma, <code>timeit</code> fornisce una interfaccia da riga di comando per provare i moduli senza orchestazione.
+</testo_normale>
+<testo_normale>
+Per eseguire il modulo si utilizzi l'opzione <code>-m</code> dell'interprete Pyhton per trovare il modulo e considerarlo come il programma principale. Per ottenere aiuto per il modulo ad esempio:
+</testo_normale>
+<py_output>
+$ python3 -m timeit --help
+
+Tool for measuring execution time of small code snippets.
+
+This module avoids a number of common traps for measuring execution
+times.  See also Tim Peters' introduction to the Algorithms chapter in
+the Python Cookbook, published by O'Reilly.
+
+...
+</py_output>
+<testo_normale>
+L'argomento <code>statement</code> funziona in modo leggermente diverso da riga di comando rispetto all'argomento per <code>Timer</code>. Invece di usare una lunga stringa, si passino le singole righe di istruzione come argomenti separati da riga di comando. Per indentare le righe (come per l'interno di un ciclo), si inseriscano spazi nella stringa racchiudendo la stessa tra apici.
+</testo_normale>
+<py_output>
+$ python3 -m timeit -s "d={}" "for i in range(1000):" "  d[str(i)] = i"
+
+1000 loops, best of 3: 258 usec per loop
+</py_output>
+<testo_normale>
+E' anche possibile definire una funzione con codice più complesso, poi chiamare la funzione da riga di comando.
+</testo_normale>
+<py_code>
+# timeit_setitem.py
+</py_code>
+<testo_normale>
+Per eseguire la prova, passare il codice che importa i moduli ed esegue la funzione di prova.
+</testo_normale>
+<py_output>
+$ python3 -m timeit -s "import timeit_setitem; timeit_setitem.test_setitem()"
+
+100000000 loops, best of 3: 0.00778 usec per loop
+</py_output>
+
+<vedi_anche>
+https://docs.python.org/3.6/library/timeit.html|timeit|La documentazione della libreria standard per questo modulo.
+profile.html|profile|Il modulo <code>profile</code> è anche utile per analisi di prestazioni
+time.html#time-monotonic|Monotonic Clocks|Discussione sul clock monotonico dal modulo time
+</vedi_anche>
+</documento_tradotto>

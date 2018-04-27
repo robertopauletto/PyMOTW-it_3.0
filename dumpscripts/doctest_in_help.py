@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_in_help.py
 
 def my_function(a, b):
     """Ritorna a*b

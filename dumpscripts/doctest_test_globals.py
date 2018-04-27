@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_test_globals.py
 
-class TestGlobals(object):
+class TestGlobals:
 
     def one(self):
         """
@@ -15,4 +14,3 @@ class TestGlobals(object):
         >>> 'var' in globals()
         False
         """
-        

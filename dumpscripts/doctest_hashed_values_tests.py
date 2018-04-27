@@ -1,20 +1,22 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_hashed_values_tests.py
+
+import collections
+
 
 def group_by_length(words):
     """Ritorna un dizionario che raggruppa le parole in insiemi omogenei per lunghezza
 
-    >>> grouped = group_by_length([ 'python', 'modulo', 'della', 'il', 'settimana' ])
-    >>> grouped == { 5:set(['della']),
-    ...              2:set(['il']),
-    ...              9:set(['settimana']),
-    ...              6:set(['python', 'modulo']),
+    >>> grouped = group_by_length([ 'python', 'module', 'of',
+    ... 'the', 'week' ])
+    >>> grouped == { 2:set(['of']),
+    ...              3:set(['the']),
+    ...              4:set(['week']),
+    ...              6:set(['python', 'module']),
     ...              }
     True
 
     """
-    d = {}
+    d = collections.defaultdict(set)
     for word in words:
-        s = d.setdefault(len(word), set())
-        s.add(word)
+        d[len(word)].add(word)
     return d

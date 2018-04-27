@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_extra_space.py
 
 def my_function(a, b):
     """

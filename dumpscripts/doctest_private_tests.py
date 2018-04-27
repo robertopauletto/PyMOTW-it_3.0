@@ -1,7 +1,9 @@
+# doctest_private_tests.py
+
 import doctest_private_tests_external
 
 __test__ = {
-    'numbers':"""
+    'nummeri': """
 >>> my_function(2, 3)
 6
 
@@ -9,7 +11,7 @@ __test__ = {
 6.0
 """,
 
-    'strings':"""
+    'stringhe': """
 >>> my_function('a', 3)
 'aaa'
 
@@ -17,11 +19,11 @@ __test__ = {
 'aaa'
 """,
 
-    'external':doctest_private_tests_external,
-    
-    }
+    'esterni': doctest_private_tests_external,
+}
+
 
 def my_function(a, b):
-    """Ritorna a * b
+    """Returns a * b
     """
     return a * b

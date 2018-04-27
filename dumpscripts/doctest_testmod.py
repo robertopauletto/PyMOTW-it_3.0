@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# doctest_testmod.py
 
 def my_function(a, b):
     """
@@ -9,9 +8,8 @@ def my_function(a, b):
     'aaa'
     """
     return a * b
-    
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-    
-    
