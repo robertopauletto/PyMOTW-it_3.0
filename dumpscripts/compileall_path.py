@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# compileall_path.py
 
 import compileall
 import sys
 
-sys.path[:] = ['examples', 'nientequi']
-print 'sys.path =', sys.path
+sys.path[:] = ['esempi', 'nonqui']
+print('sys.path =', sys.path)
 compileall.compile_path()

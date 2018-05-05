@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>strutture dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+heapq - Algoritmo di Ordinamento Heapsort
+</titolo_1>
+<descrizione>
+Implementa un algoritmo di ordinamento <em>min-heap</em> adatto all'uso con le liste Python.
+
+</descrizione>
+<testo_normale>
+Un <a href='https://www.wikiwand.com/it/Heapsort' target='_blank'><em>heap</em></a> è una struttura dati di tipo ad albero nella quale i nodi figli hanno una relazione di ordinamento con i genitori. Gli <em>heap binari</em> possono essere rappresentati usando una lista oppure un array organizzato in modo che i figli dell'elemento <code>N</code> siano alle posizioni <code>2 * N + 1</code> e <code>2 * N + 2</code> (per indici a base zero). Questa disposizione rende possibile riordinare gli elementi sul posto, in modo che non sia necessario riallocare tanta memoria quanta ne servirebbe per aggiungere o rimuovere elementi.
+</testo_normale>
+<testo_normale>
+Un <em>max-heap</em> assicura che il genitore sia più grande od uguale ad entrambi i figli. Un <em>min-heap</em> richiede che il genitore sia minore od uguale ai suoi figli. Il modulo <strong>heapq</strong> di Python implementa <em>min-heap</em>
+</testo_normale>
+<titolo_2>
+Dati di Esempio
+</titolo_2>
+<testo_normale>
+Gli esempi in questa sezione utilizzano i dati in <code>heapq_heapdata.py</code>.
+</testo_normale>
+<py_code>
+# heapq_heapdata.py
+</py_code>
+<testo_normale>
+Il risultato è stampato usando <code>heapq_showtree.py</code>
+</testo_normale>
+<py_code>
+# heapq_showtree.py
+</py_code>
+<titolo_2>
+Creare un <em>Heap</em>
+</titolo_2>
+<testo_normale>
+Ci sono due metodi base per creare un <em>heap</em>: <code>heappush()</code> ed <code>heapify()</code>.
+</testo_normale>
+<py_code>
+# heapq_heappush.py
+</py_code>
+<testo_normale>
+Quando viene usato <code>heappush()</code>, il tipo di ordinamento dell'<em>heap</em> viene mantenuto mentre vengono aggiunti nuovi elementi alla sorgente dati.
+</testo_normale>
+<py_output>
+$ python3 heapq_heappush.py
+</py_output>
+<testo_normale>
+Se i dati sono già in memoria, è più efficace l'uso di <code>heapify()</code> per ricollocare gli elementi della lista sul posto.
+</testo_normale>
+<py_code>
+# heapq_heapify.py
+</py_code>
+<testo_normale>
+La costruzione di una lista con l'ordinamento <em>heap</em> un elemento alla volta equivale alla costruzione di una lista non ordinata e la successiva chiamata di <code>heapify()</code>.
+</testo_normale>
+<py_output>
+$ python3 heapq_heapify.py
+</py_output>
+<titolo_2>
+Accedere ai Contenuti di un <em>Heap</em>
+</titolo_2>
+<testo_normale>
+Una volta che l'<em>heap</em> viene organizzato correttamente, si usi <code>heappop()</code> per rimouovere l'elemento con il valore più basso.
+</testo_normale>
+<py_code>
+# heapq_heappop.py
+</py_code>
+<testo_normale>
+In questo esempio, adattato dalla documentazione della libreria standard, <code>heapify()</code> ed <code>heappop()</code> sono usati per ordinare una lista di numeri.
+</testo_normale>
+<py_output>
+$ python3 heapq_heappop.py
+</py_output>
+<testo_normale>
+Per rimuorere elementi esistenti e sostituirli con nuovi valori in una singola operazione, si usi <code>heapreplace()</code>.
+</testo_normale>
+<py_code>
+# heapq_heapreplace.py
+</py_code>
+<testo_normale>
+La sostituzione di elementi sul posto rende possibile il mantenimento di un <em>heap</em> a dimensione fissa, come ad esempio una lista di lavorazioni ordinate per priorità.
+</testo_normale>
+<py_output>
+$ python3 heapq_heapreplace.py
+</py_output>
+<titolo_2>
+Estremi dei Dati da un <em>Heap</em>
+</titolo_2>
+<testo_normale>
+<strong>heapq</strong> include due funzioni per esaminare un oggetto iterabile e trovare l'intervallo tra il valore più piccolo e quello più grande in esso contenuti.
+</testo_normale>
+<py_code>
+# heapq_extremes.py
+</py_code>
+<testo_normale>
+L'uso di <code>nlargest()</code> e <code>nsmallest()</code> per trovare il valore rispettivamente più grande e più piccolo è efficace solo in presenza di valori relativamenti piccoli di <code>n > 1</code>, ma in alcuni casi può essere utile.
+</testo_normale>
+<py_output>
+$ python3 heapq_extremes.py
+</py_output>
+<titolo_2>
+Combinare con Efficacia Sequenze Ordinate
+</titolo_2>
+<testo_normale>
+La combinazione di parecchie sequenze ordinate in una nuova sequenza è facile per piccoli insiemi di dati.
+</testo_normale>
+<py_code>
+list(sorted(itertools.chain(*data)))
+</py_code>
+<testo_normale>
+Per insiemi di dati più grandi, questa tecnica può richiedere l'uso di un ammontare di memoria considerevole. Invece di ordinare l'intera sequenza combinata, <code>merge()</code> usa un <em>heap</em> per generare una nuova sequenza un elemento alla volta, determinando il successivo usando un ammontare di memoria fisso.
+</testo_normale>
+<py_code>
+# heapq_merge.py
+</py_code>
+<testo_normale>
+Visto che l'implementazione di <code>merge()</code> usa un <em>heap</em>, consuma memoria in base al numero di sequenze che si devono combinare, invece che in base al numero di elementi con i quali sono composte dette sequenze.
+</testo_normale>
+<py_output>
+$ python3 heapq_merge.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/heapq.html|heapq|La documentazione della libreria standard per questo modulo.
+https://www.wikiwand.com/it/Heapsort|Heapsort|Descrizione generale delle strutture dati <em>heap</em>
+queue.html#priorqueue|Coda di Priorità|Una implementazione di una coda di priorità dal modulo <strong>Queue</strong> nella libreria standard.
+</vedi_anche>
+</documento_tradotto>

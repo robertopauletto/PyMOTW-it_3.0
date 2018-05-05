@@ -1,4 +1,4 @@
-# compileall_compile_dir.py
+# compileall_compile_file.py
 
 import compileall
 import glob
@@ -14,6 +14,6 @@ def show(title):
 
 show('Prima')
 
-compileall.compile_dir('esempi')
+compileall.compile_file('esempi/a.py')
 
 show('\nDopo')

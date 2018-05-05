@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# compileall_recursion_depth.py
 
 import compileall
 import re
 
-compileall.compile_dir('examples', 
-    maxlevels=0, 
-    rx=re.compile(r'/\.svn'))
+compileall.compile_dir(
+    'esempi',
+    maxlevels=0,
+)
