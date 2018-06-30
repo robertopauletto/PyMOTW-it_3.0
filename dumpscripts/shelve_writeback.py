@@ -1,18 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shelve_writeback.py
 
 import shelve
+import pprint
 
-s = shelve.open('test_shelf.db', writeback=True)
-try:
-    print s['chiave1']
-    s['chiave1']['altro_valore'] = 'questo prima non era qui'
-    print s['chiave1']
-finally:
-    s.close()
+with shelve.open('test_shelf.db', writeback=True) as s:
+    print('Dati iniziali:')
+    pprint.pprint(s['key1'])
 
-s = shelve.open('test_shelf.db', writeback=True)
-try:
-    print s['chiave1']
-finally:
-    s.close()
+    s['key1']['nuovo_valore'] = 'questo non esisteva prima'
+
+    print('\nModificato:')
+    pprint.pprint(s['key1'])
+
+with shelve.open('test_shelf.db', writeback=True) as s:
+    print('\nPreservato:')
+    pprint.pprint(s['key1'])

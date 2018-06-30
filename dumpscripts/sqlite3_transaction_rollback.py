@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# sqlite3_transaction_rollback.py
 
 import sqlite3
 
@@ -9,12 +8,12 @@ def show_projects(conn):
     cursor = conn.cursor()
     cursor.execute('select nome, descrizione from progetto')
     for nome, desc in cursor.fetchall():
-        print '  ', nome
+        print('  ', nome)
     return
 
 with sqlite3.connect(db_filenome) as conn:
 
-    print 'Prima delle modifiche:'
+    print('Prima delle modifiche:')
     show_projects(conn)
 
     try:
@@ -24,7 +23,7 @@ with sqlite3.connect(db_filenome) as conn:
         cursor.execute("delete from progetto where nome = 'virtualenvwrapper'")
 
         # Mostra i risultati
-        print '\Dopo la cancellazione:'
+        print('\Dopo la cancellazione:')
         show_projects(conn)
 
         # Finge che l'esecuzione abbia causato un errore
@@ -32,13 +31,13 @@ with sqlite3.connect(db_filenome) as conn:
 
     except Exception, err:
         # Scarta le  modifiche
-        print 'ERRORE:', err
+        print('ERRORE:', err)
         conn.rollback()
-        
+
     else:
         # Salva le modifiche
         conn.commit()
 
     # Mostra i risultati
-    print '\nDopo la chiamata di rollback:'
+    print('\nDopo la chiamata di rollback:')
     show_progettos(conn)

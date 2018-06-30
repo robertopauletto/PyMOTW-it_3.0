@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza e scambio dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+shelve - Conservazione Persistente di Oggetti
+</titolo_1>
+<descrizione>
+Implementa la conservazione persistente per oggetti Python arbitrari che possono essere preservati usando una API tipo dizionario.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>shelve</strong> può essere usato come semplice opzione di conservazione di oggetti Python quando non è richiesto un database relazionale. L'accesso avviene tramite chiavi, proprio come un dizionario. I valori sono serializzati con <a href='pickle.html'>pickle</a> e scritti in un database creato e gestito da <a href='dbm.html' target='_blank'>dbm</a>.
+</testo_normale>
+<titolo_2>
+Creare un Nuovo <em>Shelf</em>
+</titolo_2>
+<testo_normale>
+Il modo più semplice di usare <strong>shelve</strong> è tramite la classe <code>DbfilenameShelf</code>. Usa <a href='dbm.html' target='_blank'>dbm</a> per conservare i dati. Questa classe può essere usata direttamente oppure chiamando <code>shelve.open()</code>. Si intende per <em>shelf</em> il nuovo file creato con questa tecnica (n.d.t.)
+</testo_normale>
+<py_code>
+# shelve_create.py
+</py_code>
+<testo_normale>
+Per accedere nuovamente ai dati, si apra lo <em>shelf</em> e lo si utilizzi come un dizionario.
+</testo_normale>
+<py_code>
+# shelve_existing.py
+</py_code>
+<testo_normale>
+L'esecuzione di entrambi gli script di esempio produce il seguente risultato:
+</testo_normale>
+<py_output>
+$ python3 shelve_create.py
+$ python3 shelve_existing.py
+
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+</py_output>
+<testo_normale>
+Il modulo<a href='dbm.html' target='_blank'>dbm</a> non supporta la scrittura contemporanea allo stesso database da parte di applicazioni multiple, ma supporta la concorrenza per <em>client</em> a sola lettura. Se un <em>client</em> non modificherà lo <em>shelf</em>, si passi a <code>shelve</code> l'argomento <code>flag='r'</code> per aprire il database in sola lettura.
+</testo_normale>
+<py_code>
+# shelve_readonly.py
+</py_code>
+<testo_normale>
+Se il programma tenta di modificare il database mentre è aperto in sola lettura, viene generata una eccezione. Il tipo di eccezione dipende dal modulo di database selezionato da <a href='dbm.html' target='_blank'>dbm</a> quando viene creato il database.
+</testo_normale>
+<py_output>
+$ python3 shelve_readonly.py
+</py_output>
+<titolo_2>
+Riscrittura
+</titolo_2>
+<testo_normale>
+<strong>shelve</strong> non tiene traccia di modifiche ad oggetti volatili, nella modalità predefinita. Il che significa che se il contenuto di un elemento conservato nello <em>shelf</em> è cambiato, occorre eseguire esplicitamente l'aggiornamento persistendo nuovamente l'intero elemento.
+</testo_normale>
+<py_code>
+# shelve_withoutwriteback.py
+</py_code>
+<testo_normale>
+In questo esempio il dizionario a <code>key1</code> non viene nuovamente conservato; quando lo <em>shelf</em> verrà nuovamente aperto, le modifiche non saranno conservate.
+</testo_normale>
+<py_output>
+$ python3 shelve_create.py
+$ python3 shelve_withoutwriteback.py
+
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+{'int': 10, 'float': 9.5, 'string': 'Dati di esempio'}
+</py_output>
+<testo_normale>
+Per catturare automaticamente modifiche ad oggetti volatili conservati nello <em>shelf</em>, si apra il database abilitando la riscrittura. Il flag <code>writeback</code> fa sì che tutti gli oggetti recuperati dal database vengano memorizzati usando una <a href='https://www.wikiwand.com/it/Cache' target='_blank'><em>cache</em></a>  in memoria. Ciascun oggetto in <em>cache</em> viene riscritto nel database quando lo <em>shelf</em> viene chiuso.
+</testo_normale>
+<py_code>
+# shelve_writeback.py
+</py_code>
+<testo_normale>
+Sebbene vengano ridotte le possibilità di errore da parte del programmatore, e venga resa la persistenza dell'oggetto più trasparente, l'utilizzo della modalità di riscrittura potrebbe non essere quanto desiderato in ogni occasione. La <em>cache</em> consuma memoria supplememtare mentre lo <em>shelf</em> è aperto, e le interruzioni causate dalla riscrittura nel database di ogni oggetto conservato nella <em>cache</em> rallentano l'applicazione. Vengono riscritti nel database tutti gli oggetti in <em>cache</em> in quanto non vi è modo di sapere quale di essi è stato modificato. Se l'applicazione legge più dati di quanti ne scrive, la riscrittura avrà un impatto non nencessario sulle prestazioni.
+</testo_normale>
+<py_output>
+$ python3 shelve_create.py
+$ python3 shelve_writeback.py
+
+Dati iniziali:
+{'float': 9.5, 'int': 10, 'string': 'Dati di esempio'}
+
+Modificato:
+{'float': 9.5,
+ 'int': 10,
+ 'nuovo_valore': 'questo non esisteva prima',
+ 'string': 'Dati di esempio'}
+
+Preservato:
+{'float': 9.5,
+ 'int': 10,
+ 'nuovo_valore': 'questo non esisteva prima',
+ 'string': 'Dati di esempio'}
+
+</py_output>
+<titolo_2>
+Tipi di Shelf Specifici
+</titolo_2>
+<testo_normale>
+Gli esempi precedenti usano tutti l'implementazione predefinita. Usando <code>shelve.open()</code> in luogo della diretta implementazione è un modello di uso comune, specialmente se non importa quale tipo di database sia usato per la conservazione dei dati. A volte, tuttavia, quando il formato del database è importante, si utilizzi <code>DbfilenameShelf</code> oppure <code>BsdDbShelf</code> direttamente, e financo si subclassi <code>Shelf</code> per una soluzione personalizzata.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/shelve.html|shelve|La documentazione della libreria standard per questo modulo.
+dbm.html|dbm|Il modulo <strong>dbm</strong> trova una libreria DBM disponibile per creare un nuovo database.
+https://bitbucket.org/dhellmann/feedcache|feedcache|Il modulo <strong>feedcache</strong> usa <strong>shelve</strong> come opzione di conservazione predefinita.
+http://pypi.python.org/pypi/shove/|shove|<strong>shove</strong> implementa una API simile ma con più formati di <em>back-end</em>
+</vedi_anche>
+</documento_tradotto>

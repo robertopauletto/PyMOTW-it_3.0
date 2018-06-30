@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_argument_update.py
 
 import sqlite3
 import sys

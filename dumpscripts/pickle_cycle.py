@@ -1,27 +1,26 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# pickle_cycle.py
 
 import pickle
 
-class Node(object):
-    """A simple digraph where each node knows about the other nodes
-    it leads to.
+
+class Node:
+    """Un semplice digrafo
     """
     def __init__(self, name):
         self.name = name
         self.connections = []
-        return
 
     def add_edge(self, node):
-        "Create an edge between this node and the other."
+        "Crea un collegamento tra questo nodo e gli altri."
         self.connections.append(node)
-        return
 
     def __iter__(self):
         return iter(self.connections)
 
+
 def preorder_traversal(root, seen=None, parent=None):
-    """Generator function to yield the edges via a preorder traversal."""
+    """Generatore che fornisce i collegamenti in un grafo.
+    """
     if seen is None:
         seen = set()
     yield (parent, root)
@@ -29,24 +28,27 @@ def preorder_traversal(root, seen=None, parent=None):
         return
     seen.add(root)
     for node in root:
-        for (parent, subnode) in preorder_traversal(node, seen, root):
+        recurse = preorder_traversal(node, seen, root)
+        for parent, subnode in recurse:
             yield (parent, subnode)
-    return
-    
+
+
 def show_edges(root):
-    "Print all of the edges in the graph."
+    "Stampa tutti i collegamenti nel grafo."
     for parent, child in preorder_traversal(root):
         if not parent:
             continue
-        print '%5s -> %2s (%s)' % (parent.name, child.name, id(child))
+        print('{:>5} -> {:>2} ({})'.format(
+            parent.name, child.name, id(child)))
 
-# Set up the nodes.
+
+# Imposta i nodi.
 root = Node('root')
 a = Node('a')
 b = Node('b')
 c = Node('c')
 
-# Add edges between them.
+# Aggiunge i collegamenti tra i nodi.
 root.add_edge(a)
 root.add_edge(b)
 a.add_edge(b)
@@ -54,15 +56,13 @@ b.add_edge(a)
 b.add_edge(c)
 a.add_edge(a)
 
-print 'GRAPH ORIGINALE:'
+print('GRAFO ORIGINALE :')
 show_edges(root)
 
-# Pickle and unpickle the graph to create
-# a new set of nodes.
+# Serializza e deserializza il grafo per creare
+# un nuovo insieme di nodi.
 dumped = pickle.dumps(root)
 reloaded = pickle.loads(dumped)
 
-print
-print 'GRAPH RICARICATO:'
+print('\nGRAFO RICARICATO:')
 show_edges(reloaded)
-

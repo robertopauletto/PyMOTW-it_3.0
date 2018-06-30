@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza e scambio dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+pickle - Serializzazione di oggetti
+</titolo_1>
+<descrizione>
+Serializzazione di oggetti
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>pickle</strong> implementa un algoritmo per trasformare un oggetto arbitrario Python in un una serie di byte. Questo processo viene anche detto <a href='https://www.wikiwand.com/it/Serializzazione'><em>serializzazione</em></a> dell'oggetto). Il flusso di byte che rappresenta l'oggetto pu&ograve; essere trasmesso o conservato, e successivamente ricostruito per creare un nuovo oggetto con le stesse caratteristiche (<a href='https://www.wikiwand.com/it/Deserializzazione' target='_blank'>deserializzazione</a>)  .
+</testo_normale>
+<avvertimento>
+La documentazione per <strong>pickle</strong> specifica chiaramente che viene offerto senza alcuna garanzia di sicurezza. In effetti l'operazione di deserializzazione può eseguire codice arbitrario. Si raccomanda prudenza nell'utilizzo di <strong>pickle</strong> per comunicazione o conservazione di dati tra processi, e non ci si fidi di dati che non possono essere verificati come sicuri. Si veda il modulo <strong>hmac</strong> per un esempio di un modo sicuro di verificare la fonte di un dato in formato pickle
+</avvertimento>
+<titolo_2>
+Codificare e Decodificare Dati in Stringhe
+</titolo_2>
+<testo_normale>
+Il primo esempio usa <code>dumps()</code>  per codificare una struttura dati come stringa, quindi stampa la stringa verso la console. Usa una struttura dati composta intermente di tipi <em>built-in</em>. Le istanze di qualsiasi classe possono essere serializzate con <strong>pickle</strong>, come verr&agrave; in seguito illustrato con un esempio.
+</testo_normale>
+<py_code>
+# pickle_string.py
+</py_code>
+<testo_normale>
+In modalit&agrave; predefinita, i dati verrano scritti nel formato binario maggiormente compatibile quando occorre condividerli tra programmi Python 3
+</testo_normale>
+<py_output>
+$ python3 pickle_string.py
+</py_output>
+<testo_normale>
+Una volta che i datai sono serializzati, possono essere scritti in un file, <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'><em>socket</em></a> , <em>pipe</em> ecc. Successivamente  si pu&ograve; leggere il file e recuperare i dati per costruire un nuovo oggetto con gli stessi valori.
+</testo_normale>
+<py_code>
+# pickle_unpickle.py
+</py_code>
+<testo_normale>
+il nuovo oggetto costruito &egrave; uguale ma non &egrave; lo stesso oggetto originale.
+</testo_normale>
+<py_output>
+$ python3 pickle_unpickle.py
+</py_output>
+<titolo_2>
+Lavorare con Flussi
+</titolo_2>
+<testo_normale>
+Oltre a <code>dumps()</code> e <code>loads()</code>, <strong>pickle</strong> fornisce un paio di funzioni di convenienza per lavorare con flussi tipo file. E' possibile scrivere oggetti multipli verso un flusso, quindi leggerli da esso senza sapere in anticipo quanti oggetti sono stati scritti o quanto grandi essi siano.
+</testo_normale>
+<py_code>
+# pickle_stream.py
+</py_code>
+<testo_normale>
+L'esempio simula dei flussi usando due buffer <code>BytesIO</code>. Il primo riceve gli oggetti serializzati ed il suo valore viene passato al secondo dal quale legge <code>load()</code>. Anche un semplice formato di database potrebbe usare questo sistema per conservare i dati. Il modulo <strong>shelve</strong> rappresenta questo tipo di implementazione.
+</testo_normale>
+<py_output>
+$ python3 pickle_stream.py
+</py_output>
+<testo_normale>
+Oltre alla conservazione di dati, gli oggetti serializzati con <strong>pickle</strong> sono molto comodi per comunicazioni tra processi. Ad esempio usando <code>os.fork()</code> ed <code>os.pipe()</code> si possono stabilire degli elaboratori di richieste che leggono delle istruzioni da elaborare da una <em>pipe</em> e scrivono i risultati in un'altra <em>pipe</em>. Il codice base per la gestione del gruppo di elaboratori di richieste  e per l'invio delle istruzioni e la ricezione delle risposte pu&ograve; essere riusato, visto che gli oggetti delle istruzioni e  risposta non devono essere di una classe particolare. Se si stanno usando <em>pipe</em> o <em>socket</em>, non ci si deve dimenticare di eseguire uno svuotamento dopo avere disposto ogni oggetto, per spingere i dati attraverso la connessione verso l'altro estremo. Si veda il modulo <strong>multiprocessing</strong> se non si vuole scrivere il proprio gestore del gruppo di elaboratori di richieste.
+</testo_normale>
+<titolo_2>
+Problemi nella Ricostruzione degli Oggetti
+</titolo_2>
+<testo_normale>
+Quando si lavora con le proprie classi, ci si deve assicurare che la classe che si vuole serializzare appaia nello spazio dei nomi del processo che sta leggendo il pickle. Solo i dati per quell'istanza vengono trattati, non la definzione della classe. Il nome della classe viene usato per trovare il costruttore per creare il nuovo oggetto quando viene deserializzato. L'esempio seguente scrive delle istanze di una classe verso un file.
+</testo_normale>
+<py_code>
+# pickle_dump_to_file_1.py
+</py_code>
+<testo_normale>
+Quando viene eseguito, lo script crea un file il cui nome &ograve; quello passato come argomento da riga di comando.
+</testo_normale>
+<py_output>
+$ python3 pickle_load_from_file_1.py test.dat
+</py_output>
+<testo_normale>
+Un tentativo semplicistico di caricare gli oggetti serializzati risultanti fallirebbe.
+</testo_normale>
+<py_code>
+# pickle_load_from_file_1.py
+</py_code>
+<testo_normale>
+Questa versione fallisce perch&ograve; non &ograve; disponibile alcuna classe <code>SimpleObject</code>.
+</testo_normale>
+<py_output>
+$ python3 pickle_load_from_file_1.py test.dat
+</py_output>
+<testo_normale>
+La versione corretta, che importa <code>SimpleObject</code> dallo script originale, ha successo. L'aggiunta dell'istruzione di importazione alla file dell'elenco delle risorse importate consente allo script di trovare la classe e costruire l'oggetto
+</testo_normale>
+<py_code>
+from pickle_dump_to_file_1 import SimpleObject
+</py_code>
+<testo_normale>
+L'esecuzione dello script modificato ora produce il risultato atteso.
+</testo_normale>
+<py_output>
+$ python3 pickle_dump_to_file_2.py test.dat
+</py_output>
+<titolo_2>
+Oggetti non Serializzabili
+</titolo_2>
+<testo_normale>
+Non tutti gli oggetti possono essere serializzati da <strong>pickle</strong> <em>socket</em>, <em>handle</em> di file, connessioni a database ed altri oggetti con uno stato a livello di esecuzione che dipende dal sistema operativo o da un altro processo potrebbero essere impossibili da salvare in un modo efficate. Gli oggetti che hanno attributi che non  possono essere elaborati da <strong>pickle</strong> possono definire <code>__getstate__()</code> e <code>__setstate__()</code> per restituire un sottoinsieme dello stato dell'istanza da serializzare.
+</testo_normale>
+<testo_normale>
+Il metodo <code>__getstate__()</code> deve ritornare un oggetto che contenga lo stato interno dell'oggetto. Un comodo metodo per rappresetare questo stato è con un dizionario, ma il valore può essere un qualunque oggetto che possa essere serializzato. Lo stato viene conservato, quindi passato a <code>__setstate()__</code> quando l'oggetto viene caricato per la deserializzazione.
+</testo_normale>
+<py_code>
+# pickle_state.py
+</py_code>
+<testo_normale>
+Questo esempio usa un oggetto <code>State</code> separato per mantenere lo stato interno di <code>MyClass</code>. Quando un'istanza di <code>MyClass</code> viene caricata da un elemento serializzato da <strong>pickle</strong>, <code>__setstate__()</code>  viene passato all'istanza di <code>State</code> che lo usa per inizializzare l'oggetto.
+</testo_normale>
+<py_output>
+$ python3  pickle_state.py
+</py_output>
+<avvertimento>
+Se il valore restituito è <code>False</code>, <code>__setstate__()</code> non viene chiamato quando l'oggetto viene deserializzato.
+</avvertimento>
+<titolo_2>
+Riferimenti Circolari
+</titolo_2>
+<testo_normale>
+Il protocollo di <strong>pickle</strong> gestisce automaticamente i riferimenti circolari tra gli oggetti, quindi non ci si deve preoccupare di fare qualcosa di speciale con complesse strutture di dati. Si consideri il <a href='https://www.wikiwand.com/it/Digrafo_(matematica)'>digrafo</a> seguente. Include parecchi cicli, tuttavia la struttura corretta può essere serializzata, quindi deserializzata.
+</testo_normale>
+<testo_normale>
+<figure>
+    <img src='digraph.png' alt='esempio di digraph'></img>
+    <figcaption>Serializzazione di una struttura dati con cicli</figcaption>
+</figure>
+</testo_normale>
+<testo_normale>
+Sebbene il grafico includa diversi cicli, la struttura corretta pu&ograve; essere serializzata e successivamente ricaricata.
+</testo_normale>
+<py_code>
+# pickle_cycle.py
+</py_code>
+<testo_normale>
+I nodi ricaricati non sono lo stesso oggetto, ma la relazione tra i nodi &ograve; mantenuta e viene ricaricata solo una copia dell'oggetto con riferimenti multipli. Entrambe queste affermazioni possono essere verificate esaminando i valori di <code>id()</code> dei nodi, prima e dopo il passaggio di serializzazione e deserializzazione.
+</testo_normale>
+<py_output>
+$ python3  pickle_cycle.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/pickle.html|pickle|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-3154|PEP 3154|Il protocollo pickle versione 4
+#|shelve (in corso di traduzione)|Il modulo shelve
+http://peadrop.com/blog/2007/06/18/pickle-an-interesting-stack-language/|Pickle: An Interesting stack language|di Alexandre Vassalotti
+</vedi_anche>
+</documento_tradotto>

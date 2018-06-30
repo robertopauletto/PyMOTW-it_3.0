@@ -79,10 +79,10 @@ $ python3 queue_lifo.py
 4 3 2 1 0
 </py_output>
 <titolo_2>
-Priorità di Queue
+Coda di Priorità
 </titolo_2>
 <testo_normale>
-Talvolta l'ordine di elaborazione degli elementi in una coda deve basarsi sulle caratteristiche degli elementi stessi, invece del mero ordine nel quale sono stati creati od aggiunti alla coda. Ad esempio, i lavori di stampa di un ufficio paghe, potrebbero avere la precedenza su di un listato di codice stampato da uno sviluppatore. <code>PriorityQueue</code> uilizza l'ordinamento del contenuto della coda per decidere cosa recuperare.
+<a name='priorqueue'></a>Talvolta l'ordine di elaborazione degli elementi in una coda deve basarsi sulle caratteristiche degli elementi stessi, invece del mero ordine nel quale sono stati creati od aggiunti alla coda. Ad esempio, i lavori di stampa di un ufficio paghe, potrebbero avere la precedenza su di un listato di codice stampato da uno sviluppatore. <code>PriorityQueue</code> uilizza l'ordinamento del contenuto della coda per decidere cosa recuperare.
 </testo_normale>
 <py_code>
 # queue_priority.py

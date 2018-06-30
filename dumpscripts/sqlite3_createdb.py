@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_createdb.py
 
 import os
 import sqlite3
@@ -11,8 +10,8 @@ db_is_new = not os.path.exists(db_filename)
 conn = sqlite3.connect(db_filename)
 
 if db_is_new:
-    print 'Occorre creare lo schema'
+    print('Occorre creare lo schema')
 else:
-    print 'Il database esiste, si suppone che esista anche lo schema.'
+    print('Il database esiste, si suppone che esista anche lo schema.')
 
 conn.close()

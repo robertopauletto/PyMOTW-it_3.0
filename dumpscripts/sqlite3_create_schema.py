@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_create_schema.py
 
 import os
 import sqlite3
@@ -11,31 +10,31 @@ db_is_new = not os.path.exists(db_filename)
 
 with sqlite3.connect(db_filename) as conn:
     if db_is_new:
-        print 'Creazione dello schema'
+        print('Creazione dello schema')
         with open(schema_filename, 'rt') as f:
             schema = f.read()
         conn.executescript(schema)
 
-        print 'Inserimento dei dati di partenza'
-        
+        print('Inserimento dei dati di partenza')
+
         conn.execute("""
         insert into progetto (nome, descrizione, scadenza)
-        values ('pymotw-it', 'Il modulo Python della Settimana', '2010-11-01')
+        values ('pymotw-it 3', 'Il modulo Python della Settimana', '2018-08-16')
         """)
-        
+
         conn.execute("""
         insert into compito (dettagli, stato, scadenza, progetto)
-        values ('descrivere select', 'fatto', '2010-10-03', 'pymotw-it')
+        values ('tradurre select', 'fatto', '2018-05-21', 'pymotw-it 3')
         """)
-        
+
         conn.execute("""
         insert into compito (dettagli, stato, scadenza, progetto)
-        values ('descrivere random', 'in attesa', '2010-10-10', 'pymotw-it')
+        values ('tradurre random', 'in attesa', '2018-06-02', 'pymotw-it 3')
         """)
-        
+
         conn.execute("""
         insert into compito (dettagli, stato, scadenza, progetto)
-        values ('descrivere sqlite3', 'attivo', '2010-10-17', 'pymotw-it')
+        values ('tradurre sqlite3', 'attivo', '2018-10-31', 'pymotw-it 3')
         """)
     else:
-        print 'Il database esiste, si suppone che esista anche lo schema.'
+        print('Il database esiste, si suppone che esista anche lo schema.')

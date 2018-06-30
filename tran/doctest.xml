@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="Latin-1"?>
-<categoria>strumenti del linguaggio</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<categoria>strumenti dello sviluppatore</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
 <!-- # tag <titolo_1> titolo principale -->
 <!-- tag <testo_normale> contiene il testo normale dell'articolo -->
 <!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
@@ -16,13 +16,13 @@ Scrivere test automatici come parte della documentazione per un modulo.
 
 </descrizione>
 <testo_normale>
-<strong>doctest</strong> verifica codice sorgente eseguendo esempi incorporati nella documentazione, assicurandosi che essi producano il risultato atteso. Funziona analizzando il testo di aiuto per trovare esempi, eseguirli, quindi confrontandone il risultato con il valore atteso. Molti sviluppatori trovano <strong>doctest</strong> più facile da usare rispetto ad unittest, visto che, nella sua forma più semplice, non ci sono <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> da imparare prima di usarlo. Tuttavia, mano a mano che gli esempi diventano più complessi, la mancanza di caratteristiche di gestione può rendere la scrittura di test con <strong>doctest</strong> meno conveniente rispetto all'uso di unittest.
+<strong>doctest</strong> verifica codice sorgente eseguendo esempi incorporati nella documentazione, assicurandosi che essi producano il risultato atteso. Funziona analizzando il testo di aiuto per trovare esempi, eseguirli, quindi confrontandone il risultato con il valore atteso. Molti sviluppatori trovano <strong>doctest</strong> più facile da usare rispetto ad <a href='unittest.html' target='_blank'>unittest</a>, visto che, nella sua forma più semplice, non ci sono <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> da imparare prima di usarlo. Tuttavia, mano a mano che gli esempi diventano più complessi, la mancanza di caratteristiche di gestione dell'impianto può rendere la scrittura di test con <strong>doctest</strong> meno conveniente rispetto all'uso di <a href='unittest.html' target='_blank'>unittest</a>.
 </testo_normale>
-<testo_normale>
+<titolo_2>
 Partiamo
-</testo_normale>
+</titolo_2>
 <testo_normale>
-Il primo passo per impostare <strong>doctest</strong> è usare l'interprete interattivo per creare esempi, quindi copiarli nelle <a href='https://www.wikiwand.com/it/Docstring' target='_blank'>docstring</a> del modulo. Qui, <code>my_function()</code> contiene due esempi.
+Il primo passo per impostare <strong>doctest</strong> è usare l'interprete interattivo per creare esempi, quindi copiarli nelle <a href='https://www.wikiwand.com/it/Docstring' target='_blank'>docstring</a> nel modulo. Qui, <code>my_function()</code> contiene due esempi.
 </testo_normale>
 <py_code>
 # doctest_simple.py
@@ -31,25 +31,25 @@ Il primo passo per impostare <strong>doctest</strong> è usare l'interprete inte
 Per eseguire i test, si usa <code>doctest</code> come programma principale tramite l'opzione <code>-m</code>. In genere non viene prodotto alcun risultato mentre i test sono in esecuzione, quindi il prossimo esempio include l'opzione <code>-v</code> per rendere il risultato più verboso.
 </testo_normale>
 <py_output>
-# python3 -m doctest -v doctest_simple.py
+$ python3 -m doctest -v doctest_simple.py
 </py_output>
 <testo_normale>
-Gli esempi di chiamata in genere non possono autonomamente servire come spiegazione di una funzione, quindi <strong>doctest</strong> consente anche di inserire del testo prima o dopo le dichiarazioni. Cerca righe che iniziano con il prompt dell'interprete (>>>) per trovare l'inizio di un caso di test, che viene chiuso quanto viene trovata una riga vuota o l'inizio del prossimo prompt dell'interprete. Tutto il resto del testo viene ignorato, e può avere qualunque formato fintanto che non possa essere scambiato per un caso di test.
+Gli esempi di chiamata in genere non possono autonomamente servire come spiegazione di una funzione, quindi <strong>doctest</strong> consente anche di inserire del testo prima o dopo nelle <em>docstring</em>. Cerca righe che iniziano con il prompt dell'interprete (>>>) per trovare l'inizio di un caso di test, che viene chiuso quanto viene trovata una riga vuota o l'inizio del prossimo prompt dell'interprete. Tutto il resto del testo viene ignorato, e può avere qualunque formato fintanto che non possa essere scambiato per un caso di test.
 </testo_normale>
 <py_code>
 # doctest_simple_with_docs.py
 </py_code>
 <testo_normale>
-Il testo circostante nelle docstring aggiornate lo rende più utile al lettore umano. Visto che viene ignorato da <strong>doctest</strong> il risultato è lo stesso.
+Il testo circostante nelle <em>docstring</em> aggiornate lo rende più utile al lettore umano. Visto che viene ignorato da <strong>doctest</strong> il risultato è lo stesso.
 </testo_normale>
 <py_output>
-# python3 -m doctest -v doctest_simple_with_docs.py
+$ python3 -m doctest -v doctest_simple_with_docs.py
 </py_output>
 <titolo_2>
 Gestire Risultati Imprevedibili
 </titolo_2>
 <testo_normale>
-Ci sono altri casi dove l'esatto risultato non può essere previsto, ma dovrebbe comunque essere verificabile. Ad esempio data ed ora localizzate ed identificativi di oggetti cambiano ad ogni esecuzione del test, la precisione predefinita usata per la rappresentazione dei valori a virgola mobile dipende dalle opzioni del compilatore, e la rappresentazione stringa di oggetti contenitore tipo dizionari potrebbero essere impossibili da determinare. Sebbene queste condizioni non possano essere controllate, si sono tecniche per gestirle.
+Ci sono altri casi dove l'esatto risultato non può essere previsto, ma dovrebbe comunque essere verificabile. Ad esempio data ed ora localizzate ed identificativi di oggetti cambiano ad ogni esecuzione del test, la precisione predefinita usata per la rappresentazione dei valori a virgola mobile dipende dalle opzioni del compilatore, e la rappresentazione stringa di oggetti contenitore tipo dizionari potrebbero non essere deterministica. Sebbene queste condizioni non possano essere controllate, si sono tecniche per gestirle.
 </testo_normale>
 <testo_normale>
 Ad esempio in CPython, gli identificativi di oggetti sono basati sull'indirizzo di memoria della struttura dati che contiene l'oggetto.
@@ -58,7 +58,7 @@ Ad esempio in CPython, gli identificativi di oggetti sono basati sull'indirizzo 
 # doctest_unpredictable.py
 </py_code>
 <testo_normale>
-Questi valori di identificativo cambiano ogni volta che un programma viene eseguito, visto che viene caricato in una diversa parte di memoria.
+Questi valori di identificativo cambiano ogni volta che un programma viene eseguito, visto che viene caricato in parti diverse di memoria.
 </testo_normale>
 <py_output>
 $ python3 -m doctest -v doctest_unpredictable.py
@@ -86,34 +86,339 @@ Got:
 ***Test Failed*** 1 failures.
 </py_output>
 <testo_normale>
-Quando i test includono valori che si ritiene cambino in modo imprevedibile, laddove il valore effettivo non è importante per il risultato del test, si usi l'opzione <code>ELLIPSIS</code> per dire a <strong>doctest</strong> di ignorare porzioni di verifica del valore.
+Quando i test includono valori che si ritiene cambino in modo imprevedibile, laddove il valore effettivo non sia importante per il risultato del test, si usi l'opzione <code>ELLIPSIS</code> per dire a <strong>doctest</strong> di ignorare porzioni di verifica del valore.
 </testo_normale>
 <py_code>
 # doctest_ellipsis.py
 </py_code>
 <testo_normale>
-Il commento '<code>#doctest: +ELLIPSIS</code>' dopo la chiamata ad <code>unpredictable()</code> dice a <strong>doctest</strong> di attivare l'opzione <code>ELLIPSIS</code> per quel test. La stringa '<code>...</code>' rimpiazza l'indirizzo di memoria nell'identificativo dell'oggetto, quindi quella perzione del valore atteso viene ignorata e il risultato effettivo corrisponde ed il test viene superato.
+Il commento '<code>#doctest: +ELLIPSIS</code>' dopo la chiamata ad <code>unpredictable()</code> dice a <strong>doctest</strong> di attivare l'opzione <code>ELLIPSIS</code> per quel test. La stringa '<code>...</code>' rimpiazza l'indirizzo di memoria nell'identificativo dell'oggetto, quindi quella porzione del valore atteso viene ignorata e il risultato effettivo corrisponde ed il test viene superato.
 </testo_normale>
 <py_output>
-# python3 -m doctest -v doctest_ellipsis.py
+$ python3 -m doctest -v doctest_ellipsis.py
 </py_output>
 <testo_normale>
-Ci sono casi nei quali il valore non prevedibibile non può essere ignorato, poichè renderebbe il test incompleto od inaccurato. Ad esempio dei semplici test diventano velocemente più complicati quando si ha a che fare con tipi di dati la cui arppresentazione stringa è inconsistente. Il formato stringa di un dizionario, ad esempio, potrebbe cambiare in base all'ordine nel quale vengono aggiunte le chiavi.
+Ci sono casi nei quali il valore non prevedibile non può essere ignorato, poichè renderebbe il test incompleto od inaccurato. Ad esempio dei semplici test diventano velocemente più complicati quando si ha a che fare con tipi di dati la cui rappresentazione stringa è inconsistente. Il formato stringa di un dizionario, ad esempio, potrebbe cambiare in base all'ordine nel quale vengono aggiunte le chiavi.
 </testo_normale>
 <py_code>
 # doctest_hashed_values.py
 </py_code>
 <testo_normale>
-Visto la casualità della procedura di hashing e delle potenziali collisioni di chiavi, la lista interna delle chiavi potrebbe essere in ordine diverso nel dizionario ogni volta che viene eseguito lo script. Gli insiemi (set) usano lo stesso algoritmo di hash e mostrano lo stesso problema
+Visto la casualità della procedura di generazione casuale di <a href='url' target='_blank'>hashing</a>   e delle potenziali collisioni di chiavi, la lista interna delle chiavi potrebbe essere in ordine diverso nel dizionario ogni volta che viene eseguito lo script.
 </testo_normale>
 <py_output>
-# python3 doctest_hashed_values.py
+$ python3 doctest_hashed_values.py
 </py_output>
+<testo_normale>
+Gli insiemi (set) usano lo stesso algoritmo di hash e mostrano lo stesso problema
+</testo_normale>
+<py_output>
+$ python3 doctest_hashed_values.py
+
+dict: {'aa': 2, 'a': 1, 'aaa': 3}
+set : {'aa', 'aaa', 'a'}
+</py_output>
+<testo_normale>
+Il modo migliore per gestire queste potenziali discrepanze è creare test che producono valori che difficilmente possono cambiare. Nel caso di dizionari ed insiemi, potrebbe voler dire cercare individualmente specifiche chiavi, generando una lista ordinata dei contenuti della struttura dati, oppure eseguire un confronto per uguaglianza contro un valore letterale invece che dipendere dalla rappresentazione stringa.
+</testo_normale>
+<py_code>
+# doctest_hashed_values_tests.py
+</py_code>
+<testo_normale>
+Il singolo esempio è in realtà intepretato come due test separati, con il promo che non si attende un risultato da console ed il secondo che si attende il booleano risultante dall'opearzione di confronto.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_hashed_values_tests.py
+</py_output>
+<titolo_2>
+Traceback
+</titolo_2>
+<testo_normale>
+I <em>traceback</em> rappresentano un caso speciale di dati in cambiamento . Visto che i percorsi in un <em>traceback</em> dipendono dalla locazione nella quale è installato un modulo nel file system, sarebbe impossibile scrivere test portabili se fossero trattati alla stregua di altro input.
+</testo_normale>
+<py_code>
+# doctest_tracebacks.py
+</py_code>
+<testo_normale>
+<strong>doctest</strong> compie uno sforzo particolare per riconoscere i <em>traceback</em>, ed ignorare le parti che potrebbero cambiare da sistema a sistema.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_tracebacks.py
+</py_output>
+<testo_normale>
+In effetti, l'intero corpo del <em>traceback</em> è ignorato e può essere omesso.
+</testo_normale>
+<py_code>
+# doctest_tracebacks_no_body.py
+</py_code>
+<testo_normale>
+Quando <strong>doctest</strong> vede una riga di intestazione di un <em>traceback</em> (sia "<code>Traceback (most recent call last):</code>" che "<code>Traceback (innermost last):</code>", per supportare diverse versioni di Python), salta in avanti fino a trovare il tipo di eccezione ed il messaggio ignorando interamente le righe intermedie.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_tracebacks_no_body.py
+</py_output>
+<titolo_2>
+Gestire Spazi, Righe Vuote, Tabulazioni
+</titolo_2>
+<testo_normale>
+Nelle vere applicazioni, il risultato in genere include righe vuote, spazi, tabulazioni ed altre spaziature per renderlo meglio leggibile. Le righe vuote, in particolare, causano problemi con <strong>doctest</strong> in quanto sono usate per delimitare i test.
+</testo_normale>
+<py_code>
+# doctest_blankline_fail.py
+</py_code>
+<testo_normale>
+<code>double_space()</code> richiede una lista di righe in input, e le stampa con doppia spaziatura di riga per ognuna.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_blankline_fail.py
+</py_output>
+<testo_normale>
+Il test fallisce visto che interpreta la riga vuota come la riga che contiene <code>Riga uno.</code> nella <em>docstring</em> alla fine del risultato di esempio. Per far corrispondere le righe vuote, si rimpiazzino nell'input di esempio con la stringa <code>&lt;BLANKLINE&gt;</code>.
+</testo_normale>
+<py_code>
+# doctest_blankline.py
+</py_code>
+<testo_normale>
+<strong>doctest</strong> sostituisce le vere righe vuote con lo stesso letterale prima di eseguire il confronto, in questo modo i valori reali e quelli attesi corrispondono e il test viene superato.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_blankline.py
+</py_output>
+<testo_normale>
+Anche caratteri di spaziatura all'interno di una riga possono causare problemi con i test. Questo esempio ha uno spazio extra dopo il <code>6</code>.
+</testo_normale>
+<py_code>
+# doctest_extra_space.py
+</py_code>
+<testo_normale>
+Gli spazi extra possono essere inseriti nel codice tramite errori di <em>copia e incolla</em>, visto che però vengono inseriti alla fine della riga potrebbero passare inosservati nel file sorgente ed essere parimenti invisibili nel rapporto del fallimento del test.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_extra_space.py
+</py_output>
+<testo_normale>
+Utilizzando una delle opzioni di rapporto basate su <a href='https://www.wikiwand.com/it/Diff' target='_blank'>diff</a> come <code>REPORT_NDIFF</code>, mostra la differenza tra i valori attesi e reali con maggior dettaglio e gli spazi extra diventano visibili.
+</testo_normale>
+<py_code>
+# doctest_ndiff.py
+</py_code>
+<testo_normale>
+Sono disponibili <em>diff</em> unificati (<code>REPORT_UDIFF</code>) e di contesto (<code>REPORT_CDIFF</code>), per risultati dove questi formati risultano maggiormente leggibili.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_ndiff.py
+</py_output>
+<testo_normale>
+Ci sono casi nei quali è conveniente aggiungere caratteri di spaziatura extra nel risultato di esempio per il test, facendo in modo che <strong>doctest</strong> li ignori. Ad esempio, le strutture dati possono essere più facili da leggere quando vengono piazzate su diverse righe, anche se per la loro rappresentazione basterebbe una singola riga.
+</testo_normale>
+<py_code>
+# doctest_normalize_whitespace.py
+</py_code>
+<testo_normale>
+Con <code>NORMALIZE_WHITESPACE</code> attivato, qualsiasi carattere di spaziatura nei valori reali ed attesi viene considerato una corrispondenza. I caratteri di spaziatura non possono essere aggiunti ai valori attesi dove non esistono nel risultato, ma la lunghezza della sequenza di caratteri di spaziatura ed i reali caratteri di spaziatura non devono necessariamente corrispondere. Il primo esempio di test interpreta correttamente questa regola, e viene superato, anche se ci sono caratteri di spaziatura extra e ritorni a capo. Il secondo ha caratteri di spaziatura extra dopo la <code>[</code> e prima di <code>]</code>, quindi fallisce.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_normalize_whitespace.py
+</py_output>
+<titolo_2>
+Locazione dei test
+</titolo_2>
+<testo_normale>
+Finora tutti i test di esempio sono stati scritti nelle <em>docstring</em> delle funzioni nelle quali sono verificati. Questo è conveniente per gli utenti che esaminano le <em>docstring</em> per un aiuto sull'uso della funzione (specialmente con <a href='pydoc.html' target='_blank'>pydoc</a>), ma <strong>doctest</strong> cerca anche in altri posti. La locazione ovvia per test aggiuntivi è nelle <em>docstring</em> altrove nel modulo.
+</testo_normale>
+<py_code>
+# doctest_docstrings.py
+</py_code>
+<testo_normale>
+Tutte le <em>docstring</em> a livello di modulo, classe e funzione possono contenere test
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_docstrings.py
+</py_output>
+<testo_normale>
+Ci sono casi nei quali esistono test per un modulo che dovrebbero essere inclusi nel codice sorgente ma non nel testo di aiuto per il modulo, quindi non devono essere piazzati nelle <em>docstring</em> ma da qualche altra parte. <strong>doctest</strong> cerca anche una variabile a livello di modulo chiamata <code>__test__</code> e la usa per localizzare altri test. Il valore di <code>__test__</code> deve essere un dizionario che mappa i nomi dell'insieme di test (come stringa) alle stringhe, moduli, classi o funzioni.
+</testo_normale>
+<py_code>
+# doctest_private_tests.py
+</py_code>
+<testo_normale>
+Se il valore associato alla chiave è una stringa, viene trattato come una <em>docstring</em> ed esaminata per i test. Se il valore è una classe o funzione <strong>doctest</strong> ne cerca ricorsivamente la <em>docstring</em>, che poi sono esaminate per i test. In questo esempio, il modulo <code>doctest_private_tests_external</code> ha un singolo test nella sua <em>docstring</em>
+</testo_normale>
+<py_code>
+# doctest_private_tests_external.py
+</py_code>
+<testo_normale>
+Dopo aver esaminato il file di esempio, <strong>doctest</strong> trova un totale di cinque test da eseguire.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_private_tests.py
+</py_output>
+<titolo_2>
+Documentazione Esterna
+</titolo_2>
+<testo_normale>
+Combinare test e normale codice non è il solo modo per utilizzare <strong>doctest</strong>. Si possono usare anche test incorporati in file esterni di documentazione di progetto, tipo i file in formato <a href='https://www.wikiwand.com/it/ReStructuredText' target='_blank'>reStructuredText</a>.
+</testo_normale>
+<py_code>
+# doctest_in_help.py
+</py_code>
+<testo_normale>
+L'aiuto per questo modulo di esempio viene salvato in un file separato: <code>doctest_in_help.txt</code>. Gli esempi che illustrano l'uso del modulo sono inclusi nel testo di aiuto, e <strong>doctest</strong> può essere usato per trovarli ed eseguirli.
+</testo_normale>
+<py_code>
+# doctest_in_help.txt
+
+===============================
+ Come Usare doctest_in_help.py
+===============================
+
+Libreria molto semplice, visto che usa una sola funzione chiamata
+``my_function()``.
+
+Numeri
+=======
+
+``my_function()`` ritorna il prodotto dei suoi parametro.  Per i numeri,
+quel valore equivale ad usare l'operatore ``*``.
+
+::
+
+    >>> from doctest_in_help import my_function
+    >>> my_function(2, 3)
+    6
+
+Funziona anche con valori a virgola mobile.
+
+::
+
+    >>> my_function(2.0, 3)
+    6.0
+
+Non-Numeri
+===========
+
+Visto che ``*`` si definisce anche su tipi di dato diversi dai numeri,
+``my_function()`` funziona allo stesso mod se uno dei parametri
+rappresenta un stringa, lista, o tupla.
+
+::
+
+    >>> my_function('a', 3)
+    'aaa'
+
+    >>> my_function(['A', 'B', 'C'], 2)
+    ['A', 'B', 'C', 'A', 'B', 'C']
+
+</py_code>
+<testo_normale>
+I test nel file di testo possono essere eseguiti da riga di comando, proprio come per qualsiasi altro modulo sorgente Python.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_in_help.txt
+</py_output>
+<testo_normale>
+Normalmente <strong>doctest</strong> imposta l'ambiente di esecuzione dei test in modo da includere i membri del modulo da verificare, quindi i test non devono importare esplicitamente il modulo. In questo caso, comunque, i  test non sono definiti in un modulo Python, e <strong>doctest</strong> non sa come impostare lo spazio dei nomi globale, quindi gli esempi devono eseguire essi stessi l'importazione. Tutti i test in un dato file condividono lo stesso contesto di esecuzione, quindi è sufficiente importare il modulo una volta all'inizio del file.
+</testo_normale>
+<titolo_2>
+Eseguire i Test
+</titolo_2>
+<testo_normale>
+Gli esempi precedenti usano tutti l'esecutore da riga di comando inserito all'intero di <strong>doctest</strong>. E' facile e conveniente per un singolo modulo, ma diventerebbe rapidamente tedioso quando il pacchetto è sparso su diversi file. Ci sono diversi approcci alternativi.
+</testo_normale>
+<titolo_3>
+Per Modulo
+</titolo_3>
+<testo_normale>
+Le istruzioni per eseguire <strong>doctest</strong> contro il sorgente possono essere incluse alla fine dei moduli
+</testo_normale>
+<py_code>
+# doctest_testmod.py
+</py_code>
+<testo_normale>
+Se si chiama <code>testmod()</code> solo se il nome del modulo corrente è <code>__main__</code> assicura che i test siano eseguiti solamente quando il modulo viene invocato come programma principale.
+</testo_normale>
+<py_output>
+$ python3 doctest_testmod.py -v
+</py_output>
+<testo_normale>
+Il primo argomento di <code>testmod()</code> è un modulo che contiene codice da esaminare per trovare i test. Uno script di test separato può usare questa caratteristica per importare il vero codice ed eseguire i test in ciascun modulo, uno dopo l'altro.
+</testo_normale>
+<py_code>
+# doctest_testmod_other_module.py
+</py_code>
+<testo_normale>
+Un insieme di test può essere costruito per il progetto importando ciascun modulo ed eseguendo i propri test.
+</testo_normale>
+<py_output>
+$ python3 doctest_testmod_other_module.py -v
+</py_output>
+<titolo_3>
+Da File
+</titolo_3>
+<testo_normale>
+<code>testfile()</code> funziona in modo simile a <code>testmod()</code>. consentendo l'invocazione dei test esplicitamente in un file esterno dall'interno del programma.
+</testo_normale>
+<py_code>
+# doctest_testfile.py
+</py_code>
+<testo_normale>
+Sia <code>testmod()</code> che <code>testfile()</code> includono parametri opzionali per controllare il comportamento dei test tramite le opzioni di <strong>doctest</strong>. Si faccia riferimento alla documentazione della libreria standard per maggiori dettagli su queste caratteristiche -- la maggior parte delle volte non sono necessarie.
+</testo_normale>
+<py_output>
+$ python3 doctest_testfile.py -v
+</py_output>
+<titolo_3>
+Suite Unittest
+</titolo_3>
+<testo_normale>
+Quando sia <a href='unittest.html' target='_blank'>unittest</a> che <strong>doctest</strong> sono utilizzati per verificare lo stesso codice in diverse situazioni, l'integrazione di <strong>unittest</strong> in <strong>doctest</strong> può essere utilizzata per eseguire i test insieme. Due classi, <code>DocTestSuite</code> e <code>DocFileSuite</code> creano insiemi di test compatibili con l'<a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per l'esecuzione dei test di <strong>unittest</strong>.
+</testo_normale>
+<py_code>
+# doctest_unittest.py
+</py_code>
+<testo_normale>
+I test da ciascuna sorgente sono unificati in un unico risultato, invece che essere riportati individualmente.
+</testo_normale>
+<py_output>
+$ python3 doctest_unittest.py
+</py_output>
+<titolo_2>
+Contesto di Test
+</titolo_2>
+<testo_normale>
+Il contesto di esecuzione creato da <strong>doctest</strong> mentre esegue i test contiene una copia dei globali a livello di modulo per il modulo di test. Ciascun sorgente dei test (funzione, classe, modulo) ha il proprio insieme di valori globali per isolare in qualche modo i test gli uni dagli altri, in modo che sia meno probabile che interferiscano tra loro.
+</testo_normale>
+<py_code>
+# doctest_test_globals.py
+</py_code>
+<testo_normale>
+<code>TestGlobals</code> ha due metodi: <code>one()</code> e <code>two()</code>. I test nella <em>docstring</em> per <code>one()</code> impostano una variabile globale, ed i test per <code>two()</code> la cercano (attendendosi di non trovarla).
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_test_globals.py
+</py_output>
+<testo_normale>
+Questo non significa che i test non possono interferire gli uni con gli altri, se essi cambiano il contenuto di variabili mutevoli definite nel modulo.
+</testo_normale>
+<py_code>
+# doctest_mutable_globals.py
+</py_code>
+<testo_normale>
+La variabile di modulo <code>_module_data</code> viene modificata dai test per <code>one()</code>, facendo fallire il test per <code>two()</code>.
+</testo_normale>
+<py_output>
+$ python3 -m doctest -v doctest_mutable_globals.py
+</py_output>
+<testo_normale>
+Se valori globali sono necessari per i test, ad esempio per parametrizzarli per un ambiente, i valori possono essere passati a <code>testmod()</code> e <code>testfile()</code> per impostare il contesto utilizzando dati controllati dall'utente.
+</testo_normale>
 <vedi_anche>
-https://docs.python.org/3.5/library/venv.html|venv|La documentazione della libreria standard per questo modulo.
-https://www.python.org/dev/peps/pep-0405|PEP 405|Ambienti Virtuali Python
-https://pypi.python.org/pypi/virtualenv|virtualenv|Una versione di ambienti virtuali Python che funziona per Python 2 e 3.
-https://pypi.python.org/pypi/virtualenvwrapper|virtualenvwrapper|un insieme di wrapper di shell per virtualenv per facilitare la gestione di un gran numero di ambienti.
-http://www.sphinx-doc.org/en/stable/|Sphinx|Uno strumento per convertire file in input in formato reStructuredText in HTML, LaTex ed altri formati per l'utilizzo.
+https://docs.python.org/3.6/library/doctest.html|doctest|La documentazione della libreria standard per questo modulo.
+https://www.youtube.com/watch?v=C4Kc8xzcA68|The Mighty Dictionary|Presentazione di Brandon Rhodes a PyCon 2010 circa le operazioni interne dei dizionari.
+difflib.html|difflib|Libreria per il calcolo delle differenze, usata per produrre il risultato in formato <em>ndiff</em>.
+http://www.sphinx-doc.org/|Sphinx|Oltre ad essere uno strumento di elaborazione della documentazione per la libreria standard di Python, Sphinx è stato adottato da molti progetti di terze parti visto che è facile da usare e produce un output pulito in parecchi formati digitali e di stampa. Sphinx include una estensione per eseguire i doctest mentre elabora i file sorgente della documentazione, in modo che gli esempi siano sempre accurati.
+http://doc.pytest.org/en/latest/|py.test|Esecutore di test di terze parti con supporto per <strong>doctest</strong>.
+https://nose2.readthedocs.io/en/latest/|nose2|Esecutore di test di terze parti con supporto per <strong>doctest</strong>.
+https://pythonhosted.org/manuel/|Manuel|Esecutore di test basato sulla documentazione di terze parti con estrazione di casi di test più avanazati ed integrazione con Sphinx.
 </vedi_anche>
 </documento_tradotto>

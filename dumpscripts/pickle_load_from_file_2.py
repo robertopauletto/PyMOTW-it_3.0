@@ -1,8 +1,10 @@
-# pickle_load_from_file_1.py
+# pickle_load_from_file_2.py
 
 import pickle
 import pprint
 import sys
+from pickle_dump_to_file_1 import SimpleObject
+
 
 filename = sys.argv[1]
 
@@ -13,5 +15,5 @@ with open(filename, 'rb') as in_s:
         except EOFError:
             break
         else:
-            print('LETTI: {} ({})'.format(
+            print('LETTO: {} ({})'.format(
                 o.name, o.name_backwards))

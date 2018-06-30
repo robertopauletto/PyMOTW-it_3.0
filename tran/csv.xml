@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="Latin-1"?>
 <target>3</target>
-<categoria>persistenza e scambio dei dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<categoria>persistenza e scambio dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
 <!-- tag <testo_normale> contiene il testo normale dell'articolo -->
 <!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
 <!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->

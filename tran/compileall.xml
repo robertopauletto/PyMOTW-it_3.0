@@ -9,20 +9,20 @@
 <!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
 <documento_tradotto>
 <titolo_1>
-compileall - Compila in Byte-code di File Sorgente
+compileall - Compilazione in Byte-code di File Sorgente
 </titolo_1>
 <descrizione>
-Converte i file sorgenti nella versione compilata byte-code
+Converte i file sorgente nella versione compilata byte-code
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>compileall</strong> Cerca file sorgente Python e li compila nella rappresentazione byte-code, salvando il risultato in file con estensione <code>.pyc</code>
+Il modulo <strong>compileall</strong> cerca file sorgente Python e li compila nella rappresentazione <a href='https://www.wikiwand.com/it/Bytecode' target='_blank'>byte-code</a>, salvando il risultato in file con estensione <code>.pyc</code>
 </testo_normale>
 <titolo_2>
 Compilare Una Directory
 </titolo_2>
 <testo_normale>
-<code>compile_dir()</code> viene usato per scorrere ricorsivamente una directory e compilare in <a href='https://www.wikiwand.com/it/Bytecode' target='_blank'>byte-code</a> i file in essa contenuti.
+<code>compile_dir()</code> viene usato per scorrere ricorsivamente una directory e compilare in <a href='https://www.wikiwand.com/it/Bytecode' target='_blank'>byte-code</a> i file sorgente Python in essa contenuti.
 </testo_normale>
 <py_code>
 # compileall_compile_dir.py
@@ -31,6 +31,7 @@ Compilare Una Directory
 Nella modalità predefinita, vengono esaminate tutte le sottodirectory fino ad una profondità di 10. I file in uscita sono scritti nella directory <code>__pycache__</code> e nominati in base alla versione dell'interprete Python.
 </testo_normale>
 <py_output>
+?preproc compileall_1.sh
 $ python3 compileall_compile_dir.py
 </py_output>
 <titolo_2>
@@ -39,10 +40,76 @@ Ignorare i File
 <testo_normale>
 Per escludere delle directory, si usi l'argomento <code>rx</code> per fornire una espressione regolare per trovare corrispondenza con i nomi da escludere.
 </testo_normale>
+<py_code>
+# compileall_exclude_dirs.py
+</py_code>
+<testo_normale>
+Questa versione esclude i file nella sottdirectory <code>subdir</code>.
+</testo_normale>
+<py_output>
+?preproc compileall_2.sh
+$ python3 compileall_exclude_dirs.py
+</py_output>
+<testo_normale>
+L'argomento <code>maxlevels</code> controlla la profondità della ricorsione. Ad esempio, per evitare interamente la ricorsione si passi <code>0</code>.
+</testo_normale>
+<py_code>
+# compileall_recursion_depth.py
+</py_code>
+<testo_normale>
+Solo i file contenuti nelle directory passate a <code>compile_dir()</code> sono compilati.
+</testo_normale>
+<py_output>
+?preproc compileall_1.sh
+$ python3 compileall_recursion_depth.py
+</py_output>
+<titolo_2>
+Compilare sys.path
+</titolo_2>
+<testo_normale>
+Tutti i file sorgente di Python che si trovano in <code>sys.path</code> possono essere compilati con una singola chiamata a <code>compile_path()</code>.
+</testo_normale>
+<py_code>
+# compileall_path.py
+</py_code>
+<testo_normale>
+Questo esempio sostituisce il contenuto predefinito di <code>sys.path</code> per evitare errori sui permessi quando si esegue lo script, ma è ancora valido per illustrare il comportamento predefinito. Si noti che il valore predefinito di <code>maxlevels</code>  è <code>0</code>.
+</testo_normale>
+<py_output>
+$ python3 compileall_path.py
+</py_output>
+<titolo_2>
+Compilare File Singoli
+</titolo_2>
+<testo_normale>
+Per compilare un singolo file, invece tutti i file contenuti in una directory, si utilizzi <code>compile_file()</code>.
+</testo_normale>
+<py_code>
+# compileall_compile_file.py
+</py_code>
+<testo_normale>
+Il primo argomento dovrebbe essere il nome del file, rappresentato dal percorso completo oppure dal percorso relativo.
+</testo_normale>
+<py_output>
+$ python3 compileall_compile_file.py
+</py_output>
+<titolo_2>
+Da Riga di Comando
+</titolo_2>
+<testo_normale>
+E' anche possibile chiamare <strong>compileall</strong> da riga di comando, in modo che possa essere integrato con un sistema di compilazione tramite un <a href='https://www.wikiwand.com/it/Make' target='_blank'>Makefile</a>. Ad esempio:
+</testo_normale>
+<py_output>
+$ python3 -m compileall -h
+</py_output>
+<testo_normale>
+Per ricreare l'esempio precedente, ignorando la sottodirectory <code>subdir</code>, si esegue
+</testo_normale>
+<py_output>
+?preproc compileall_2.sh
+$ python3 -m compileall -x '/subdir' esempi
+</py_output>
 <vedi_anche>
-https://docs.python.org/3.5/library/trace.html|trace|La documentazione della libreria standard per questo modulo.
-#|Tracciare un programma in fase di esecuzione|Il modulo sys include servizi per aggiungere una funzione di tracciatura personalizzata all'interprete in fase di esecuzione (in corso di traduzione)
-http://nedbatchelder.com/code/modules/coverage.html|coverage.py|Il modulo coverage di Neil Batchelder.
-http://darcs.idyll.org/~t/projects/figleaf/doc/|figleaf|L'applicazione di copertura di Titus Brown
+https://docs.python.org/3.6/library/compileall.html|compileall|La documentazione della libreria standard per questo modulo.
 </vedi_anche>
 </documento_tradotto>

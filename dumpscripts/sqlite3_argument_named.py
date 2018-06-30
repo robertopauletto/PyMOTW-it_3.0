@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_argument_named.py
 
 import sqlite3
 import sys
@@ -19,4 +18,5 @@ with sqlite3.connect(db_filename) as conn:
 
     for row in cursor.fetchall():
         task_id, priority, details, status, deadline = row
-        print '%2d {%d} %-25s [%-8s] (%s)' % (task_id, priority, details, status, deadline)
+        print('{:2d} [{:d}] {:<25} [{:<10}] ({})'.format(
+            task_id, priority, details, status, deadline))

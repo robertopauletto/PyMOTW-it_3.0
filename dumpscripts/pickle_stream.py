@@ -1,38 +1,34 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# pickle_stream.py
 
-try:
-    import cPickle as pickle
-except:
-    import pickle
+import io
+import pickle
 import pprint
-from StringIO import StringIO
 
-class SimpleObject(object):
+
+class SimpleObject:
 
     def __init__(self, name):
         self.name = name
-        l = list(name)
-        l.reverse()
-        self.name_backwards = ''.join(l)
+        self.name_backwards = name[::-1]
         return
+
 
 data = []
 data.append(SimpleObject('pickle'))
-data.append(SimpleObject('cPickle'))
+data.append(SimpleObject('preserva'))
 data.append(SimpleObject('ultimo'))
 
-# Simula un file con StringIO
-out_s = StringIO()
+# Simula a file.
+out_s = io.BytesIO()
 
-# Scrive allo stream
+# Scrive verso lo stream
 for o in data:
-    print 'SCRITTURA: %s (%s)' % (o.name, o.name_backwards)
+    print('IN SCRITTURA : {} ({})'.format(o.name, o.name_backwards))
     pickle.dump(o, out_s)
     out_s.flush()
 
 # Imposta uno stream leggibile
-in_s = StringIO(out_s.getvalue())
+in_s = io.BytesIO(out_s.getvalue())
 
 # Legge i dati
 while True:
@@ -41,4 +37,5 @@ while True:
     except EOFError:
         break
     else:
-        print 'LETTURA: %s (%s)' % (o.name, o.name_backwards)
+        print('LETTURA      : {} ({})'.format(
+            o.name, o.name_backwards))

@@ -77,7 +77,7 @@ for status in BugStatus:
     print('{:15} = {}'.format(status.name, status.value))
 </py_code>
 <testo_normale>
-I membri sono prodotti nell'ordine nel quale sono stati dischiarati nelle definizione della classe. I nomi ed i valori non sono utilizzati in alcun modo per un ordinamento.
+I membri sono prodotti nell'ordine nel quale sono stati dichiarati nelle definizione della classe. I nomi ed i valori non sono utilizzati in alcun modo per un ordinamento.
 </testo_normale>
 <py_output>
 3 enum_iterate.py

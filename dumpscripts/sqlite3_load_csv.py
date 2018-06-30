@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_load_csv.py
 
 import csv
 import sqlite3
@@ -14,7 +13,7 @@ SQL = """insert into compito (dettagli, priorita, stato, scadenza, progetto)
 
 with open(data_filename, 'rt') as csv_file:
     csv_reader = csv.DictReader(csv_file)
-    
+
     with sqlite3.connect(db_filename) as conn:
         cursor = conn.cursor()
         cursor.executemany(SQL, csv_reader)

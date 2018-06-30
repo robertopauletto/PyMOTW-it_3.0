@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>persistenza e scambio dati </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+dbm - Database Unix Chiave-Valore
+</titolo_1>
+<descrizione>
+Fornisce una generica interfaccia tipo dizionario per database stile DBM, con chiavi stringa
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>dbm</strong> è un <a href='https://www.wikiwand.com/it/Front-end_e_back-end' target='_blank'><em>front-end</em></a>  per database stile DBM che usano semplici valori stringa come chiavi per accedere a record che contengono stringhe. Usa <code>whichdb()</code> per identificare i database, che apre con il modulo appropriato. Viene usato come <a href='https://www.wikiwand.com/it/Front-end_e_back-end' target='_blank'><em>back-end</em></a> per <a href='shelve.html'>shelve</a>, che conserva gli oggetti in un database DBM usando <a href='pickle.html'>pickle</a>.
+</testo_normale>
+<titolo_2>
+Tipi di Database
+</titolo_2>
+<testo_normale>
+Python è dotato di diversi moduli per accedere a database stile DBM. L'implementazione predefinita selezionata dipende dalle librerie attualmente a disposizione nel sistema corrrente e dalle opzioni usate quanto Python è stato compilato. Interfacce separate per le specifiche implementazioni consentono ai programmi Python di scambiare dati con programmi scritti in altri linguagge che non effettuano automaticamente la selezione tra i formati disponibili, oppure per scrivere file dati portabili che funzioneranno su piattaforme multiple.
+</testo_normale>
+<titolo_3>
+dbm.gnu
+</titolo_3>
+<testo_normale>
+<code>dbm.gnu</code> è una interfaccia alla versione della libreria <code>dbm</code> del progetto GNU. Funziona alle stesso modo delle altre implementazioni DBM descritte qui, con poche modifiche all'argomento <code>flags</code> supportato da <code>open()</code>
+</testo_normale>
+<testo_normale>
+Altre ai <em>flag</em> standard <code>'r'</code>, <code>'w'</code>, <code>'c'</code> ed <code>'n'</code>, <code>dbu.gnu.open()</code> supporta:
+</testo_normale>
+<lista>
+<code>'f'</code> per aprire il database in modalità <em>veloce</em>; le scritture al database non sono sincronizzate.
+<code>'s'</code> per aprire il database in modalità <em>sincronizzata</em>; le modifiche al database sono scritte al file non appena eseguite, invece che essere posposte fino alla chiusura del database o dopo una sincronizzazione esplicita.
+<code>'u'</code> per aprire il database in modalità non esclusiva.
+</lista>
+<titolo_3>
+dbm.ndbm
+</titolo_3>
+<testo_normale>
+Il modulo <strong>dbm.ndbm</strong> fornisce una interfaccia alle implementazioni Unix ndbm del formato dbm, a seconda di come il modulo è stato configurato durante la compilazione. L'attributo di modulo <code>library</code> identifica il nome della libreria che <code>configure</code> è riuscito a trovare quanto il modulo di estensione è stato compilato.
+</testo_normale>
+<titolo_3>
+dmb.dumb
+</titolo_3>
+<testo_normale>
+Il modulo <strong>dbm.dumb</strong> è una implementazione <em>fallback</em> portabile dell'<a href='https://www.wikiwand.com/it/API' target='_blank'>API</a> DBM quando non sono disponibili altre implementazioni. Non sono richieste dipendenze esterne per usare <strong>dbm.dumb</strong>, ma è la più lenta delle implementazioni.
+</testo_normale>
+<titolo_2>
+Creare un Nuovo Database
+</titolo_2>
+<testo_normale>
+Il formato di conservazione per nuovi database è selezionato cercando versioni utilizzabili di ciascuno dei sotto moduli nell'ordine:
+</testo_normale>
+<lista>
+<code>dbm.gnu</code>
+<code>dbm.ndbm</code>
+<code>dbm.dumb</code>
+</lista>
+<testo_normale>
+La funzione <code>open()</code> riceve l'argomento <code>flags</code> per controllare come gestire il database. Per creare un nuovo database quando necessario, si usi <code>'c'</code>. Usando <code>'n'</code> viene sempre creato un nuovo database, sovrescrivendo un eventuale esistente.
+</testo_normale>
+<py_code>
+# dbm_new.py
+</py_code>
+<testo_normale>
+In questo esempio, il file viene sempre reinizializzato.
+</testo_normale>
+<py_output>
+$ python3 dbm_new.py
+</py_output>
+<testo_normale>
+<code>whichdb()</code> riporta il tipo di database creato.
+</testo_normale>
+<py_code>
+# dbm_whichdb.py
+</py_code>
+<testo_normale>
+Il risultato del programma precedente potrebbe variare, a seconda di quali moduli siano installati nel sistema.
+</testo_normale>
+<py_output>
+$ python3 dbm_whichdb.py
+</py_output>
+<titolo_2>
+Aprire un Database Esistente
+</titolo_2>
+<testo_normale>
+Per aprire un database esistente, si usino i parametri <code>'r'</code> (sola lettura) oppure <code>'w'</code> (lettura e scrittura) per l'argomento <code>flags</code>. I database esistenti sono automenticamente passati a <code>whichdb()</code> per l'identificazione, quindi fintanto che un file può essere identificato, viene usato il modulo appropriato per aprirlo.
+</testo_normale>
+<py_code>
+# dbm_existing.py
+</py_code>
+<testo_normale>
+Una volta aperto, <code>db</code> è un oggetto tipo dizionario. Le nuove chiavi sono sempre convertite in stringhe di byte quando aggiunte al database e ritornate con lo stesso formato.
+</testo_normale>
+<py_output>
+$ python3 dbm_existing.py
+</py_output>
+<titolo_2>
+Casi di Errore
+</titolo_2>
+<testo_normale>
+Le chiavi del database devono essere stringhe.
+</testo_normale>
+<py_code>
+# dbm_intkeys.py
+</py_code>
+<testo_normale>
+Passare un tipo diverso provoca un errore <code>TypeError</code>
+</testo_normale>
+<py_output>
+$ python3 dbm_intkeys.py
+</py_output>
+<testo_normale>
+I valori devono essere stringa oppure <code>None</code>.
+</testo_normale>
+<py_code>
+# dbm_intvalue.py
+</py_code>
+<testo_normale>
+Lo stesso errore viene sollevato quando un valore non è stringa.
+</testo_normale>
+<py_output>
+$ python3 dbm_intvalue.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/dbm.html|dbm|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#anydbm|Note di portabilità per anydbm|
+riferimenti_moduli_modificati.html#whichdb|Note di portabilità per whichdb|
+shelve.html|shelve| Esempi per il modulo <code>shelve</code>, che usa <strong>dbm</strong> per conservare i dati.
+</vedi_anche>
+</documento_tradotto>

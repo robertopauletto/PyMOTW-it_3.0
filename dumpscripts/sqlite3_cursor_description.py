@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_cursor_description.py
 
 import sqlite3
 
@@ -9,9 +8,9 @@ with sqlite3.connect(db_filename) as conn:
     cursor = conn.cursor()
 
     cursor.execute("""
-    select * from compito where progetto = 'pymotw-it'
+    select * from compito where progetto = 'pymotw-it 3'
     """)
 
-    print 'La tabella Compito ha queste colonne:'
+    print('La tabella Compito ha queste colonne:')
     for colinfo in cursor.description:
-        print colinfo
+        print(colinfo)

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# sqlite3_date_types.py
 
 import sqlite3
 import sys
@@ -14,17 +13,17 @@ def show_deadline(conn):
     cursor.execute(sql)
     row = cursor.fetchone()
     for col in ['id', 'dettagli', 'scadenza']:
-        print '  colunna:', col
-        print '    valore :', row[col]
-        print '    tipo   :', type(row[col])
+        print('  {:<8}  {!r:<26} {}'.format(
+            col, row[col], type(row[col])))
     return
 
-print 'Senza identificazione del tipo:'
+print('Senza identificazione del tipo:')
 
 with sqlite3.connect(db_filename) as conn:
     show_deadline(conn)
 
-print '\nCon identificazione del tipo:'
+print('\nCon identificazione del tipo:')
 
-with sqlite3.connect(db_filename, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
+with sqlite3.connect(db_filename,
+                     detect_types=sqlite3.PARSE_DECLTYPES) as conn:
     show_deadline(conn)

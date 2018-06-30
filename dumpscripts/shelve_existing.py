@@ -1,12 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# shelve_existing.py
 
 import shelve
 
-s = shelve.open('test_shelf.db')
-try:
-    existing = s['chiave1']
-finally:
-    s.close()
+with shelve.open('test_shelf.db') as s:
+    existing = s['key1']
 
-print existing
+print(existing)
