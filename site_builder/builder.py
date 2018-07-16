@@ -1,14 +1,49 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import division
 
+try:
+    import codecs
+    from collections import defaultdict
+    import datetime
+    import glob
+    from math import ceil
+    import os
+    import os.path
+    import sys
+    import traceback
+    import urlparse
+
+    from django import template
+    from django.template import loader
+
+    from dj_indice import Indice
+    from dj_modulo import DjModulo
+    from dj_tabelle_indici import DjTabelleIndici
+    from modulo import Modulo, elenco_per_indice
+    import modulo_xml2html
+    from index_builder import ottieni_tabella
+    sys.path.append(r'../lib')
+    from common import clear_console, my_title
+    from footer import Footer
+    from inline_sub import InlineSubs
+    from rss_feed_builder import Feed, FeedItem
+    import lib.last_ten as lt
+    #from main_flask import FOOTER
+    #import spell_checker as  sc
+except ImportError as imperr:
+    raise Exception("Errore importazione modulo\n\n" + imperr.message)
+
+
 __date__=''
-__version__='0.1'
+__version__='0.5'
 __doc__="""
 Il punto di entrata dell'applicazione (nella modalità console)
 
-Da qui vengono costruite le singole pagine, gli indici e le tabelle
+** da agosto 2017 l'entrata dal modulo è DEPRECATA **, utilizzare l'interfaccia
+Flask (`main_flask.py`)
+
+Qui vengono costruite le singole pagine, gli indici e le tabelle
 riepilogative
 
 Le pagine vengono costruite basandosi su bootstrap 3
@@ -33,39 +68,8 @@ Argomenti della versione console:
 - qualsiasi altra stringa iniziale rappresenta il nome di un modulo da costruire,
   se ne possono passare diverse separate da virgola
 
-
 Versione %s %s
 """ % ( __version__, __date__ )
-
-try:
-    import glob
-    import codecs
-    import os.path
-    import os
-    import sys
-    import datetime
-    import traceback
-    import urlparse
-    from collections import defaultdict
-    from math import ceil
-    #import django
-    #django.setup()
-    from django import template
-    from django.template import loader
-
-    from dj_indice import Indice
-    from dj_modulo import DjModulo
-    from dj_tabelle_indici import DjTabelleIndici
-    from modulo import Modulo, elenco_per_indice
-    import modulo_xml2html
-    from index_builder import ottieni_tabella
-    sys.path.append(r'../lib')
-    from common import clear_console, my_title
-    from footer import Footer
-    from rss_feed_builder import Feed, FeedItem
-    import spell_checker as  sc
-except ImportError as imperr:
-    raise Exception("Errore importazione modulo\n\n" + imperr.message)
 
 
 # TODO: Trasferire su file di configurazione la gestione dei parametri
@@ -83,11 +87,6 @@ except ImportError as imperr:
 #FILE_INDICE = 'index'
 #HTML_EXT = '.html'
 #TEST_XML_FILE = r'/home/robby/Dropbox/Code/python/pymotw-it/tran/abc.xml'
-FOOTER = Footer(
-    'PyMOTW-it 3',
-    periodo='2017',
-    data_agg=datetime.date.today().strftime("%d-%m-%Y")
-)
 #RSS_REMOTE_ROOT_FOLDER = r'http://robyp.x10host.com/3/'
 #RSS_FEED_NAME = r'pymotw-it3_feed.xml'
 #RSS_FEED_TITLE = 'PyMOTW-it 3: Il modulo python della settimana'
@@ -99,6 +98,13 @@ def set_builder_conf(dictconf):
     """Imposta la configurazione per l'istanza"""
     global builder_conf
     builder_conf = dictconf
+
+FOOTER = Footer(
+    'PyMOTW-it 3',
+    periodo='2018',
+    data_agg=datetime.date.today().strftime("%d-%m-%Y")
+)
+
 
 def imposta_param_django(template_dirs):
     """(list of str)
@@ -134,7 +140,7 @@ def build(template_file, context_dict, rendered_file):
                 template.Context(context_dict)), builder_conf["def_charset"])
         )
     except Exception as ex:
-        print traceback.format_exc()
+        print(traceback.format_exc())
 
 
 def _chunks(l, n):
@@ -177,7 +183,11 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
     ms =  elenco_per_indice()
     moduli =  sorted(ms, key=lambda x: x.nome.lower())
     categ_per_indice = _categorie_per_indice(moduli)
-
+    last_ten = list()
+    with open(builder_conf["translated_modules"]) as fh:
+        last_ten = lt.LastTen_factory(
+            [row.strip() for row in fh.readlines()]
+        )
     #e = sorted(moduli, key=lambda x: x.nome)
 
     pagine = ceil(len(moduli) / mod_per_pagina)
@@ -195,6 +205,9 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
             i.next_nr_page = int(pagine-2)
 
         dic = {'indice': i,}
+        last_ten = last_ten[-10:] if len(last_ten) > 10 else last_ten
+        last_ten.reverse()
+        dic['last_ten'] = last_ten
         fn = '%s%s.html' % (file_indice, "_" + str(prg) if prg else '')
         build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
         prg += 1
@@ -202,22 +215,23 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
     return
 
 
-def crea_pagina_modulo(template_name, file_modulo, footer, log=None):
+def crea_pagina_modulo(template_name, file_modulo, footer, tag_ind, log=None):
     """(str, str, str [, list])
 
     Crea la pagina per un modulo.
 
-    - `template_name` è il nome del modello per il rendering
-    - `file_modulo` è il file xml dal quale ricavare la pagina html
-    - 'footer' un oggetto :py:class:`Footer` che contiene informazioni da inserire
-      nel footer della pagina
-    - `log` è una lista che conterrà le info di log rilasciate dai metodi che
-      compongono la pagina
+    :param template_name: il nome del modello per il rendering
+    :param file_modulo: il file xml dal quale ricavare la pagina html
+    :param footer: oggetto :py:class:`Footer` che contiene info da inserire
+                   nel footer della pagina
+    :param tag_ind: indici da usare per l'indice di spalla
+    :param log: una lista che conterrà le info di log rilasciate dai metodi che
+                compongono la pagina
     """
     indice, main_content, is_ind, check_sintassi, zipfile = \
         modulo_xml2html.render_articolo(
             file_modulo, builder_conf["examples_dir"],
-            builder_conf["zip_files_dir"],  log
+            builder_conf["zip_files_dir"], tag_ind, log
         )
     fn = os.path.splitext(os.path.basename(file_modulo))[0]
     modulo = Modulo.ottieni_modulo(fn)
@@ -274,7 +288,10 @@ def crea_feed_rss(base_path, outfile, title, description=''):
 
     abbina_cronologia(get_cronologia(), moduli)
     moduli_ordinati = Modulo.ordina_per_data(moduli)
-    local_feed = os.path.join(builder_conf["html_dir"], outfile)
+    folder = os.path.join(builder_conf["html_dir"]
+                          if 'html_dir' in builder_conf
+                          else r'/home/robby/tmpdebug')
+    local_feed = os.path.join(folder, outfile)
     outfile = urlparse.urljoin(base_path, outfile)
     feed = Feed(title, outfile, description)
     for modulo in moduli_ordinati:
@@ -292,7 +309,9 @@ def crea_feed_rss(base_path, outfile, title, description=''):
         )
 
         feed.set_item(item)
-    open(local_feed, mode='w').write(feed.get_feed())
+    print modulo.nome, modulo.descrizione
+    with codecs.open(local_feed, mode='w', encoding='utf-8') as fh:
+        fh.write(feed.get_feed())
 
 
 def crea_tabella_indice(template_name):
@@ -360,6 +379,7 @@ def build_module(moduli):
     """
     imposta_param_django([builder_conf["template_dirs"]])
     log = []
+
     for modulo in moduli:
 
         modulo = _norm_path(modulo, builder_conf["tran_dir"])
@@ -368,9 +388,13 @@ def build_module(moduli):
             log.append("Modulo %s non trovato" % modulo)
             continue
         if 'riferimenti_' in modulo:
-            is_ind = crea_pagina_modulo(builder_conf["template_ref_name"], modulo, FOOTER, log)
+            is_ind = crea_pagina_modulo(builder_conf["template_ref_name"],
+                                        modulo, FOOTER,
+                                        ('titolo_2', 'titolo_3'), log)
         else:
-            is_ind = crea_pagina_modulo(builder_conf["template_module_name"], modulo, FOOTER, log)
+            is_ind = crea_pagina_modulo(builder_conf["template_module_name"],
+                                        modulo, FOOTER,
+                                        ('titolo_2', 'titolo_3'), log)
         log.append("Costruzione pagina %s terminata" % os.path.basename(modulo))
     return log
 
@@ -379,10 +403,10 @@ def build_index():
     """Crea pagine indice ed il feed rss"""
     log = ['\nCreazione pagine indice']
     crea_feed_rss(
-        builder_conf["rss_remote_folder"],
+        builder_conf["rss_remote_root_folder"],
         builder_conf["rss_feed_name"],
         builder_conf["rss_feed_title"],
-        builder_conf["rss_feed_desc"]
+        builder_conf["rss_feed_descr"]
     )
     crea_pagine_indice(
         builder_conf["template_index_name"],
@@ -392,13 +416,15 @@ def build_index():
     )
     return log
 
+
 def build_module_table():
     log = ['\nCreazione tabella moduli']
-    crea_tabella_indice(builder_conf['builder_conf["template_tabalfa_name"]'])
+    crea_tabella_indice(builder_conf["template_tabalfa_name"])
     return log
 
 
 if __name__ == '__main__':
     print __doc__
-    print "Utilizzare l'interfaccia web"
-    print "Fine"
+    print ("Utilizzare l'interfaccia web")
+    print ("Fine")
+    #crea_feed_rss(r'/home/robby/tmpdebug', 'outfile.xml', 't', 'd')
