@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>crittografia </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+hashlib - Hashing Crittografico
+</titolo_1>
+<descrizione>
+<a href='https://www.wikiwand.com/it/Hash' target='_blank'>hash</a> crittografici ed impronte di messaggi
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>hashlib</strong> definisce una <a href='https://it.wikipedia.org/wiki/Application_programming_interface' target='_blank'>API</a> per accedere a diversi algoritmi crittografici. Per lavorare con uno specifico algoritmo, si usi l'appropriata funzione costruttore oppure <code>new()</code> per creare un oggetto <em>hash</em>. Da qui, gli oggetti usano la stessa API, non importa quale algoritmo venga usato.
+</testo_normale>
+<titolo_2>
+Algoritmi Hash
+</titolo_2>
+<testo_normale>
+Visto che <strong>hashlib</strong> è supportata da OpenSSL, tutti gli algoritmi forniti da quella libreria sono disponibili, compresi:
+</testo_normale>
+<lista>
+md5
+sha1
+sha224
+sha256
+sha384
+sha512
+</lista>
+<testo_normale>
+Alcuni algoritmi sono disponibili su tutte le piattaforme, ed alcuni dipendono dalle librerie sottostanti. Per una lista di ognuno, si cerchi rispettivamente in <code>algorithms_guaranteed</code> e <code>algorithms_avaliable</code>.
+</testo_normale>
+<py_code>
+# hashlib_algorithms.py
+</py_code>
+<py_output>
+$ python3 hashlib_algorithms.py
+</py_output>
+<titolo_2>
+Dati Campione
+</titolo_2>
+<testo_normale>
+Tutti gli esempi in questa sezione usano gli stessi dati campione.
+</testo_normale>
+<py_code>
+# hashlib_data.py
+</py_code>
+<titolo_2>
+Esempio MD5
+</titolo_2>
+<testo_normale>
+Per calcolare l'<em>hash</em> MD5, o <em>digest</em> (impronta di messaggio), per un blocco di dati (qui una stringa unicode convertita in stringa di byte), prima si crei l'oggetto <em>hash</em>, poi si aggiungano i dati e si chiami <code>digest()</code> oppure <code>hexdigest()</code>.
+</testo_normale>
+<py_code>
+# hashlib_md5.py
+</py_code>
+<testo_normale>
+Questo esempio usa il metodo <code>hexdigest()</code> invece che <code>digest()</code> visto che il risultato è formattato in modo che possa essere stampato con chiarezza. Se è accettabile un valore di <em>digest</em> binario si usi <code>digest()</code>.
+</testo_normale>
+<py_output>
+$ python3 hashlib_md5.py
+</py_output>
+<titolo_2>
+Esempio SHA1
+</titolo_2>
+<testo_normale>
+Una impronta di messaggio SHA1 viene calcolata nello stesso modo.
+</testo_normale>
+<py_code>
+# hashlib_sha1.py
+</py_code>
+<testo_normale>
+Il valore dell'impronta di messaggio è diverso in questo esempio, visto che l'algoritmo è passato da MD5 a SHA1.
+</testo_normale>
+<py_output>
+$ python3 hashlib_sha1.py
+</py_output>
+<titolo_2>
+Creare un <em>hash</em> per Nome
+</titolo_2>
+<testo_normale>
+Talvolta è più conveniente riferirsi all'algoritmo per nome in una stringa in luogo di usare la funzione costruttore direttamente. E' utile, ad esempio, essere in grado di conservare il tipo di <em>hash</em> in un file di configurazione. In questi casi, si usi <code>new()</code> per creare un calcolatore di <em>hash</em>.
+</testo_normale>
+<py_code>
+# hashlib_new.py
+</py_code>
+<testo_normale>
+Quando eseguito con diversi argomenti:
+</testo_normale>
+<py_output>
+$ python3 hashlib_new.py sha1
+</py_output>
+<py_output>
+$ python3 hashlib_new.py sha256
+</py_output>
+<py_output>
+$ python3 hashlib_new.py sha512
+</py_output>
+<py_output>
+$ python3 hashlib_new.py md5
+</py_output>
+<titolo_2>
+Aggiornamenti Incrementali
+</titolo_2>
+<testo_normale>
+Il metodo <code>update()</code> dei calcolatori di <em>hash</em> può essere chiamato ripetutamente. Ogni volta, l'impronta di messaggio viene aggiornata in base al testo addizionale inserito. L'aggiornamento incrementale è più efficiente rispetto alla lettura dell'intero file in memoria, e produce lo stesso risultato.
+</testo_normale>
+<py_code>
+# hashlib_update.py
+</py_code>
+<testo_normale>
+Questo esempio dimostra come aggiornare in modo incrementale una impronta di messaggio mano a mano che i dati vengono letti o prodotti in altro modo.
+</testo_normale>
+<py_output>
+$ python3 hashlib_update.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/hashlib.html|hashlib|La documentazione della libreria standard per questo modulo.
+hmac.html|hmac|Il modulo hmac
+http://www.openssl.org/|OpenSSL|Un pacchetto di strumenti open source per la crittografia.
+https://pypi.python.org/pypi/cryptography|Cryptography|Un pacchetto Python che fornisce primitivi e ricette crittografiche.
+http://www.voidspace.org.uk/python/weblog/arch_d7_2006_10_07.shtml#e497|Voidspace: IronPython and hashlib|Un <em>wrapper</em> per <strong>hashlib</strong> che funziona con IronPython.
+</vedi_anche>
+</documento_tradotto>

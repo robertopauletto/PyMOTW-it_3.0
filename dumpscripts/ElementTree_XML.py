@@ -1,7 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# ElementTree_XML.py
 
 from xml.etree.ElementTree import XML
+
+def show_node(node):
+  print/
+  if node.text is not None and node.text.strip():
+      print('  text: "%s"' % node.text)
+  if node.tail is not None and node.tail.strip():
+      print('  tail: "%s"' % node.tail)
+  for name, value in sorted(node.attrib.items()):
+      print('  %-4s = "%s"' % (name, value))
+  for child in node:
+    show_node(child)
+
 
 parsed = XML('''
 <root>
@@ -17,12 +28,5 @@ parsed = XML('''
 
 print 'parsed =', parsed
 
-for elem in parsed.getiterator():
-    print elem.tag
-    if elem.text is not None and elem.text.strip():
-        print '  text: "%s"' % elem.text
-    if elem.tail is not None and elem.tail.strip():
-        print '  tail: "%s"' % elem.tail
-    for name, value in sorted(elem.attrib.items()):
-        print '  %-4s = "%s"' % (name, value)
-    print
+for elem in parsed:
+  show_node(elem)

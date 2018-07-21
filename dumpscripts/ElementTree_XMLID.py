@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-
+# ElementTree_XMLID.py
 
 from xml.etree.ElementTree import XMLID
+
+
 tree, id_map = XMLID('''
 <root>
   <group>
@@ -16,5 +16,4 @@ tree, id_map = XMLID('''
 ''')
 
 for key, value in sorted(id_map.items()):
-    print '%s = %s' % (key, value)
-    
+    print('%s = %s' % (key, value))

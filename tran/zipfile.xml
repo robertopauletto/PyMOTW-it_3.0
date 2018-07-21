@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione ed archiviazione dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+zipfile - Accede ad un Archivio ZIP
+</titolo_1>
+<descrizione>
+Legge e scrive file compressi ZIP
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>zipfile</strong> può essere usato per manipolare file di archivio ZIP, il formato reso popolare dal programma per pc PKZIP.
+</testo_normale>
+<titolo_2>
+Verificare file ZIP
+</titolo_2>
+<testo_normale>
+La funzione <code>is_zipfile()</code> ritorna un booleano che indica se il nome di file passato come argomento faccia riferimento o meno ad un archivio ZIP valido.
+</testo_normale>
+<py_code>
+#  zipfile_is_zipfile.py
+</py_code>
+<testo_normale>
+Se il file non esiste, <code>is_zipfile()</code> ritorna <code>False</code>
+</testo_normale>
+<py_output>
+$ python3  zipfile_is_zipfile.py
+</py_output>
+<titolo_2>
+Leggere i Metadati da un Archivio
+</titolo_2>
+<testo_normale>
+Si usi la classe <code>Zipfile</code> per lavorare direttamente con un archivio ZIP. Essa supporta sia metodi per leggere dati riguardo archivi esistenti che per modificare gli archivi aggiungendo file.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/hmac.html|hmac|La documentazione della libreria standard per questo modulo.
+http://tools.ietf.org/html/rfc2104.html|RFC 2104|HMAC: Keyed-Hashing for Message Authentication
+hashlib.html|hashlib|Il modulo <strong>hashlib</strong>
+pickle.html|pickle|Libreria di serializzazione
+https://www.wikiwand.com/it/MD5|MD5|La descrizione dell'algoritmo MD5.
+http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html|Signing and Authenticating REST Requests (Amazon AWS)|Istruzioni per autenticarsi ad S3 usando le credenziali firmate HMAC-SHA1
+</vedi_anche>
+</documento_tradotto>

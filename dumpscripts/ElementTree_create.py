@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# ElementTree_create.py
 
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
-from ElementTree_pretty import prettify
 
 top = Element('top')
 
-comment = Comment('Generato per PyMOTW')
+comment = Comment('Generato per PyMOTW-it')
 top.append(comment)
 
 child = SubElement(top, 'figlio')
@@ -19,5 +17,5 @@ child_with_tail.tail = 'E testo "in coda".'
 child_with_entity_ref = SubElement(top, 'figlio_con_rif_entita')
 child_with_entity_ref.text = 'Questo & Quello'
 
-print prettify(top)
+print(tostring(top))
 

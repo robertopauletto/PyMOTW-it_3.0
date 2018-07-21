@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# ElementTree_pretty.py
 
 from xml.etree import ElementTree
 from xml.dom import minidom
 
+
 def prettify(elem):
-    """Ritorna una stringa XML pretty-printed per Element.
+    """Ritorna una stringa XML pretty-print per Element.
     """
     rough_string = ElementTree.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)

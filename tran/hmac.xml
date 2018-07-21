@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>crittografia </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+hmac - Firma Crittografica e Verifica di Messaggi
+</titolo_1>
+<descrizione>
+Il modulo hmac implementa la modalità <a href='https://www.wikiwand.com/it/HMAC' target='_blank'>keyed-hashing</a> per l'autenticazione di messaggi, come descritto in <a href='http://tools.ietf.org/html/rfc2104.html'>RFC 2104</a>
+
+</descrizione>
+<testo_normale>
+L'algoritmo HMAC Può essere usato per verificare l'integrità delle informazioni passate tra applicazioni o salvate in un luogo potenzialmente vulnerabile. L'idea base è di generare un <a href='https://www.wikiwand.com/it/Hash' target='_blank'>hash</a> crittografico dei dati effettivi, combinato con una chiave segreta condivisa. L'hash che ne risulta può poi essere usato per controllare i messaggi trasmessi o salvati per determinare un livello di fiducia, senza trasmettere la chiave segreta.
+</testo_normale>
+<avvertimento>
+Disclaimer: non sono un esperto in sicurezza. Per i completi dettagli su HMAC, dare un'occhiata a <a href='http://tools.ietf.org/html/rfc2104.html'>RFC 2104</a>
+</avvertimento>
+<titolo_2>
+Firmare i Messaggi
+</titolo_2>
+<testo_normale>
+La funzione <code>new()</code> crea un nuovo oggetto per il calcolo della firma di un messaggio. Questo esempio usa l'algoritmo predefinito <a href='https://www.wikiwand.com/it/MD5' target='_blank'>MD5</a>.
+</testo_normale>
+<py_code>
+# hmac_simple.py
+</py_code>
+<testo_normale>
+Quando eseguito, il codice legge un file di dati e calcola la firma HMAC per esso.
+</testo_normale>
+<py_output>
+$ python3 hmac_simple.py
+</py_output>
+<titolo_2>
+Algoritmi di Cifratura Alternativi
+</titolo_2>
+<testo_normale>
+Sebbene l'algoritmo di cifratura predefinito per hmac sia MD5, non è il metodo più sicuro da usare. Gli hash MD5 hanno qualche debolezza, tipo le collisioni (laddove due messaggi diversi producono lo stesso hash). L'algoritmo <a href='https://www.wikiwand.com/it/Secure_Hash_Algorithm' target='_blank'>SHA-1</a> è considerato più robusto, e dovrebbe quindi essere usato al posto di MD5.
+</testo_normale>
+<py_code>
+# hmac_sha.py
+</py_code>
+<testo_normale>
+La funzione <code>new()</code> riceve 3 argomenti. Il primo è la chiave segreta, che dovrebbe essere condivisa tra gli estremi che stanno comunicando in modo che entrambi possano usare lo stesso valore. Il secondo parametro è un messaggio iniziale. Se il contenuto del messaggio che deve essere autenticato è di piccole dimensioni, tipo un <a href='https://www.wikiwand.com/it/Marca_temporale' target='_blank'>timestamp</a>   oppure il contenuto di un HTTP POST, l'intero corpo del messaggio può essere passato a <code>new()</code> invece che usare il metodo <code>update()</code>. L'ultimo parametro è il tipo di crittografia da usare. Il predefinito è <code>hashlib.md5</code>. In questo esempio si passa <code>'sha1'</code> facendo sì che venga usato <code>hashlib.sha1</code>.
+</testo_normale>
+<py_output>
+$ python3 hmac_sha.py
+</py_output>
+<titolo_2>
+Impronte di Messaggio Binarie
+</titolo_2>
+<testo_normale>
+Gli  esempi precedenti usavano il metodo <code>hexdigest()</code> per produrre una impronta di messaggio (<em>digest</em>) stampabile. <em>hexdigest</em> costituisce una diversa rappresentazione del valore calcolato dal metodo <code>digest()</code>, il quale è un valore binario che potrebbe comprendere caratteri non stampabili, NUL incluso. Alcuni servizi web (Google checkout, Amazon S3) usano la versione codificata in base64 dell'impronta di messaggio binaria invece che l'<em>hexdigest</em>.
+</testo_normale>
+<py_code>
+# hmac_base64.py
+</py_code>
+<testo_normale>
+La stringa codificata in base64 termina con una riga vuota, che frequentemente deve essere eliminata quando la stringa viene incorporata in header HTTP od altri contesti sensibili alla formattazione.
+</testo_normale>
+<py_output>
+$ python3 hmac_base64.py
+</py_output>
+<titolo_2>
+Applicazioni delle Firme di Messaggi
+</titolo_2>
+<testo_normale>
+L'autenticazione HMAC dovrebbe essere usata per un qualsiasi servizio di rete pubblico, ed ogniqualvolta che si debbano conservare dati per i quali la sicurezza è importante. Ad esempio quando si spediscono dati attraverso un <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'>socket</a> od una <a href='https://www.wikiwand.com/it/Pipe_(informatica)' target='_blank'>pipe</a>, essi dovrebbero essere firmati, quindi la firma dovrebbe essere verificata prima che i dati vengano usati. L'esempio esteso qui sotto è a disposizione nel file <code>hmac_pickle.py</code>, di seguito ne viene discusso il contenuto in parti separate.
+</testo_normale>
+<testo_normale>
+Per prima cosa si imposta una funzione per calcolare l'impronta di messaggio di una stringa, ed una semplice classe da instanziare e passare attraverso un canale di comunicazione.
+</testo_normale>
+<py_code>
+# hmac_pickle.py
+
+import hashlib
+import hmac
+import io
+import pickle
+import pprint
+
+def make_digest(message):
+    "Restituisce una impronta di messaggio per message"
+    hash = hmac.new(
+        b'la-chiave-segreta-condivisa-va-qui',
+        message,
+        hashlib.sha1,
+    )
+    return hash.hexdigest().encode('utf-8')
+
+
+class SimpleObject:
+    """Dimostra la verifica di un impronta di messaggio prima di
+    deserializzarlo
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+</py_code>
+<testo_normale>
+Successivamente si crea un buffer <code>BytesIO</code> per rappresentare un socket od una pipe. In questo esempio si usa un formato piuttosto semplice, ma facile da elaborare, per il flusso di dati. L'impronta del messaggio e la lunghezza dei dati vengono scritti seguiti da una riga vuota. A seguire si procede alla rappresentazione serializzata dell'oggetto, in genere utilizzando <a href='pickle.html' target='_blank'>pickle</a>. In un sistema reale, non si vuole dipendere da un valore di lunghezza, visto che se l'impronta del messaggio è sbagliata probabilmente sarà errata anche la lunghezza. Un qualche tipo di sequenza di terminazione che sia improbabile possa figurare anche nei dati reali sarebbe stata molto più appropriata.
+</testo_normale>
+<testo_normale>
+Il programma di esempio poi scrive due oggetti nel flusso. Il primo è scritto usando il valore di impronta di messaggio corretto.
+</testo_normale>
+<py_code>
+# Simula un socket o pipe su cui scrivere con un buffer
+out_s = io.BytesIO()
+
+# Scrive un oggetto valido nel flusso:
+# digest\nlength\npickle
+o = SimpleObject('impronta di messaggio corrisponde')
+pickled_data = pickle.dumps(o)
+digest = make_digest(pickled_data)
+header = b'%s %d\n' % (digest, len(pickled_data))
+print('IN SCRITTURA: {}'.format(header))
+out_s.write(header)
+out_s.write(pickled_data)
+</py_code>
+<testo_normale>
+Il secondo oggetto viene scritto nel flusso con una impronta di messaggio non valida, prodotta calcolandola con altri dati invece del pickle.
+</testo_normale>
+<py_code>
+# Scrive un oggetto non valido per il flusso
+o = SimpleObject('impronta di messaggio non corrisponde')
+pickled_data = pickle.dumps(o)
+digest = make_digest(b'non utilizzo i dati serializzati')
+header = b'%s %d\n' % (digest, len(pickled_data))
+print('IN SCRITTURA: {}'.format(header))
+out_s.write(header)
+out_s.write(pickled_data)
+
+out_s.flush()
+</py_code>
+<testo_normale>
+Adesso che i dati sono nel buffer <code>BytestIO</code>, è possibile rileggerli. Il primo passo è leggere la riga di dati con l'impronta di messaggio e la lunghezza dati. Quindi si leggono i dati restanti usando il valore di lunghezza. <code>picke.load()</code> avrebbe potuto leggere direttamente dal flusso, ma questo implica che ci sia un flusso di dati fidato; questi dati tuttavia non sono sufficientemente sicuri per deserializzarli. La lettura del pickle come stringa  dal flusso, senza realmente eseguire la deserializzazione dell'oggetto è più sicura.
+</testo_normale>
+<py_code>
+# Simula un socket o pipe leggibile con un buffer
+in_s = io.BytesIO(out_s.getvalue())
+
+# Legge i dati
+while True:
+    first_line = in_s.readline()
+    if not first_line:
+        break
+    incoming_digest, incoming_length = first_line.split(b' ')
+    incoming_length = int(incoming_length.decode('utf-8'))
+    print('\nIN LETTURA:', incoming_digest, incoming_length)
+</py_code>
+<testo_normale>
+Una volta che abbiamo i dati serializzati in memoria, si può ricalcolare il valore dell'impronta di messaggio e confrontarlo con i dati letti usando <code>compare_digest()</code>. Se le impronte corrispondono, si presume sia sicuro fidarsi dei dati, quindi vengono deserializzati.
+</testo_normale>
+<py_code>
+    incoming_pickled_data = in_s.read(incoming_length)
+
+    actual_digest = make_digest(incoming_pickled_data)
+    print('REALI:', actual_digest)
+
+    if hmac.compare_digest(actual_digest, incoming_digest):
+        obj = pickle.loads(incoming_pickled_data)
+        print('OK:', obj)
+    else:
+        print('ATTENZIONE: Dati corrotti')
+</py_code>
+<testo_normale>
+Il risultato mostra che il primo oggetto è verificato ma il secondo viene considerato come "corrotto", come previsto.
+</testo_normale>
+<py_output>
+$ python3 hmac_pickle.py
+
+IN SCRITTURA: b'a0d74798bb0950335feadd6bc2d51bc9d8bfffbe 88\n'
+IN SCRITTURA: b'858fb8ac42a974aa6a88cead2b5082fa96b4308a 92\n'
+
+IN LETTURA: b'a0d74798bb0950335feadd6bc2d51bc9d8bfffbe' 88
+REALI: b'a0d74798bb0950335feadd6bc2d51bc9d8bfffbe'
+OK: impronta di messaggio corrisponde
+
+IN LETTURA: b'858fb8ac42a974aa6a88cead2b5082fa96b4308a' 92
+REALI: b'3a9b4de15e8ae4b739e0437051699afa8c83cb6a'
+ATTENZIONE: Dati corrotti
+</py_output>
+<testo_normale>
+Il confronto di due impronte di messaggio tramite semplice stringa o byte può essere utilizzato in un attacco a tempo per esporre parte o l'intera chiave segreta passando impronte di messaggio di lunghezza diversa. <code>compare_digest()</code> implementa una funzione di confronto veloce ma con tempo costante per la protezione contro il tipo di attacco sopra esposto.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/hmac.html|hmac|La documentazione della libreria standard per questo modulo.
+http://tools.ietf.org/html/rfc2104.html|RFC 2104|HMAC: Keyed-Hashing for Message Authentication
+hashlib.html|hashlib|Il modulo <strong>hashlib</strong>
+pickle.html|pickle|Libreria di serializzazione
+https://www.wikiwand.com/it/MD5|MD5|La descrizione dell'algoritmo MD5.
+http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html|Signing and Authenticating REST Requests (Amazon AWS)|Istruzioni per autenticarsi ad S3 usando le credenziali firmate HMAC-SHA1
+</vedi_anche>
+</documento_tradotto>

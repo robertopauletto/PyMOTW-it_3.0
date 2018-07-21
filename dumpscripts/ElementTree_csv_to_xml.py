@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# ElementTree_csv_to_xml.py
 
 import csv
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
@@ -29,11 +28,11 @@ with open('podcasts.csv', 'rt') as f:
     reader = csv.reader(f)
     for row in reader:
         group_name, podcast_name, xml_url, html_url = row
-        if not current_group or group_name != current_group.text:
+        if current_group is None or group_name != current_group.text:
             # Inizia un nuovo gruppo
             current_group = SubElement(body, 'outline', {'text':group_name})
         # Aggiunge questo podcast al gruppo
-        # impostandone gli attibuti tutti in 
+        # impostandone gli attibuti tutti in
         # una volta.
         podcast = SubElement(current_group, 'outline',
                              {'text':podcast_name,

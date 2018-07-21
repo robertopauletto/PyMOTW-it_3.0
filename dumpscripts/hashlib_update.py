@@ -1,26 +1,29 @@
+# hashlib_update.py
+
 import hashlib
 
 from hashlib_data import lorem
 
 h = hashlib.md5()
-h.update(lorem)
+h.update(lorem.encode('utf-8'))
 all_at_once = h.hexdigest()
 
+
 def chunkize(size, text):
-    "Restituisce parti del testo con incrementi in base alla dimensione di size."
+    "Ritorna parti di testo con incrementi in base alla dimensione."
     start = 0
     while start < len(text):
-        chunk = text[start:start+size]
+        chunk = text[start:start + size]
         yield chunk
         start += size
-        return
+    return
+
 
 h = hashlib.md5()
-for chunk in chunkize(64, lorem):
+for chunk in chunkize(64, lorem.encode('utf-8')):
     h.update(chunk)
-    line_by_line = h.hexdigest()
+line_by_line = h.hexdigest()
 
-print 'Tutto insieme:', all_at_once
-print 'Riga per riga:', line_by_line
-print 'Uguale       :', (all_at_once == line_by_line)
-                                                    
+print('Tutto in una volta:', all_at_once)
+print('Riga per Riga     :', line_by_line)
+print('Verifica          :', (all_at_once == line_by_line))

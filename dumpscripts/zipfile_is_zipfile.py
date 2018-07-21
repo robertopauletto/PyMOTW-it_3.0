@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# zipfile_is_zipfile.py
 
 import zipfile
 
-for filename in [ 'LEGGIMI.txt', 'esempio.zip', 
+for filename in [ 'LEGGIMI.txt', 'esempio.zip',
                   'cattivo_esempio.zip', 'nonqui.zip' ]:
-    print '%20s  %s' % (filename, zipfile.is_zipfile(filename))
+    print('{:>15}  {}'.format(
+        filename, zipfile.is_zipfile(filename)))

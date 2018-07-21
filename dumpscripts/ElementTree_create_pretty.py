@@ -1,12 +1,22 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# ElementTree_create_pretty.py
 
-from xml.etree import ElementTree
-from xml.dom import minidom
+from xml.etree import ElementTree, SubElement, Comment
+from ElementTree_pretty import prettify
 
-def prettify(elem):
-    """Ritorna una string XML pretty-printed per Element.
-    """
-    rough_string = ElementTree.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")
+top = Element('top')
+
+comment = Comment('Generato per PyMOTW-it')
+top.append(comment)
+
+child = SubElement(top, 'figlio')
+child.text = 'Questo figlio contiene testo.'
+
+child_with_tail = SubElement(top, 'figlio_con_coda')
+child_with_tail.text = 'Questo figlio contiene testo normale.'
+child_with_tail.tail = 'E testo "in coda".'
+
+child_with_entity_ref = SubElement(top, 'figlio_con_rif_entita')
+child_with_entity_ref.text = 'Questo & Quello'
+
+print(prettify(top))
+
