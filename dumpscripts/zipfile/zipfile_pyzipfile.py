@@ -7,7 +7,7 @@ if __name__ == '__main__':
     with zipfile.PyZipFile('pyzipfile.zip', mode='w') as zf:
         zf.debug = 3
         print('Aggiungo file python')
-        zf.writepy('./zipfile')
+        zf.writepy('.')
     for name in zf.namelist():
         print(name)
 
