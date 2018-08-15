@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione ed archiviazione dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+pkgutil - Utilità per Pacchetti
+</titolo_1>
+<descrizione>
+Aggiunge al percorso di ricerca dei moduli quello di uno specifico pacchetto e lavora con risorse incluse in un pacchetto.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>pkgutil</strong> include funzioni per modificare le regole di importazione dei pacchetti Python a per caricare risorse diverse dal codice da file distribuiti all'interno di un pacchetto.
+</testo_normale>
+<titolo_2>
+Percorsi di Importazione Pacchetti
+</titolo_2>
+<testo_normale>
+La funzione <code>extend_path()</code> è usata per modificare il percorso di ricerca e modificare il modo nel quale i sotto moduli sono importati dall'interno di un pacchetto in modo che diverse directory differenti possano essere combinate come se fossero una sola. Questa caratteristica può essere utilizzata per sovrascrivere versioni di pacchetti installati con versioni di sviluppo, oppure per combinare moduli specifici per la piattaforma e moduli condivisi in un singolo spazio dei nomi per un pacchetto.
+</testo_normale>
+<testo_normale>
+Il modo più comune per chiamare <code>extend_path()</code> è aggiungendo due righe al file <code>__init__.py</code> all'interno del pacchetto.
+</testo_normale>
+<py_code>
+import pkgutil
+__path__ = pkgutil.extend_path(__path__, __name__)
+</py_code>
+<testo_normale>
+<code>extend_path()</code> scorre <code>sys.path</code> alla ricerca di directory che includano una certa sottodirectory per il pacchetto fornito come secondo argomento. L'elenco di directory viene combinato con il valore del percorso passato come primo argomento e viene ritornato come una singola lista, adatta all'uso come percorso di importazione del pacchetto.
+</testo_normale>
+<testo_normale>
+Un pacchetto di esempio chiamato <code>demopkg</code> include due file, <code>__init__.py</code> e <code>shared.py</code>. Il file <code>__init__.py</code> in <code>demopkg1</code> contiene istruzioni <code>print</code> per mostrare il percorso di ricerca prima e dopo che è stato modificato, per evidenziarne la differenza.
+</testo_normale>
+<py_code>
+# demopkg1/__init__.py
+</py_code>
+<testo_normale>
+La directory <code>extension</code>, con caratteristiche aggiunte per <code>demopkg</code>, contiene altri tre file sorgente. C'è un file <code>__init__.py</code> ad ogni livello di directory ed un <code>not_shared.py</code>
+</testo_normale>
+<py_output>
+$ find extension -name '*.py'
+</py_output>
+<testo_normale>
+Questo semplice programma di test importa il pacchetto <code>demopkg1</code>.
+</testo_normale>
+<py_code>
+# pkgutil_extend_path.py
+</py_code>
+<testo_normale>
+Quando il programma di test viene eseguito direttamente da riga di comando, il modulo <code>not_shared.py</code> non viene trovato.
+</testo_normale>
+<note>
+In questi esempi i percorsi completi del file system sono stati abbreviati per enfatizzare le parti che cambiano.
+</note>
+<py_output>
+$ python3 pkgutil_extend_path.py
+</py_output>
+<testo_normale>
+Tuttavia, se la directory <code>extension</code> viene aggiunta a <code>PYTHONPATH</code> ed il programma viene rieseguito, si hanno risultati differenti.
+</testo_normale>
+<py_output>
+$ PYTHONPATH=extension python3 pkgutil_extend_path.py
+</py_output>
+<testo_normale>
+La versione di <code>demopkg1</code> all'intero della directory <code>extension</code> è stata aggiunta al percorso di ricerca, quindi d<code>not_shared.py</code> viene trovato.
+</testo_normale>
+<testo_normale>
+L'estensione del percorso è in questo modo utile per combinare versioni di pacchetti specifiche per la piattaforma con pacchetti comuni, specialmente se le versioni specifiche per la piattaforma includono moduli di estensione C.
+</testo_normale>
+<titolo_2>
+Versioni di Sviluppo di Pacchetti
+</titolo_2>
+<testo_normale>
+Nella fase di sviluppo di un progetto, è normale la necessità di dover verificare modifiche in un pacchetto installato. Sostituendo la copia installata con una versione di sviluppo potrebbe essere una cattiva idea, visto che potrebbe non essere corretta ed altri strumenti nel sistema potrebbero dipendere dal pacchetto installato.
+</testo_normale>
+<testo_normale>
+Una copia completamente separata del pacchetto potrebbe essere configurata in un ambiente di sviluppo usando <code>virtualenv</code> oppure  <a href='venv.html' target='_blank'>venv</a>, ma per piccole modifiche potrebbe essere eccessivo l'impegno di impostare un ambiente virtuale con tutte le dipendenze.
+</testo_normale>
+<testo_normale>
+Un'altra opzione è usare <code>pkgutil</code> per modificare il percorso di ricerca dei moduli per i moduli che appartengono al pacchetto in sviluppo. In questo caso, tuttavia, il percorso deve essere invertito in modo che il percorso della versione di sviluppo venga esaminato prima di quello della versione installata.
+</testo_normale>
+<testo_normale>
+In questo caso un pacchetto <code>demopkg2</code> contiene un file <code>__init__.py</code> e <code>overloaded.py</code>, con la funzione in fase di sviluppo collocata in <code>demopkg2/overloaded.py</code>.
+</testo_normale>
+<py_code>
+# demopkg2/overloaded.py
+</py_code>
+<testo_normale>
+e <code>demopkg2/__init__.py</code> contiene:
+</testo_normale>
+<py_code>
+# demopkg2/__init__.py
+</py_code>
+<testo_normale>
+<code>reverse()</code> viene utilizzato per assicurarsi che qualunque directory aggiunta al percorso di ricerca da <code>pkgutil</code> venga esaminata per trovare importazioni prima della versione predefinita.
+</testo_normale>
+<testo_normale>
+Il programma importa <code>demopkg2.overloaded</code> e chiama <code>func()</code>.
+</testo_normale>
+<py_code>
+# pkgutil_devel.py
+</py_code>
+<testo_normale>
+Eseguendolo senza particolari trattamenti del percorso produce il risultato dalla versione installata di <code>func()</code>.
+</testo_normale>
+<py_output>
+$ python3 pkgutil_devel.py
+</py_output>
+<testo_normale>
+La directory di sviluppo contiene:
+</testo_normale>
+<py_output>
+$ find develop/demopkg2 -name '*.py'
+</py_output>
+<testo_normale>
+All'interno di <code>overloaded</code> si trova la funzione modificata
+</testo_normale>
+<py_code>
+# develop/demopkg2/overloaded.py
+</py_code>
+<testo_normale>
+che verrà caricata quando il programma di test viene eseguito con la directory <code>develop</code> nel percorso di ricerca.
+</testo_normale>
+<py_output>
+$ PYTHONPATH=develop python3 pkgutil_devel.py
+</py_output>
+<titolo_2>
+Gestire Percorsi con File PKG
+</titolo_2>
+<testo_normale>
+Il primo esempio illustrava come estendere il percorso di ricerca usando directory extra incluse in <code>PYTHONPATH</code>. E' anche possibile aggiungere elementi al percorso di ricerca usando dei file <code>*.pkg</code> che contengono nomi di directory. I file PKG sono simili ai file PTH usati dal modulo <strong>site</strong>. Possono contenere nomi di directory, uno per riga, da aggiungere al percorso di ricerca per il pacchetto.
+</testo_normale>
+<testo_normale>
+Un altro modo per strutturare porzioni specfiche per la piattaforma dell'applicazione dal primo esempio è usare una directory separata per ogni sistema operativo, ed includere un file <code>.pkg</code> per estendere il percorso di ricerca.
+</testo_normale>
+<testo_normale>
+Questo esempio usa gli stessi file in <code>demopkg1</code>, ed include anche i seguenti file:
+</testo_normale>
+<py_output>
+$ find so_* -type f
+</py_output>
+<testo_normale>
+I file PKG sono chiamati <code>demopkg1.pkg</code> per farli corrispondere con il pacchetto che viene esteso. Entrambi contengono questa riga:
+</testo_normale>
+<py_code>
+demopkg
+</py_code>
+<testo_normale>
+Questo programma mostra le versioni dei moduli importati.
+</testo_normale>
+<py_code>
+# pkgutil_os_specific.py
+</py_code>
+<testo_normale>
+Un semplice script può essere usato per alternare i due pacchetti.
+</testo_normale>
+<py_code>
+# with_os.sh
+</py_code>
+<testo_normale>
+Quando viene eseguito con <code>uno</code> o <code>due</code> come argomento, il percorso viene modificato.
+</testo_normale>
+<py_output>
+$ ./with_os.sh uno
+</py_output>
+<py_output>
+$ ./with_os.sh due
+</py_output>
+<testo_normale>
+I file PKG possono apparire in qualunque parte del normale percorso di ricerca, quindi anche un singolo file PKG nella directory di lavoro corrente potrebbe essere usato per includere un ramo di sviluppo.
+</testo_normale>
+<titolo_2>
+Pacchetti Annidati
+</titolo_2>
+<testo_normale>
+Per pacchetti annidati, è solamente necessario modificare il percorso del pacchetto di livello superiore. Ad esempio, con questa struttura di directory
+</testo_normale>
+<py_output>
+$ find nested -name '*.py'
+</py_output>
+<testo_normale>
+Dove <code>nested/__init__.py</code> contiene
+</testo_normale>
+<py_code>
+# nested/__init__.py
+</py_code>
+<testo_normale>
+ed una branca di sviluppo tipo
+</testo_normale>
+<py_output>
+$ find develop/nested -name '*.py'
+</py_output>
+<testo_normale>
+Entrambi i moduli <code>shallow</code> e <code>deep</code> contengono una semplice funzione che stampa un messaggio che indica se provengono o meno dalla versione installata oppure quella di sviluppo.
+</testo_normale>
+<testo_normale>
+Questo programma di test si avvale dei nuovi pacchetti
+</testo_normale>
+<py_code>
+# pkgutil_nested.py
+</py_code>
+<testo_normale>
+Quando viene eseguito <code>pkgutil_nested.py</code> senza alcuna manipolazione del percorso, vengono usate le versioni installate di entrambi i moduli.
+</testo_normale>
+<py_output>
+$ python3 pkgutil_nested.py
+</py_output>
+<testo_normale>
+Quando viene aggiunta la directory <code>develop</code> al percorso, le versioni di sviluppo di entrambi i metodi vengono eseguite in luogo di quelle installate.
+</testo_normale>
+<py_output>
+PYTHONPATH=develop python3 pkgutil_nested.py
+</py_output>
+<titolo_2>
+Pacchetti con Dati
+</titolo_2>
+<testo_normale>
+Oltre al codice, i pacchetti Python possono contenere file dati tipo template, file di configurazione predefiniti, immagini ed altri file di supporto usati dal codice nel pacchetto. La funzione <code>get_date()</code> fornisce accesso ai dati nei file in modo agnostico, quindi non importa se il pacchetto viene distribuito come EGG, parte di un binario fissato, o normali file nel sistema.
+</testo_normale>
+<testo_normale>
+Con un pacchetto <code>pkgwithdata</code> che contiene una direcotry <code>templates</code>
+</testo_normale>
+<py_output>
+$ find pkgwithdata -type f
+</py_output>
+<testo_normale>
+Il file <code>pkgwithdata/templates/base.html</code> contiene un semplice template HTML.
+</testo_normale>
+<py_code>
+# pkgwithdata/templates/base.html
+</py_code>
+<testo_normale>
+Il programma usa <code>get_data()</code> per ottenere il contenuto del template e lo stampa.
+</testo_normale>
+<py_code>
+# pkgutil_get_data.py
+</py_code>
+<testo_normale>
+Gli argomenti di <code>get_data()</code> sono il nome del pacchetto ed un nome di file relativo al livello superiore del pacchetto. Il valore di ritorno è una sequenza di byte, quindi deve essere decodificato in UTF-8 prima della stampa.
+</testo_normale>
+<py_output>
+$ python3 pkgutil_get_data.py
+
+<!-- # pkgwithdata/templates/base.html -->
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>PyMOTW Template</title>
+</head>
+
+<body>
+<h1>Template di esempio</h1>
+
+<p>Questo e' un file di dati di esempio..</p>
+
+</body>
+</html>
+</py_output>
+<testo_normale>
+<code>get_data()</code> è in formato agnostico rispetto alla distribuzione in quanto usa gli agganci di importazione definiti per accedere ai contenuti di un pacchetto definiti in PEP 302. E' possibile usare un qualunque caricatore che fornisca gli agganci, compreso l'importatore di archivi ZIP in <a href='zipfile.html' target='_blank'>zipfile</a>.
+</testo_normale>
+<py_code>
+# pkgutil_get_data_zip.py
+</py_code>
+<testo_normale>
+Questo esempio usa <code>PyZipFile.writepy()</code> per creare un archivio ZIP che contiene una copia del pacchetto <code>pkgwithdata</code>, inclusa una versione rinominata del file template. Quindi l'archivio ZIP al percorso di importazione prima di usare <code>pkgutil</code> per careicare il template e stamparlo. Si faccia riferimento a <a href='zipfile.html' target='_blank'>zipfile</a> per maggiori dettagli sull'uso di <code>writepy()</code>.
+</testo_normale>
+<py_output>
+$ python3 pkgutil_get_data_zip.py
+
+$ python3 pkgutil_get_data_zip.py
+Loading pkgwithdata from .../pkgwithdata/__init__.py
+
+Template:
+<!-- # pkgwithdata/templates/fromzip.html -->
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>PyMOTW Template</title>
+</head>
+
+<body>
+<h1>Template di esempio</h1>
+
+<p>Questo e' un file di dati di esempio..</p>
+
+</body>
+</html>
+
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/pkgutil.html|pkgutil|La documentazione della libreria standard per questo modulo.
+http://pypi.python.org/pypi/virtualenv|virtualenv|Lo script di ambiente virtuale di Ian Bicking
+#|distutils|Strumenti per gestione pacchetti dalla libreria standard di Python
+https://setuptools.readthedocs.io/en/latest/l|setuptools|Strumenti di gestione pacchetti della prossima generazione.
+https://www.python.org/dev/peps/pep-0302|PEP 302|Agganci di importazione.
+zipfile.html|zipfile|Crea archivi ZIP importabili
+zipimport.html|zipimport|Importatore di pacchetti in archivi ZIP.
+</vedi_anche>
+</documento_tradotto>

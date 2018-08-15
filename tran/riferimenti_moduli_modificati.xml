@@ -498,6 +498,7 @@ xml.etree.ElementTree
 
 Quando fallisce l'elaborazione, invece che sollevare <code>xml.parsers.expat.ExpatError</code>, <code>XMLParser</code> ora solleva <code>xml.etree.ElementTree.ParseError</code>.
 </testo_normale>
+<a name='zipimport'></a>
 <titolo_2>
 zipimport
 </titolo_2>

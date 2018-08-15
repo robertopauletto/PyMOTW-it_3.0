@@ -39,12 +39,166 @@ Leggere i Metadati da un Archivio
 <testo_normale>
 Si usi la classe <code>Zipfile</code> per lavorare direttamente con un archivio ZIP. Essa supporta sia metodi per leggere dati riguardo archivi esistenti che per modificare gli archivi aggiungendo file.
 </testo_normale>
+<py_code>
+# zipfile_namelist.py
+</py_code>
+<testo_normale>
+Il metodo <code>namelist()</code> ritorna i nomi dei file di un archivio esistente.
+</testo_normale>
+<py_output>
+$ python3 zipfile_namelist.py
+</py_output>
+<testo_normale>
+L'elenco di nomi è l'unica parte di informazioni disponibili dall'archivio. Per accedere a tutti i metadati circa il contenuto dello ZIP si usino i metodi <code>infolist()</code> oppure <code>getinfo()</code>.
+</testo_normale>
+<py_code>
+# zipfile_infolist.py
+</py_code>
+<testo_normale>
+Ci sono campi addizionali, oltre a quelli stampati qui, ma trascodificare i valori in qualcosa che abbia una qualsiasi utilità richiede una attenta lettura delle note dell'applicazione PKZIP con le specifiche del file ZIP.
+</testo_normale>
+<py_output>
+$ python3 zipfile_infolist.py
+</py_output>
+<testo_normale>
+Se il nome del membro di un archivio è noto in anticipo, è possibile ricavare un oggetto <code>ZipInfo</code> direttamente tramite <code>getinfo()</code>.
+</testo_normale>
+<py_code>
+# zipfile_getinfo.py
+</py_code>
+<testo_normale>
+Se un membro di archivio non è presente, <code>getinfo()</code> solleva una eccezione.
+</testo_normale>
+<py_output>
+$ python3 zipfile_getinfo.py
+</py_output>
+<titolo_2>
+Estrarre File da un Archivio
+</titolo_2>
+<testo_normale>
+Per accedere ai dati di un membro di un archivio, si usi il metodo <code>read()</code>, passando il nome del membro.
+</testo_normale>
+<py_code>
+# zipfile_read.py
+</py_code>
+<testo_normale>
+I dati, se necessario, sono automaticamente decompressi.
+</testo_normale>
+<py_output>
+$ python3 zipfile_read.py
+</py_output>
+<titolo_2>
+Creare Nuovi Archivi
+</titolo_2>
+<testo_normale>
+Per creare un nuovo archivio, is istanzi <code>ZipFile</code> con modalità <code>'w'</code>. Qualunque file esistente verrà troncato e verrà inizializzato un nuovo archivio. Per aggiungere file si usi il metodo <code>write()</code>.
+</testo_normale>
+<py_code>
+# zipfile_write.py
+</py_code>
+<testo_normale>
+Nella modalità predefinita, i contenuti dell'archivio non sono compressi.
+</testo_normale>
+<py_output>
+$ python3 zipfile_write.py
+</py_output>
+<testo_normale>
+Per aggiungere compressione, è richiesto il modulo <strong>zlib</strong>. Se <strong>zlib</strong> è disponibile, la modalità di compressione per i singoli file o per l'intero archivio può essere impostata usando <code>zipfile.ZIP_DEFLATED</code>. La modalità di compressione predefinita è <code>zipfile_ZIP_STORED</code>, che aggiunge file all'archivio senza comprimerli.
+</testo_normale>
+<py_code>
+# zipfile_write_compression.py
+</py_code>
+<testo_normale>
+In questo caso, il membro dell'archivio è compresso.
+</testo_normale>
+<py_output>
+$ python3 zipfile_write_compression.py
+</py_output>
+<titolo_2>
+Usare Nomi di Membri di Archivio Sostitutivi
+</titolo_2>
+<testo_normale>
+Per aggiungere un file ad un archivio usando un nome diverso da quello originale si usi l'argomento <code>arcname</code> per <code>write()</code>.
+</testo_normale>
+<py_code>
+# zipfile_write_arcname.py
+</py_code>
+<testo_normale>
+Non vi è traccia del nome file originale nell'archivio.
+</testo_normale>
+<py_output>
+$ python3 zipfile_write_arcname.py
+</py_output>
+<titolo_2>
+Scrivere Dati da Sorgenti Diverse da File
+</titolo_2>
+<testo_normale>
+Talvolta è necessario scrivere verso un archivio ZIP usando dati che non provengono da un file esistente. Piuttosto che scrivere dati ad un file, quindi aggiungere lo stesso al file ZIP, si usi il metodo <code>writestr()</code> che aggiunge una stringa di byte all'archivio direttamente.
+</testo_normale>
+<py_code>
+# zipfile_writestr.py
+</py_code>
+<testo_normale>
+In questo caso, l'argomento <code>compress_type</code> di <code>ZipFile</code> è stato usato per comprimere i dati visto che <code>writestr()</code> non prevede un argomento che specifichi la compressione.
+</testo_normale>
+<py_output>
+$ python3 zipfile_writestr.py
+</py_output>
+<titolo_2>
+Scrivere con una Istanza di ZipInfo
+</titolo_2>
+<testo_normale>
+Normalmente la data di modifica viene calcolata quando un file od una stringa vengono aggiunti all'archivio. Una istanza di <code>ZipInfo</code> può essere passata a <code>writestr()</code> per definire la data di modifica ed altri metadati.
+</testo_normale>
+<py_code>
+# zipfile_writestr_zipinfo.py
+</py_code>
+<testo_normale>
+In questo esempio, l'orario modificato viene impostato all'orario corrente, i dati sono compressi, e viene usato un valore <code>False</code> per <code>create_system</code>. Viene anche associato un semplice commento al nuovo file.
+</testo_normale>
+<py_output>
+$ python3 zipfile_writestr_zipinfo.py
+</py_output>
+<titolo_2>
+Aggiungere File
+</titolo_2>
+<testo_normale>
+Oltre alla creazione di nuovi archivi, è possibile aggiungere in un archivio esistente, oppure aggiungere un archivio ad un file esistente (tipo un file <code>a.exe</code> per un archivio auto estraente). Per aprire un archivio per aggiungere un file si usi la modalità <code>'a'</code>.
+</testo_normale>
+<py_code>
+# zipfile_append.py
+</py_code>
+<testo_normale>
+L'archivio risultante contiene due membri:
+</testo_normale>
+<py_output>
+$ python3 zipfile_append.py
+</py_output>
+<titolo_2>
+Archivi ZIP Python
+</titolo_2>
+<testo_normale>
+Python può importare moduli all'interno di un file ZIP usando <strong>zipimport</strong>, se questi archivi sono in <code>sys.path</code>. La classe <code>PyZipFile</code> può essere usata per costruire un modulo adatto per l'utilizzo con questa modalità. Il metodo supplementare <code>writepy()</code> dice a <code>PyZipFile</code> di cercare file con suffisso <code>.py</code> nella directory ed aggiungere i corrispondenti file con estensione <code>.pyo</code> o <code>.pyc</code> all'archivio. Se nessuna delle forme compilate esiste, file creato ed aggiunto un file <code>.pyc</code>.
+</testo_normale>
+<py_code>
+# zipfile_pyzipfile.py
+</py_code>
+<testo_normale>
+Con l'attributo di debut di <code>PyZipFile</code> impostato a 3, viene abilitato un debug verboso ed il risultato viene prodotto mentre compile ogni file <code>.py</code> che trova.
+</testo_normale>
+<py_output>
+$ python3 zipfile_pyzipfile.py
+</py_output>
+<titolo_2>
+Limitazioni
+</titolo_2>
+<testo_normale>
+Il modulo <strong>zipfile</strong> non supporta file ZIP con commenti aggiunti, od archivi multi disco. Supporta file ZIP più grandi di 4 GB che usano le estensioni ZIP64
+</testo_normale>
 <vedi_anche>
-https://docs.python.org/3.6/library/hmac.html|hmac|La documentazione della libreria standard per questo modulo.
-http://tools.ietf.org/html/rfc2104.html|RFC 2104|HMAC: Keyed-Hashing for Message Authentication
-hashlib.html|hashlib|Il modulo <strong>hashlib</strong>
-pickle.html|pickle|Libreria di serializzazione
-https://www.wikiwand.com/it/MD5|MD5|La descrizione dell'algoritmo MD5.
-http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html|Signing and Authenticating REST Requests (Amazon AWS)|Istruzioni per autenticarsi ad S3 usando le credenziali firmate HMAC-SHA1
+https://docs.python.org/3.6/library/zipfile.html|zipfile|La documentazione della libreria standard per questo modulo.
+zlib.html|zlib|Libreria di compressione ZIP
+#|tarfile (Di prossima traduzione)|Legge e scrive file tar
+#|zipimport (Di prossima traduzione) |Importa moduli Python da archivi ZIP
 </vedi_anche>
 </documento_tradotto>

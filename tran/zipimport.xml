@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione ed archiviazione dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+zipimport - Carica Codice Python da Archivi ZIP
+</titolo_1>
+<descrizione>
+Importa moduli Python salvati come membri di archivi ZIP.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>zipimport</strong> implementa la classe <code>zipimporter</code>, che può essere usata per trovare e caricare moduli Python all'interno di archivi in formato .ZIP. <code>zipimporter</code> supporta l'<a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> di agganci di importazione specificati nel PEP 302; è il modo nel quale funzionano i <em>Python Eggs</em>. Un <em>Python Egg</em> è un formato di distribuzione di pacchetti python - n.d.t..
+</testo_normale>
+<testo_normale>
+In genere non è necessario usare il modulo <strong>zipimport</strong> direttamente, visto che è possibile importare direttamente da un archivio ZIP fintanto che lo stesso sia nel percorso indirizzato da <code>sys.path</code>. Tuttavia è istruttivo studiare come l'API di importazione possa essere usata, per imparare le caratteristiche disponibil e comprendere come funziona l'importazione dei moduli. Conoscere come funziona l'importatore da ZIP aiuta anche ad indirizzare problemi di debug che potrebbero sorgere quando si distribuiscono applicazioni basate su archivi ZIP creati con <code>zipfile.PyZipFile</code>.
+</testo_normale>
+<titolo_2>
+Esempio
+</titolo_2>
+<testo_normale>
+Questi esempi riutilizzano parte del codice usato per l'articolo su <a href='zipfile.html' target='_blank'>zipfile</a> per creare un archivio ZIP di esempio che contiene alcuni moduli Python.
+</testo_normale>
+<py_code>
+# zipimport_make_example.py
+</py_code>
+<testo_normale>
+Per eseguire tutti gli esempi in questo articolo occorre:
+</testo_normale>
+<lista>
+scaricare gli esempi in una directory dedicata
+creare un file <code>__init__.py</code>
+creare una sottodirectory <code>pacchetto_esempio</code>
+creare in <code>pacchetto_esempio</code> un file <code>README.txt</code>
+creare in <code>pacchetto_esempio</code> il file <code>__init__.py</code>
+</lista>
+<testo_normale>
+Si esegua poi <code>zipimport_make_example.py</code>  per creare un archivio ZIP che contiene tutti i moduli nella directory di esempio, assieme ad alcuni dati di test necessari per gli esempi di questa sezione.
+</testo_normale>
+<py_output>
+$ python3 zipimport_make_example.py
+
+__init__.pyc
+zipimport_get_data_zip.pyc
+zipimport_get_data.pyc
+zipimport_load_module.pyc
+zipimport_is_package.pyc
+zipimport_find_module.pyc
+pacchetto_esempio/__init__.pyc
+zipimport_make_example.pyc
+zipimport_get_code.pyc
+zipimport_get_source.pyc
+zipimport_get_data_nozip.pyc
+zipimport_get_source.py
+pacchetto_esempio/README.txt
+</py_output>
+<titolo_2>
+Trovare un Modulo
+</titolo_2>
+<testo_normale>
+Dato il nome completo di un modulo, <code>find_module()</code> cercherà di localizzarlo all'interno dell'archivio ZIP.
+</testo_normale>
+<py_code>
+# zipimport_find_module.py
+</py_code>
+<testo_normale>
+Se il modulo viene trovato, viene ritornata l'istanza di <code>zipimport</code>. Altrimenti viene restituito <code>None</code>.
+</testo_normale>
+<py_output>
+$ python3 zipimport_find_module.py
+
+zipimport_find_module : <zipimporter object "esempio_zipimport.zip">
+non_qui : None
+</py_output>
+<titolo_2>
+Accedere al Codice
+</titolo_2>
+<testo_normale>
+Il metodo <code>get_code()</code> carica l'oggetto codice per un modulo dall'archivio.
+</testo_normale>
+<py_code>
+# zipimport_get_code.py
+</py_code>
+<testo_normale>
+L'oggetto codice non è lo stesso dell'oggetto <code>module</code>, ma viene usato per crearne uno.
+</testo_normale>
+<py_output>
+$ python3 zipimport_get_code.py
+
+<code object <module> at 0x7f1c238b31e0, file "./zipimport_get_code.py", line 3>
+</py_output>
+<testo_normale>
+Per caricare il codice come modulo utilizzabile si usi viceversa <code>load_module()</code>.
+</testo_normale>
+<py_code>
+# zipimport_load_module.py
+</py_code>
+<testo_normale>
+Il risultato è un oggetto <code>module</code> configurato come se il codice fosse stato caricato da una normale importazione.
+</testo_normale>
+<py_output>
+$ python3 zipimport_load_module.py
+
+<code object <module> at 0x7f7c703bae40, file "./zipimport_get_code.py", line 3>
+Nome       : zipimport_get_code
+Caricatore : <zipimporter object "esempio_zipimport.zip">
+Codice     : <code object <module> at 0x7f7c703bae40, file "./zipimport_get_code.py", line 3>
+</py_output>
+<titolo_2>
+Sorgente
+</titolo_2>
+<testo_normale>
+Così come per il modulo <a href='inspect.html' target='_blank'>inspect</a>, è possibile recuperare il codice sorgente per un modulo da un archivio ZIP, se l'archivio include il sorgente. Nel caso dell'esempio, solo <code>zipimport_get_source.py</code> viene aggiunto ad <code>esempio_zipimport.zip</code> (il resto dei moduli sono solo aggiunti come file <code>.pyc</code>).
+</testo_normale>
+<py_code>
+# zipimport_get_source.py
+</py_code>
+<testo_normale>
+Se il sorgente per un modulo non è disponbile, <code>get_source()</code> ritorna <code>None</code>
+</testo_normale>
+<py_output>
+$ python3 zipimport_get_source.py
+
+================================================================================
+zipimport_get_code
+================================================================================
+None
+
+================================================================================
+zipimport_get_source
+================================================================================
+# zipimport_get_source.py
+
+import zipimport
+
+modules = [
+    'zipimport_get_code',
+    'zipimport_get_source',
+]
+
+importer = zipimport.zipimporter('esempio_zipimport.zip')
+for module_name in modules:
+    source = importer.get_source(module_name)
+    print('=' * 80)
+    print(module_name)
+    print('=' * 80)
+    print(source)
+    print()
+</py_output>
+<titolo_2>
+Pacchetti
+</titolo_2>
+<testo_normale>
+Per determinare se un nome si riferisce ad un pacchetto invece che ad un normale modulo, si usi <code>is_package()</code>.
+</testo_normale>
+<py_code>
+# zipimport_is_package.py
+</py_code>
+<testo_normale>
+In questo caso <code>zipimport.is_package</code> proviene da un modulo ed <code>esempio_pacchetto</code> è un pacchetto.
+</testo_normale>
+<py_output>
+$ python3 zipimport_is_package.py
+
+zipimport_is_package False
+pacchetto_esempio True
+</py_output>
+<titolo_2>
+Dati
+</titolo_2>
+<testo_normale>
+Ci sono volte nelle quali moduli o pacchetti devono essere distribuiti con dati diversi da codice: immagini, file di configurazione, dati predefiniti, impianti di test sono solo alcuni esempi. Frequentemente gli attributi di modulo <code>__path__</code> o <code>__file__</code> sono usati per trovare questi file dati in relazione a dove il codice viene installato.
+</testo_normale>
+<testo_normale>
+Ad esempio con un modulo "normale", il percorso di sistema del file può essere costruito con l'attributo <code>__file__</code> del pacchetto importato così:
+</testo_normale>
+<py_code>
+# zipimport_get_data_nozip.py
+</py_code>
+<testo_normale>
+Il risultato dipenderà da dove si trova il codice di esempio sul file system.
+</testo_normale>
+<py_output>
+$ python3 zipimport_get_data_nozip.py
+
+.../pacchetto_esempio/README.txt :
+Questo file rappresenta dati di esempio che potrebbero essere inseriti
+nell'archivio ZIP. Si potrebbe includere un file di configurazione,
+immagini o qualsiasi altro tipo di dato.
+</py_output>
+<testo_normale>
+Se <code>esempio_pacchetto</code> viene importato dall'archivio ZIP invece che dal file system, non funzionerà l'uso di <code>__file__</code>.
+</testo_normale>
+<py_code>
+# zipimport_get_data_zip.py
+</py_code>
+<testo_normale>
+Il <code>__file__</code> del pacchetto si riferisce all'archivio ZIP, e non ad una directory, quindi la costruzione del percorso per <code>README.txt</code> fornirà un valore errato.
+</testo_normale>
+<py_output>
+$ python3 zipimport_get_data_zip.py
+
+esempio_zipimport.zip/pacchetto_esempio/__init__.pyc
+esempio_zipimport.zip/pacchetto_esempio/README.txt :
+Traceback (most recent call last):
+  File "zipimport_get_data_zip.py", line 14, in <module>
+    print(open(data_filename, 'rt').read())
+NotADirectoryError: [Errno 20] Not a directory: 'esempio_zipimport.zip/pacchetto_esempio/README.txt'
+</py_output>
+<testo_normale>
+Un modo più affidabile di recuperare il file è l'uso del metodo <code>get_data()</code>. L'istanza di <code>zipimporter</code> che ha caricato il modulo può essere indirizzata attraverso l'attributo <code>__loader__</code> del modulo importato.
+</testo_normale>
+<py_code>
+# zipimport_get_data.py
+</py_code>
+<testo_normale>
+<code>pkgutil.get_data()</code> usa questa interfaccia per accedere a dati dall'interno di un pacchetto. Il valore restituito è una stringa di byte, che deve essere decodificata verso una stringa <em>unicode</em> prima della stampa.
+</testo_normale>
+<py_output>
+$ python3 zipimport_get_data.py
+
+esempio_zipimport.zip/pacchetto_esempio/__init__.pyc
+Questo file rappresenta dati di esempio che potrebbero essere inseriti
+nell'archivio ZIP. Si potrebbe includere un file di configurazione,
+immagini o qualsiasi altro tipo di dato.
+</py_output>
+<testo_normale>
+<code>__loader__</code> non è impostato per moduli non importati via <code>zipimport</code>.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/zipimport.html|zipimport|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#zipimport|Note di portabilità da Python 2 a 3 per zipimport|
+#|pkgutil (Di prossima traduzione)|Fornisce una interfaccia più generica a <code>get_data()</code>.
+zipfile.html|zipfile|Legge e scrive file di archivio ZIP.
+https://www.python.org/dev/peps/pep-0302|PEP 302|Nuovi agganci di importazione.
+</vedi_anche>
+</documento_tradotto>

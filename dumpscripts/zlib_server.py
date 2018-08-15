@@ -1,44 +1,47 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# zlib_server.py
 
 import zlib
 import logging
-import SocketServer
+import socketserver
 import binascii
 
 BLOCK_SIZE = 64
 
-class ZlibRequestHandler(SocketServer.BaseRequestHandler):
+
+class ZlibRequestHandler(socketserver.BaseRequestHandler):
 
     logger = logging.getLogger('Server')
-    
+
     def handle(self):
         compressor = zlib.compressobj(1)
-        
-        # Scopre cosa vuole il client
-        filename = self.request.recv(1024)
-        self.logger.debug('il client richiede: "%s"', filename)
-        
+
+        # Scopre quale file vuole il client
+        filename = self.request.recv(1024).decode('utf-8')
+        self.logger.debug('il client richiede: %r', filename)
+
         # Invia pezzi del file mentre vengono compressi
         with open(filename, 'rb') as input:
-            while True:            
+            while True:
                 block = input.read(BLOCK_SIZE)
                 if not block:
                     break
-                self.logger.debug('RAW "%s"', block)
+                self.logger.debug('GREZZI %r', block)
                 compressed = compressor.compress(block)
                 if compressed:
-                    self.logger.debug('IN INVIO "%s"', binascii.hexlify(compressed))
+                    self.logger.debug(
+                        'IN INVIO %r',
+                        binascii.hexlify(compressed))
                     self.request.send(compressed)
                 else:
-                    self.logger.debug('BUFFERING')
-        
+                    self.logger.debug('IN BUFFER')
+
         # Invia tutti i dati che il compressore ha nel buffer
         remaining = compressor.flush()
         while remaining:
             to_send = remaining[:BLOCK_SIZE]
             remaining = remaining[BLOCK_SIZE:]
-            self.logger.debug('SVUOTAMENTO "%s"', binascii.hexlify(to_send))
+            self.logger.debug('SVUOTAMENTO %r',
+                              binascii.hexlify(to_send))
             self.request.send(to_send)
         return
 
@@ -46,64 +49,66 @@ class ZlibRequestHandler(SocketServer.BaseRequestHandler):
 if __name__ == '__main__':
     import socket
     import threading
-    from cStringIO import StringIO
+    from io import BytesIO
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(name)s: %(message)s',
-                        )
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(name)s: %(message)s',
+    )
     logger = logging.getLogger('Client')
 
-    # Imposta un server, in esecuzione su di un thread separato
-    address = ('localhost', 0) # lasciamo che il kernel ci dia una porta
-    server = SocketServer.TCPServer(address, ZlibRequestHandler)
-    ip, port = server.server_address # scopriamo che porta abbiamo ottenuto
+    # mposta un server, in esecuzione su di un thread separato
+    address = ('localhost', 0)  # lasciamo che il kernel ci dia una porta
+    server = socketserver.TCPServer(address, ZlibRequestHandler)
+    ip, port = server.server_address  # quale porta è stata assegnata?
 
     t = threading.Thread(target=server.serve_forever)
     t.setDaemon(True)
     t.start()
 
-    # Connessione al server
+    # onnessione al server come client
     logger.info('Contatto il server su %s:%s', ip, port)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
 
-    # Richiesta di un file
+    # Richiesta di un  file
     requested_file = 'lorem.txt'
-    logger.debug('invio nome file: "%s"', requested_file)
-    len_sent = s.send(requested_file)
+    logger.debug('invio file con nome: %r', requested_file)
+    len_sent = s.send(requested_file.encode('utf-8'))
 
-    # Ricezione della risposta
-    buffer = StringIO()
+    # Ricezione risposta
+    buffer = BytesIO()
     decompressor = zlib.decompressobj()
     while True:
         response = s.recv(BLOCK_SIZE)
         if not response:
             break
-        logger.debug('LETTURA "%s"', binascii.hexlify(response))
+        logger.debug('READ %r', binascii.hexlify(response))
 
-        # Include any unconsumed data when feeding the decompressor.
-        # Comprende tutti i dati non utilizzati quando si alimenta il decompressore
+        # Comprende tutti i dati non utilizzati quando
+        # si alimenta il decompressore.
         to_decompress = decompressor.unconsumed_tail + response
         while to_decompress:
             decompressed = decompressor.decompress(to_decompress)
             if decompressed:
-                logger.debug('DECOMPRESSIONE "%s"', decompressed)
+                logger.debug('DECOMPRESSSI %r', decompressed)
                 buffer.write(decompressed)
-                # Cerca dati inutilizzati a causa del buffer overflow
+                # Cerca dati non consumati a causa del buffer overflow
                 to_decompress = decompressor.unconsumed_tail
             else:
-                logger.debug('BUFFERING')
+                logger.debug('IN BUFFER')
                 to_decompress = None
 
     # Si occupa dei dati rimasti all'interno del buffer del decompressore
     remainder = decompressor.flush()
     if remainder:
-        logger.debug('SVUOTATI "%s"', remainder)
-        buffer.write(reaminder)
-    
+        logger.debug('SVUOTAMENTO %r', remainder)
+        buffer.write(remainder)
+
     full_response = buffer.getvalue()
-    lorem = open('lorem.txt', 'rt').read()
-    logger.debug('la risposta corrisponde al contenuto del file: %s', full_response == lorem)
+    lorem = open('lorem.txt', 'rb').read()
+    logger.debug('la risposta corrisponde al contenuto del file: %s',
+                 full_response == lorem)
 
     # Pulizia
     s.close()

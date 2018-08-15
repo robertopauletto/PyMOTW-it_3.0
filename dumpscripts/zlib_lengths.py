@@ -1,15 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# zlib_lengths.py
 
 import zlib
 
-original_data = 'Questo è il testo originale.'
+original_data = b"Questo e' il testo originale."
 
-fmt = '%15s  %15s'
-print fmt % ('len(dati)', 'len(compressi)')
-print fmt % ('-' * 15, '-' * 15)
+template = '{:>15}  {:>15}'
+print(template.format('len(data)', 'len(compressed)'))
+print(template.format('-' * 16, '-' * 16))
 
-for i in xrange(20):
+for i in range(5):
     data = original_data * i
-    compressed = zlib.compress(data)    
-    print fmt % (len(data), len(compressed)), '*' if len(data) < len(compressed) else ''
+    compressed = zlib.compress(data)
+    highlight = '*' if len(data) < len(compressed) else ''
+    print(template.format(len(data), len(compressed)), highlight)

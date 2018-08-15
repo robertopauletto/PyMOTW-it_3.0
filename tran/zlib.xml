@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione ed archiviazione dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+zlib - Compressione zlib GNU
+</titolo_1>
+<descrizione>
+Accesso a basso livello alla libreria di compressione GNU zlib
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>zlib</strong> fornisce una interfaccia a più basso livello a molte delle funzioni nella libreria di compressione zlib del progetto GNU.
+</testo_normale>
+<titolo_2>
+Lavorare con Dati in Memoria
+</titolo_2>
+<testo_normale>
+Il modo più semplice per lavorare con <strong>zlib</strong> richiede che tutti i dati da comprimere o decomprimere siano mantenuti in memoria.
+</testo_normale>
+<py_code>
+# zlib_memory.py
+</py_code>
+<testo_normale>
+Entrambe le funzioni <code>compress()</code> e <code>decompress()</code> ricevono una sequenza di byte come argomento e ritornano una sequenza di byte.
+</testo_normale>
+<py_output>
+$ python3 zlib_memory.py
+</py_output>
+<testo_normale>
+L'esempio precedente dimostra che la versione compressa di piccole quantità di dati può essere di dimensioni maggiori della versione non compressa. Sebbene i risultati effettivi dipendano dai dati in input, per piccole porzioni di testo è interessante osservare il sovraccarico di compressione.
+</testo_normale>
+<py_code>
+# zlib_lengths.py
+</py_code>
+<testo_normale>
+L'asterisco nel risultato evidenzia le righe dove i dati compressi occupano più memoria rispetto alla versione non compressa.
+</testo_normale>
+<py_output>
+$ python3 zlib_lengths.py
+</py_output>
+<testo_normale>
+<strong>zlib</strong> supporta diversi livelli di compressione, consentendo un bilanciamento tra il costo computazionale e l'ammontare della riduzione di spazio. Il livello di compressione predefinito, <code>zlib.Z_DEFAULT_COMPRESSION</code> è <code>-1</code>  e corrisponde ad un valore inserito nel codice che rappresenta un compromesso tra prestazioni e compressione. Attualmente corrisponde al livello 6.
+</testo_normale>
+<py_code>
+# zlib_compresslevel.py
+</py_code>
+<testo_normale>
+Il livello 0 equivale a nessuna compressione. Il livello 9 richiede il maggior sforzo di calcolo e produce il risultato più ridotto. Come mostra l'esempio, la stessa dimesione di riduzione può essere ottenuta da più livelli di compressione dato lo stesso input.
+</testo_normale>
+<py_output>
+$ python3 zlib_compresslevel.py
+</py_output>
+<titolo_2>
+Compressione e Decompressione Incrementale
+</titolo_2>
+<testo_normale>
+L'approccio <em>in-memoria</em> ha degli inconvenienti che lo rendono impraticabile per casi di uso reali, in primis perchè il sistema necessita di sufficiente memoria per mantenere le versioni compresse e non compresse residenti in memoria allo stesso tempo. L'alternativa è di usare gli oggetti <code>Compress</code> e <code>Decompress</code> per manipolare i dati in modo incrementale, così che l'intero insieme di dati non debba essere contenuto in memoria.
+</testo_normale>
+<py_code>
+# zlib_incremental.py
+</py_code>
+<testo_normale>
+Questo esempio legge piccoli blocchi di dati da un file a testo semplice e li passa a <code>compress()</code>. Il compressore mantiene un <a href='https://www.wikiwand.com/it/Buffer' target='_blank'>buffer</a> interno di dati compressi. Visto che l'algoritmo di compressione dipende da <a href='https://www.wikiwand.com/it/Numero_di_controllo' target='_blank'>cifre di controllo (checksum)</a> e dimensioni minime di blocco, il compressore potrebbe non essere pronto a ritornare i dati ogni volta che riceve ulteriore input. Se non ha un intero blocco compresso pronto, ritorna una stringa vuota. Quando tutti i dati sono stati incamerati, il metodo <code>flush()</code> forza il compressore a chiudere il blocco finale e ritornare i dati compressi rimanenti.
+</testo_normale>
+<py_output>
+$ python3 zlib_incremental.py
+</py_output>
+<titolo_2>
+Flussi di Contenuto Combinati
+</titolo_2>
+<testo_normale>
+La classe <code>Decompress</code> ritornata da <code>decompressobj()</code> potrebbe anche essere usata in situazioni nelle quali dati compressi e non compressi sono combinati assieme.
+</testo_normale>
+<py_code>
+# zlib_mixed.py
+</py_code>
+<testo_normale>
+Dopo la decompressione di tutti i dati, l'attributo <code>unused_data</code> contiene tutti i dati non utilizzati.
+</testo_normale>
+<py_output>
+$ python3 zlib_mixed.py
+</py_output>
+<titolo_2>
+Cifre di Controllo
+</titolo_2>
+<testo_normale>
+Oltre alle funzioni di compressione e decompressione, <strong>zlib</strong> include anche due funzioni per calcolare cifre di controllo di dati, <code>adler32()</code> e <code>crc32</code>. Nessuna cifra di controllo è sicura dal punto di vista crittografico, e sono da utilizzare solo per verifiche di integrità di dati.
+</testo_normale>
+<py_code>
+# zlib_checksums.py
+</py_code>
+<testo_normale>
+Entrambe le funzioni richiedono gli stessi argomenti, una stringa di byte che contiene i dati ed un valore opzionale da usare come punto di partenza per la cifra di controllo. Esse ritornano un intero con segno a 32 bit che può anche essere ripassato su chiamate successive come nuovo punto di partenza per produrre una cifra di controllo <em>corrente</em>
+</testo_normale>
+<py_output>
+$ python3 zlib_checksums.py
+</py_output>
+<titolo_2>
+Comprimere Dati su Reti
+</titolo_2>
+<testo_normale>
+Il server qui sotto utilizza un compressore di flusso per rispondere a richieste relative a nomi di file, scrivendone una versione compressa al <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'>socket</a>  usato per comunicare con il client.
+</testo_normale>
+<py_code>
+# zlib_server.py
+</py_code>
+<testo_normale>
+Ha una spezzettatura artificale sul posto per illustrare il comportamento di <em>buffering</em> che si verifica quando i dati passati a <code>compress()</code> o <code>decompress()</code> non risultano in un blocco completo di dati compressi o decompressi in uscita.
+</testo_normale>
+<testo_normale>
+Il client si connette al <em>socket</em> e richiede un file. Poi esegue un ciclo, ricevendo blocchi di dati compressi. Visto che un blocco potrebbe non contenere sufficienti informazioni per decomprimerlo interamente, il resto dei dati ricevuti in precedenza viene combinato con i nuovi dati e passato al decompressore. Mano a mano che i dati sono decompressi, sono aggiunti ad un <em>buffer</em>, il contenuto del quale viene confrontato con il contenuto del file alla fine del ciclo di elaborazione.
+</testo_normale>
+<avvertimento>
+Il server ha delle ovvie carenze di sicurezza. Non eseguirlo su un server in una internet aperta od in qualsivoglia ambiente dove la sicurezza potrebbe essere un problema.
+</avvertimento>
+<py_output>
+$ python3 zlib_server.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/zlib.html|zlib|La documentazione della libreria standard per questo modulo.
+#|gzip (Di prossima traduzione)|Il modulo gzip comprende una interfaccia a più alto livello (basata su file) alla libreria zlib.
+http://www.zlib.net/|http://www.zlib.net/|La home page della libreria zlib.
+http://www.zlib.net/manual.html|zlib 1.2.11 Manual|Documentazione completa di zlib
+#|bz2 (Di prossima traduzione)|Il modulo bz2 fornisce una interfaccia similare alla libreria di compressione bzip2.
+</vedi_anche>
+</documento_tradotto>
