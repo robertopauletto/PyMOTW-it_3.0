@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>caratteristiche della fase di esecuzione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+site - Configurazione a Livello di Sito
+</titolo_1>
+<descrizione>
+Gestisce configurazioni specifiche al sito, in particolare il percorso di importazione
+
+</descrizione>
+<titolo_2>
+Percorso di Importazione
+</titolo_2>
+<testo_normale>
+Il modulo <strong>site</strong> viene importato automaticamente ogni volta che viene fatto partire l'interprete. In importazione, estende <code>sys.path</code> con nomi specifici al sito, costruiti combinando i valori di prefisso <code>sys.prefix</code> e <code>sys.exec_prefix</code> con parecchi suffissi. I valori di prefisso usati sono salvati nella variabile a livello di modulo <code>PREFIXES</code> per riferimenti successivi. Sotto Windows, i suffissi sono un stringa vuota e <code>lib/site-packages</code>. Per le piattaforme tipo Unix i valori sono <code>lib/python$$version/site-packages</code> (dove <code>$$version</code> viene sostituita dai numeri di versione maggiore e minore dell'interprete, tipo 3.5) e <code>lib/site-python</code>.
+</testo_normale>
+<py_code>
+# site_import_path.py
+</py_code>
+<testo_normale>
+Ciascun percorso risultante dalle combinazioni viene verificato, e quelli che esistono vengono aggiunti a <code>sys.path</code>. Questo risultato mostra la versione dell'impianto di Python installato su di un sistema Linux.
+</testo_normale>
+<py_output>
+$ python3 site_import_path.py
+</py_output>
+<titolo_2>
+Directory Utente
+</titolo_2>
+<testo_normale>
+Oltre ai percorsi globali dei pacchetti del sito, <strong>site</strong> è responsabile dell'aggiunta delle locazioni specifiche utente al percorso di importazione. I percorsi specifici utente sono utti basati sulla directory <code>USER BASE</code>, che in genere si trova in una parte del file sistema nella quale l'utente corrente possa leggere e scrivere. All'interno della directory <code>USER BASE</code> si trova una directory <code>site-packages</code>, con il percorso accessibile come <code>USER SITE</code>.
+</testo_normale>
+<py_code>
+# site_user_base.py
+</py_code>
+<testo_normale>
+Il nome del percorso per <code>USER SITE</code> viene creato usando gli stessi valori di suffisso specifici alla piattaforma sopra descritti.
+</testo_normale>
+<py_output>
+$ python3 site_user_base.py
+</py_output>
+<testo_normale>
+La directory base dell'utente può essere impostata tramite la variabile di ambiente <code>PYTHONUSERBASE</code>, ed ha valori predefiniti specifici alla piattaforma (<code>~/Python$$version/site-packages</code> per Windows e <code>~/.local</code> per non Windows).
+</testo_normale>
+<py_output>
+$ PYTHONUSERBASE=/tmp/$USER python3 site_user_base.py
+</py_output>
+<testo_normale>
+La directory base dell'utente viene disabilitata in particolari circostanze che potrebbero porre problemi di sicurezza (ad esempio se il processo viene eseguito da un utente effettivo diverso oppure da un id di gruppo diverso da quello dell'utente effettivo  che lo ha fatto partire). Un'applicazione può verificare l'impostazione esaminando <code>ENABLE_USER_SITE</code>.
+</testo_normale>
+<py_code>
+# site_enable_user_site.py
+</py_code>
+<testo_normale>
+Anche la directory dell'utente può essere esplicitamente disabilitata nella riga di comando con -s
+</testo_normale>
+<py_output>
+$ python3 site_enable_user_site.py
+</py_output>
+<py_output>
+$ python3 -s site_enable_user_site.py
+</py_output>
+<titolo_2>
+File di Configurazione Percorsi
+</titolo_2>
+<testo_normale>
+Mano a mano che i percorsi sono aggiunti al percorso di importazione sono anche verificati alla ricerca di file di <em>configurazione percorso</em>. Si tratta di file a testo semplice con estensione <code>.pth</code>. Ogni riga nel file può avere uno dei seguenti formati:
+</testo_normale>
+<lista>
+Un percorso completo o relativo ad un'altra locazione che dovrebbe essere aggiunta al percorso di importazione.
+Una istruzione Python da eseguire. Righe di questo tipo dovrebbero iniziare con una istruzione <code>import</code>.
+Le righe vuote sono ignorate.
+Una riga che inizia con <code>#</code> viene considerata un commento ed ignorata.
+</lista>
+<testo_normale>
+I file di configurazione percorso possono essere usati per estendere il percorso di importazione affinchè vengano cercate locazioni che  non sarebbero state aggiunte automaticamente. Ad esempio il pacchetto <code>setuptools</code>  aggiunge un percorso ad <code>easy-install.pth</code> quando installa un pacchetto in modalità sviluppo usando <code>python setup.py develop</code>.
+</testo_normale>
+<testo_normale>
+La funzione per estendere <code>sys.path</code> è pubblica, e può essere usata nei programmi di esempio per mostrare come funzionano i file di configurazione percorso. Data una directory chiamata <code>con_moduli</code> che contiene il file <code>miomodulo.py</code> con l'istruzione <code>print</code> di seguito si mostra come il modulo viene importato.
+</testo_normale>
+<py_code>
+# con_moduli/miomodulo.py
+</py_code>
+<testo_normale>
+Questo script mostra come <code>addsitedir()</code> estende il percorso di importazione in modo che l'interprete possa trovare il modulo desiderato.
+</testo_normale>
+<py_code>
+# site_addsitedir.py
+</py_code>
+<testo_normale>
+Dopo che la directory che contiene il modulo viene aggiunta a <code>sys.path</code>, lo script può importare il modulo specifico senza problemi.
+</testo_normale>
+<py_output>
+$ python3 site_addsitedir.py con_moduli
+</py_output>
+<testo_normale>
+Le modifiche al percorso effettuate da <code>addsitedir()</code> vanno oltre il semplice accodamento dell'argomento a <code>sys.path</code>. Se la directory passata a <code>addistedir()</code> include qualsiasi file che trova corrispondenza con il modello <code>*.pth</code>, che viene caricato come file di configurazione di percorso. Data la seguente struttura di directory:
+</testo_normale>
+<py_output>
+con_pth
+|____ pymotw.pth
+|____ sottodirectory
+      |____ miomodulo.py
+</py_output>
+<testo_normale>
+Se <code>con_pth/pymotw.pth</code> contiene
+</testo_normale>
+<py_code>
+# con_pth/pymotw.pth
+</py_code>
+<testo_normale>
+allora <code>con_pth/sottodirectory/miomodulo.py</code> può essere importato aggiungendo <code>con_pth</code> come directory di sito, anche se il modulo non si trova in quella directory visto che sia <code>con_pth</code> che <code>con_pth/sottodirectory</code> sono aggiunte al percorso di importazione.
+</testo_normale>
+<py_output>
+$ python3 site_addsitedir.py con_pth
+</py_output>
+<testo_normale>
+Se una directory sito contiene file <code>.pth</code> multipli, sono elaborati in ordine alfabetico.
+</testo_normale>
+<py_output>
+$ ls -F pth_multipli
+</py_output>
+<py_output>
+$ cat pth_multipli/a.pth
+</py_output>
+<py_output>
+$ cat pth_multipli/b.pth
+</py_output>
+<testo_normale>
+In questo caso il modulo viene trovato in  <code>pth_multipli/da_a</code> in quanto <code>a.pth</code> viene letto prima di <code>b.pth</code>.
+</testo_normale>
+<py_output>
+$ python3 site_addsitedir.py pth_multipli
+</py_output>
+<titolo_2>
+Personalizzare la Configurazione di Site
+</titolo_2>
+<testo_normale>
+Il modulo <strong>site</strong> è anche responsabile per il caricamento di personalizzazioni a livello di sito definite dal possessore locale del sito in un modulo <code>sitecustomize</code>. Gli utilizzi per <code>sitecustomize</code> includono l'estendere il percorso di importazione e l'abilitare strumenti di analisi della copertura del codice, profilazione od altri strumenti di sviluppo.
+</testo_normale>
+<testo_normale>
+Ad esempio lo script <code>sitecustomize.py</code> estende il percorso di importazione con una directory basata sulla piattaforma corrente. Viene aggiunto al percorso di importazione un percorso specifico alla piattaforma in <code>/opt/python</code>, in modo che qualunque pacchetto ivi installato potrà essere importato. Un sistema come questo è utile per condividere tra host in una rete via file system condiviso pacchetti che contengono estensioni di moduli compilati. Occorre installare in ciascun host solo lo script <code>sitecustomize.py</code> e gli altri pacchetti saranno indirizzati dal file server.
+</testo_normale>
+<py_code>
+# con_personalizzazioni_sito/sitecustomize.py
+</py_code>
+<testo_normale>
+Un semplice script può essere usato per mostrare come <code>sitecustomize.py</code> venga importato prima che Python inizi ad eseguire il proprio codice.
+</testo_normale>
+<py_code>
+# con_personalizzazioni_sito/site_sitecustomize.py
+</py_code>
+<testo_normale>
+Visto che <code>sitecustomize</code> è concepito per configurazioni a livello di sistema, dovrebbe essere installato da qualche parte nel percorso predefinito (in genere la directory <code>site-packages</code>). Questo esempio imposta esplicitamente <code>PYTHONPATH</code> per assicurarsi che il modulo venga individuato.
+</testo_normale>
+<py_output>
+$ PYTHONPATH=con_personalizzazione python3 con_personalizzazioni_sito/site_sitecustomize.py
+</py_output>
+<titolo_2>
+Personalizzare la Configurazione Utente
+</titolo_2>
+<testo_normale>
+Alla stessa stregua di <code>sitecustomize</code>, il modulo <code>usercustomize</code> può essere usato per gestire impostazioni specifiche per l'utente ogni volta che l'interprete viene messo in esecuzione. <code>usercustomize</code> viene caricato dopo <code>sitecustomize</code>, in modo che possano essere sovrascritte le configurazioni a livello di sistema.
+</testo_normale>
+<testo_normale>
+In ambienti dove la directory home di un utente sia condivisa tra parecchi server che eseguono sistemi operativi o versioni diverse. il meccanismo standard di directory utente potrebbe non funzionare per installazioni  di pacchetti specifiche per l'utente. In questi casi, è invece possibile usare una alberatura di directory specifiche alla piattaforma.
+</testo_normale>
+<py_code>
+# con_personalizzazioni_utente/usercustomize.py
+</py_code>
+<testo_normale>
+Un altro semplice script, simile a quello usato per <code>sitecustomize</code>, può essere usato per mostrare che <code>usercustomize.py</code> viene importato prima che Python inizi ad eseguire dell'altro codice.
+</testo_normale>
+<py_code>
+# con_personalizzazioni_utente/site_usercustomize.py
+</py_code>
+<testo_normale>
+Visto che <code>usercustomize</code> è concepito per configurazioni specifiche per l'utente, dovrebbe essere installato da qualche parte nel percorso predefinito dell'utente, ma non nel percorso a livello di sito. La directory predefinita <code>USER_BASE</code> è una buona scelta. Questo esempio imposta <code>PYTHONPATH</code> esplicitamente per assicurarsi che il modulo venga individuato.
+</testo_normale>
+<py_output>
+$ PYTHONPATH=con_personalizzazioni_utente  python3 con_personalizzazioni_utente/site_usercustomize.py
+</py_output>
+<testo_normale>
+Quando è disabilitata la caratteristica di directory di sito, <code>usercustomize</code> non viene importato, a prescindere dalla sua locazione nel file system.
+</testo_normale>
+<py_output>
+$ PYTHONPATH=con_personalizzazione_utente  python3 -s con_personalizzazioni_utente/site_usercustomize.py
+</py_output>
+<titolo_2>
+Disabilitare il Modulo site
+</titolo_2>
+<testo_normale>
+Per mantenere la compatibilità all'indietro con le versioni di Python, prima che l'importazione automatica venisse aggiunta, l'interprete accetta l'opzione <code>-S</code>.
+</testo_normale>
+<py_output>
+$ python3 -S site_import_path.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/site.html|site|La documentazione della libreria standard per questo modulo.
+#|Moduli e Import (di prossima traduzione)|Descrizione di come funzioni il percorso di importazione definito in <code>sys</code>.
+https://setuptools.readthedocs.io/en/latest/|setuptools|Strumenti di gestione pacchetti della prossima generazione.
+http://nedbatchelder.com/blog/201001/running_code_at_python_startup.html|Running code at Python startup|Post da Ned Batchelder che discute i modi nei quali si può fare eseguire all'interprete Python codice di inizializzazione personalizzato prima che inizi l'esecuzione del programma principale.
+</vedi_anche>
+</documento_tradotto>

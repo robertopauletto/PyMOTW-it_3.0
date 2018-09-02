@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi specifici unix</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+pwd - Database Password di Unix
+</titolo_1>
+<descrizione>
+Legge dati utente dal database delle password di Unix
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>pwd</strong> può essere utilizzato per leggere informazioni utente dal database delle password di Unix (in genere <code>/etc/passwd</code>). L'interfaccia a sola lettura ritorna oggetti tipo tupla con attributi nominali per i campi standard di un record di password.
+</testo_normale>
+<tabella_semplice>
+INDICE;ATTRIBUTO;SIGNIFICATO
+0;<code>pw_name</code>;Il nome di accesso dell'utente
+1;<code>pw_passwd</code>;La password criptata (opzionale)
+2;<code>pw_uid</code>;Id Utente (intero)
+3;<code>pw_gid</code>;Id Gruppo (intero)
+4;<code>pw_gecos</code>;Commento / Nome completo
+5;<code>pw_dir</code>;La directory home
+6;<code>pw_shell</code>;L'applicazione lanciata all'accesso, generalmente un interprete di comandi
+</tabella_semplice>
+<titolo_2>
+Interrogare Tutti gli Utenti
+</titolo_2>
+<testo_normale>
+Questo esempio stampa un elenco di tutti gli utenti "reali" su di un sistema, comprese le loro directory home (laddove "reale" è inteso con chi ha un nome che non inizia per "_"). Per caricare il database delle password completo, si usa <code>getpwall()</code>. Il valore restituito è una lista in ordine indefinito, quindi deve essere ordinata prima della stampa
+</testo_normale>
+<py_code>
+# pwd_getpwall.py
+</py_code>
+<testo_normale>
+La maggior parte del codice qui sopra gestisce adeguatamente la formattazione dei risultati. Il ciclo <code>for</code> alla fine mostra come accedere ai campi dei record per nome; (viene indicato solo parte del risultato eseguendo lo script sul mio pc - n.d.t.).
+</testo_normale>
+<py_output>
+$ python3 pwd_getpwall.py
+
+User                    UID Directory Home              Descrizione
+-------------------- ------ --------------------------- --------------------
+backup                   34 /var/backups                backup
+bin                       2 /bin                        bin
+daemon                    1 /usr/sbin                   daemon
+irc                      39 /var/run/ircd               ircd
+kernoops                116 /                           Kernel Oops Tracking Daemon,,,
+lightdm                 108 /var/lib/lightdm            Light Display Manager
+man                       6 /var/cache/man              man
+nobody                65534 /nonexistent                nobody
+robby                  1000 /home/robby                 robby
+root                      0 /root                       root
+</py_output>
+<titolo_2>
+Interrogare l'Utente per Nome
+</titolo_2>
+<testo_normale>
+Per leggere le informazioni circa un utente non è necessario leggere l'intero database delle password. Si usa <code>getpwnam()</code> per recuperare le informazioni di un utente dato il nome.
+</testo_normale>
+<py_code>
+# pwd_getpwnam.py
+</py_code>
+<testo_normale>
+Le password nel sistema dove questo script viene eseguito sono conservate al di fuori del database utenti principale in un file ombra, quindi il campo della password è riportato come <code>x</code>.
+</testo_normale>
+<py_output>
+$ python3 pwd_getpwnam.py robby
+</py_output>
+<py_output>
+$ python3 pwd_getpwnam.py nobody
+</py_output>
+<titolo_2>
+Interrogare l'Utente per UID
+</titolo_2>
+<testo_normale>
+E' anche possibile la ricerca di un utente tramite il suo id utente numerico. Questo è utile per trovare il proprietario di un file.
+</testo_normale>
+<py_code>
+# pwd_getpwuid_fileowner.py
+</py_code>
+<testo_normale>
+L'id numerico dell'utente può anche essere usato per trovare informazioni circa l'utente che ha attualmente un processo in esecuzione.
+</testo_normale>
+<py_code>
+# pwd_getpwuid_process.py
+</py_code>
+<py_output>
+$ python3 pwd_getpwuid_process.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/pwd.html|pwd|La documentazione della libreria standard per questo modulo.
+spwd
+#|spwd|Accesso al database delle password sicuro per sistemi che utilizzano il <a href="https://www.wikiwand.com/it/Passwd"><em>password shadowing</em></a>.
+#|grp (di prossima traduzione)|Il modulo <strong>grp</strong> legge informazioni sui gruppi Unix
+</vedi_anche>
+</documento_tradotto>
