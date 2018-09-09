@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Caratteristiche di esecuzione</categoria><!-- # tag <descrizione> contiene le
+voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<indicizza>no</indicizza>
+<documento_tradotto>
+<titolo_1>
+sys - Configurazione Specifica al Sistema
+</titolo_1>
+<descrizione>
+Fornisce operazioni e configurazioni specifiche al sistema.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>sys</strong> include un pacchetto di servizi per esaminare o modificare la configurazione dell'interprete in fase di esecuzione e risorse per interagire con il sistema operativo al di fuori del programma corrente.
+</testo_normale>
+<testo_normale>
+<ul>
+    <li><a href ='#interprete'>Impostazioni dell'interprete</a></li>
+    <ul>
+        <li><a href='#build-time-info'>Informazioni di Versione in Fase di Compilazione</a></li>
+        <li><a href='#implem'>Implementazioni Interprete</a></li>
+        <li><a href='#opzcmd'>Opzioni da Riga di Comando</a></li>
+        <li><a href='#unicodedef'>Unicode Predefiniti</a></li>
+        <li><a href='#interprompt'>Prompt Interattivi</a></li>
+        <li><a href='#implem'>Agganci di Visualizzazione</a></li>
+        <li><a href='#implem'>Locazioni di Installazione</a></li>
+    </ul>
+</ul>
+<ul>
+    <li><a href ='#runtimeenv'>Ambiente in Fase di Esecuzione</a></li>
+    <ul>
+        <li><a href='#cmdargs'>Argomenti da Riga di Comando</a></li>
+        <li><a href='#inpoutstr'>Flussi in Entrata e Uscita</a></li>
+        <li><a href='#retstat'>Stato Ritornato</a></li>
+    </ul>
+</ul>
+</testo_normale>
+<titolo_2>
+Impostazioni dell'Interprete
+</titolo_2>
+<testo_normale>
+<strong>sys</strong> contiene attributi e funzioni per accedere alle impostazioni di configurazione in fase di compilazione o di esecuzione per l'interprete.
+<a name=build-time-info></a>
+</testo_normale>
+<titolo_4>
+Informazioni di Versione di Compilazione
+</titolo_4>
+<testo_normale>
+La versione usata per costruire l'interprete C è disponibile in alcune forme, <code>sys.version</code> è una stringa leggibile dall'umano che in genere include il numero di versione completo e le informazioni sulla data di compilazione, sul compilatore e la piattaforma. <code>sys.hexversion</code> è pià semplice da usare per verificare la versione dell'interprete visto che è un semplice intero. Quando formattato usando <code>hex()</code>, è chiaro che parti di <code>sys.hexversion</code> provengono dalle informazioni di versione visibili anche più chiaramente con <code>sys.version_info</code> (una tupla di cinque parti che rappresenta solo in numero di versione). La versione API C separata usata dall'interprete corrente viene salvata in <code>sys.api_version</code>.
+</testo_normale>
+<py_code>
+# sys_version_values.py
+</py_code>
+<testo_normale>
+Tutti i valori dipendono dall'effettivo interprete usato per eseguire il programma di esempio
+</testo_normale>
+<py_output>
+$ python3 sys_version_values.py
+</py_output>
+<testo_normale>
+La piattaforma del sistema operativo usata per costruire l'interprete viene salvata com <code>sys.platform</code>.
+</testo_normale>
+<py_code>
+# sys_platform.py
+</py_code>
+<testo_normale>
+Per la maggior parte dei sistemi Unix, il valore viene formato combinando il risultato di <code>uname -s</code> con la prima parte della versione in <code>uname -r</code>. Per altri sistemi operativi esiste una tabella di valori scritta nel codice.
+</testo_normale>
+<py_output>
+$ python3 sys_platform.py
+</py_output>
+<vedi_anche>
+#|Valori di Piattaforma|Valori scritti nel codice di <code>sys.platform</code> per sistemi senza <code>uname</code>.
+</vedi_anche>
+<titolo_4>
+Implementazione Interprete
+</titolo_4>
+<testo_normale>
+L'interprete CPython è una delle parecchie Implementazioni del linguaggio Python. <code>sys.implementation</code> viene fornito per rilevare l'implementazione corrente per le librerie che devono gestire qualsiasi differenza negli interpreti.
+</testo_normale>
+<py_code>
+# sys_implementation.py
+</py_code>
+<testo_normale>
+<code>sys.implementation.version</code> è uguale a <code>sys.version_info</code> per CPython, ma sarà diverso per altri interpreti.
+</testo_normale>
+<py_output>
+$ python3 sys_implementation.py
+</py_output>
+<vedi_anche>
+https://www.python.org/dev/peps/pep-0421|PEP 421|Aggiungere <code>sys.implementation</code>
+</vedi_anche>
+<titolo_4>
+Opzioni da Riga di Comando
+</titolo_4>
+<testo_normale>
+L'interprete CPython accetta parecchie opzioni da riga di comando per controllare il suo comportamento, elencate nella seguente tabella
+</testo_normale>
+<tabella_semplice>
+OPZIONE;DESCRIZIONE
+<code>-B</code>;non scrivere file <code>.py[co]</code> in importazione.
+<code>-b</code>;emette avvertimenti circa la conversione di byte in stringa senza una propria decodifica e confronta i byte con le stringhe
+<code>-bb</code>;converte gli avvertimenti di byte in errori
+<code>-d</code>;opzione di debug dal parser
+<code>-E</code>;ignora le variabili di ambiente PYTHON* (tipo PYTHONPATH)
+<code>-i</code>;ispezione interattiva dopo l'esecuzione dello script
+<code>-O</code>;ottimizza leggermente il bytecode generato
+<code>-OO</code>;rimuovi le <em>doc string</em> oltre alle ottimizzazioni di <code>-O</code>
+<code>-s</code>;non aggiungere la directory sito utente a <code>sys.path</code>
+<code>-S</code>;non eseguire <code>'import site'</code> all'inizializzazione
+<code>-t</code>;emette avvertimenti circa utilizzi inconsistenti delle tabulazioni
+<code>-tt</code>;emette errori circa utilizzi inconsistenti delle tabulazioni
+<code>-v</code>;verboso
+</tabella_semplice>
+<testo_normale>
+Alcune di esse sono a disposizione per la verifica dai programmi in <code>sys.flags</code>
+</testo_normale>
+<py_code>
+# sys_flags.py
+</py_code>
+<testo_normale>
+Si possono fare esperimenti con <code>sys_flags.py</code> per imparare in che modo le opzioni da riga di comando sono mappate con le impostazioni dei flag.
+</testo_normale>
+<py_output>
+$ python3 -S -E -b sys_flags.py
+</py_output>
+<titolo_4>
+Unicode Predefinito
+</titolo_4>
+<testo_normale>
+Per ottenere la codifica Unicode predefinita usata dall'interprete si usi <code>gedefaultencoding()</code>. Il valore viene impostato durante l'inizializzazione, e non può essere modificato.
+</testo_normale>
+<testo_normale>
+La codifica predefinita intena e quella del file system potrebbe essere diversa per alcuni sistemi operativi, quindi esiste un modo separato per ottenere l'impostazione per il file system: <code>getfilesystemencoding()</code> ritorna un valore specifico al sistema operativo (non specifico al file system).
+</testo_normale>
+<py_code>
+# sys_unicode.py
+</py_code>
+<testo_normale>
+Invece che dipendere dalla codifica globale predefinita, la maggior parte degli esperti Unicode raccomanda di rendere l'applicazione esplicitamente consapevole dell'Unicode usato. Il che produce due benefici: diverse codifiche Unicode per diverse sorgenti dati possono essere gestite con più chiarezza, ed il numero di assunzioni circa le codifiche nel codice dell'applicazione è ridotto.
+</testo_normale>
+<py_output>
+$ python3 sys_unicode.py
+</py_output>
+<titolo_4>
+Prompt Interattivo
+</titolo_4>
+<testo_normale>
+L'interprete interattivo usa due prompt separati per indicare il livello in input predefinito <code>ps1</code> e la "continuazione" di una istruzione multiriga (<code>ps2</code>). I valori sono usati solo dall'interprete interattivo.
+</testo_normale>
+<py_output>
+>>> import sys
+>>> sys.ps1
+'>>> '
+>>> sys.ps2
+'... '
+>>>
+</py_output>
+<testo_normale>
+Entrambi i prompt possono essere cambiati in una stringa differente
+</testo_normale>
+<py_output>
+>>> sys.ps1 = '::: '
+::: sys.ps2 = '~~~ '
+::: for i in range(3):
+~~~     print(i)
+~~~
+0
+1
+2
+:::
+</py_output>
+<testo_normale>
+In alternativa, qualunque oggetto che possa essere convertito a stringa (via <code>__str__</code>) può essere usato come prompt.
+</testo_normale>
+<py_code>
+# sys_ps1.py
+</py_code>
+<testo_normale>
+<code>LineCounter</code> tiene traccia di quante volte è stato usato, quindi il numero nel prompt aumenta ogni volta.
+</testo_normale>
+<py_output>
+$ python
+Python 3.6.5 (default, Apr  1 2018, 05:46:30)
+[GCC 7.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from sys_ps1 import LineCounter
+>>> import sys
+>>> sys.ps1 = LineCounter()
+(  1)>
+(  2)>
+(  3)>
+(  4)>
+</py_output>
+<titolo_4>
+Agganci di Visualizzazione
+</titolo_4>
+<testo_normale>
+<code>sys.displayhook</code> viene chiamata dall'interprete interattivo ogni volta che l'utente digita una espressione. Il risultato della valutazione dell'espressione viene passato come solo argomento della funzione.
+</testo_normale>
+<py_code>
+# sys_displayhook.py
+</py_code>
+<testo_normale>
+Il valore predefinito, salvato il <code>sys.__displayhook__</code>, stampa il risultato a <code>stdout</code> e lo salva in <code>_</code> per una facile recupero per usi futuri.
+</testo_normale>
+<py_output>
+$ python
+Python 3.6.5 (default, Apr  1 2018, 05:46:30)
+[GCC 7.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import sys_displayhook
+installazione
+>>> 1 + 2
+
+  Precedente: <sys_displayhook.ExpressionCounter object at 0x7f236bdd7828>
+  Nuovo     : 3
+
+3
+(  1)> 'abc'
+
+  Precedente: 3
+  Nuovo     : abc
+
+'abc'
+(  2)> 'abc'
+
+  Precedente: abc
+  Nuovo     : abc
+
+'abc'
+(  2)> 'abc' * 3
+
+  Precedente: abc
+  Nuovo     : abcabcabc
+
+'abcabcabc'
+(  3)>
+</py_output>
+<titolo_4>
+Locazione di installazione
+</titolo_4>
+<testo_normale>
+Il percorso all'effettivo programma interprete è disponibile in <code>sys.executable</code> su tutti i sistemi nei quali l'avere un percorso per l'interprete ha senso. Questo può essere utile per assicurarsi che venga usato l'interprete corretto, e fornisce anche indizi circa i percorsi che potrebbero essere impostati in base alla locazione dell'interprete.
+</testo_normale>
+<testo_normale>
+<code>sys.prefix</code> fa riferimento alla directory genitore dell'installazione dell'interprete. In genere include le directory <code>bin</code> e <code>lib</code>  rispettivamente per gli eseguibili e per i moduli installati.
+</testo_normale>
+<py_code>
+# sys_locations.py
+</py_code>
+<testo_normale>
+Questo risultato di esempio è stato prodotto su di un sistema Unix con una installazione di Ubuntu 18.04
+</testo_normale>
+<py_output>
+$ python3 sys_locations.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/pwd.html|pwd|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

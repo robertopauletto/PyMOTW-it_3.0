@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>servizi specifici unix</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+grp - Database dei Gruppi di Unix
+</titolo_1>
+<descrizione>
+Legge dati sui gruppi dal database dei gruppi di Unix
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>grp</strong> può essere usato per leggere informazioni sui gruppi Unix dal database dei gruppi (in genere <code>/etc/group</code>). L'interfaccia a sola lettura ritorna oggetti tipo tupla con attributi nominali per i campi standard di un record che rappresenta un gruppo.
+</testo_normale>
+<tabella_semplice>
+INDICE;ATTRIBUTO;SIGNIFICATO
+0;<code>gr_name</code>;Nome
+1;<code>gr_passwd</code>;La password, se esiste (criptata)
+2;<code>pw_gid</code>;Id Gruppo (intero)
+3;<code>pw_mem</code>;I nomi dei membri del gruppo
+</tabella_semplice>
+<testo_normale>
+I nomi e le password sono entrambi valori stringa, <a href='https://www.wikiwand.com/it/Group_identifier' target='_blank'>GID</a>  è un intero, ed i membri sono riportati come lista di stringhe.
+</testo_normale>
+<titolo_2>
+Interrogare Tutti i Gruppi
+</titolo_2>
+<testo_normale>
+Questo esempio stampa un elenco di tutti i gruppi "reali" su di un sistema, compresi i loro membri  (laddove "reale" è inteso come chi ha un nome che non inizia per "_"). Per caricare l'intero database, si usa <code>getgrall()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrall.py
+</py_code>
+<testo_normale>
+Il valore restituito è una lista non ordinata, quindi occorre ordinarla prima di stampare il risultato
+</testo_normale>
+<py_output>
+$ python3 grp_getgrall.py
+</py_output>
+<titolo_2>
+Appartenenza ad un Gruppo per un Utente
+</titolo_2>
+<testo_normale>
+Un altro comune compito potrebbe essere quello di stampare una lista di tutti i gruppi dato un utente.
+</testo_normale>
+<py_code>
+# grp_groups_for_user.py
+</py_code>
+<testo_normale>
+Un insieme di nomi di gruppo univoci viene ordinato prima di essere stampato.
+</testo_normale>
+<py_output>
+$ python3 grp_groups_for_user.py
+</py_output>
+<titolo_2>
+Trovare un Gruppo per Nome
+</titolo_2>
+<testo_normale>
+Così come per <a href='pwd.html'>pwd</a> è anche possibile cercare informazioni circa uno specifico gruppo, sia per nome che per identificativo numerico.
+</testo_normale>
+<py_code>
+# grp_getgrnam.py
+</py_code>
+<testo_normale>
+Il gruppo <code>adm</code> ha due membri.
+</testo_normale>
+<py_output>
+$ python3 grp_getgrnam.py
+</py_output>
+<titolo_2>
+Trovare un Gruppo per IDentificativo
+</titolo_2>
+<testo_normale>
+Per identificare un gruppo cha ha in esecuzione il processo corrente, si combina <code>getgrgid()</code> con <code>os.getgid()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrgid_process.py
+</py_code>
+<py_output>
+$ python3 grp_getgrgid_process.py
+</py_output>
+<testo_normale>
+Per ottenere il nome del gruppo in base ai permessi su di un file, ci cerca il gruppo ritornato da <code>os.stat()</code>.
+</testo_normale>
+<py_code>
+# grp_getgrgid_fileowner.py
+</py_code>
+<testo_normale>
+Il record dello stato del file comprende i dati di permesso e proprietà per un file o directory.
+</testo_normale>
+<py_output>
+$ python3 grp_getgrgid_fileowner.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/grp.html|grp|La documentazione della libreria standard per questo modulo.
+pwd.html|pwd|Il modulo <strong>pwd</strong> legge informazioni sugli utenti dal database delle password
+#|spwd|Accesso al database delle password sicuro per sistemi che utilizzano il <a href="https://www.wikiwand.com/it/Passwd"><em>password shadowing</em></a>.
+#|os|Interfacce di sistema operativo
+</vedi_anche>
+</documento_tradotto>
