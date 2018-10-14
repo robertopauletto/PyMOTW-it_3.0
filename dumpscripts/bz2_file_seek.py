@@ -1,26 +1,23 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# bz2_file_seek.py
 
 import bz2
+import contextlib
 
-input_file = bz2.BZ2File('esempio.txt.bz2', 'rb')
-try:
-    print 'Intero file:'
-    all_data = input_file.read()
-    print all_data
-    
+with bz2.BZ2File('esempio.bz2', 'rb') as input:
+    print('Tutto il file:')
+    all_data = input.read()
+    print(all_data)
+
     expected = all_data[5:15]
-    
-    # porta il puntatore ad inizio file
-    input_file.seek(0)
-    
-    # si sposta di 5 byte
-    input_file.seek(5)
-    print 'A partire da posizione 5 per 10 byte:'
-    partial = input_file.read(10)
-    print partial
-    
-    print
-    print expected == partial
-finally:
-    input_file.close()
+
+    # mi porto all'inizio
+    input.seek(0)
+
+    # mi sposto in avanti di 5 byte
+    input.seek(5)
+    print('A partire dalla posizione 5 per 10 byte:')
+    partial = input.read(10)
+    print(partial)
+
+    print()
+    print(expected == partial)

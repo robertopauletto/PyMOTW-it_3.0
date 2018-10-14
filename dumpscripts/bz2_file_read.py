@@ -1,10 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# bz2_file_read.py
 
 import bz2
+import io
 
-input_file = bz2.BZ2File('esempio.txt.bz2', 'rb')
-try:
-    print input_file.read()
-finally:
-    input_file.close()
+with bz2.BZ2File('esempio.bz2', 'rb') as input:
+    with io.TextIOWrapper(input, encoding='utf-8') as dec:
+        print(dec.read())

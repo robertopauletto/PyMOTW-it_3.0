@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# gzip_read.py
 
 import gzip
+import io
 
-input_file = gzip.open('esempio.txt.gz', 'rb')
-try:
-    print input_file.read()
-finally:
-    input_file.close()
-
+with gzip.open('un_esempio.txt.gz', 'rb') as input_file:
+    with io.TextIOWrapper(input_file, encoding='utf-8') as dec:
+        print(dec.read())

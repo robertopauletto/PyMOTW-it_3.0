@@ -1,14 +1,20 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# bz2_memory.py
 
 import bz2
 import binascii
 
-original_data = 'Questo è il testo originale.'
-print 'Originale    :', len(original_data), original_data
+original_data = b"Questo e' il testo originale."
+print('Originale    : {} byte'.format(len(original_data)))
+print(original_data)
 
+print()
 compressed = bz2.compress(original_data)
-print 'Compresso    :', len(compressed), binascii.hexlify(compressed)
+print('Compresso   : {} byte'.format(len(compressed)))
+hex_version = binascii.hexlify(compressed)
+for i in range(len(hex_version) // 40 + 1):
+    print(hex_version[i * 40:(i + 1) * 40])
 
+print()
 decompressed = bz2.decompress(compressed)
-print 'Decompresso  :', len(decompressed), decompressed
+print('Decompresso : {} byte'.format(len(decompressed)))
+print(decompressed)

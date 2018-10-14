@@ -22,23 +22,23 @@ Il modulo <strong>sys</strong> include un pacchetto di servizi per esaminare o m
 </testo_normale>
 <testo_normale>
 <ul>
-    <li><a href ='#interprete'>Impostazioni dell'interprete</a></li>
+    <a href ='#interprete'>Impostazioni dell'interprete</a>
     <ul>
-        <li><a href='#build-time-info'>Informazioni di Versione in Fase di Compilazione</a></li>
-        <li><a href='#implem'>Implementazioni Interprete</a></li>
-        <li><a href='#opzcmd'>Opzioni da Riga di Comando</a></li>
-        <li><a href='#unicodedef'>Unicode Predefiniti</a></li>
-        <li><a href='#interprompt'>Prompt Interattivi</a></li>
-        <li><a href='#implem'>Agganci di Visualizzazione</a></li>
-        <li><a href='#implem'>Locazioni di Installazione</a></li>
+        <a href='#build-time-info'>Informazioni di Versione in Fase di Compilazione</a>
+        <a href='#implem'>Implementazioni Interprete</a>
+        <a href='#opzcmd'>Opzioni da Riga di Comando</a>
+        <a href='#unicodedef'>Unicode Predefiniti</a>
+        <a href='#interprompt'>Prompt Interattivi</a>
+        <a href='#implem'>Agganci di Visualizzazione</a>
+        <a href='#implem'>Locazioni di Installazione</a>
     </ul>
 </ul>
 <ul>
-    <li><a href ='#runtimeenv'>Ambiente in Fase di Esecuzione</a></li>
+    <a href ='#runtimeenv'>Ambiente in Fase di Esecuzione</a>
     <ul>
-        <li><a href='#cmdargs'>Argomenti da Riga di Comando</a></li>
-        <li><a href='#inpoutstr'>Flussi in Entrata e Uscita</a></li>
-        <li><a href='#retstat'>Stato Ritornato</a></li>
+        <a href='#cmdargs'>Argomenti da Riga di Comando</a>
+        <a href='#inpoutstr'>Flussi in Entrata e Uscita</a>
+        <a href='#retstat'>Stato Ritornato</a>
     </ul>
 </ul>
 </testo_normale>
@@ -261,6 +261,70 @@ Questo risultato di esempio è stato prodotto su di un sistema Unix con una inst
 </testo_normale>
 <py_output>
 $ python3 sys_locations.py
+</py_output>
+<a name ='#runtimeenv'></a>
+<titolo_2>
+Ambiente in Fase di Esecuzione
+</titolo_2>
+<testo_normale>
+<strong>sys</strong> fornisce API a basso livello per interagire con il sistema all'esterno di una applicazione, accettando argomenti da riga di comando, accedendo all'input utente e passando messaggi e volori di stato all'utente.
+</testo_normale>
+<a name='#cmdargs'></a>
+<titolo_4>
+Argomenti da Riga di Comando
+</titolo_4>
+<testo_normale>
+Gli argomenti catturati dall'interprete sono elaborati qui e non passati al programma che sta per essere eseguito. Qualunque opzione ed argomento rimanente, compreso il nome dello script stesso, sono salvati in <code>sys.argv</code> in caso che il programma abbia bisogno di usarli.
+</testo_normale>
+<py_code>
+# sys_argv.py
+</py_code>
+<testo_normale>
+Nel terzo esempio, l'opzione <code>-u</code> è compresa dall'interprete e non è passata al programma che sta per essere eseguito.
+</testo_normale>
+<py_output>
+$ python3 sys_argv.py
+</py_output>
+<py_output>
+$ python3 sys_argv.py -v foo blah
+</py_output>
+<py_output>
+$ python3 -u sys_argv.py
+</py_output>
+<a name='#inpoutstr'></a>
+<titolo_4>
+Flussi di Input ed Output
+</titolo_4>
+<testo_normale>
+Seguendo il paradigma Unix, i programmi Python possono accedere nella modalità predefinita a tre descrittori di file.
+</testo_normale>
+<py_code>
+# sys_stdio.py
+</py_code>
+<testo_normale>
+<code>stdin</code> è la modalità predefinita per leggere input, in genere da una console ma anche da altri programmi tramite una <a href='https://www.wikiwand.com/it/Pipeline' target='_blank'><em>pipeline</em></a>. <code>stdout</code> è il modo predefinito per scrivere output per un utente (alla console) o per inviarlo al programma successivo via <em>pipeline</em>. <code>stderr</code> è destinato all'uso per messaggi di errore od avvertimento.
+</testo_normale>
+<py_output>
+$ cat sys_stdio.py | python3 -u sys_stdio.py
+</py_output>
+<a name='#retstat'></a>
+<titolo_4>
+Stato Restituito
+</titolo_4>
+<testo_normale>
+Per ritornare un codice di uscita da un programma, si passi un valore intero a <code>sys.exit()</code>.
+</testo_normale>
+<py_code>
+# sys_exit.py
+</py_code>
+<testo_normale>
+Un valore diverso da zero significa che il programma è uscito con un errore.
+</testo_normale>
+<py_output>
+$ python3 sys_exit.py 0 ; echo "Uscito $?"
+</py_output>
+<py_output>
+$ python3 sys_exit.py 1 ; echo "Uscito $?"
 </py_output>
 <vedi_anche>
 https://docs.python.org/3.5/library/pwd.html|pwd|La documentazione della libreria standard per questo modulo.

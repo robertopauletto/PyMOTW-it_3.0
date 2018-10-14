@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>compressione dati ed archiviazione </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+tarfile - Accesso ad Archivi Tar
+</titolo_1>
+<descrizione>
+Accesso ad archivi Tar
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>tarfile</strong> fornisce accesso in lettura e scrittura agli archivi UNIX tar, inclusi i file compressi. Oltre agli standard POSIX parecchie estensioni GNU tar sono supportate. Sono gestiti anche diversi tipi di file speciale UNIX tipo <a href='https://www.wikiwand.com/it/Collegamento_fisico' target='_blank'>collegamenti fisici></a>  e <a href='https://www.wikiwand.com/it/Collegamento_simbolico' target='_blank'>simbolici</a>, <a href='https://www.wikiwand.com/it/Dispositivo_a_caratteri' target='_blank'>nodi di dispositivo</a>.
+</testo_normale>
+<annotazione>
+Sebbene <strong>tarfile</strong> implementi un formato Unix, può anche essere usato per creare e leggere file tar su Microsoft Windows.
+</annotazione>
+<titolo_2>
+Verificare i File Tar
+</titolo_2>
+<testo_normale>
+La funzione <code>is_tarfile()</code> restituisce un valore booleano che indica se il nome del file passato come argomento fa riferimento ad un file tar valido.
+</testo_normale>
+<py_code>
+# tarfile_is_tarfile.py
+</py_code>
+<testo_normale>
+Se il file non esiste, <code>is_tarfile()</code> solleva una eccezione <code>IOError</code>.
+</testo_normale>
+<py_output>
+$ python3 tarfile_is_tarfile.py
+</py_output>
+<titolo_2>
+Leggere Metadati da un File Tar
+</titolo_2>
+<testo_normale>
+Per lavorare direttamente con un archivio tar si usi la classe <code>TarFile</code>. Essa supporta metodi per leggere dati su archivi esistenti così come per la modifica di archivi aggiungendo ulteriori file.
+</testo_normale>
+<testo_normale>
+Per leggere i nomi dei file in un archivio esistente si usi <code>getnames()</code>.
+</testo_normale>
+<py_code>
+# tarfile_getnames.py
+</py_code>
+<testo_normale>
+Il valore di ritorno è una lista di stringhe con i nomi del contenuto dell'archivio.
+</testo_normale>
+<py_output>
+$ python3 tarfile_getnames.py
+</py_output>
+<testo_normale>
+Oltre ai nomi, i metadati circa i membri dell'archivio sono disponibili come istanze di oggetti <code>Tarinfo</code>. I meta-dati si caricano tramite <code>getmembers()</code> e <code>getmember()</code>.
+</testo_normale>
+<py_code>
+# tarfile_getmembers.py
+</py_code>
+<py_output>
+$ python3 tarfile_getmembers.py
+</py_output>
+<testo_normale>
+Se si conosce in anticipo il nome del membro dell'archivio si può ottenere il suo oggetto <code>Tarinfo</code> con <code>getmember()</code>.
+</testo_normale>
+<py_code>
+# tarfile_getmember.py
+</py_code>
+<testo_normale>
+Se il membro dell'archivio non è presente, <code>getmember()</code> solleva una eccezione <code>KeyError</code>.
+</testo_normale>
+<py_output>
+$ python3 tarfile_getmember.py
+</py_output>
+<titolo_2>
+Estrarre File da un Archivio
+</titolo_2>
+<testo_normale>
+Per accedere ai dati da un membro di un archivio all'interno di un programma, si usi il metodo <code>extractfile()</code>, passandogli il nome del membro.
+</testo_normale>
+<py_code>
+# tarfile_extractfile.py
+</py_code>
+<testo_normale>
+Il valore ritornato è un oggetto tipo file dal quale è possibile leggere il contenuto del membro dell'archivio.
+</testo_normale>
+<py_output>
+$ python3 tarfile_extractfile.py
+</py_output>
+<testo_normale>
+Se si vuole estrarre il contenuto dell'archivio e scrivere i file nel filesystem, si usino <code>extract()</code> oppure <code>extractall()</code>.
+</testo_normale>
+<py_code>
+# tarfile_extract.py
+</py_code>
+<testo_normale>
+Il membro od i membri sono letti dall'archivio e scritti al filesystem, a partire dalla directory specificata negli argomenti
+</testo_normale>
+<py_output>
+$ python3 tarfile_extract.py
+</py_output>
+<testo_normale>
+La documentazione della libreria standard include una nota che afferma che <code>extractall()</code> è più sicuro di <code>extract()</code>, specialmente lavorando con dati che si stanno ricevendo da un flusso dove rileggere una parte precedente dell'input non è possibile, quindi dovrebbe essere usato nella maggior parte dei casi.
+</testo_normale>
+<py_code>
+# tarfile_extractall.py
+</py_code>
+<testo_normale>
+Con <code>extractall()</code>, il primo argomento è il nome della directory dove i file dovrebbero essere scritti
+</testo_normale>
+<py_output>
+$ python3 tarfile_extractall.py
+</py_output>
+<testo_normale>
+Per estrarre specifici file dall'archivio, si passino i loro nomi o dei contenitori di metadati <code>TarInfo</code> ad <code>extractall()</code>.
+</testo_normale>
+<py_code>
+# tarfile_extractall_members.py
+</py_code>
+<testo_normale>
+Quando viene passato un elenco di membri, vengono estratti solo i file inclusi nella lista.
+</testo_normale>
+<py_output>
+$python3  tarfile_extractall_members.py
+</py_output>
+<titolo_2>
+Creare Nuovi Archivi
+</titolo_2>
+<testo_normale>
+Per creare un nuovo archivio, si apra un file tar con <code>TarFile</code> in modalità <code>'w'</code>.
+</testo_normale>
+<py_code>
+# tarfile_add.py
+</py_code>
+<testo_normale>
+Un qualsiasi file esistente viene troncato e viene inizializzato un nuovo archivio. Per aggiungere dei file si usi il metodo <code>add()</code>.
+</testo_normale>
+<py_output>
+$ python3 tarfile_add.py
+</py_output>
+<titolo_2>
+Usare Nomi Alternativi per i Membri di un Archivio
+</titolo_2>
+<testo_normale>
+E' possibile aggiungere un file ad un archivio usando un nome diverso da quello del file originale, costruendo un oggetto <code>TarInfo</code> con un nome alternativo assegnato al parametro <code>arcname</code> che viene quindi passato ad <code>addfile()</code>.
+</testo_normale>
+<py_code>
+# tarfile_addfile.py
+</py_code>
+<testo_normale>
+L'archivio comprende solo il file con il nome cambiato.
+</testo_normale>
+<py_output>
+$ python3 tarfile_addfile.py
+</py_output>
+<titolo_2>
+Scrivere Dati da Sorgenti Diverse Dai File
+</titolo_2>
+<testo_normale>
+Talvolta è necessario scrivere dati in un archivio direttamente dalla memoria. Invece che scrivere dati ad un file, quindi aggiungere quel file all'archivio, si può usare <code>addfile()</code> per aggiungere dati da un handle di tipo file aperto che ritorni byte.
+</testo_normale>
+<py_code>
+tarfile_aggiungifile_stringa.tar
+</py_code>
+<testo_normale>
+Per prima cosa si costruisca un oggetto <code>Tarinfo</code>, si può assegnare al membro dell'archivio un qualsiasi nome a scelta. Dopo averne impostata la dimensione, i dati vengono scritti nell'archivio usando addfile(), e passando un buffer <code>BytesIO</code> come sorgente dei dati.
+</testo_normale>
+<py_output>
+$ python3 tarfile_addfile_string.py
+</py_output>
+<titolo_2>
+Aggiungere agli Archivi
+</titolo_2>
+<testo_normale>
+Oltre alla creazione di nuovi archivi, è possibile aggiungere dati ad un file esistente usando la modalità <code>'a'</code>.
+</testo_normale>
+<py_code>
+# tarfile_append.py
+</py_code>
+<testo_normale>
+L'archivio che ne deriva conterrà due membri.
+</testo_normale>
+<py_output>
+$ python3 tarfile_append.py
+</py_output>
+<titolo_2>
+Lavorare con Archivi Compressi
+</titolo_2>
+<testo_normale>
+Oltre ai normali archivi tar, il modulo <strong>tarfile</strong> può lavorare anche con archivi compressi tramite i protocolli gzip o bzip2. Per aprire un archivio compresso, si modifichi la stringa della modalità passata ad <code>open()</code> per includere <code>":gz"</code> oppure <code>:bz2</code>, a seconda del metodo di compressione desiderato.
+</testo_normale>
+<py_code>
+# tarfile_compression.py
+</py_code>
+<testo_normale>
+Quando si apre un archivio esistente in lettura, si specifichi <code>"r:*"</code> affinchè <strong>tarfile</strong> possa determinare il metodo di compressione da usare automaticamente.
+</testo_normale>
+<py_output>
+$ python3 tarfile_compression.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/tarfile.html|tarfile|La documentazione della libreria standard per questo modulo.
+http://www.gnu.org/software/tar/manual/html_node/Standard.html|GNU tar manual|Documentazione del formato tar, incluse le estensioni.
+zipfile.html|zipfile|Accesso similare agli archivi ZIP
+gzip.html|gzip|Compressione GNU zip
+bz2.html|bz2|Compressione bz2
+</vedi_anche>
+</documento_tradotto>

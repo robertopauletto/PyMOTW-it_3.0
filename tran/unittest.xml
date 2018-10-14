@@ -16,7 +16,7 @@ Struttura per Automatizzare Test
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>unittest</strong> è basato sulla struttura progettata XUnit progettata da Kent Beck ed Erich Gamma. Lo stesso modello viene ripetuto in molti altri linguaggi, compresi C, Perl, Java e Smalltalk. La struttura implementata da <strong>unittest</strong> supporta impianti, serie di test ed un esecutore di test che consente l'automatizzazione dei test.
+Il modulo <strong>unittest</strong> è basato sulla struttura XUnit progettata da Kent Beck ed Erich Gamma. Lo stesso modello viene ripetuto in molti altri linguaggi, compresi C, Perl, Java e Smalltalk. La struttura implementata da <strong>unittest</strong> supporta impianti, serie di test ed un esecutore di test che consente l'automatizzazione dei test.
 </testo_normale>
 <titolo_2>
 Struttura Base di Test

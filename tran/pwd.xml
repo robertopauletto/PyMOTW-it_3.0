@@ -96,6 +96,6 @@ $ python3 pwd_getpwuid_process.py
 https://docs.python.org/3.5/library/pwd.html|pwd|La documentazione della libreria standard per questo modulo.
 spwd
 #|spwd|Accesso al database delle password sicuro per sistemi che utilizzano il <a href="https://www.wikiwand.com/it/Passwd"><em>password shadowing</em></a>.
-#|grp (di prossima traduzione)|Il modulo <strong>grp</strong> legge informazioni sui gruppi Unix
+grp.html|grp|Il modulo <strong>grp</strong> legge informazioni sui gruppi Unix
 </vedi_anche>
 </documento_tradotto>

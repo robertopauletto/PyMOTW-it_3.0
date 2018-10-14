@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_getmembers.py
 
 import tarfile
 import time
 
-t = tarfile.open('esempio.tar', 'r')
-for member_info in t.getmembers():
-    print member_info.name
-    print '\tModificato:\t', time.ctime(member_info.mtime)
-    print '\tModalità  :\t', oct(member_info.mode)
-    print '\tTipo      :\t', member_info.type
-    print '\tDimensione:\t', member_info.size, 'bytes'
-    print
- 
+with tarfile.open('example.tar', 'r') as t:
+    for member_info in t.getmembers():
+        print(member_info.name)
+        print('  Modificato:', time.ctime(member_info.mtime))
+        print('  Modalità  :', oct(member_info.mode))
+        print('  Tipo      :', member_info.type)
+        print('  Dimensione:', member_info.size, 'byte')
+        print()

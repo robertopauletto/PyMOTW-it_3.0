@@ -1,13 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_extractfile.py
 
 import tarfile
 
-t = tarfile.open('esempio.tar', 'r')
-for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
-    try:
-        f = t.extractfile(filename)
-    except KeyError:
-        print "ERRORE: Non trovato %s nell'archivio tar" % filename
-    else:
-        print filename, ':', f.read()
+with tarfile.open('esempio.tar', 'r') as t:
+    for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
+        try:
+            f = t.extractfile(filename)
+        except KeyError:
+            print("ERROR: {} non trovato nell'archivio tar".format(
+                filename))
+        else:
+            print(filename, ':')
+            print(f.read().decode('utf-8'))

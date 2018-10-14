@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="Latin-1"?>
-<categoria>compressione ed archiviazione dati</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<categoria>moduli e pacchetti</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
 <!-- # tag <titolo_1> titolo principale -->
 <!-- tag <testo_normale> contiene il testo normale dell'articolo -->
 <!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
@@ -16,7 +16,7 @@ Aggiunge al percorso di ricerca dei moduli quello di uno specifico pacchetto e l
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>pkgutil</strong> include funzioni per modificare le regole di importazione dei pacchetti Python a per caricare risorse diverse dal codice da file distribuiti all'interno di un pacchetto.
+Il modulo <strong>pkgutil</strong> include funzioni per modificare le regole di importazione dei pacchetti Python e per caricare risorse diverse dal codice da file distribuiti all'interno di un pacchetto.
 </testo_normale>
 <titolo_2>
 Percorsi di Importazione Pacchetti
@@ -32,7 +32,7 @@ import pkgutil
 __path__ = pkgutil.extend_path(__path__, __name__)
 </py_code>
 <testo_normale>
-<code>extend_path()</code> scorre <code>sys.path</code> alla ricerca di directory che includano una certa sottodirectory per il pacchetto fornito come secondo argomento. L'elenco di directory viene combinato con il valore del percorso passato come primo argomento e viene ritornato come una singola lista, adatta all'uso come percorso di importazione del pacchetto.
+<code>extend_path()</code> scorre <code>sys.path</code> alla ricerca di directory che includano una certa sottodirectory per il pacchetto fornita come secondo argomento. L'elenco di directory viene combinato con il valore del percorso passato come primo argomento e viene ritornato come una singola lista, adatta all'uso come percorso di importazione del pacchetto.
 </testo_normale>
 <testo_normale>
 Un pacchetto di esempio chiamato <code>demopkg</code> include due file, <code>__init__.py</code> e <code>shared.py</code>. Il file <code>__init__.py</code> in <code>demopkg1</code> contiene istruzioni <code>print</code> per mostrare il percorso di ricerca prima e dopo che è stato modificato, per evidenziarne la differenza.
@@ -68,7 +68,7 @@ Tuttavia, se la directory <code>extension</code> viene aggiunta a <code>PYTHONPA
 $ PYTHONPATH=extension python3 pkgutil_extend_path.py
 </py_output>
 <testo_normale>
-La versione di <code>demopkg1</code> all'intero della directory <code>extension</code> è stata aggiunta al percorso di ricerca, quindi d<code>not_shared.py</code> viene trovato.
+La versione di <code>demopkg1</code> all'interno della directory <code>extension</code> è stata aggiunta al percorso di ricerca, quindi <code>not_shared.py</code> viene trovato.
 </testo_normale>
 <testo_normale>
 L'estensione del percorso è in questo modo utile per combinare versioni di pacchetti specifiche per la piattaforma con pacchetti comuni, specialmente se le versioni specifiche per la piattaforma includono moduli di estensione C.
@@ -77,7 +77,7 @@ L'estensione del percorso è in questo modo utile per combinare versioni di pacc
 Versioni di Sviluppo di Pacchetti
 </titolo_2>
 <testo_normale>
-Nella fase di sviluppo di un progetto, è normale la necessità di dover verificare modifiche in un pacchetto installato. Sostituendo la copia installata con una versione di sviluppo potrebbe essere una cattiva idea, visto che potrebbe non essere corretta ed altri strumenti nel sistema potrebbero dipendere dal pacchetto installato.
+Nella fase di sviluppo di migliorie per un progetto, è normale la necessità di dover verificare modifiche ad un pacchetto installato. Sostituire la copia installata con una versione di sviluppo potrebbe essere una cattiva idea, visto che potrebbe non essere corretta ed altri strumenti nel sistema potrebbero dipendere dal pacchetto installato.
 </testo_normale>
 <testo_normale>
 Una copia completamente separata del pacchetto potrebbe essere configurata in un ambiente di sviluppo usando <code>virtualenv</code> oppure  <a href='venv.html' target='_blank'>venv</a>, ma per piccole modifiche potrebbe essere eccessivo l'impegno di impostare un ambiente virtuale con tutte le dipendenze.
@@ -98,7 +98,7 @@ e <code>demopkg2/__init__.py</code> contiene:
 # demopkg2/__init__.py
 </py_code>
 <testo_normale>
-<code>reverse()</code> viene utilizzato per assicurarsi che qualunque directory aggiunta al percorso di ricerca da <code>pkgutil</code> venga esaminata per trovare importazioni prima della versione predefinita.
+<code>reverse()</code> viene utilizzato per assicurarsi che qualunque directory aggiunta al percorso di ricerca da <code>pkgutil</code> venga esaminata per trovare importazioni relative al percorso di sviluppo prima della importazioni della versione predefinita.
 </testo_normale>
 <testo_normale>
 Il programma importa <code>demopkg2.overloaded</code> e chiama <code>func()</code>.
@@ -119,7 +119,7 @@ La directory di sviluppo contiene:
 $ find develop/demopkg2 -name '*.py'
 </py_output>
 <testo_normale>
-All'interno di <code>overloaded</code> si trova la funzione modificata
+All'interno di <code>overloaded.py</code> si trova la funzione modificata
 </testo_normale>
 <py_code>
 # develop/demopkg2/overloaded.py
@@ -215,7 +215,7 @@ $ python3 pkgutil_nested.py
 Quando viene aggiunta la directory <code>develop</code> al percorso, le versioni di sviluppo di entrambi i metodi vengono eseguite in luogo di quelle installate.
 </testo_normale>
 <py_output>
-PYTHONPATH=develop python3 pkgutil_nested.py
+$ PYTHONPATH=develop python3 pkgutil_nested.py
 </py_output>
 <titolo_2>
 Pacchetti con Dati
@@ -268,7 +268,7 @@ $ python3 pkgutil_get_data.py
 # pkgutil_get_data_zip.py
 </py_code>
 <testo_normale>
-Questo esempio usa <code>PyZipFile.writepy()</code> per creare un archivio ZIP che contiene una copia del pacchetto <code>pkgwithdata</code>, inclusa una versione rinominata del file template. Quindi l'archivio ZIP al percorso di importazione prima di usare <code>pkgutil</code> per careicare il template e stamparlo. Si faccia riferimento a <a href='zipfile.html' target='_blank'>zipfile</a> per maggiori dettagli sull'uso di <code>writepy()</code>.
+Questo esempio usa <code>PyZipFile.writepy()</code> per creare un archivio ZIP che contiene una copia del pacchetto <code>pkgwithdata</code>, inclusa una versione rinominata del file template. Quindi aggiunge l'archivio ZIP al percorso di importazione prima di usare <code>pkgutil</code> per caricare il template e stamparlo. Si faccia riferimento a <a href='zipfile.html' target='_blank'>zipfile</a> per maggiori dettagli sull'uso di <code>writepy()</code>.
 </testo_normale>
 <py_output>
 $ python3 pkgutil_get_data_zip.py
@@ -296,7 +296,7 @@ Template:
 https://docs.python.org/3.6/library/pkgutil.html|pkgutil|La documentazione della libreria standard per questo modulo.
 http://pypi.python.org/pypi/virtualenv|virtualenv|Lo script di ambiente virtuale di Ian Bicking
 #|distutils|Strumenti per gestione pacchetti dalla libreria standard di Python
-https://setuptools.readthedocs.io/en/latest/l|setuptools|Strumenti di gestione pacchetti della prossima generazione.
+https://setuptools.readthedocs.io/en/latest/|setuptools|Strumenti di gestione pacchetti della prossima generazione.
 https://www.python.org/dev/peps/pep-0302|PEP 302|Agganci di importazione.
 zipfile.html|zipfile|Crea archivi ZIP importabili
 zipimport.html|zipimport|Importatore di pacchetti in archivi ZIP.

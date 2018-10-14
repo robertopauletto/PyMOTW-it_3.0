@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Compressione dati e archiviazione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+gzip - Legge e Scrive File zip GNU
+</titolo_1>
+<descrizione>
+Il modulo <strong>gzip</strong> fornisce una interfaccia tipo file ai file zip GNU, usando <a href='zlib.html'>zlib</a> per comprimere e decomprimere i dati
+
+</descrizione>
+<titolo_2>
+Scrivere File Compressi
+</titolo_2>
+<testo_normale>
+La funzione a livello di modulo <code>open()</code> crea una istanza della classe tipo file <code>GzipFile</code>. Vengono forniti gli usuali metodi per scrivee e leggere byte
+</testo_normale>
+<py_code>
+# gzip_write.py
+</py_code>
+<testo_normale>
+Per scrivere dati in un file compresso, lo si apra con la modalità <code>'wb'</code>. Questo esempio racchiude il file compresso con <code>GzipFIle</code> in un <code>TextIOWrapper</code> dal modulo <strong>io</strong> per codificare il testo Unicode in byte adatti alla compressione.
+</testo_normale>
+<py_output>
+$ python3 gzip_write.py
+</py_output>
+<testo_normale>
+E' possibile adottare diversi gradi di compressione passando l'argomento <code>compresslevel</code>. L'intervallo di valori va da 0 a 9 compreso. I valori più bassi rappresentano una compressione minore e più veloce. I valori più alti rappresentano una compressione maggiore e più lenta.
+</testo_normale>
+<py_code>
+# gzip_compresslevel.py
+</py_code>
+<testo_normale>
+La colonna centrale di numeri nel risultato mostra la dimensione in byte del file prodotti dalla compressione dell'input. Per questi dati in input, i valori di compressione più alti non necessariamente portano vantaggi in temini di minore spazio di conservazione utilizzato. I risulati varieranno in base ai dati in input.
+</testo_normale>
+<py_output>
+$ python3 gzip_compresslevel.py
+</py_output>
+<testo_normale>
+Una istanza di <code>GzipFile</code> include anche un metodo <code>writelines()</code> che può essere usato per scrivere una sequenza di stringhe.
+</testo_normale>
+<py_code>
+# gzip_writelines.py
+</py_code>
+<testo_normale>
+Così come per i normali file, occorre fornire alle righe in input un carattere di ritorno a capo
+</testo_normale>
+<py_output>
+$ python3 gzip_writelines.py
+</py_output>
+<titolo_2>
+Leggere Dati Compressi
+</titolo_2>
+<testo_normale>
+Per leggere dati da file precedentemente compressi, si apra il file in modalità di lettura binaria (<code>'rb'</code>) in modo che non venga effettuata alcuna traduzione di separatori di riga basata sul testo o decodifica Unicode.
+</testo_normale>
+<py_code>
+# gzip_read.py
+</py_code>
+<testo_normale>
+Questo esempio legge il file scritto da <code>gzip_write.py</code> dalla sezione precedente, usando un <code>TextIOWrapper</code> per decodificare il testo dopo la decompressione.
+</testo_normale>
+<py_output>
+$ python3 gzip_read.py
+</py_output>
+<testo_normale>
+Quando si legge un file, è anche possibile cercare di leggere solo parte dei dati
+</testo_normale>
+<py_code>
+# gzip_seek.py
+</py_code>
+<testo_normale>
+La posizione da raggiungere con <code>seek()</code> è relativa ai dati <em>non compressi</em>, quindi il chiamante non deve sapere che il file dati è compresso.
+</testo_normale>
+<py_output>
+$ python3 gzip_seek.py
+</py_output>
+<titolo_2>
+Lavorare con i Flussi
+</titolo_2>
+<testo_normale>
+La classe <code>GzipFile</code> puà essere usata per incapsulare altri tipi di flussi di dati in modo che anch'essi possano usufruire della compressione. Questo è utile quando i flussi vengono trasmessi attraverso un <em>socket</em> oppure un <em>handle</em> di file esistente (già aperto). Può anche essere usato un buffer <code>BytesIO</code>
+</testo_normale>
+<py_code>
+# gzip_BytesIO.py
+</py_code>
+<testo_normale>
+Un vantaggio dell'uso di <code>GzipFile</code> in luogo di <a href='zlib.html'>zlib</a> è che supporta le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a>  dei file. Comunque quando vengono riletti dati precedentemente compressi, viene passata una esplicita lunghezza a <code>read()</code>. Non fornendo la lunghezza si incorre in un errore CRC, probabilmente perchè <code>BytesIO</code> ritornerebbe una stringa vuota prima di segnalare il carattere di fine file (EOF). Quando si lavora con flussi di dati compressi, si facciano precedere i dati con un intero che rappresenta l'effettivo ammontare di dati da leggere oppure si utilizzi l'API di decompressione incrementale in <a href='zlib.html'>zlib</a>.
+</testo_normale>
+<py_output>
+$ python3 gzip_BytesIO.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/gzip.html|gzip|La documentazione della libreria standard per questo modulo.
+zlib.html|zlib|Il modulo <strong>zlib</strong> è una interfaccia a più basso livello alla compressione gzip.
+zipfile.html|zipfile|Il modulo <strong>zipfile</strong> fornisce accesso agli archivi ZIP.
+bz2.html|bz2 (di prossima traduzione)|Il modulo <strong>bz2</strong> usa il formato di compressione bz2
+#|tarfile (di prossima traduzione)|Il modulo <strong>tarfile</strong> include supporto <em>built-in</em> per leggere archivi tar compressi.
+io.html|io|Costruzioni per creare condutture in input ed output
+</vedi_anche>
+</documento_tradotto>

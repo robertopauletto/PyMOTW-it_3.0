@@ -29,7 +29,7 @@ with sqlite3.connect(db_filenome) as conn:
         # Finge che l'esecuzione abbia causato un errore
         raise RuntimeError('errore simulato')
 
-    except Exception, err:
+    except Exception as err:
         # Scarta le  modifiche
         print('ERRORE:', err)
         conn.rollback()
@@ -40,4 +40,4 @@ with sqlite3.connect(db_filenome) as conn:
 
     # Mostra i risultati
     print('\nDopo la chiamata di rollback:')
-    show_progettos(conn)
+    show_projects(conn)

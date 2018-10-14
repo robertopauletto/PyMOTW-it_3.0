@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Compressione dati e archiviazione</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+bz2 - Compressione bzip2
+</titolo_1>
+<descrizione>
+Il modulo <strong>bz2</strong> è una interfaccia per la libreria bzip2, usata per comprimere dati per conservazione o trasmissione.
+
+</descrizione>
+<testo_normale>
+Sono fornite tre <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a>:
+</testo_normale>
+<lista>
+funzioni di compressione/decompressione "una tantum" per operare su di una massa di dati
+oggetti di compressione/decompressione iterattivi per lavorare con flussi di dati
+una classe tipo file che supporta la lettura e la scrittura come un file non compresso
+</lista>
+<titolo_2>
+Operazioni in Memoria Una Tantum
+</titolo_2>
+<testo_normale>
+Il modo più semplice per lavorarare con <strong>bz2</strong> è di caricare tutti i dati da comprimere o decomprimere in memoria, quindi usare <code>compress()</code> e <code>decompress()</code> per trasformarli.
+</testo_normale>
+<py_code>
+# bz2_memory.py
+</py_code>
+<testo_normale>
+I dati compressi contengono caratteri non ASCII, quindi devono essere convertiti nella rappresentazione esadecimale prima di essere stampati.
+</testo_normale>
+<py_output>
+$ python3 bz2_memory.py
+</py_output>
+<testo_normale>
+Per testi brevi, la dimensione della versione compressa può essere significativamente più grande di quella originale. Mentre il risultato reale dipende dai dati in input, è interessante osservare il ricarico di compressione.
+</testo_normale>
+<py_code>
+# bz2_lengths.py
+</py_code>
+<testo_normale>
+Le righe che nel risultato finiscono con * mostrano i punti dove la dimensione dei dati compressi è più grande degli originali
+</testo_normale>
+<py_output>
+$ python3 bz2_lengths.py
+</py_output>
+<titolo_2>
+Compressione e Decompressione Incrementale
+</titolo_2>
+<testo_normale>
+L'approccio "in memoria" ha ovvi inconvenienti che lo rendono improponibile per usi pratici. L'alternativa è di usare gli oggetti <code>BZ2Compressor</code> e <code>BZ2Decompressor</code> per manipolare i dati in modo incrementale così che l'intero insieme di dati non debba essere accomodato in memoria.
+</testo_normale>
+<py_code>
+# bz2_incremental.py
+</py_code>
+<testo_normale>
+Questo esempio legge piccoli blocchi di dati da un file a testo semplice e li passa a <code>compress()</code>. Il compressore mantiene un <em>buffer</em> interno di dati compressi. Visto che l'algoritmo di compressione dipende da cifre di controllo e dimensioni minime di blocco, il compressore potrebbe non essere pronto per ritornare dati ogni volta che ne riceve ulteriori in input. Se non ha un intero blocco compresso pronto, ritorna una stringa vuota. Quando tutti i dati sono stati passati, il metodo <code>flush()</code> forza il compressore a chiudere il blocco finale e ritornare i dati compressi rimasti.
+</testo_normale>
+<py_output>
+$ python3 bz2_incremental.py
+</py_output>
+<titolo_2>
+Flussi di Contenuto Misto
+</titolo_2>
+<testo_normale>
+<code>BZ2Decompressor</code> può anche essere usato in situazioni dove dati compressi e non compressi sono mescolati.
+</testo_normale>
+<py_code>
+# bz2_mixed.py
+</py_code>
+<testo_normale>
+Dopo la decompressione di tutti i dati, l'attributo <code>unused_data</code> contiene qualunque dato che non sia stato usato
+</testo_normale>
+<py_output>
+$ python3 bz2_mixed.py
+</py_output>
+<titolo_2>
+Scrivere Dati Compressi
+</titolo_2>
+<testo_normale>
+<code>BZ2File</code> può anche essere usato per scrivere verso e leggere da file compressi con bzip2 usando gli abituali metodi per leggere e scrivere dati..
+</testo_normale>
+<py_code>
+# bz2_file_write.py
+</py_code>
+<testo_normale>
+Per scrivere dati in un file compresso, lo si apra con modalità <code>'wb'</code>. Questo esempio impacchetta il file aperto con <code>BZ2File</code> con un <code>TextIOWrapper</code> dal modulo <a href='io.html' target='_blank'>io</a> per codificare testo Unicode in byte adatti alla compressione.
+</testo_normale>
+<py_output>
+$ python3 bz2_file_write.py
+</py_output>
+<testo_normale>
+E' possibile usare diversi livelli di compressione tramite l'argomento <code>compresslevel</code>. L'intervallo di valori valido è da 1 a 9 compreso. Valori bassi generano una compressione più veloce ma di maggiori dimensioni. Valori alti producono una compressione più lenta e più compatta.
+</testo_normale>
+<py_code>
+# bz2_file_compresslevel.py
+</py_code>
+<testo_normale>
+La colonna centrale di cifre nel risultato dello script rappresenta la dimensione in byte dei file prodotti. Per questi dati in input, valori di compression più alti non sempre si traducono in uno spazio di conservazione minore per gli stessi dati in input. I risultati possono variare per altri input.
+</testo_normale>
+<py_output>
+$ python3 bz2_file_compresslevel.py
+</py_output>
+<testo_normale>
+Una istanza di <code>BZ2File</code> include anche un metodo <code>writelines()</code> che può essere usato per scrivere una sequenza di stringhe.
+</testo_normale>
+<py_code>
+# bz2_file_writelines.py
+</py_code>
+<testo_normale>
+Le righe dovrebbero finire con un carattere di ritorno a capo, come per la scrittura di un file normale.
+</testo_normale>
+<py_output>
+$ python3 bz2_file_writelines.py
+</py_output>
+<titolo_2>
+Leggere File Compressi
+</titolo_2>
+<testo_normale>
+Per leggere dati da file precedentemente compressi, si apra il file in modalità lettura (<code>'rb'</code>). Il valore ritornato da <code>read()</code> sarà una stringa di byte.
+</testo_normale>
+<py_code>
+# bz2_file_read.py
+</py_code>
+<testo_normale>
+Questo esempio legge il file scritto da <code>bz2_file_write.py</code> dalla sezione precedente. Il file aperto con <code>BZ2File</code> viene impacchettato con un <code>TextIOWrapper</code> per decodificare i byte letti in testo Unicode
+</testo_normale>
+<py_output>
+$ python3 bz2_file_read.py
+</py_output>
+<testo_normale>
+Quando si sta leggendo un file, è possibile anche spostarsi al suo interno, e leggere solo parte dei dati.
+</testo_normale>
+<py_code>
+# bz2_file_seek.py
+</py_code>
+<testo_normale>
+La posizione di <code>seek()</code> è relativa ai dati <em>non compressi</em>, quindi il chiamante non deve preoccuparsi di sapere che il file è compresso. Questo consente di passare l'istanza di <code>BZ2File</code> ad una funzione che si attende un normale file non compresso.
+</testo_normale>
+<py_output>
+$ python3 bz2_file_seek.py
+</py_output>
+<titolo_2>
+Leggere e Scrivere Dati Unicode
+</titolo_2>
+<testo_normale>
+Gli esempi precedenti usano <code>BZ2File</code> direttamente e gestiscono la codifica e decodifica delle stringhe di testo Unicode con un <code>TextIOWrapper</code> in linea, dove necessario. Questi passi supplementari possono essere evitati usando <code>bz2.open()</code>, che imposta un <code>io.TextIOWrapper</code>  per gestire la codifica e decodifica automaticamente.
+</testo_normale>
+<py_code>
+# bz2_unicode.py
+</py_code>
+<testo_normale>
+L'<em>handle</em> del file ritornato da <code>opern()</code> supporta <code>seek()</code>, ma si raccomanda prudenza in quanto il puntatore del file si sposta per <em>byte</em> e non per <em>caratteri</em>, e potrebbe non trovarsi nel mezzo di un carattere codificato.
+</testo_normale>
+<py_output>
+$ python3 bz2_unicode.py
+</py_output>
+<titolo_2>
+Comprimere Dati in Rete
+</titolo_2>
+<testo_normale>
+L'esempio seguente risponde a richieste che contengono nomi di file scrivendo una versione compressa del file verso il socket usato per comunicare con il client. Ha impostata una spezzettatura artificiale sul posto per illustrare l'accumulo quando i dati passati da <code>compress()</code> a <code>decompress()</code> non costituiscono un blocco completo di output compresso o decompresso.
+</testo_normale>
+<py_code>
+# bz2_server.py
+</py_code>
+<testo_normale>
+Il programma principale fa partire un server in un <em>thread</em>, combinando <code>SocketServer</code> e <code>Bz2RequestHandler</code> quindi apre un socket per comunicare con il server come un client, e richiede il file (predefinito <code>lorem.txt</code>).
+</testo_normale>
+<avvertimento>
+Questa implementazione ha ovvi problemi di sicurezza. Non eseguirlo in un server aperto su Internet od in un qualsiasi ambiente nel quale la sicurezza potrebbe essere un problema.
+</avvertimento>
+<py_output>
+$ python3 bz2_server.py
+</py_output>
+<vedi_anche>
+http://www.bzip.org/|bz2|La documentazione della libreria standard per questo modulo.
+http://www.bzip.org/|bzip2.org|La pagina home per bzip2.
+zlib.html|zlib|Il modulo <strong>zlib</strong> è una interfaccia a più basso livello alla compressione gzip.
+gzip.html|bzip|Una intefaccia tipo file per file compressi GNU zip
+io.html|io|Costruzioni per creare condutture in input ed output
+riferimenti_moduli_modificati.html#6|Note di portabilità da 2 a 3 per bzip|
+</vedi_anche>
+</documento_tradotto>

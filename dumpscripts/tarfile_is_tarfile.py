@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_is_tarfile.py
 
 import tarfile
 
-for filename in [ 'LEGGIMI.txt', 'esempio.tar', 
-                  'cattivo_esempio.tar', 'nonqui.tar' ]:
+for filename in ['LEGGIMI.txt', 'esempio.tar',
+                 'cattivo_esempio.tar', 'nonqui.tar']:
     try:
-        print '%20s  %s' % (filename, tarfile.is_tarfile(filename))
-    except IOError, err:
-        print '%20s  %s' % (filename, err)
+        print('{:>15}  {}'.format(filename, tarfile.is_tarfile(
+            filename)))
+    except IOError as err:
+        print('{:>15}  {}'.format(filename, err))

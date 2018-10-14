@@ -9,14 +9,14 @@
 <!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
 <documento_tradotto>
 <titolo_1>
-io - Strumenti I/O per flussi grezzi, di testo e binari
+io - Strumenti I/O per Flussi Grezzi, di Testo e Binari
 </titolo_1>
 <descrizione>
-Implementa operazioni di input output e fornisce classi per lavorare con i buffer usando <a href='https://it.wikipedia.org/wiki/Application_programming_interface'>API</a> tipo file.
+Implementa operazioni di input/output e fornisce classi per lavorare con i buffer usando API tipo file.
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>io</strong> fornisce accesso alla funzione built-in <code>open()</code> ed alle classi utilizzate per implementare operazioni di input ed output basate su file. Le classi sono decomposte in modo tale che possano essere ricombinate per scopi alternativi, ad esempio per abilitare la scrittura di dati in formato Unicode verso un <a href='https://www.wikiwand.com/it/Socket_(reti)'>socket di rete</a>.
+Il modulo <strong>io</strong> le classi che supportano il metodo <em>built-in</em> dell'interprete <code>open()</code> per operazioni di input ed output basate su file. Le classi sono decomposte in modo tale che possano essere ricombinate per scopi alternativi, ad esempio per abilitare la scrittura di dati Unicode verso un <a href='https://www.wikiwand.com/it/Socket_(reti)'>socket di rete</a>.
 </testo_normale>
 <titolo_2>
 Flussi In Memoria

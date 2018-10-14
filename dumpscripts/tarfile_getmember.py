@@ -1,14 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_getmember.py
 
 import tarfile
 import time
 
-t = tarfile.open('esempio.tar', 'r')
-for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
-    try:
-        info = t.getmember(filename)
-    except KeyError:
-        print "ERRORE: Non trovato %s nell'archivio tar" % filename
-    else:
-        print '%s è di %d bytes' % (info.name, info.size)
+with tarfile.open('esempio.tar', 'r') as t:
+    for filename in [ 'LEGGIMI.txt', 'nonqui.txt' ]:
+        try:
+            info = t.getmember(filename)
+        except KeyError:
+            print("ERROE:  {} non trovato nell'archivio tar".format(
+                filename))
+        else:
+            print("{} è {:d} byte".format(
+                info.name, info.size))

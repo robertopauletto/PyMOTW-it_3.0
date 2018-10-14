@@ -1,15 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# bz2_lengths.py
 
 import bz2
 
-original_data = 'Questo è il testo originale.'
+original_data = b"Questo e' il testo originale."
 
-fmt = '%15s  %15s'
-print fmt % ('len(data)', 'len(compressed)')
-print fmt % ('-' * 15, '-' * 15)
+fmt = '{:>15}  {:>15}'
+print(fmt.format('len(dati)', 'len(compressed)'))
+print(fmt.format('-' * 15, '-' * 15))
 
-for i in xrange(20):
+for i in range(5):
     data = original_data * i
-    compressed = bz2.compress(data)    
-    print fmt % (len(data), len(compressed)), '*' if len(data) < len(compressed) else ''
+    compressed = bz2.compress(data)
+    print(fmt.format(len(data), len(compressed)), end='')
+    print('*' if len(data) < len(compressed) else '')

@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_getnames.py
 
 import tarfile
 
-t = tarfile.open('esempio.tar', 'r')
-print t.getnames()
- 
+with tarfile.open('esempio.tar', 'r') as t:
+    print(t.getnames())

@@ -21,7 +21,7 @@ gid_length = max(len(str(u.gr_gid))
 # nelle colonne della tabella
 members_width = 19
 
-# Print report headers
+# Stampa le intestazioni del report
 fmt = ' '.join(['{:<{name_length}}',
                 '{:{gid_length}}',
                 '{:<{members_width}}',

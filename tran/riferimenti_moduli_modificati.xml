@@ -84,6 +84,7 @@ base64
 <testo_normale>
 Due nuove codifiche che utilizzano alfabeti da 85 caratteri. <code>b85encode()</code> implementa una codifica utilizzata in Mercurial e git, mentre <code>a85encode()</code> implementa il formato <em>Ascii85</em> utilizzato nei file PDF (<a href="http://bugs.python.org/issue17618">Python issue 17618</a>)
 </testo_normale>
+<a name='bz2'></a>
 <titolo_2>
 bz2
 </titolo_2>

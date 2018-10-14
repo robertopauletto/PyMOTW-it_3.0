@@ -1,24 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# tarfile_append.py
 
 import tarfile
 
-print 'creazione archivio'
-out = tarfile.open('tarfile_accoda.tar', mode='w')
-try:
+print('creazione archivio')
+with tarfile.open('tarfile_accoda.tar', mode='w') as out:
     out.add('LEGGIMI.txt')
-finally:
-    out.close()
 
-print 'contenuto:', [m.name 
-                    for m in tarfile.open('tarfile_accoda.tar', 'r').getmembers()]
+print('contenuto:',)
+with tarfile.open('tarfile_accoda.tar', mode='r') as t:
+    print([m.name for m in t.getmembers()])
 
-print 'accodo index.rst'
-out = tarfile.open('tarfile_accoda.tar', mode='a')
-try:
+print('si accoda index.rst')
+with tarfile.open('tarfile_accoda.tar', mode='a') as out:
     out.add('index.rst')
-finally:
-    out.close()
 
-print 'contenuto:', [m.name 
-                    for m in tarfile.open('tarfile_accoda.tar', 'r').getmembers()]
+print('contenuto:',)
+with tarfile.open('tarfile_accoda.tar', mode='r') as t:
+    print([m.name for m in t.getmembers()])

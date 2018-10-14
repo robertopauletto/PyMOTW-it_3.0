@@ -1,13 +1,14 @@
+# gzip_write.py
 
 import gzip
+import io
 import os
 
-outfilename = 'esempio.txt.gz'
-output = gzip.open(outfilename, 'wb')
-try:
-    output.write('Il contenuto del file di esempio va qui.\n')
-finally:
-    output.close()
+outfilename = 'un_esempio.txt.gz'
+with gzip.open(outfilename, 'wb') as output:
+    with io.TextIOWrapper(output, encoding='utf-8') as enc:
+        enc.write('I contenuti del file di esempio vanno qui.\n')
 
-print outfilename, 'contiene', os.stat(outfilename).st_size, 'byte di dati compressi'
-os.system('file -b --mime %s' % outfilename)
+print(outfilename, 'contiene', os.stat(outfilename).st_size,
+      'byte')
+os.system('file -b --mime {}'.format(outfilename))

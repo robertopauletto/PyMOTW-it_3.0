@@ -128,6 +128,6 @@ https://docs.python.org/3.6/library/zlib.html|zlib|La documentazione della libre
 #|gzip (Di prossima traduzione)|Il modulo gzip comprende una interfaccia a più alto livello (basata su file) alla libreria zlib.
 http://www.zlib.net/|http://www.zlib.net/|La home page della libreria zlib.
 http://www.zlib.net/manual.html|zlib 1.2.11 Manual|Documentazione completa di zlib
-#|bz2 (Di prossima traduzione)|Il modulo bz2 fornisce una interfaccia similare alla libreria di compressione bzip2.
+bz2.html|bz2 (Di prossima traduzione)|Il modulo bz2 fornisce una interfaccia similare alla libreria di compressione bzip2.
 </vedi_anche>
 </documento_tradotto>

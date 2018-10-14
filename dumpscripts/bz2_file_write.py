@@ -1,13 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# bz2_file_write.py
 
 import bz2
+import io
 import os
 
-output = bz2.BZ2File('esempio.txt.bz2', 'wb')
-try:
-    output.write('Il contenuto del file di esempio va qui..\n')
-finally:
-    output.close()
+data = 'Il contenuto del file esempio va qui.\n'
 
-os.system('file esempio.txt.bz2')
+with bz2.BZ2File('esempio.bz2', 'wb') as output:
+    with io.TextIOWrapper(output, encoding='utf-8') as enc:
+        enc.write(data)
+
+os.system('file esempio.bz2')
