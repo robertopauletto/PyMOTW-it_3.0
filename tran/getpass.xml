@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+getpass - Prompt di Password Sicuro
+</titolo_1>
+<descrizione>
+Chiede all'utente un valore, in genere una password, senza emettere sullo schermo i caratteri digitati nella console
+
+</descrizione>
+<testo_normale>
+Molti programmi che interagiscono con l'utente attraverso un terminale devono richiedere una password senza mostrare nello schermo quello l'utente sta digitando. Il modulo <strong>getpass</strong> fornisce un modo portabile per gestire in sicurezza queste richieste
+</testo_normale>
+<titolo_2>
+Esempio
+</titolo_2>
+<testo_normale>
+La funzione <code>getpass()</code> stampa un <a href='https://www.wikiwand.com/it/Interfaccia_a_riga_di_comando' target='_blank'><em>prompt<em></a>  che legge l'input digitato dall'utente, fino a che egli non preme <em>Invio</em>. Quanto digitato viene poi passato come stringa al chiamante
+</testo_normale>
+<py_code>
+# getpass_defaults.py
+</py_code>
+<testo_normale>
+Il <em>prompt</em> predefinito, se nulla è stato specificato dal chiamante, è  <code>"Password:"</code>.
+</testo_normale>
+<py_output>
+$ python3 getpass_defaults.py
+</py_output>
+<testo_normale>
+Il <em>prompt</em> predefinto può essere modificato con qualsiasi valore si necessiti.
+</testo_normale>
+<py_code>
+# getpass_prompt.py
+</py_code>
+<testo_normale>
+Alcuni programmi richiedono una frase d'accesso invece che una semplice password, per fornire migliore sicurezza
+</testo_normale>
+<py_output>
+$ python3 getpass_prompt.py
+</py_output>
+<py_output>
+$ python3 getpass_prompt.py
+</py_output>
+<testo_normale>
+Nella modalità predefinita <code>getpass()</code> utilizza <code>sys.stdout</code> per stampare la stringa di richiesta. Per un programma che debba produrre un output utilizzabile su <code>sys.stdout</code>, spesso è meglio indirizzare il <em>prompt</em> verso una altro flusso tipo <code>sys.stderr</code>.
+</testo_normale>
+<py_code>
+# getpass_stream.py
+</py_code>
+<testo_normale>
+In questo modo l'output standard può essere rediretto (ad un <a href='http://it.wikipedia.org/wiki/Pipeline_software'>pipe</a> oppure ad un file) senza vedere la richiesta password. Il valore digitato dall'utente non viene comunque ripetuto sullo schermo.
+</testo_normale>
+<py_output>
+$ python3 getpass_stream.py > /dev/null
+</py_output>
+<titolo_2>
+Utilizzare getpass Senza un Terminale
+</titolo_2>
+<testo_normale>
+Su Unix, <code>getpass()</code> richiede un <em>tty</em> (comando Unix che restituisce il nome del terminale connesso allo standard input - n.d.t) che possa controllare tramite <code>termios</code> (una struttura dati utilizzata da tutte le chiamate di libreria del terminale - n.d.t.) in modo che la ripetizione dei caratteri sullo schermo possa essere disabilitata. Il che significa che i valori non saranno letti da un flusso non di terminale rediretto verso lo standard input; invece <code>getpass</code> cerca di ottenere il <em>tty</em> per un processo e non viene sollevato alcun errore se non è possibile accedervi.
+</testo_normale>
+<py_output>
+$ echo "sekret" | python getpass_defaults.py
+</py_output>
+<testo_normale>
+Spetta al chiamante rilevare quando il flusso in input non è un <em>tty</em> ed utilizzare un metodo alternativo per la lettura in quel caso
+</testo_normale>
+<py_code>
+# getpass_noterminal.py
+</py_code>
+<testo_normale>
+Con un <em>tty</em>:
+</testo_normale>
+<py_output>
+$ python3 getpass_noterminal.py
+</py_output>
+<testo_normale>
+Senza un <em>tty</em>:
+</testo_normale>
+<py_output>
+$ echo "segreta" | python getpass_noterminal.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/getpass.html|weakref|La documentazione della libreria standard per questo modulo.
+readline.html|readline|Libreria per <em>prompt</em> interattivo
+</vedi_anche>
+</documento_tradotto>

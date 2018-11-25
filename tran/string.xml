@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+string - Costanti di Testo e Modelli
+</titolo_1>
+<descrizione>
+Contiene costanti e classi per lavorare con il testo
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>string</strong> risale alle prime versioni di Python. Molte delle funzioni precedentemente implementate in questo modulo sono state spostate verso metodi degli oggetti <code>str</code>. Il modulo <strong>string</strong> conserva parecchie classi e costanti utili per lavorare con  oggetti <code>str</code>. Questo articolo si concentra su di essi.
+</testo_normale>
+<titolo_2>
+Funzioni
+</titolo_2>
+<testo_normale>
+La funzione <code>capwords()</code> trasforma  in maiuscolo il carattere iniziale di ogni parola in una stringa
+</testo_normale>
+<py_code>
+# string_capwords.py
+</py_code>
+<testo_normale>
+Il risultato è uguale a quello che si otterrebbe dalla chiamata di <code>split()</code>, dalla successiva trasformazione in maiuscolo della prima lettera di ogni elemento della lista risultante, ed infine dalla ricostruzione della stringa originale con l'istruzione <code>join()</code>.
+</testo_normale>
+<py_output>
+$ python3 string_capwords.py
+</py_output>
+<titolo_2>
+Modelli
+</titolo_2>
+<testo_normale>
+I modelli di stringa sono stati introdotti come parte del <a href='https://www.python.org/dev/peps/pep-0292' target='_blank'>PEP 292</a> e sono concepiti come alternativa della sintassi <em>built-in</em> di interpolazione. Con l'interpolazione di <code>string.Template</code>, le variabili sono definite prefissandone il nome con un <code>$</code>, (es. <code>$$var</code>). In alternativa, se necessario separarle dal testo circostante possono anche essere racchiuse tra parentesi graffe (es. <code>$${var}</code>).
+</testo_normale>
+<testo_normale>
+Questo esempio confronta un semplice modello con una interpolazione di stringa simile utilizzando l'operatore <code>%</code> ed il nuovo formato di sintassi di stringa usando <code>str.format()</code>.
+</testo_normale>
+<py_code>
+# string_template.py
+</py_code>
+<testo_normale>
+Nei primi due casi, il carattere di ingaggio (<code>$</code> o <code>%</code>) viene non viene considerato ripetendolo due volte. Per la sintassi di <code>str.format()</code>, entrambe le parentesi graffe vanno ripetute se non devono essere considerate come caratteri scatenanti.
+</testo_normale>
+<py_output>
+$ python3 string_template.py
+</py_output>
+<testo_normale>
+Una differenza chiave tra modelli ed interpolazione o formattazione di stringa è che il tipo degli argomenti non viene preso in considerazione. I valori sono convertiti in stringhe, e le stringhe sono inserite nel risultato. Non sono disponibili opzioni di formattazione. Ad esempio, non vi è modo di controllare il numero di cifre usate per rappresentare un valore a virgola mobile.
+</testo_normale>
+<testo_normale>
+Un beneficio, tuttavia, è che l'uso del metodo <code>safe_substitute()</code>, rende possibile evitare eccezioni se non tutti i valori necessari al modello sono stati passati come argomenti.
+</testo_normale>
+<py_code>
+# string_template_missing.py
+</py_code>
+<testo_normale>
+Viso che qui non esiste un valore per <code>missing</code> nel dizionario <code>values</code>, viene sollevata una eccezione <code>KeyError</code> da <code>substitute()</code>. Invece di sollevare l'eccezione, <code>safe_substitute()</code> la cattura e lascia il nome della variabile come parte del testo restituito.
+</testo_normale>
+<py_output>
+$ python3 string_template_missing.py
+</py_output>
+<titolo_2>
+Modelli Avanzati
+</titolo_2>
+<testo_normale>
+La sintassi predefinita per <code>string.Template</code>, può essere modificata aggiustando gli schemi di espressione regolare che usa per trovare i nomi delle variabili nel corpo del modello. Un modo semplice per fare questo è modificare gli attributi di classe <code>delimiter</code> e <code>idpattern</code>.
+</testo_normale>
+<py_code>
+# string_template_advanced.py
+</py_code>
+<testo_normale>
+In questo esempio sono modificate le regole di sostituzione in modo che il delimitatore sia <code>%</code> invece che <code>$</code> ed i nomi delle variabili devono contenere un <code>_</code> da qualche parte all'interno. Lo schema <code>%notunderscored</code> non viene sostituito da niente, visto che non include un carattere di sottolineatura <code>_</code>.
+</testo_normale>
+<py_output>
+$ python3 string_template_advanced.py
+</py_output>
+<testo_normale>
+Per modifiche ancora più complesse, è possibile sovrascrivere l'attributo <code>pattern</code> e definire una espressione regolare completamente nuova. Lo schema fornito deve contenere quattro gruppi nominativi per catturare il delimitatore, la variabile nominativa, la versione tra parentesi graffe del nome della variabile e gli schemi di delimitatore non valido.
+</testo_normale>
+<py_code>
+# string_template_defaultpattern.py
+</py_code>
+<testo_normale>
+Il valore di <code>t.pattern</code> è una espressione regolare compilata, ma la stringa originale è disponibile attraverso l'attributo <code>pattern</code>.
+</testo_normale>
+<py_output>
+$ python3 string_template_defaultpattern.py
+</py_output>
+<testo_normale>
+Questo esempio definisce un nuovo schema per creare un nuovo tipo di modello, usando come sintassi della varibile <code>{{var}}}</code>.
+</testo_normale>
+<py_code>
+# string_template_newsyntax.py
+</py_code>
+<testo_normale>
+Sia lo schema <code>named</code> che quello di <code>braced</code> devono essere forniti separatamente, anche se sono identici. L'esecuzione del programma di esempio genera il seguente risultato:
+</testo_normale>
+<py_output>
+$ python3 string_template_newsyntax.py
+</py_output>
+<titolo_2>
+Formatter
+</titolo_2>
+<testo_normale>
+La classe <code>Formatter</code> implementa le stesse specifiche di linguaggio del metodo <code>str.format()</code>. Tra le sue caratteristiche la coercizione del tipo, l'allineamento, i riferimenti ad attributo e campi, argomenti di modello nominativi e posizionali ed opzioni di formattazione specifiche per tipo. La maggior parte delle volte il metodo <code>format()</code> costituisce una interfaccia più conveniente per queste caratteristiche, ma <code>Formatter</code> è fornito come modo per costruire sottoclassi, per casi dove le variazioni sono necesarie.
+</testo_normale>
+<titolo_2>
+Costanti
+</titolo_2>
+<testo_normale>
+Il modulo <strong>string</strong> include costanti in relazione a insiemi ASCII e numerici.
+</testo_normale>
+<py_code>
+# string_constants.py
+</py_code>
+<testo_normale>
+Queste costanti sono utili quando si lavora con dati ASCII; tuttavia visto che è sempre più frequente avere a che fare con testo non ASCII in una qualche forma di Unicode, la loro applicazione è limitata.
+</testo_normale>
+<py_output>
+$ python3 string_constants.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.6/library/string.html|string|La documentazione della libreria standard per questo modulo.
+https://docs.python.org/3/library/stdtypes.html#string-methods|String Methods|Metodi degli oggetti <code>str</code> che rimpiazzano le funzioni deprecate in  <code>string</code>
+https://www.python.org/dev/peps/pep-0292|PEP 292|Sostituzioni di stringa più semplici
+https://docs.python.org/3.5/library/string.html#format-string-syntax|Format String Syntax|La definizione formale delle specifiche di linguaggio usate da <code>Formatter</code> e <code>str.format()</code>
+</vedi_anche>
+</documento_tradotto>

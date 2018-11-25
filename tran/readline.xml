@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la </categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+readline - La Libreria GNU readline
+</titolo_1>
+<descrizione>
+Fornisce una interfaccia alla libreria GNU readline per l'interazione con l'utente da riga di comando.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>readline</strong> può essere usato per migliorare i programmi interattivi di riga di comando per facilitarne l'utilizzo. E' principalmente usato per fornire completamento del testo della riga di comando, altrimenti noto come &quot;tab completion&quot; (in quanto premendo il tasto di tabulazione si ha la possibilità di completare una porzione di testo digitata tramite un elenco di opzioni - n.d.t.).
+</testo_normale>
+<note>
+Visto che <code>readline</code> interagisce con il contenuto della console, la stampa di messaggi di debug rende difficoltoso vedere cosa sta succedendo nel codice di esempio rispetto a quello che <code>readline</code> fa di sua iniziativa. Gli esempi sottostanti usano il modulo <strong>logging</strong> per scrivere le informazioni di debug in un file separato. Le informazioni contenute in detto file vengono mostrate con ciascun esempio.
+</note>
+<note>
+Le libreria GNU necessarie per <strong>readline</strong> non sono disponibili in modalità predefinita su tutte le piattaforme. Se il proprio sistema non le comprende, si potrebbe aver bisogno di ricompilare l'interprete Python per abilitare il modulo, dopo avere installato le dipendenze. Un versione a se stante della libreria viena distribuita dall'<a href='https://pypi.org' target='_blank'>Indirizzario dei Pacchetti Python</a> sotto il nome di <a href='https://pypi.python.org/pypi/gnureadline' target='_blank'>gnureadline</a>.
+<p></p>
+<p><em>Un ringraziamento speciale a Jim Baker per la segnalazione di questo pacchetto.</em></p>
+</note>
+<titolo_2>
+Configurazione
+</titolo_2>
+<testo_normale>
+Ci sono due modi per configurare la libreria readline sottostante, usando un file di configurazione oppure la funzione <code>parse_and_bind()</code>. Le opzioni di configurazione comprendono l'identificazione del carattere da tastiera per l'attivazione del completamento, le modalità di modifica (<code>vi</code> oppure <code>emacs</code>), e molti altri valori. Si faccia riferimento alla documentazione della  <a href='http://tiswww.case.edu/php/chet/readline/readline.html#SEC10'>libreria readline GNU</a> per i dettagli.
+</testo_normale>
+<testo_normale>
+Il modo più facile per abilitare il completamento tramite il tasto di tabulazione è con la chiamata a <code>parse_and_bind()</code>. Altre opzioni possono essere impostate allo stesso tempo. Questo esempio modifica i controlli per la modifica per usare la modalità <code>vi</code> invece che la predefinita <code>emacs</code>. Per modificare la riga in input corrente, si prema <code>ESC</code>, quindi si usino i normali tasti di spostamento impostati in <code>vi</code> come <code>j</code>, <code>k</code>, <code>l</code> ed <code>h</code>.
+</testo_normale>
+<py_code>
+# readline_parse_and_bind.py
+</py_code>
+<testo_normale>
+La stessa configurazione può essere conservata sotto forma di istruzioni in un file letto dalla libreria con una singola chiamata. Se <code>myreadline.rc</code> contiene:
+</testo_normale>
+<py_code>
+# myreadline.rc
+
+# Attiva il completamento
+tab: complete
+
+# Usa la modalità di modifica vi invece che emacs
+set editing-mode vi
+</py_code>
+<testo_normale>
+il file può poi essere letto con <code>read_init_file()</code>:
+</testo_normale>
+<py_code>
+# readline_read_init_file.py
+</py_code>
+<titolo_2>
+Completamento del Testo
+</titolo_2>
+<testo_normale>
+Questo programma ha un insieme di possibili comandi definiti al suo interno ed usa il completamento via tab quando l'utente digita le istruzioni.
+</testo_normale>
+<py_code>
+# readline_completer.py
+</py_code>
+<testo_normale>
+La funzione <code>input_loop()</code> legge una riga dopo l'altra fino a che il valore immesso è "stop".
+ Un programma più sofisticato potrebbe elaborare realmente la riga di input ed eseguire il comando.
+</testo_normale>
+<testo_normale>
+La classe <code>SimpleCompleter</code> mantiene un elenco di &quot;opzioni&quot; che sono suscettibili di auto-completamento. Il metodo <code>complete()</code> per una istanza è concepito per essere registrato con <code>readline</code> come sorgente per i completamenti. I parametri sono una stringa <code>text</code> da completare ed un valore <code>state</code>, che indica quante volte la funzione è stata chiamata con lo stesso testo. Questa funzione viene chiamata ripetutamente con <code>state</code> incrementato ogni volta. Dovrebbe restituire una stringa se c'è un candidato per quel valore di <code>state</code>, oppure <code>None</code> se non ci sono ulteriori candidati. Qui l'implementazione di <code>complete()</code> cerca un insieme di corrispondenze quando <code>state</code> è <code>0</code>, quindi ritorna tutte le corrispondenze, una alla volta, alle chiamate successive.
+</testo_normale>
+<testo_normale>
+Quando eseguito lo script, il risultato iniziale è:
+</testo_normale>
+<py_output>
+$ python3 readline_completer.py
+
+Prompt ("stop" per abbandonare):
+</py_output>
+<testo_normale>
+Se si preme due volte il tasto TAB, viene stampato un elenco di opzioni.
+</testo_normale>
+<py_output>
+$ python3 readline_completer.py
+
+Prompt ("stop" per abbandonare):
+elenco  stampa  start   stop
+Prompt ("stop" per abbandonare):
+</py_output>
+<testo_normale>
+Il file di registro mostra che <code>complete()</code> è stato chiamato con due sequenze separate di valori di <code>state</code>.
+</testo_normale>
+<py_output>
+$ tail -f /tmp/completer.log
+
+(input vuoto) corrispondenze: ['elenco', 'stampa', 'start', 'stop']
+completato('', 0) => 'elenco'
+completato('', 1) => 'stampa'
+completato('', 2) => 'start'
+completato('', 3) => 'stop'
+completato('', 4) => None
+(input vuoto) corrispondenze: ['elenco', 'stampa', 'start', 'stop']
+completato('', 0) => 'elenco'
+completato('', 1) => 'stampa'
+completato('', 2) => 'start'
+completato('', 3) => 'stop'
+completato('', 4) => None
+</py_output>
+<testo_normale>
+La prima sequenza proviene dalla prima pressione del tasto TAB. L'algoritmo di completamento richiama tutti i candidati ma non espande la riga di input vuota. Poi, al secondo TAB, l'elenco di candidati viene ricalcolato in modo da potere essere stampato per l'utente.
+</testo_normale>
+<testo_normale>
+Se l'input successivo è &quot;e&quot; seguito da un altro TAB, la videata mostra:
+</testo_normale>
+<py_output>
+Prompt ("stop" per abbandonare): elenco
+</py_output>
+<testo_normale>
+ed il registro rispecchia i diversi parametri per <code>complete()</code>:
+</testo_normale>
+<py_output>
+$ tail -f /tmp/completer.log
+
+'e' corrispondenze: ['elenco']
+completato('e', 0) => 'elenco'
+completato('e', 1) => None
+</py_output>
+<testo_normale>
+La pressione di INVIO ora fa sì che <code>input()</code> restituisca il valore, ed il ciclo in <code>while</code> riprende.
+</testo_normale>
+<py_output>
+Invia elenco
+Prompt ("stop" per abbandonare):
+</py_output>
+<testo_normale>
+Ci sono due possibili completamenti per il comando che inizia per &quot;s&quot;. Digitando &quot;s&quot;, quindi premendo TAB si trovano &quot;start&quot; &quot;stop &quot; e &quot;stampa &quot; come candidati, ma il testo viene completato solo parzialmente sullo schermo aggiungendo una &quot;t&quot;.
+</testo_normale>
+<testo_normale>
+Il file di log mostra:
+</testo_normale>
+<py_output>
+'s' corrispondenze: ['stampa', 'start', 'stop']
+completato('s', 0) => 'stampa'
+completato('s', 1) => 'start'
+completato('s', 2) => 'stop'
+completato('s', 3) => None
+</py_output>
+<testo_normale>
+e lo schermo:
+</testo_normale>
+<py_output>
+Prompt ("stop" per abbandonare): st
+</py_output>
+<note>
+Se la funzione di completamento solleva una eccezione, essa viene silenziosamente ignorata e <strong>readline</strong> assume che non ci siano completamenti corrispondenti.
+</note>
+<titolo_2>
+Accedere al Buffer di Completamento
+</titolo_2>
+<testo_normale>
+L'algoritmo di completamento in <code>SimpleCompleter</code>  cerca solo l'argomento <code>text</code> passato alla funzione, ma non usa null'altro dello stato interno di readline. E' anche possibilie usare le funzioni di <strong>readline</strong> per manipolare il testo nel <a href='https://www.wikiwand.com/it/Buffer' target='_blank'>buffer</a>  di input.
+</testo_normale>
+<py_code>
+# readline_buffer.py
+</py_code>
+<testo_normale>
+In questo esempio, i comandi con sotto opzioni sono completati. Il metodo <code>complete()</code> deve cercare alla posizione del completamento all'interno del buffer di input per determinare se parte della prima parola o di una parola successiva. Se l'obiettivo è la prima parola, le chiavi dei dizionario di opzioni vengono usate come candidati. Se non si tratta della prima parola, allore viene usata la prima parola per cercare candidati nel dizionario delle opzioni.
+</testo_normale>
+<testo_normale>
+Ci sono tre comandi di primo livello, due dei quali hanno sotto comandi:
+</testo_normale>
+<testo_normale>
+<ul>
+<li>elenca<ul><li>file</li><li>directory</li></li></ul>
+<li>stampa<ul><li>pernome</li><li>perdimensione</li></ul>
+<li>stop</li>
+</ul>
+</testo_normale>
+<testo_normale>
+Seguendo la stessa sequenza di azioni di prima, premendo TAB per due volte si ottengono i tre comandi del livello superiore:
+</testo_normale>
+<py_output>
+$ python3 readline_buffer.py
+
+Prompt ("stop" per uscire):
+elenca  stampa  stop
+Prompt ("stop" per uscire):
+</py_output>
+<testo_normale>
+Ed il registro riporta:
+</testo_normale>
+<py_output>
+riga originale=''
+inizio=0
+fine=0
+in completamento=
+parole=[]
+completato('', 0) => elenca
+completato('', 1) => stampa
+completato('', 2) => stop
+completato('', 3) => None
+riga originale=''
+inizio=0
+fine=0
+in completamento=
+parole=[]
+completato('', 0) => elenca
+completato('', 1) => stampa
+completato('', 2) => stop
+completato('', 3) => None
+</py_output>
+<testo_normale>
+Se la prima parola è &quot;<strong>elenca </strong>&quot; (con uno spazio dopo la parola), i candidati per il completamento sono diversi:
+</testo_normale>
+<py_output>
+Prompt ("stop" per uscire): elenca
+directory  file
+</py_output>
+<testo_normale>
+Il registro mostra che il testo che è stato completato <i>non</i> è l'intera riga, ma la porzione dopo <code>elenca</code>
+</testo_normale>
+<py_output>
+riga originale='elenca '
+inizio=7
+fine=7
+in completamento=
+parole=['elenca']
+candidati=['file', 'directory']
+completato('', 0) => file
+completato('', 1) => directory
+completato('', 2) => None
+riga originale='elenca '
+inizio=7
+fine=7
+in completamento=
+parole=['elenca']
+candidati=['file', 'directory']
+completato('', 0) => file
+completato('', 1) => directory
+completato('', 2) => None
+</py_output>
+<titolo_2>
+Input Storico
+</titolo_2>
+<testo_normale>
+<strong>readline</strong> tiene traccia dello storico di input automaticamente. Si sono due diversi insiemi di funzioni che lavorano con lo storico. Lo storico per la sessione corrente può essere indirizzato attraverso <code>get_current_history_length()</code> e <code>get_history_item()</code>. Lo stesso storico può essere salvato in un file per un recupero successivo usando <code>write_history_file()</code> e <code>read_history_file</code>. Nella modalità predefinita l'intero storico viene salvato ma la dimensione massima del file può essere impostata con <code>set_history_length()</code>. Una dimensione di <strong>-1</strong> significa che non c'è limite.
+</testo_normale>
+<py_code>
+# readline_history.py
+</py_code>
+<testo_normale>
+La classe <code>HistoryCompleter</code> ricorda qualsiasi cosa venga digitata ed usa quei valori per il completamento dell'input successivo.
+</testo_normale>
+<py_output>
+$ python3 readline_history.py
+Lunghezza max file storico: -1
+Storico di partenza: []
+Prompt ("stop" per uscire): foo
+Aggiunta di 'foo' allo storico
+Prompt ("stop" per uscire): bar
+Aggiunta di 'bar' allo storico
+Prompt ("stop" per uscire): blah
+Aggiunta di 'blah' allo storico
+Prompt ("stop" per uscire): b
+bar   blah
+Prompt ("stop" per uscire): stop
+Storico finale: ['foo', 'bar', 'blah', 'stop']
+</py_output>
+<testo_normale>
+Il registro mostra questo output quando &quot;b&quot; viene seguito da due TAB.
+</testo_normale>
+<py_output>
+storico: ['foo', 'bar', 'blah']
+corrispondenze: ['bar', 'blah']
+completato('b', 0) => 'bar'
+completato('b', 1) => 'blah'
+completato('b', 2) => None
+storico: ['foo', 'bar', 'blah']
+corrispondenze: ['bar', 'blah']
+completato('b', 0) => 'bar'
+completato('b', 1) => 'blah'
+completato('b', 2) => None
+</py_output>
+<testo_normale>
+Quando lo script viene eseguito per la seconda volta, tutto lo storico viene letto dal file.
+</testo_normale>
+<py_output>
+$ python3 readline_history.py
+
+Lunghezza max file storico: -1
+Storico di partenza: ['foo', 'bar', 'blah', 'stop']
+Prompt ("stop" per uscire):
+</py_output>
+<testo_normale>
+Ci sono funzioni sia per rimuovere elementi singoli nello storico che per eliminare interamente lo storico.
+</testo_normale>
+<titolo_2>
+Agganci
+</titolo_2>
+<testo_normale>
+Ci sono parecchi agganci disponibili per far scattare dele azioni come parte della sequenza di interazione. L'aggancio <i>startup</i> viene chiamato immediatamente prima della stampa del prompt, e l'aggancio <i>pre-input</i> viene eseguito dopo il prompt, ma prima di leggere il testo dall'utente.
+</testo_normale>
+<py_code>
+# readline_hooks.py
+</py_code>
+<testo_normale>
+Entrambi gli agganci sono potenzialmente un buon punto per usare <code>insert_text()</code> per modificare il buffer di input.
+</testo_normale>
+<py_output>
+$ python3 readline_hooks.py
+
+Prompt ("stop" per uscire): da startup_hook da pre_input_hook
+</py_output>
+<testo_normale>
+Se il buffer viene modificato all'interno dell'aggancio <i>pre-input</i>, occorre chiamare <code>redisplay()</code> per aggiornare lo schermo.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.6/library/readline.html|readline|La documentazione della libreria standard per questo modulo.
+http://tiswww.case.edu/php/chet/readline/readline.html|GNU readline|La documentazione per la libreria GNU readline.
+http://tiswww.case.edu/php/chet/readline/readline.html#SEC10|readline init file format|Il formato del file di inizializzazione e configurazione.
+http://sandbox.effbot.org/librarybook/readline.htm|effbot: The readline module|La guida di Effbot al modulo readline.
+https://pypi.python.org/pypi/gnureadline|gnureadline|Una versione collegata staticamente disponibile per molte piattaforme ed installabile via <code>pip</code>.
+http://ipython.org/pyreadline.html|pyreadline|pyreadline, sviluppato come rimpiazzo basato su Python per readline da usare con Windows.
+#|cmd (di prossima traduzione)|Il modulo <strong>cmd</strong> usa <strong>readline</strong> in modo estensivo per implementare il completamento con tab nell'interfaccia del comando. Alcuni esempi qui sopra sono stati adattati sulla base del codice in <strong>cmd</strong>.
+#|ricompleter|<strong>rlcompleter</strong> usa <strong>readline</strong> per aggiungere il completamento con tab all'interprete Python interattivo.
+</vedi_anche>
+</documento_tradotto>

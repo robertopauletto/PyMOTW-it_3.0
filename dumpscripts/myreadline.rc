@@ -1,0 +1,15 @@
+# myreadline.rc
+
+# Attiva il completamento
+tab: complete
+
+# Usa la modalità di modifica vi invece che emacs
+set editing-mode vi
+
+# myreadline.rc
+
+# Attiva il completamento
+tab: complete
+
+# Usa la modalità di modifica vi invece che emacs
+set editing-mode vi
