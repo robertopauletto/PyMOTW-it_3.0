@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'outpuy di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<documento_tradotto>
+<titolo_1>
+logging - Segnala messaggi di stato, di errore e informativi
+</titolo_1>
+<descrizione>
+Segnala messaggi di stato, di errore ed informativi
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>logging</strong> definisce una <a href='http://it.wikipedia.org/wiki/Application_programming_interface'>API</a> standard per segnalare errori e informazioni di stato da applicazioni e librerie. Il vantaggio chiave dell'avere una API di segnalazione fornita da un modulo di libreria standard è che tutti i moduli Python possono concorrere alla segnalazione, in modo che il registro di un'applicazione possa includere messaggi da moduli di terze parti.
+</testo_normale>
+<titolo_2>
+Componenti di logging
+</titolo_2>
+<testo_normale>
+Il sistema di registrazione è composto da quattro tipi di oggetti. Ogni modulo o applicazione che voglia registrare usa una istanza di <code>Logger</code> per aggiungere informazioni ai registri. La chiamata del <em>logger</em> crea un <code>LogRecord</code>, che viene usato per mantenere le informazioni in memoria fino a quando sono elaborate. Un <code>Logger</code> potrebbe avere un numero di oggetti <code>Handler</code> (gestori - n.d.t.) configurati la ricezione ed elaborazione dei record di registrazione. <code>Handler</code> usa l'oggetto <code>Formatter</code> per trasformare i record di registrazione in messaggi in uscita.
+</testo_normale>
+<titolo_2>
+Registrazioni nelle Applicazioni contro Registrazioni nelle Librerie
+</titolo_2>
+<testo_normale>
+Gli sviluppatori di applicazioni e gli autori di librerie possono entrambi utilizzare <strong>logging</strong>, ma ognuna di queste categorie ha diverse considerazioni da tenere a mente.
+</testo_normale>
+<testo_normale>
+Gli sviluppatori dell'applicazione configurano il modulo <strong>logging</strong>, smistando i messaggi agli appropriati canali in uscita. E' possibile registrare messaggi con livelli di verbosità diversi oppure verso destinazioni diverse. Sono inclusi gestori per la scrittura dei messaggi di su file, verso indirizzi HTTP GET/POST, email tramite SMTP, socket generici oppure verso meccanismi di registrazione specifici di un sistema operativo ed è possibile creare classi di destinazione delle registrazioni personalizzate per particolari esigenze che non sono coperte dalle classi <em>built-in</em>.
+</testo_normale>
+<testo_normale>
+Gli sviluppatori di librerie possono usare <strong>logging</strong> e avere anche meno lavoro da fare. Semplicemente possono creare una istanza di <em>logger</em> per ciascun contesto, usando un nome appropriato, quindi registrare i messaggi usando i livelli standard. Fintanto che una libreria usa l'API di registrazione con livelli e nomenclature consistenti, l'applicazione può essere configurata per mostrare o nascondere i messaggi dalla libreria, come si desidera.
+</testo_normale>
+<titolo_2>
+Registrazione verso un File
+</titolo_2>
+<testo_normale>
+La maggior parte delle applicazioni sono configurate per registrare verso un file. Si usi la funzione <code>basicConfig()</code> per impostare il gestore predefinito in modo che i messaggi di debug siano scritti ad un file.
+</testo_normale>
+<py_code>
+# logging_file_example.py
+</py_code>
+<testo_normale>
+Terminata l'esecuzione dello script  il messaggio di log viene scritto in <code>logging_example.out</code> :
+</testo_normale>
+<py_output>
+$ python3 logging_file_example.py
+</py_output>
+<titolo_2>
+Rotazione dei File di Registrazione
+</titolo_2>
+<testo_normale>
+Se si esegue lo script ripetutamente, i messaggi di log aggiuntivi sono accodati al file. Per creare ogni volta che il programma viene eseguito un nuovo file, si passi un argomento <code>filemode</code> a <code>basicConfig()</code> con il valore <code>'w'</code>. Piuttosto che gestire la creazione di file in questo modo, tuttavia, è meglio usare un <code>RotatingFileHandler</code>, che crea automaticamente nuovi file e preserva allo stesso tempo    i vecchi file di registrazione.
+</testo_normale>
+<py_code>
+# logging_rotatingfile_example.py
+</py_code>
+<testo_normale>
+Il risultato è sei file distinti, ognuno con una parte della storia delle registrazioni per l'applicazione:
+</testo_normale>
+<py_output>
+$ python3 logging_rotatingfile_example.py
+</py_output>
+<testo_normale>
+Il file con le registrazioni più recenti è sempre <code>logging_rotatingfile_example.out</code>, e ogni volta che esso raggiunge il limite di dimensione viene rinominato con il suffisso <code>.1.</code>. Ognuno dei file di backup esistenti viene rinominato incrementando il suffisso (<code>.1.</code>) diventa <code>.2.</code> ecc.) mentre il file <code>.5.</code> viene eliminato.
+</testo_normale>
+<note>
+Ovviamente questo esempio imposta una dimensione del file di log molto ridotta a scopo dimostrativo. Si imposti <code>maxBytes</code> ad un valore appropriato in un programma reale.
+</note>
+<titolo_2>
+Livelli di Dettaglio
+</titolo_2>
+<testo_normale>
+Un'altra utile caratteristica dell'API di <strong>logging</strong> è la capacità di produrre diversi messaggi per diversi <em>livelli di registrazione</em>. Questo significa che il codice può essere equipaggiato con messaggi di debug, ad esempio, ed il livello di registrazione può essere impostato in modo che questi messaggi di debug non siano scritti in un sistema in produzione. La tabella seguente mostra i livelli di registrazione definiti nel modulo.
+</testo_normale>
+<tabella_semplice>
+Livello;Valore
+CRITICAL;50
+ERROR;40
+WARNING;30
+INFO;20
+DEBUG;10
+UNSET;0
+</tabella_semplice>
+<testo_normale>
+Il messaggio di registrazione viene emesso se il gestore e il <em>logger</em> sono configurati per l'emissione di messaggi di quel livello o superiore. Ad esempio, se un messaggio è <code>CRITICAL</code>, e il <em>logger</em> è impostato a <code>ERROR</code>, il messaggio viene emesso (50 > 40). Se un messaggio è un <code>WARNING</code>, e il <em>logger</em> viene impostato per produrre solo <code>ERROR</code>, il messaggio non viene emesso (30 < 40).
+</testo_normale>
+<py_code>
+# logging_level_example.py
+</py_code>
+<testo_normale>
+Si esegua lo script con un parametro tipo 'debug' oppure 'avvertimento' per vedere quali messaggi vengono mostrati ai livelli diversi
+</testo_normale>
+<py_output>
+$ python3 logging_level_example.py debug
+</py_output>
+<py_output>
+$ python3 logging_level_example.py info
+</py_output>
+<sottotitolo>
+Nominare le Istanze di Logging
+</sottotitolo>
+<testo_normale>
+Tutti i precedenti messaggi di registrazione hanno '<en>root</en>' (radice) incorporato in essi perchè il codice usa il <em>logger</em> radice. Un facile modo per identificare la provenienza di uno specifico messaggio di registrazione è quello di usare un oggetto <em>logger</em> separato per ciascun modulo. I messaggi di registrazione inviati ad un <em>logger</em> includono il nome di quel <em>logger</em>. Ecco un esempio di come registrare da diversi moduli, in modo che sia facile rintracciare la sorgente del messaggio.
+</testo_normale>
+<py_code>
+# logging_modules_example.py
+</py_code>
+<testo_normale>
+Il risultato mostra i diversi nomi di modulo per ciascuna riga in uscita.
+</testo_normale>
+<py_output>
+$ python3 logging_modules_example.py
+</py_output>
+<titolo_2>
+L'alberatura del Logging
+</titolo_2>
+<testo_normale>
+Le istanze di <code>Logger</code> sono configurate come una struttura ad albero, in base ai loro nomi, come illustrato nella figura seguente. Tipicamente, ogni applicazione o libreria definisce un nome base, impostando come figli i <em>logger</em> dei moduli individuali. Il <em>logger</em> radice non ha nome.
+</testo_normale>
+<testo_normale>
+<img src='img/logging_1.png' class="img-responsive center-block" alt='alberatura logger' >
+</testo_normale>
+<testo_normale>
+La struttura ad albero è utile per configurare le registrazioni in quanto implica che ciascun <em>logger</em> non deve avere bisogno del proprio insieme di gestori. Nel caso in cui un <em>logger</em> non abbia gestori, l'elaborazione del messaggio viene eseguita dal suo genitore. Questo vuol dire che per molte applicazioni è necessario configurare solamente i gestori sul <em>logger</em> radice, e tutte le informazioni da registrare vengono raccolte ed inviate allo stesso posto, come mostra la seguente figura.
+</testo_normale>
+<testo_normale>
+<img src='img/logging_2.png' class="img-responsive center-block" alt='gestore con un logging' >
+</testo_normale>
+<testo_normale>
+La struttura ad albero consente anche l'impostazione di diversi livelli di verbosità, di gestori e di formattatori per diverse parti di una applicazione o libreria per controllare quali messaggi debbano essere registrati e quali ignorati, come da seguente figura.
+</testo_normale>
+<testo_normale>
+<img src='img/logging_3.png' class="img-responsive center-block" alt='diversi livelli e gestori' >
+</testo_normale>
+<titolo_2>
+Integrazione con il modulo Warnings
+</titolo_2>
+<testo_normale>
+Il modulo <strong>logging</strong> si integra con il modulo <strong>warnings</strong> tramite <code>captureWarnings()</code>, che configura <strong>warnings</strong> per inviare messaggi tramite il sistema di registrazione invece che esporli direttamente.
+</testo_normale>
+<py_code>
+# logging_capture_warnings.py
+</py_code>
+<testo_normale>
+Il messaggio di avvertimento viene inviato a un <em>logger</em> chiamato <code>py.warnings</code> usando il livello <code>WARNING</code>.
+</testo_normale>
+<py_output>
+$ python3 logging_capture_warnings.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/logging.html|logging|La documentazione della libreria standard per questo modulo è estensiva, ed include tutorial e materiale di riferimento che va oltre gli esempi qui presentati.
+riferimenti_moduli_modificati.html#24|Note di portabilità da Python 2 a Python 3 per logging|
+#|warnings (in corso di traduzione)|Avvertimenti non fatali
+https://pypi.python.org/pypi/logging_tree|logging_tree|Pacchetto di terze parti di Brandon Rhodes per mostrare l'albero di logging per una applicazione.
+https://docs.python.org/3.5/howto/logging-cookbook.html|Logging cookbook|Parte della documentazione della libreria standard, con esempi di uso di <strong>logging</strong> per diversi compiti.
+</vedi_anche>
+</documento_tradotto>

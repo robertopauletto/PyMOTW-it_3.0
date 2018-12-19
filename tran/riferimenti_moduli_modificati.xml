@@ -215,6 +215,7 @@ locale
 <testo_normale>
 La versione normalizzata del nome della codificat UTF-8 è cambiata da "UTF8" a "UTF-8" visto che i sistemi operativi MAC OS X ed OpenBSD non supportano l'uso di "UTF8" (<a href='http://bugs.python.org/issue10154'>Python issue 1054</a> e <a href='http://bugs.python.org/issue10090'>Python issue 10090</a>)
 </testo_normale>
+<a name="logging"></a>
 <titolo_2>
 logging
 </titolo_2>
