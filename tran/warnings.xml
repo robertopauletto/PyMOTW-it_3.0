@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Strumenti del Linguaggio</categoria><!-- Riepilogo dei tag disponibili -->
+<!-- tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- tag <titolo_1> titolo principale -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <sottotitolo> <sottotitolo> contiene il testo per la sottointestazione di un paragrafo -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <mk_xml_code> contiene il testo che rappresenta l'output di un file xml -->
+<!-- tag <mk_xml_code_lineno> contiene il testo che rappresenta l'output di un file xml con righe numerate -->
+<!-- tag <lista> contiene il testo che rappresenta una lista -->
+<!-- tag <lista_ricorsiva> contiene il testo che rappresenta una lista annidata -->
+<!-- tag <note> contiene il testo che rappresenta un riquadro con una annotazione -->
+<!-- tag <avvertimento> contiene il testo che rappresenta un riquadro con un avvertimento -->
+<!-- tag <def_list> contiene il testo che rappresenta una definition list -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti bibliografici esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+
+<documento_tradotto>
+<titolo_1>
+warnings - Avvisi non fatali
+</titolo_1>
+<descrizione>
+Fornisce avvertimenti non fatali all'utente circa problemi incontrati durante l'esecuzione di un programma.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>warnings</strong> era stato introdotto dal <a href='http://www.python.org/dev/peps/pep-0230' title='PEP 230'>PEP 230</a> come modo per avvertire i programmatori di cambiamenti nel linguaggio o di caratteristiche delle librerie come anticipazione di modifiche di incompatibilit&agrave; retroattiva che sarebbero intervenute con Python 3.0. Può anche essere usato per segnalare errori di configurazione recuperabili o degrado di caratteristiche dovuto a librerie mancanti. E' meglio tuttavia inviare messaggi all'utente tramite il modulo <a href='logging.html'>logging</a>, visto che gli avvertimenti inviati via console potrebbero andare perduti.
+</testo_normale>
+<testo_normale>
+Visto che gli avvertimenti non sono bloccanti, un programma potrebbe incorrere nella stessa situazione suscettibile di avvertimenti molte volte nel corso della sua esecuzione. Il modulo <strong>warnings</strong> sopprime i messaggi ripetuti generati dalla stessa fonte per ridurre il disturbo causato dal vedere lo stesso messaggio pi&ugrave; e pi&ugrave; volte. E' possibile controllare i messaggi stampati caso per caso usando le opzioni da riga di comando dell'interprete oppure chiamando funzioni del modulo <strong>warnings</strong>.
+</testo_normale>
+<titolo_2>
+Categorizzare e Filtrare
+</titolo_2>
+<testo_normale>
+Gli avvertimenti sono categorizzati usando sottoclassi della classe di eccezione <em>built-in</em> <code>Warning</code>. Diversi valori standard sono descritti nella documentazione in linea del modulo <strong>exceptions</strong>; messaggi personalizzati possono essere aggiunti subclassando da <code>Warning</code>.
+</testo_normale>
+<testo_normale>
+Gli avvertimenti sono elaborati in base alle impostazioni di <em>filtri</em>. Un filtro consiste di 5 parti: <code>action</code> (azione), <code>message</code> (messaggio), <code>category</code> (categoria), <code>module</code> (modulo) e <code>line number</code> (numero di riga). La porzione <code>message</code> del filtro è una espressione regolare usata per trovare corrispondenza con il testo di avvertimento. <code>category</code> è un nome di una classe di eccezione. <code>module</code> contiene una espressione regolare per trovare corrispondenza con il nome del modulo che sta generando l'avvertimento. <code>line number</code> può essere usato per modificare la gestione di occorrenze specifiche di un avvertimento.
+</testo_normale>
+<testo_normale>
+Quando viene generato un avvertimento, viene confrontato con tutti i filtri registrati. Il primo filtro che trova corrispondenza controlla l'azione intrapresa per l'avvertimento. Se non viene trovata alcuna corrispondenza, viene intrapresa l'azione predefinita. Le azioni comprese dal meccanismo di filtro sono elencate nella tabella sottostante:
+</testo_normale>
+<tabella_semplice>
+AZIONE;SIGNIFICATO
+<CODE>error</CODE>;Trasforma l'avvertimento in una eccezione
+<CODE>ignore</CODE>;Ignora l'avvertimento
+<CODE>always</CODE>;Emette sempre l'avvertimento
+<CODE>default</CODE>;Stampa l'avvertimento la prima volta che viene generato da ciascuna locazione
+<CODE>module</CODE>;Stampa l'avvertimento la prima volta che viene generato da ciascun modulo
+<CODE>once</CODE>;Stampa l'avvertimento solo la prima volta che viene generato
+</tabella_semplice>
+<titolo_2>
+Generare Avvertimenti
+</titolo_2>
+<testo_normale>
+Il modo pi&ugrave; semplice di emettere un avvertimento nel proprio codice &egrave; di chiamare <code>warn()</code> passando il messaggio come argomento:
+</testo_normale>
+<py_code>
+# warnings_warn.py
+</py_code>
+<testo_normale>
+Successivamente, quando il programma viene eseguito, viene stampato il messaggio
+</testo_normale>
+<py_output>
+$ python3 warnings_warn.py
+</py_output>
+<testo_normale>
+Sebbene il messaggio sia stato stampato, il comportamento predefinito &egrave; quello di procedere oltre l'avvertimento ed eseguire il resto del programma. Si pu&ograve; modificare questo comportamento con un filtro.
+</testo_normale>
+<py_code>
+# warnings_warn_raise.py
+</py_code>
+<testo_normale>
+In questo esempio la funzione <code>simplefilter()</code> aggiunge una voce alla lista interna dei filtri per dire al modulo <strong>warnings</strong> di sollevare una eccezione quando viene rilasciato un avvertimento <code>UserWarning</code>
+</testo_normale>
+<py_output>
+$ python3 warnings_warn_raise.py
+</py_output>
+<testo_normale>
+Si pu&ograve; anche controllare il comportamento del filtro da riga di comando, tramite l'opzione <code>-W</code> dell'interprete. Si specifichino le proprietà del filtro come stringa con le cinque parti sopra citate separate da <code>:</code>; ad esempio se <code>warnings_warn.py</code> viene eseguito con un filtro impostato  per sollevare un <strong>UserWarning</strong>, viene prodotta una eccezione.
+</testo_normale>
+<py_output>
+$ python3 -W "error::UserWarning::0" warnings_warn.py
+</py_output>
+<testo_normale>
+Visto che i campi per <code>message</code> e <code>module</code> sono vuoti, sono interpretati per trovare corrispondenza con qualsiasi cosa.
+</testo_normale>
+<titolo_2>
+Filtrare con Modelli
+</titolo_2>
+<testo_normale>
+Per filtrare da programma su regole pi&ugrave; complesse si usi <code>filterwarnings()</code>. Ad esempio per filtrare in base al contenuto del testo del messaggio si passi un modello di espressione regolare come argomento di <code>message</code>.
+</testo_normale>
+<py_code>
+# warnings_filterwarnings_message.py
+</py_code>
+<testo_normale>
+Il modello contiene <code>"non mostrare"</code>, ma il vero messaggio usa <code>"Non mostrare"</code>. La corrispondenza viene trovata perch&egrave; l'espressione regolare &egrave; sempre compilata per ignorare il confronto tra maiuscole e minuscole.
+</testo_normale>
+<py_output>
+$ python3 warnings_filterwarnings_message.py
+</py_output>
+<testo_normale>
+Il programma di esempio che segue genera due avvertimenti.
+</testo_normale>
+<py_code>
+# warnings_filter.py
+</py_code>
+<testo_normale>
+Uno degli avvertimenti può essre ignorato usando l'argomento di filtro da riga di comando
+</testo_normale>
+<py_output>
+$ python3 -W "ignore:non mostrare:UserWarning::0" warnings_filtering.py
+</py_output>
+<testo_normale>
+Le stesse regole di corrispondenza del modello si applicano al nome del modulo sorgente che contiene la chiamata che ha generato l'avvertimento. E' possibile sopprimere tutti gli avvertimenti dal modulo <code>warnings_filter</code> passando il nome del modulo come modello all'argomento <code>module</code>.
+</testo_normale>
+<py_code>
+# warnings_filterwarnings_module.py
+</py_code>
+<testo_normale>
+Visto che &egrave; attivo il filtro, nessun avvertimento viene emesso all'importazione di <code>warnings_filter</code>
+</testo_normale>
+<py_output>
+$ python3  warnings_filterwarnings_module.py
+</py_output>
+<testo_normale>
+Per sopprimere solo l'avvertimento nella riga 6 di <code>warnings_filter</code>, si includa il numero di riga come ultimo argomento per <code>filterwarnings()</code>. Si usi l'effettivo numero di riga dal file sorgente per limitare il filtro, oppure <code>0</code> per applicare il filtro a tutte le occorrenze del messaggio
+</testo_normale>
+<py_code>
+# warnings_filterwarnings_lineno.py
+</py_code>
+<testo_normale>
+Il modello trova corrispondenza con qualunque messaggio, quindi gli argomenti rilevanti sono il nome del modulo e il numero di riga.
+</testo_normale>
+<py_output>
+$ python3  warnings_filterwarnings_lineno.py
+
+.../warnings_filter.py:5: UserWarning: Mostra questo messaggio
+  warnings.warn('Mostra questo messaggio')
+</py_output>
+<titolo_2>
+Avvertimenti Ripetuti
+</titolo_2>
+<testo_normale>
+Nella modalit&agrave; predefinita la maggior parte degli avvertimenti sono stampati solo la prima volta che vengono rilevati in una certa locazione, laddove per locazione si intende la combinazione modulo/numero riga dove viene generato l'avvertimento.
+</testo_normale>
+<py_code>
+# warnings_repeated.py
+</py_code>
+<testo_normale>
+Questo esempio chiama la stessa funzione diverse volte, ma produce un singolo avvertimento.
+</testo_normale>
+<py_output>
+$ python3 warnings_repeated.py
+</py_output>
+<testo_normale>
+L'azione <code>"once"</code> (si veda tabella qui sopra) pu&ograve; essere usata per sopprimere istanze dello stesso messaggio da locazioni diverse.
+</testo_normale>
+<py_code>
+# warnings_once.py
+</py_code>
+<testo_normale>
+Il testo del messaggio per tutti gli avvertimenti viene salvato e sono stampati solo i messaggi univoci.
+</testo_normale>
+<py_output>
+$ python3 warnings_once.py
+</py_output>
+<testo_normale>
+Similarmente, <code>module</code> sopprimer&agrave; messaggi ripetuti dallo stesso modulo, non importa da quale numero di riga.
+</testo_normale>
+<titolo_2>
+Funzioni di Consegna Messaggio Alternative
+</titolo_2>
+<testo_normale>
+Normalmente i messaggi vengono stampati verso <code>sys.stderr</code>. E' possibilie modificare questo comportamento sostituendo la funzione <code>showwarning()</code> all'interno del modulo <strong>warnings</strong>. Ad esempio se si vuole che i messaggi siano destinati ad un file di log invece che al canale di errore standard, si rimpiazzi <code>showwarnings()</code> con una funzione che registra gli avvertimenti.
+</testo_normale>
+<py_code>
+# warnings_showwarning.py
+</py_code>
+<testo_normale>
+Gli avvertimenti sono emessi assieme al resto dei messaggi di registrazione quando viene chiamato <code>warn()</code>,
+</testo_normale>
+<py_output>
+$ python3 warnings_showwarning.py
+</py_output>
+<titolo_2>
+Formattazione
+</titolo_2>
+<testo_normale>
+Se sta bene che gli avvertimenti vadano verso il canale di errore standard, ma non piace la formattazione, &egrave; possibile sostituire <code>formatwarning()</code>.
+</testo_normale>
+<py_code>
+# warnings_formatwarning.py
+</py_code>
+<testo_normale>
+La funzione di formattazione deve restituire una singola stringa che contiene la rappresentazione dell'avvertimento da visualizzare all'utente.
+</testo_normale>
+<py_output>
+$ python3 warnings_formatwarning.py
+</py_output>
+<titolo_2>
+Livello di Stack negli Avvertimenti
+</titolo_2>
+<testo_normale>
+Nella modalità predefinita il messaggio di avvertimento include la riga sorgente che lo ha generato, quando disponibile. Non &egrave; sempre cos&igrave; utile vedere la riga di codice con l'effettivo messaggio di avvertimento. Si pu&ograve; dire a <code>warn()</code> di quanto risalire lo stack per trovare la riga che ha chiamato la funzione contenente l'avvertimento. In questo modo gli utilizzatori di funzioni deprecate vedono dove &egrave; stata chiamata la funzione e non l'implementazione della funzione.
+</testo_normale>
+<py_code_lineno>
+# warnings_warn_stacklevel.py
+</py_code_lineno>
+<testo_normale>
+In questo esempio <code>warn()</code> deve risalire 2 livelli di stack, uno per se stesso ed un altro per <code>old_function()</code>
+</testo_normale>
+<py_output>
+$ python3 warnings_warn_stacklevel.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/warnings.html|warnings|La documentazione della libreria standard per questo modulo
+https://www.python.org/dev/peps/pep-0230|PEP 230|Warning Framework
+#|eccezioni|Classi base per eccezioni ed avvertimenti
+logging.html|logging|Un meccanismo alternativo per consegnare messaggi è di scriverli nel registro.
+</vedi_anche>
+</documento_tradotto>
