@@ -1,7 +1,10 @@
+# dis_slow_loop.py
+
 #!/usr/bin/env python
 # encoding: utf-8
 
-class Dictionary(object):
+
+class Dictionary:
 
     def __init__(self, words):
         self.by_letter = {}

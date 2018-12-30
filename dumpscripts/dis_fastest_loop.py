@@ -1,9 +1,12 @@
-#!/usr/bin/env python
+# dis_fastest_loop.py
+
+#!/usr/bin/env python3
 # encoding: utf-8
 
 import collections
 
-class Dictionary(object):
+
+class Dictionary:
 
     def __init__(self, words):
         self.by_letter = collections.defaultdict(list)

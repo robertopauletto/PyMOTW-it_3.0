@@ -1,4 +1,6 @@
-#!/usr/binf/env python
-# -*- coding: UTF-8 -*-
+# dis_simple.py
+
+#!/usr/binf/env python3
+# encoding: utf-8
 
 my_dict = { 'a':1 }

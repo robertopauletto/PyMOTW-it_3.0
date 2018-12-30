@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>Strumenti del Linguaggio</categoria>
+<titolo_1>
+dis - Disassemblatore di Bytecode Python
+</titolo_1>
+<descrizione>
+Converte oggetti codice in una rappresentazione leggibile dall'umano dei <a href='https://www.wikiwand.com/it/Bytecode'>bytecode</a> a scopo di analisi.
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>dis</strong> contiene funzioni per lavorare con <a href='https://www.wikiwand.com/it/Bytecode'>bytecode</a> Python per <em>disassemblarlo</em> in una forma più leggibile dall'umano. Riesaminare i <a href='https://www.wikiwand.com/it/Bytecode'>bytecode</a> che l'interprete sta eseguendo è un buon modo per realizzare una <em>sintonizzazione manuale</em> di <em>tight loop</em> (Per tight loop si intende un ciclo che contiene poche istruzioni e che esegue iterazioni per molte volte, oppure un ciclo che usa pesantemente risorse in I/O oppure del processore, senza dividerle adeguatamente con altri programmi in esecuzione nel sistema operativo - n.d.t.) ed eseguire altri tipi di ottimizzazioni. E' anche utile per trovare <a href="https://www.wikiwand.com/it/Race_condition"><em>race conditions</em></a> in applicazioni <a href='http://www.wikiwand.com/it//Multithreading'><em>multi thread</em></a>, visto che è possibile stabilire il punto nel proprio codice nel quale il controllo del thread potrebbe trasferirsi.
+</testo_normale>
+<avvertimento>
+L'uso di bytecode è un dettaglio di implementazione specifica alla versione dell'interprete CPython. Si faccia riferimento a <code>Include/opcode.h</code> nel codice sorgente per la versione dell'interprete che si sta usando per trovare la lista prefissata dei bytecode.
+</avvertimento>
+<titolo_2>
+Disassemblaggio Basico
+</titolo_2>
+<testo_normale>
+La funzione <code>dis()</code> stampa la rappresentazione disassemblata di un sorgente di codice Python (modulo, classe, metodo, funzione od oggetto codice). Un modulo come <code>dis_simple.py</code> può essere disassemblato eseguendo <code>dis</code> dalla riga di comando.
+</testo_normale>
+<py_code_lineno>
+# dis_simple.py
+</py_code_lineno>
+<testo_normale>
+Il risultato è organizzata in colonne con il numero di riga originale del sorgente, l'indirizzo dell'istruzione all'interno dell'oggetto codice, il nome <a href='http://wikiwand.com/it/Opcode'>opcode</a> e qualsivoglia argomento passato a <a href='http://wikiwand.com/it/Opcode'>opcode</a>.
+</testo_normale>
+<py_output>
+$ python3 -m dis dis_simple.py
+</py_output>
+<testo_normale>
+In questo caso, il sorgente si traduce in 4 diverse operazioni per creare e popolare il dizionario, quindi salvare i risultati in una variabile locale. Visto che l'interprete Python è basato sullo <a href='https://www.wikiwand.com/it/Stack'>stack</a>, i primi passi sono il porre le costanti nello <a href='https://www.wikiwand.com/it/Stack'>stack</a> nel corretto ordine con <code>LOAD_CONST</code>, quindi usare <code>BUILD_MAP</code> per estrarre la nuova chiave ed il valore da aggiungere al dizionario. L'oggetto <code>dict</code> risultante viene legato al nome <code>my_dict</code> con <code>STORE_NAME</code>.
+</testo_normale>
+<titolo_2>
+Disassemblare Funzioni
+</titolo_2>
+<testo_normale>
+Sfortunatamente, il disassemblaggio di un intero modulo non esegue una ricorsione all'interno delle funzioni automaticamente.
+</testo_normale>
+<py_code_lineno>
+# dis_function.py
+</py_code_lineno>
+<testo_normale>
+I risultati del disassemblaggio di <code>dis_function.py</code> mostrano le operazioni per il caricamento dell'oggetto codice della funzione dentro lo stack, quindi la trasformazione in una funzione (<code>LOAD_CONST</code>, <code>MAKE_FUNCTION</code>), seguito del corpo della funzione.
+</testo_normale>
+<py_output>
+$ python3 -m dis dis_function.py
+</py_output>
+<testo_normale>
+Versioni precedenti di Python non incluono il corpo delle funzioni nel modulo disassemblato automaticamente. Per vedere la versione disassemblata di una funzione, si passi la funzione direttamente a <code>dis()</code>
+</testo_normale>
+<py_output>
+$ python3  dis_function.py
+</py_output>
+<testo_normale>
+Per stampare un sommario della funzione, incluse informazioni circa gli argomenti ed i nomi che usa, si chiami <code>show_code()</code>, passando la funzione come primo argomento.
+</testo_normale>
+<py_code>
+# dis_show_code.py
+</py_code>
+<testo_normale>
+L'argomento per <code>show_code()</code> viene passato a <code>code_info()</code>, che ritorna un sommario ben formattato della funzione, metodo, stringa di codice od altro oggetto codice, pronto per la stampa.
+</testo_normale>
+<py_output>
+$ python3 dis_show_code.py
+</py_output>
+<titolo_2>
+Classi
+</titolo_2>
+<testo_normale>
+Anche le classi possono essere passate a <code>dis</code>, nel qual caso tutti i metodi sono di volta in volta disassemblati.
+</testo_normale>
+<py_code_lineno>
+# dis_class.py
+</py_code_lineno>
+<testo_normale>
+I metodi sono elencati in ordine alfabetico, non nell'ordine nel quale appaiono nel file.
+</testo_normale>
+<py_output>
+$ python3  dis_class.py
+</py_output>
+<titolo_2>
+Codice Sorgente
+</titolo_2>
+<testo_normale>
+E' spesso più conveniente lavorare con il codice sorgente di un programma, piuttosto che con i corrispondenti oggetti codice. Le funzioni in <strong>dis</strong> accettano argomenti stringa che contengono codice sorgente, quindi li convertono in oggetti codice prima di produrre il disassemblaggio od altro risultato.
+</testo_normale>
+<py_code>
+# dis_string.py
+</py_code>
+<py_output>
+$ python3 dis_string.py
+</py_output>
+<titolo_2>
+Usare il Disassemblaggio per Debug
+</titolo_2>
+<testo_normale>
+Talvolta quanto si sta eseguendo il debug di una eccezione, può essere utile vedere quale bytecode ha causato il problema. Ci sono un paio di metodi per disassemblare il codice intorno ad un errore. Il primo è usare <code>dis.dis()</code> nell'interprete interattivo per ottenere informazioni circa l'ultima eccezione. Se non viene passato a <code>dis()</code> alcun argomento, allora viene cercata una eccezione e viene mostrato il disassemblaggio dell'inizio dello stack che la ha causata
+</testo_normale>
+<py_output>
+$ python3
+
+Python 3.6.7 (default, Oct 22 2018, 11:32:17)
+[GCC 8.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import dis
+>>> j = 4
+>>> i = i + 4
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'i' is not defined
+>>> dis.dis()
+  1 -->       0 LOAD_NAME                0 (i)
+              2 LOAD_CONST               0 (4)
+              4 BINARY_ADD
+              6 STORE_NAME               0 (i)
+              8 LOAD_CONST               1 (None)
+             10 RETURN_VALUE
+>>>
+</py_output>
+<testo_normale>
+Il simbolo <code>--></code> dopo il numero di riga indica l'<a href='https://www.wikiwand.com/it/Opcode'>opcode</a> che ha causato l'errore. Non esiste nessuna variabile <code>i</code> definita, quindi il valore associato a quel nome non può essere caricato nello stack.
+</testo_normale>
+<testo_normale>
+Un programma può anche stampare le informazioni sul <em>traceback</em> attivo passandolo direttamente a <code>distb()</code>. In questo esempio, c'è una eccezione <code>DivideByZero</code>, tuttavia, visto che la formula contiene due divisioni, potrebbe non essere chiaro quale parte è zero.
+</testo_normale>
+<py_code_lineno>
+# dis_traceback.py
+</py_code_lineno>
+<testo_normale>
+E' facile identificare il valore errato quando esso viene caricato nello <em>stack</em> nella versione disassemblata. L'operazione errata viene evidenziata con <code>--></code>, e la riga precedente spinge il valore  di <code>i</code> nello <em>stack</en>.
+</testo_normale>
+<py_output>
+$ python3  dis_traceback.py
+</py_output>
+<titolo_2>
+Analisi delle Prestazioni dei Cicli
+</titolo_2>
+<testo_normale>
+Oltre ad eseguire il debug degli errori, <strong>dis</strong> può anche aiutare ad identificare problemi di prestazioni nel proprio codice. Esaminare il codice disassemblato è particolarmente utile con i <em>tight loop</en> dove il numero di istruzioni Python  è basso ma esse si traducono in un insieme di  <en>bytecode</em> inefficiente. Si può vedere come il disassemblaggio viene in aiuto esaminando qualche diversa implementazione di una classe, <code>Dictionary</code>, che legge una lista di parole e le raggruppa in base alla loro prima lettera.
+</testo_normale>
+<py_code_lineno>
+# dis_test_loop.py
+</py_code_lineno>
+<testo_normale>
+Si può usare <em class='code'>dis_test_loop.py</em> per eseguire ogni versione della classe <code>Dictionary</code>, a partire con una implementazione lineare, ma lenta.
+</testo_normale>
+<py_code_lineno>
+# dis_slow_loop.py
+</py_code_lineno>
+<testo_normale>
+Eseguendo il programma di test con questa versone viene mostrato il programma disassemblato ed il tempo impiegato per l'esecuzione.
+</testo_normale>
+<py_output>
+$ python3   dis_test_loop.py dis_slow_loop
+</py_output>
+<testo_normale>
+Il risultato mostra che <code>dis_slow_loop.py</code> ha impiegato 0.0131 secondi per caricare 102305 parole nella copia di <code>/usr/share/dict/words</code> (questi dati sono rilevati dall'esecuzione sul mio computer su di un s.o. Linux a 64 bit - n.d.t.). Non è male, tuttavia come si può rilevare dal codice disassemblato  il ciclo sta eseguendo più lavoro di quello che serve. Quando entra nel ciclo, nell'<em'>opcode</em> 13, imposta un contesto di eccezione (<code>SETUP_EXCEPT</code>). Poi gli occorrono 6 <em>opcode</em> per trovare <code>self.by_letter[word[0]]</code> prima di aggiungere <code>word</code> alla lista. Se si verifica una eccezione in quanto la chiave <code>word[0]</code> non si trova ancora nel dizionario, il gestore di eccezione esegue tutto lo stesso lavoro per determinare <code>word[0]</code> (3 <em>opcode</em>) ed impostare <code>self.by_letter[word[0]]</code> ad una nuova lista che contiene la parola.
+</testo_normale>
+<testo_normale>
+Una tecnica per eliminare l'impostazione dell'eccezione è di popolare precedentemente <code>self.by_letter</code> con una lista per ognuna delle lettere dell'alfabeto. In questo modo si dovrebbe sempre trovare la lista alla quale si vuole assegnare la nuova parola, ed il valore può essere salvato dopo  la ricerca .
+</testo_normale>
+<py_code_lineno>
+# dis_faster_loop.py
+</py_code_lineno>
+<testo_normale>
+La modifica riduce il numero di <em>opcode</ema> di circa la metà, ma riduce il tempo di esecuzione solo fino a 0.0112 (sempre sul mio computer - n.d.t.). Ovviamente la gestione dell'eccezione generava qualche appesantimento, ma non così tanto.
+</testo_normale>
+<py_output>
+$ python3 dis_test_loop.py dis_faster_loop
+</py_output>
+<testo_normale>
+E' possibile migliorare ulteriormente le prestazioni spostando la ricerca della lettera <code>self.by_letter</code> all'esterno del ciclo (il valore, dopo tutto, non cambia).
+</testo_normale>
+<py_code_lineno>
+# dis_fastest_loop.py
+</py_code_lineno>
+<testo_normale>
+Gli <em>opcode</em> 0-6 adesso cercano il valore di <code>self.by_letter</code> e lo salvano come variabile locale <code>by_letter</code>. L'uso di una variabile locale richiede un solo <em>opcode</em>, in luogo dei 2 (l'istruzione 22 utilizza <code>LOAD_FAST</code> per piazzare il dizionario nello <em>stack</em>). Dopo questa modifica, il tempo di esecuzione si è ridotto a 0.0098 secondi (sul mio computer - n.d.t.).
+</testo_normale>
+<py_output>
+$ python3  dis_test_loop.py dis_fastest_loop
+
+</py_output>
+<testo_normale>
+Una ulteriore ottimizzazione, suggerita da <a href='http://rhodesmill.org/brandon/'>Brandon Rhodes</a> è di eliminare interamente la versione Python del ciclo <code>for</code>. Se si utilizza <code>itertools.groupby()</code> per sistemare l'input, l'iterazione viene spostata in C. E' possibile farlo in sicurezza visto che si sa che i dati in input sono già ordinati, viceversa avrebbero dovuto essere ordinati in precedenza.
+</testo_normale>
+<py_code_lineno>
+# dis_eliminate_loop.py
+</py_code_lineno>
+<testo_normale>
+La versione che utilizza <em'>itertools</em> impiega solamente 0.0044 secondi per essere eseguita  (meno della metà del tempo della versione di partenza sul mio computer - n.d.t.)
+</testo_normale>
+<py_output>
+$ python3   dis_test_loop.py dis_eliminate_loop
+</py_output>
+<titolo_2>
+Ottimizzazioni del Compilatore
+</titolo_2>
+<testo_normale>
+Il disassemblare sorgente compilato rivela anche alcune delle ottimizzazioni eseguite dal compilatore. Ad esempio espressioni letterali sono unite durante la compilazione, dove possibile.
+</testo_normale>
+<py_code_lineno>
+# dis_constant_folding.py
+</py_code_lineno>
+<testo_normale>
+Nessun valore nelle espressioni nelle righe da 5 a 7 possono modificare il modo in cui sono eseguite le operazioni, quindi il risultato delle espressioni può essere calcolato in fase di compilazione ed unite in singole istruzioni <strong>LOAD_CONST</strong>. Il che non è vero per le istruzioni nelle righe da 10 a 12. Visto che in quelle espressioni è coinvolta una variabile, ed una variabile potrebbe fare riferimento ad un oggetto che sovrascrive l'operatore coinvolto, la valutazione deve essere differita al tempo dell'esecuzione.
+</testo_normale>
+<py_output>
+$ python3 -m dis dis_constant_folding.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/dis.html|dis|La documentazione della libreria standard per questo modulo, compreso l'elenco delle <a href='https://docs.python.org/3.5/library/dis.html#python-bytecode-instructions'>istruzioni bytecode</a>
+http://www.informit.com/store/product.aspx?isbn=0672329786|Python Essential Reference, 4th Edition, David M. Beazley|
+http://thomas.apestaart.org/log/?p=927|thomas.apestart.org "Python Disassembly"|Una breve discussione circa la differenza tra l'immissione di valori in un dizionario tra Python 2.5 e 2.6
+http://stackoverflow.com/questions/869229/why-is-looping-over-range-in-python-faster-than-using-a-while-loop|Why is looping over range() in Python faster than using a while loop?|Una discussione su StackOverflow.com confrontando due esempi di iterazione visti attraverso i loro <em>bytecode</em> disassemblati.
+http://code.activestate.com/recipes/277940/|Decorator for binding constants at compile time|Una ricetta di Python Cookbook di Raymond Hettinger e Skip Montanaro con un decoratore di funzione che riscrive i  <en>bytecode</en> per una funzione per inserire costanti globali per evitare ricerche di nomi in fase di esecuzione.
+</vedi_anche>
+</documento_tradotto>

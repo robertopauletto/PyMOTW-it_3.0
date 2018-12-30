@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# dis_eliminate_loop.py
+
+#!/usr/bin/env python3
 # encoding: utf-8
 
 import operator
 import itertools
 
-class Dictionary(object):
+
+class Dictionary:
 
     def __init__(self, words):
         self.by_letter = {}
@@ -12,6 +15,12 @@ class Dictionary(object):
 
     def load_data(self, words):
         # Disposti per lettera
-        grouped = itertools.groupby(words, key=operator.itemgetter(0))
-        # Salva gli insiemi di parola disposti
-        self.by_letter = dict((group[0][0], group) for group in grouped)
+        grouped = itertools.groupby(
+            words,
+            key=operator.itemgetter(0),
+        )
+        # Salva gli insiemi di parole disposti
+        self.by_letter = {
+            group[0][0]: group
+            for group in grouped
+        }

@@ -1,4 +1,4 @@
-# dis_function.py
+# dis_show_code.py
 
 #!/usr/bin/env python3
 # encoding: utf-8
@@ -11,4 +11,4 @@ def f(*args):
 
 if __name__ == '__main__':
     import dis
-    dis.dis(f)
+    dis.show_code(f)
