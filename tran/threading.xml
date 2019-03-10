@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Concomitanze con Processi, Thread e Coroutine</categoria>
+<documento_tradotto>
+<titolo_1>
+threading - Gestire Operazioni Concomitanti all'Interno di un Processo
+</titolo_1>
+<descrizione>
+Gestisce parecchi thread di esecuzioni
+
+</descrizione>
+<testo_normale>
+L'utilizzo di <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'>thread</a>  consente a un programma di eseguire operazioni multiple in concomitanza nello stesso spazio di processo.
+</testo_normale>
+<titolo_2>
+Oggetti Thread
+</titolo_2>
+<testo_normale>
+Il modo più semplice di usare un thread è  di istanziare <code>Thread</code> con una funzione obiettiv, chiamare <code>start()</code> e lasciare che inizi a lavorare.
+</testo_normale>
+<py_code>
+# threading_simple.py
+</py_code>
+<testo_normale>
+Il risultato è costituito da cinque righe, ciascuna contenente la parola "Esecutore".
+</testo_normale>
+<py_output>
+$ python3 threading_simple.py
+</py_output>
+<testo_normale>
+E' utile essere in grado di distribuire un thread e passargli argomenti per dirgli quale lavoro svolgere. Un qualsiasi tipo di oggetto può essere passato come argomento al thread. Questo esempio passa un numero, che il thread stampa.
+</testo_normale>
+<py_code>
+# threading_simpleargs.py
+</py_code>
+<testo_normale>
+L'argomento intero ora viene incluso nel messaggio stampato da ciascun thread
+</testo_normale>
+<py_output>
+$ python3 threading_simpleargs.py
+</py_output>
+<titolo_2>
+Determinare il Thread Corrente
+</titolo_2>
+<testo_normale>
+Utilizzare argomenti per identificare o nominare il thread è poco gestibile e non necessario. Ogni istanza di <code>Thread</code> ha un nome con un valore predefinito che può essere modificato non appena il thread è creato. Attribuire nomi ai thread è utile in processi server con <me>thread</me> di servizi multipli che gestiscono differenti operazioni.
+</testo_normale>
+<py_code>
+# threading_names.py
+</py_code>
+<testo_normale>
+Il risultato del debug include il nome del thread corrente su ciascuna riga. Le righe con "<code>Thread-1</code>" nella colonna del nome del thread corrisponde al thread senza nome <code>w2</code>.
+</testo_normale>
+<py_output>
+$ python3 threading_names.py
+</py_output>
+<testo_normale>
+Molti programmi non usano <code>print</code> per debug. Il modulo <a href='logging.html' target='_blank'>logging</a> supporta l'incorporazione del nome thread in ogni messaggio registrato usando il codice di formattazione <code>$(threadname)s</code>. Includere i nomi dei thread nel messaggi registrati rende possibile la tracciatura di detti messaggi verso la loro sorgente.
+</testo_normale>
+<py_code>
+# threading_names_log.py
+</py_code>
+<testo_normale>
+<a href='logging.html' target='_blank'>logging</a> è anche <a href='https://www.wikiwand.com/it/Thread_safety' target='_blank'><em>thread-safe</em></a>, quindi i messaggi da diversi thread sono mantenuti distinti nell'output.
+</testo_normale>
+<py_output>
+$ python3 threading_names_log.py
+</py_output>
+<titolo_2>
+Thread Demoni contro Thread Non Demoni
+</titolo_2>
+<testo_normale>
+Fino a questo punto, i programmi di esempio sono scritti in modo da attendere implicitamente di uscire fino a quando tutti i thread hanno completato il proprio lavoro. Talvolta i programmi producono un thread come <a href='https://www.wikiwand.com/it/Demone_(informatica)' target='_blank'>demone</a> che viene eseguito senza impedire l'uscita del programma principale. L'utilizzo dei thread come demoni è utile per servizi dove potrebbe non esserci un modo semplice per interrompere il thread, o deve lasciar morire il thread nel mezzo dell'esecuzione del proprio lavoro non comporta una perdita o corruzione di dati (ad esempio un thread che genera "battiti" per uno strumento di monitoraggio di un servizio). Per contrassegnare un thread come demone si passi <code>daemon=True</code> quando si lo si costruisce oppure si chiami <code>set_daemon()</code> con <code>True</code>. La modalità predefinita per i thread è non demone.
+</testo_normale>
+<py_code>
+# threading_daemon.py
+</py_code>
+<testo_normale>
+Il risultato non comprende il messaggio "<code>Uscita</code>" dal thread demone, visto che tutti i thread non demoni (compreso quello principale) sono usciti prima che il thread demone si "risvegli" dalla chiamata di <code>sleep()</code>.
+</testo_normale>
+<py_output>
+$ python3 threading_daemon.py
+</py_output>
+<testo_normale>
+Per attendere che un thread demone abbia completato il proprio lavoro, si usi il metodo <code>join()</code>.
+</testo_normale>
+<py_code>
+# threading_daemon_join.py
+</py_code>
+<testo_normale>
+L'atteendere l'uscita del thread demone usando <code>join()</code> fa sì che ci sia la possibilità di produrre il messaggio "<code>Uscita</code>".
+</testo_normale>
+<py_output>
+$ python3 threading_daemon_join.py
+</py_output>
+<testo_normale>
+Nella modalità predefinita, <code>join()</code> blocca indefinitivamente. E' anche possibile passare un valore a virgola mobile che rappresenti il numero di secondi da attendere prima che il thread diventi inattivo. Se il thread non si completa in quel lasso di tempo, <code>join()</code> ritorna comunque.
+</testo_normale>
+<py_code>
+# threading_daemon_join_timeout.py
+</py_code>
+<testo_normale>
+Visto che il periodo di attesa passato è minore di quello nel quale il thread viene messo in pausa, il thread è ancora "vivo" dopo che <code>join()</code> ritorna.
+</testo_normale>
+<py_output>
+$ python3 threading_daemon_join_timeout.py
+</py_output>
+<titolo_2>
+Enumerare tutti i Thread
+</titolo_2>
+<testo_normale>
+Non è necessario mantenere un <em>handle</em> esplicito per tutti i thread demoni per assicurarsi che siano completati prima di uscire dal processo principale. <code>enumerate()</code> ritorna una lista delle istanze attive di <code>Thread</code>. La lista comprende il thread corrente, e visto che effettuare il <code>join()</code> sul thread corrente introdurrebbe una situazione di stallo, deve essere ignorato.
+</testo_normale>
+<py_code>
+# threading_enumerate.py
+</py_code>
+<testo_normale>
+Visto che l'elaboratore è in pausa per un periodo casuale di tempo, il risultato da questo programma potrebbe variare.
+</testo_normale>
+<py_output>
+$ python3 threading_enumerate.py
+</py_output>
+<titolo_2>
+Subclassare i Thread
+</titolo_2>
+<testo_normale>
+Alla partenza, <code>Thread</code> esegue alcune basiche inizializzazioni, quindi chiamo il proprio metodo <code>run()</code>, che a sua volta chiama la funzione passata al costuttore. Per creare una sottoclasse di <code>Thread</code> si deve sovrascrivere <code>run()</code> per eseguire qualsiasi cosa si ritenga necessario
+</testo_normale>
+<py_code>
+# threading_subclass.py
+</py_code>
+<testo_normale>
+Il valore di ritorno da <code>run()</code> viene ignorato.
+</testo_normale>
+<py_output>
+$ python3 threading_subclass.py
+</py_output>
+<testo_normale>
+Visto che i valori di <code>args</code> e <code>kwargs</code> passati al costruttore di <code>Thread</code> sono salvati in variabili private usando nomi prefissati da "<code>__</code>", non  sono facilmente accessibili da una sottoclasse. Per passare argomenti ad un tipo di thread personalizzato, si ridefinisca il costruttore per salvare i valori in un attributo di  istanza che possa essere visto nella sottoclasse.
+</testo_normale>
+<py_code>
+# threading_subclass_args.py
+</py_code>
+<testo_normale>
+<code>MyThreadWithArgs</code> usa la stessa API di <code>Thread</code>, ma un'altra classe potrebbe facilmente cambiare il metodo costruttore per ricevere più o differenti argomenti più direttamente legati allo scopo del thread, così come una qualsiasi altra classe.
+</testo_normale>
+<py_output>
+$ python3 threading_subclass_args.py
+</py_output>
+<titolo_2>
+Thread in Timer
+</titolo_2>
+<testo_normale>
+Un esempio di una ragione per derivare <code>Thread</code> è fornito da <code>Timer</code>, anch'esso incluso in <strong>threading</strong>. Un <code>Timer</code> inizia il suo lavoro dopo un differimento, e può essere cancellato in qualsiasi momento all'interno di quel periodo di differimento.
+</testo_normale>
+<py_code>
+# threading_timer.py
+</py_code>
+<testo_normale>
+In questo esempio il secondo timer non viene mai eseguito, ed il primo sembra venga eseguito dopo che il resto del programma principale ha finisto. Visto che non è un thread demone, viene implicitamente unito quando il thread principale termina.
+</testo_normale>
+<py_output>
+$ python3 threading_timer.py
+</py_output>
+<titolo_2>
+Segnalazioni fra Thread
+</titolo_2>
+<testo_normale>
+Anche se lo scopo dell'usare thread multipli è di eseguire in concorrenza operazioni separate, ci sono volte nelle quali è importante essere in grado di sincronizzare le operazioni in due o più thread. Un semplice modo per comunicare tra thread in sicurezza è rappresentato da oggetti evento. Un oggetto <code>Event</code> gestisce un flag interno che i chiamanti possono controllare tramite i metodi <code>set()</code> e <code>clear()</code>. Altri thread possono usare <code>wait()</code> per mettersi in pausa fino a che il flag è impostato, di fatto bloccandosi fino a quando gli si consente di continuare.
+</testo_normale>
+<py_code>
+# threading_event.py
+</py_code>
+<testo_normale>
+Il metodo <code>wait()</code> riceve un argomento che rappresenta il numero di secondi da attendere prima che l'evento vada in time out. Ritorna un booleano che indica se l'evento sia impostato o meno, in modo che il chiamante sappia perchè <code>wait()</code> è ritornato. Il metodo <code>is_set()</code> può essere usato separatamente sull'evento senza temere di bloccarlo.
+</testo_normale>
+<testo_normale>
+In questo esempio, <code>wait_for_event_timeout()</code> verifica lo stato dell'evento senza bloccare indefinitivamente. <code>wait_for_event()</code> blocca sulla chiamata a <code>wait()</code>, che non ritorna fino a quando lo stato dell'evento cambia.
+</testo_normale>
+<py_output>
+$ python3 threading_event.py
+</py_output>
+<titolo_2>
+Controllare l'Accesso alle Risorse
+</titolo_2>
+<testo_normale>
+Oltre alla sincronizzazione delle operazioni dei thread, è anche importante essere in grado di controllare l'accesso a risorse condivise per prevenire un danneggiamento od una perdita di dati. Le strutture dati <em>built-in</em> di Python sono <a href='https://www.wikiwand.com/it/Thread_safety' target='_blank'><em>thread-safe</em></a> come effetto collaterale dell'avere <a href='https://www.wikiwand.com/it/Bytecode' target='_blank'>byte-code</a>  atomici per manipolarle (il bloccaggio dell'interprete globale usato per proteggerer le strutture dati interne di Python non viene rilasciato nel mezzo di un aggiornamento). Altre strutture dati implementate in Python, o tipi più semplici come interi e cifre a virgola mobile, non hanno questa protezione. Per ripararsi da accessi simultanei ad un oggetto, si uilizzi un oggetto <code>Lock</code>.
+</testo_normale>
+<py_code>
+# threading_lock.py
+</py_code>
+<testo_normale>
+In questo esempio la funzione <code>worker()</code> incrementa una istanza di <code>Counter</code> che gestisce un <code>Lock</code> per prevenire che due thread cambino il loro stato interno allo stesso tempo. Se non fosse stato usato <code>Lock</code>, ci sarebbe stata la possibilità di non rilevare un cambiamento nel valore dell'attributo
+</testo_normale>
+<py_output>
+$ python3 threading_lock.py
+</py_output>
+<testo_normale>
+Per scoprire se un altro thread ha acquisito il bloccaggio senza sostenere il thread corrente, si passi <code>False</code> per l'argomento <code>blocking</code> per <code>acquire()</code>. Nel prossimo esempio, <code>worker()</code> tenta di acquisire il bloccaggio per tre volte distinte e conta quanti tentativi ha fatto per questo scopo. Nel frattempo, <code>lock_holder()</code> passa tra il mantenere e rilasciare il bloccaggio, con piccole pause in ogni stato usate per simulare il caricamento.
+</testo_normale>
+<py_code>
+# threading_lock_noblock.py
+</py_code>
+<testo_normale>
+Occorono a <code>worker()</code> più di tre iterazioni per acquisire il bloccaggio per tre volte distinte.
+</testo_normale>
+<py_output>
+$ python3 threading_lock_noblock.py
+</py_output>
+<titolo_3>
+Bloccaggi Rientranti
+</titolo_3>
+<testo_normale>
+Gli oggetti <code>Lock</code> normali non possono essere acquisiti più di una volta, anche se nello stesso thread. Questo può introdurre effetti collaterali indesiderati se il bloccaggio viene indirizzato da più di una funzione nella stessa catena di chiamate.
+</testo_normale>
+<py_code>
+# threading_lock_reacquire.py
+</py_code>
+<testo_normale>
+In questo caso, alla seconda chiamata ad <code>acquire()</code> viene dato un timeout di zero per prevenirne il bloccaggio visto che lo stesso è stato ottenuto dalla prima chiamata.
+</testo_normale>
+<py_output>
+$ python3 threading_lock_reacquire.py
+</py_output>
+<testo_normale>
+In una situazione dove codice separato dallo stesso thread deve "riacquisire" il bloccaggio si utilizzi <code>RLock</code>
+</testo_normale>
+<py_code>
+# threading_rlock.py
+</py_code>
+<testo_normale>
+Il solo cambiamento nel codice rispetto all'esempio precedente è la sostituzione di <code>Lock</code> con <code>RLock</code>.
+</testo_normale>
+<py_output>
+$ python3 threading_rlock.py
+</py_output>
+<titolo_3>
+Bloccaggi come Gestori di Contesto
+</titolo_3>
+<testo_normale>
+I bloccaggi implementano le API del gestore di contesto se sono compatibili con l'istruzione <code>with</code>. L'utilizzo di <code>with</code> consente di rimuovere la necessità di acquisire e rilasciare esplicitamente il bloccaggio.
+</testo_normale>
+<py_code>
+# threading_lock_with.py
+</py_code>
+<testo_normale>
+Le due funzioni <code>worker_with()</code> e <code>workder_no_wit()</code> gestiscono il bloccaggio in modo equivalente.
+</testo_normale>
+<py_output>
+$ python3 threading_lock_with.py
+</py_output>
+<titolo_2>
+Sincronizzare i Thread
+</titolo_2>
+<testo_normale>
+Oltre all'utilizzo di <code>Events</code>, un altro modo di sincronizzare i thread è tramite l'oggetto <code>Condition</code>. Visto che <code>Condition</code> usa <code>Lock</code>, potrebbe essere legato ad una risorsa condivisa, consentendo a thread multipli di attendere che la risorsa sia aggiornata. In questo esempio, i thread in <code>consumers()</code> attendono che la condizione venga impostata in <code>Condition</code> prima di continuare. Il thread <code>producer()</code> è responsabile dell'impostazione della condizione e della notifica di via libera agli altri thread
+</testo_normale>
+<py_code>
+# threading_condition.py
+</py_code>
+<testo_normale>
+I thread usano <code>with</code> per acquisire il bloccaggio associato a <code>Condition</code>. La cosa funziona anche utilizzando i metodi <code>acquire()</code> e <code>release()</code> esplicitamente.
+</testo_normale>
+<py_output>
+$ python3 threading_condition.py
+</py_output>
+<testo_normale>
+La barriera è un altro meccanismo di sincronizzazione dei thread. <code>Barrier</code> imposta un punto di controllo e tutti i thread partecipanti si bloccano fino a che tutte le parti partecipanti hanno raggiunto quel punto. Consente ai thread di partire separatamente, quindi interrompe fino a che tutti sono pronti a procedere.
+</testo_normale>
+<py_code>
+# threading_barrier.py
+</py_code>
+<testo_normale>
+In questo esempio, la barriera <code>Barrier</code> viene configurata per bloccare fino a quando ci sono 3 thread in attesa. Quando la condizione viene raggiunta, i thread sono rilasciati oltre il punto di controllo simultaneamente. Il valore di ritorno di <code>wait()</code> indica il numero di parti che sono state rilasciate, e può essere usato per limitare alcuni thread dal intraprendere una azione tipo la pulizia di una risorsa condivisa.
+</testo_normale>
+<py_output>
+$ python3 threading_barrier.py
+</py_output>
+<testo_normale>
+Il metodo <code>abort()</code> di <code>Barriere</code> fa sì che tutti i thread in attesa ricevano un segnale <code>BrokenBarrierError</code>, che consente ai thread di eseguire una pulizia se il processo viene interrotto mentre sono bloccati in <code>wait()</code>
+</testo_normale>
+<py_code>
+# threading_barrier_abort.py
+</py_code>
+<testo_normale>
+Questo esempio configura <code>Barrier</code> per attendersi uno o puù thread partecipanti, quindi viene fatto effettivamente partire in modo che l'elaborazione in tutti i thread sia bloccata. La chiamata di <code>abort()</code> solleva una eccezione in ogni thread bloccato.
+</testo_normale>
+<py_output>
+$ python3 threading_barrier_abort.py
+</py_output>
+<titolo_2>
+Limitare l'Accesso Concorrenziale alle Risorse
+</titolo_2>
+<testo_normale>
+Talvota è utile consentire a più di un elaboratore l'accesso contemporaneo ad una risorsa, mantenendo sempre la possibilità di limitarne il numero complessivo. Ad esempio un <em>connection pool</em> potrebbe supportare un numero definito di connessioni simultanee, oppure una applicazione di rete potrebbe supportare un numero definito di scaricamenti concorrenti. Un modo per gestire queste connessioni può essere <code>Semaphore</code>.
+</testo_normale>
+<py_code>
+# threading_semaphore.py
+</py_code>
+<testo_normale>
+In questo esempio la classe <code>ActivePool</code> serve semplicemente per tracciare con comodità quali thread possono essere eseguiti ad un dato momento. Un <em>pool</em> di risorse reale dovrebbe allocare una connessione o qualche altro valore al thread appena attivato, e riprendersi quel valore quando il thread ha concluso. Qui viene semplicemente usato per mantenere i nomi dei thread attivi per mostrare che sono in esecuzione al massimo due thread contemporaneamente.
+</testo_normale>
+<py_output>
+$ python3 threading_semaphore.py
+</py_output>
+<titolo_2>
+Dati Specifici al Thread
+</titolo_2>
+<testo_normale>
+Mentre alcune risorse devono essere bloccate in modo che possano essere usate da thread multipli, le altre devono essree protette in modo che siano nascoste ai thread che non le detengono. La classe <code>locat()</code> crea un oggetto in grado di nascondere i valori dalla vista in thread separati.
+</testo_normale>
+<py_code>
+# threading_local.py
+</py_code>
+<testo_normale>
+L'attributo <code>local_data.value</code> non è presente per tutti gli altri thread fino a quando rimane impostato in quel thread.
+</testo_normale>
+<py_output>
+$ python3 threading_local.py
+</py_output>
+<testo_normale>
+Per inizializzare le impostazioni in modo che tutti i thread partano con lo stesso valore, si utilizzi una sottoclasse e si impostino gli attributi in <code>__init__()</code>
+</testo_normale>
+<py_code>
+# threading_local_defaults.py
+</py_code>
+<testo_normale>
+<code>__init__()</code> viene invocato sullo stesso oggetto (notare il valore di <code>id()</code>), una volta in ciascun thread per impostare i valori predefiniti.
+</testo_normale>
+<py_output>
+$ python3 threading_local_defaults.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/thread.html|resource|La documentazione della libreria standard per questo modulo.
+signal.html|signal|Per dettagli sulla registrazione dei gestori di segnale.
+</vedi_anche>
+</documento_tradotto>

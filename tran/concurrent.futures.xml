@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Concomitanze con Processi, Thread e Coroutine</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+concurrent.futures - Gestisce Insiemi di Compiti Concomitanti
+</titolo_1>
+<descrizione>
+Gestire facilmente compiti in esecuzione concomitanti ed in parallelo
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>concurrent.futures</strong> fornisce interfacce per eseguire compiti usando insiemi (<em>pool</em>) di <a href='https://www.wikiwand.com/it/Thread_(informatica)' target='_blank'><em>thread</em></a> o elaboratori di processo. Le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> sono le stesse, quindi le applicazioni possono passare tra <em>thread</em> e processi con minimi aggiustamenti.
+</testo_normale>
+<testo_normale>
+Il modulo fornisce due tipi di classi per interagire con gli insiemi. Gli esecutori sono usati per gestire gruppi di elaboratori e i <em>futures</em> sono usati per gestire i risultati prodotti dagli esecutori. Per usare un gruppo di elaboratori una applicazione crea una istanza della classe di esecutore appropriata, quindi sottopone a essa i compiti da eseguire. Quando si fa partire ciascun compito, viene ritornata una istanza di <code>Future</code>. Quando è richiesto il risultato di un compito una applicazione può usare <code>Future</code> per bloccare fino a che si rende disponibile il risultato. Sono fornite varie API per rendere conveniente attendere che un compito si completi, in modo che gli oggetti <code>Future</code> non debbano essere gestiti direttamente.
+</testo_normale>
+<titolo_2>
+Usare map() con un Insieme di Thread Basico
+</titolo_2>
+<testo_normale>
+<code>ThreadPoolExecutor</code> gestisce un insieme di <em>thread</em> di elaboratori, passando a essi i compiti mano a mano che si rendono disponibili per eseguire nuove elaborazioni. Questo esempio usa <code>map()</code>  per produrre in concomitanza un insieme di risultati da un input iterabile. Il compito usa <code>time.sleep()</code> per mettersi in pausa per un determinato tempo per dimostrare che, a prescindere dall'ordine di esecuzione dei compiti concomitanti, <code>map()</code> ritorna sempre i valori nell'ordine basato sull'input.
+</testo_normale>
+<py_code>
+# futures_thread_pool_map.py
+</py_code>
+<testo_normale>
+Il valore ritoranto da <code>map()</code> è in realtà un tipo speciale di iteratore che sa come attendere ciascuna risposta mano a mano che programma esegue le iterazioni.
+</testo_normale>
+<py_output>
+$ python3 futures_thread_pool_map.py
+</py_output>
+<titolo_2>
+Pianificare Compiti Individuali
+</titolo_2>
+<testo_normale>
+Oltre all'utilizzo di <code>map()</code>, è possibile pianificare un compito individuale con un esecutore usando <code>submit()</code>, e usare l'istanza di <code>Future</code> ritornata per attendere il risultato del compito
+</testo_normale>
+<py_code>
+# futures_thread_pool_submit.py
+</py_code>
+<testo_normale>
+Lo stato del <em>future</em> cambia dopo che i compiti sono completati ed il risultato è reso disponibile.
+</testo_normale>
+<py_output>
+$ python3 futures_thread_pool_submit.py
+</py_output>
+<titolo_2>
+Attendere Compiti in Qualsiasi Ordine
+</titolo_2>
+<testo_normale>
+La chiamata del metodo <code>result()</code> di un <code>Future</code> blocca fino a quando il compito si completa (sia ritornando un valore che sollevando una eccezione) oppure se viene cancellato. I risultati di compiti multipli possone essere fruiti nell'ordine nel quale i compiti sono stati pianificati usando <code>map()</code>. Qualora non importi l'ordine nel quale i risultati dovranno essere processati, si usi <code>as_completed()</code> per elaborarli non appena ciascun compito finisce.
+</testo_normale>
+<py_code>
+# futures_as_completed.py
+</py_code>
+<testo_normale>
+Visto che l'insieme ha molti elaboratorei come compiti, è possibile far partire tutti i compiti. Essi finiranno in ordine casuale quindi i valori generati da <code>as_completed()</code> sono diversi ogni volta che l'esempio viene eseguito.
+</testo_normale>
+<py_output>
+$ python3 futures_as_completed.py
+</py_output>
+<titolo_2>
+Callaback da Future
+</titolo_2>
+<testo_normale>
+Per intraprendere qualche azione quando un compito è completato, senza attendere esplicitamente il risultato, si utilizzi <code>add_done_callback()</code> per specificare una nuova funzione da chiamare quando <code>Future</code> ha finito. Il <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> dovrebbe essere una funzione che ottiene un singolo argomento, l'istanza di <code>Future</code>.
+</testo_normale>
+<py_code>
+# futures_future_callback.py
+</py_code>
+<testo_normale>
+Il <em>callback</em> viene chiamato a prescindere dalla ragione per la quale <code>Future</code> si considera "completato", quindi è necessario verificare lo stato dell'oggetto passato al <em>callback</em> prima di utilizzarlo in qualsivoglia modo.
+</testo_normale>
+<py_output>
+$ python3 futures_future_callback.py
+</py_output>
+<titolo_2>
+Cancellare Compiti
+</titolo_2>
+<testo_normale>
+Un <code>Future</code> può essere cancellato, se è stato sottomesso ma non è ancora partito, chiamando il metodo <code>cancel()</code>
+</testo_normale>
+<py_code>
+# futures_future_callback_cancel.py
+</py_code>
+<testo_normale>
+<code>cancel()</code> ritorna un booleano che indica se il compito sia stato cancellato o meno.
+</testo_normale>
+<py_output>
+$ python3 futures_future_callback_cancel.py
+</py_output>
+<titolo_2>
+Eccezioni nei Compiti
+</titolo_2>
+<testo_normale>
+Se un compito solleva una eccezione non gestita, viene salvata nel <code>Future</code> per il compito e resa disponibile tramite i metodi <code>result()</code> o <code>exception()</code>
+</testo_normale>
+<py_code>
+# futures_future_exception.py
+</py_code>
+<testo_normale>
+Se <code>result()</code> viene chiamato dopo che è stata sollevata una eccezione non gestita all'interno di una funzione di un compito, la stessa eccezione viene sollevata nuovamente nel contesto corrente.
+</testo_normale>
+<py_output>
+$ python3 futures_future_exception.py
+</py_output>
+<titolo_2>
+Gestore di Contesto
+</titolo_2>
+<testo_normale>
+Gli esecutori lavorano come gestori di contesto, eseguendo compiti in concomitanza ed attendendo che tutti si completino. Quando il gestore di contesto esce, viene chiamato il metodo dell'esecutore <code>shutdown()</code>
+</testo_normale>
+<py_code>
+# futures_context_manager.py
+</py_code>
+<testo_normale>
+Questa modalità di utilizzo dell'esecutore è utile quando le risorse del <em>thread</em> o del processo dovrebbero essere ripulite quando l'esecuzione lascia il contesto corrente.
+</testo_normale>
+<py_output>
+$ python3 futures_context_manager.py
+</py_output>
+<titolo_2>
+Insiemi di Processi
+</titolo_2>
+<testo_normale>
+<code>ProcessPoolExecutor</code> funziona allo stesso modo di <code>ThreadPoolExecutor</code>, ma utilizza i processi in luogo dei <em>thread</em>. Questo consente a operazioni che sollecitano intensivamente la CPU di usare una CPU separata e non saranno bloccate dal meccaniscmo di blocco dell'interprete globale di CPython
+</testo_normale>
+<py_code>
+# futures_process_pool_map.py
+</py_code>
+<testo_normale>
+Così come nell'insieme di <em>thread</em>, i processi individuali degli elaboratori sono utilizzati per compiti multipli.
+</testo_normale>
+<py_output>
+$ python3 futures_process_pool_map.py
+</py_output>
+<testo_normale>
+Se succede qualcosa ad uno dei processi elaboratori che ne causano l'uscita inaspettata, il <code>ProcessPollExecutor</code> viene considerato "compromesso" e non potrà più pianificare compiti.
+</testo_normale>
+<py_code>
+# futures_process_pool_broken.py
+</py_code>
+<testo_normale>
+L'eccezione <code>BrokenProcessPool</code> viene in effetti sollevata quando i risultati sono elaborati, non quando il nuovo compito viene sottomesso.
+</testo_normale>
+<py_output>
+$ python3 futures_process_pool_broken.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/concurrent.futures.html|concurrent.futures|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-3148|PEP 3148|La proposta per la creazione dell'insieme delle caratteristiche di <strong>concurrent.future</strong>
+#|Combining Coroutines with Threads and Processes|Di prossima traduzione
+#|threading|Di prossima traduzione
+#|multiprocessing|Di prossima traduzione
+</vedi_anche>
+</documento_tradotto>

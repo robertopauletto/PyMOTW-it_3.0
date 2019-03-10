@@ -1,135 +1,157 @@
-﻿<?xml version="1.0" encoding="Latin-1"?>
-<categoria>testo</categoria><!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
-<!-- # tag <titolo_1> titolo principale -->
-<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
-<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
-<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
-<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
-<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
-<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria>
 <documento_tradotto>
 <titolo_1>
-string - Costanti di Testo e Modelli
+atexit - Callback alla Chiusura di un Programma
 </titolo_1>
 <descrizione>
-Contiene costanti e classi per lavorare con il testo
+Registra una o più funzioni (<a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a>) che saranno chiamate quando un programma è in chiusura
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>string</strong> risale alle prime versioni di Python. Molte delle funzioni precedentemente implementate in questo modulo sono state spostate verso metodi degli oggetti <code>str</code>. Il modulo <strong>string</strong> conserva parecchie classi e costanti utili per lavorare con  oggetti <code>str</code>. Questo articolo si concentra su di essi.
+Il modulo <strong>atexit</strong> fornisce una interfaccia per registrare funzioni che saranno chiamate quando un programma si sta normalmente chiudendo.
 </testo_normale>
 <titolo_2>
-Funzioni
+Registrare Callback in Uscita
 </titolo_2>
 <testo_normale>
-La funzione <code>capwords()</code> trasforma  in maiuscolo il carattere iniziale di ogni parola in una stringa
+Il seguente è un esempio per registrare una funzione chiamando esplicitamnente <code>register()</code>:
 </testo_normale>
 <py_code>
-# string_capwords.py
+# atexit_simple.py
 </py_code>
 <testo_normale>
-Il risultato è uguale a quello che si otterrebbe dalla chiamata di <code>split()</code>, dalla successiva trasformazione in maiuscolo della prima lettera di ogni elemento della lista risultante, ed infine dalla ricostruzione della stringa originale con l'istruzione <code>join()</code>.
+Visto che il programma non fa null'altro, <code>all_done()</code> viene chiamata immediatamente.
 </testo_normale>
 <py_output>
-$ python3 string_capwords.py
+$ python3 atexit_simple.py
 </py_output>
+<testo_normale>
+E' anche possibile registrare più di una funzione, e fornire argomenti alle funzioni registrate. Questo può essere utile per disconnettersi in modo pulito da database, rimuovere file termporanei ecc.. Invece che mantenere una lista di risorse che devoono essere liberate, si può registrare una funzione di pulizia separata per ogni risorsa.
+</testo_normale>
+<py_code>
+# atexit_multiple.py
+</py_code>
+<testo_normale>
+L'ordine di chiamata delle funzioni in uscita è inverso rispetto a quello di registrazione. Questo metodo consente di pulire i moduli nell'ordine inverso rispetto a quello di importazione (e di conseguenza di registrazione delle loro funzioni <code>atexit</code>), il che dovrebbe ridurre i conflitti di dipendenza.
+</testo_normale>
+<py_output>
+$ python3 atexit_multiple.py
+</py_output>atexit_unregister.py
 <titolo_2>
-Modelli
+Sintassi per Decoratore
 </titolo_2>
 <testo_normale>
-I modelli di stringa sono stati introdotti come parte del <a href='https://www.python.org/dev/peps/pep-0292' target='_blank'>PEP 292</a> e sono concepiti come alternativa della sintassi <em>built-in</em> di interpolazione. Con l'interpolazione di <code>string.Template</code>, le variabili sono definite prefissandone il nome con un <code>$</code>, (es. <code>$$var</code>). In alternativa, se necessario separarle dal testo circostante possono anche essere racchiuse tra parentesi graffe (es. <code>$${var}</code>).
-</testo_normale>
-<testo_normale>
-Questo esempio confronta un semplice modello con una interpolazione di stringa simile utilizzando l'operatore <code>%</code> ed il nuovo formato di sintassi di stringa usando <code>str.format()</code>.
+Le funzioni che non richiedono argomenti possono essere registrate utilizzando <code>register()</code> come un decoratore. Questa sintassi alternativa è conveniente per funzioni di pulizia che operano su dati globali a livello di modulo.
 </testo_normale>
 <py_code>
-# string_template.py
+# atexit_decorator.py
 </py_code>
 <testo_normale>
-Nei primi due casi, il carattere di ingaggio (<code>$</code> o <code>%</code>) viene non viene considerato ripetendolo due volte. Per la sintassi di <code>str.format()</code>, entrambe le parentesi graffe vanno ripetute se non devono essere considerate come caratteri scatenanti.
-</testo_normale>
-<py_output>
-$ python3 string_template.py
-</py_output>
-<testo_normale>
-Una differenza chiave tra modelli ed interpolazione o formattazione di stringa è che il tipo degli argomenti non viene preso in considerazione. I valori sono convertiti in stringhe, e le stringhe sono inserite nel risultato. Non sono disponibili opzioni di formattazione. Ad esempio, non vi è modo di controllare il numero di cifre usate per rappresentare un valore a virgola mobile.
-</testo_normale>
-<testo_normale>
-Un beneficio, tuttavia, è che l'uso del metodo <code>safe_substitute()</code>, rende possibile evitare eccezioni se non tutti i valori necessari al modello sono stati passati come argomenti.
-</testo_normale>
-<py_code>
-# string_template_missing.py
-</py_code>
-<testo_normale>
-Viso che qui non esiste un valore per <code>missing</code> nel dizionario <code>values</code>, viene sollevata una eccezione <code>KeyError</code> da <code>substitute()</code>. Invece di sollevare l'eccezione, <code>safe_substitute()</code> la cattura e lascia il nome della variabile come parte del testo restituito.
-</testo_normale>
-<py_output>
-$ python3 string_template_missing.py
-</py_output>
-<titolo_2>
-Modelli Avanzati
-</titolo_2>
-<testo_normale>
-La sintassi predefinita per <code>string.Template</code>, può essere modificata aggiustando gli schemi di espressione regolare che usa per trovare i nomi delle variabili nel corpo del modello. Un modo semplice per fare questo è modificare gli attributi di classe <code>delimiter</code> e <code>idpattern</code>.
-</testo_normale>
-<py_code>
-# string_template_advanced.py
-</py_code>
-<testo_normale>
-In questo esempio sono modificate le regole di sostituzione in modo che il delimitatore sia <code>%</code> invece che <code>$</code> ed i nomi delle variabili devono contenere un <code>_</code> da qualche parte all'interno. Lo schema <code>%notunderscored</code> non viene sostituito da niente, visto che non include un carattere di sottolineatura <code>_</code>.
-</testo_normale>
-<py_output>
-$ python3 string_template_advanced.py
-</py_output>
-<testo_normale>
-Per modifiche ancora più complesse, è possibile sovrascrivere l'attributo <code>pattern</code> e definire una espressione regolare completamente nuova. Lo schema fornito deve contenere quattro gruppi nominativi per catturare il delimitatore, la variabile nominativa, la versione tra parentesi graffe del nome della variabile e gli schemi di delimitatore non valido.
-</testo_normale>
-<py_code>
-# string_template_defaultpattern.py
-</py_code>
-<testo_normale>
-Il valore di <code>t.pattern</code> è una espressione regolare compilata, ma la stringa originale è disponibile attraverso l'attributo <code>pattern</code>.
-</testo_normale>
-<py_output>
-$ python3 string_template_defaultpattern.py
-</py_output>
-<testo_normale>
-Questo esempio definisce un nuovo schema per creare un nuovo tipo di modello, usando come sintassi della varibile <code>{{var}}}</code>.
-</testo_normale>
-<py_code>
-# string_template_newsyntax.py
-</py_code>
-<testo_normale>
-Sia lo schema <code>named</code> che quello di <code>braced</code> devono essere forniti separatamente, anche se sono identici. L'esecuzione del programma di esempio genera il seguente risultato:
-</testo_normale>
-<py_output>
-$ python3 string_template_newsyntax.py
-</py_output>
-<titolo_2>
-Formatter
-</titolo_2>
-<testo_normale>
-La classe <code>Formatter</code> implementa le stesse specifiche di linguaggio del metodo <code>str.format()</code>. Tra le sue caratteristiche la coercizione del tipo, l'allineamento, i riferimenti ad attributo e campi, argomenti di modello nominativi e posizionali ed opzioni di formattazione specifiche per tipo. La maggior parte delle volte il metodo <code>format()</code> costituisce una interfaccia più conveniente per queste caratteristiche, ma <code>Formatter</code> è fornito come modo per costruire sottoclassi, per casi dove le variazioni sono necesarie.
+Visto che la funzione è registrata così com'è definita, è anche importante assicurarsi che essa funzioni regolarmente anche se nessun altra attività viene eseguita dal modulo. Se le risorse che si suppone debbano essere pulite non sono mai inizializzate, la chiamata della funzione di uscita non dovrebbe produrre un errore.
 </testo_normale>
 <titolo_2>
-Costanti
+Cancellare Callback
 </titolo_2>
 <testo_normale>
-Il modulo <strong>string</strong> include costanti in relazione a insiemi ASCII e numerici.
+Per cancellare un <em>callback</em> di uscita, lo si rimuova dal registro usando <code>unregister()</code>.
 </testo_normale>
 <py_code>
-# string_constants.py
+# atexit_unregister.py
 </py_code>
 <testo_normale>
-Queste costanti sono utili quando si lavora con dati ASCII; tuttavia visto che è sempre più frequente avere a che fare con testo non ASCII in una qualche forma di Unicode, la loro applicazione è limitata.
+Tutte le chiamate allo stesso <em>callback</em> sono cancellate, a prescindere da quante volte è stato registrato.
 </testo_normale>
 <py_output>
-$ python3 string_constants.py
+$ python3 atexit_unregister.py
+</py_output>
+<testo_normale>
+La rimozione di un <em>callback</em> che non era stato precedentemente registrato non viene considerato un errore
+</testo_normale>
+<py_code>
+# atexit_unregister_not_registered.py
+</py_code>
+<testo_normale>
+Visto che ignora in modo silente <em>callback</em> sconosciuti, <code>unregister()</code> può essere usato anche quando la sequenza delle registrazioni potrebbe non essere nota.
+</testo_normale>
+<py_output>
+$ python3 atexit_unregister_not_registered.py
+</py_output>
+<titolo_2>
+Quando Ci Sono Callaback Di atexit Non Chiamati?
+</titolo_2>
+<testo_normale>
+I <em>callback</em> registrati con <strong>atexit</strong> sono sono chiamati se si verifica almeno una delle seguenti condizioni:
+</testo_normale>
+<lista>
+Il programma termina a causa di un segnale
+<code>os._exit()</code> viene invocato direttamente
+Viene rilevato un errore fatale nell'interprete
+</lista>
+<testo_normale>
+Un esempio dall'articolo su <a href='subprocess.html' target='_blank'>subprocess</a> può essere aggiornato per mostrare cosa succede quando un programma viene terminato da un segnale. Sono coinvolti due file, il programma genitore ed il figlio. Il genitore fa partire il figlio, si mette in pausa, quindi lo termina.
+</testo_normale>
+<py_code>
+# atexit_signal_parent.py
+</py_code>
+<testo_normale>
+Il figlio imposta un <em>callback</em> di uscita, poi si mette in pausa fino a che arriva il segnale
+</testo_normale>
+<py_code>
+# atexit_signal_child.py
+</py_code>
+<testo_normale>
+Quando eseguito, questo è il risultato.
+</testo_normale>
+<py_output>
+$ python3 atexit_signal_parent.py
+</py_output>
+<testo_normale>
+Il figlio non stampa il messaggio inserito in <code>not_called()</code>.
+</testo_normale>
+<testo_normale>
+Se il programma usa <code>os._exit()</code>, può evitare la chiamata dei <em>callback</em> <code>atexit</code>.
+</testo_normale>
+<py_code>
+# atexit_os_exit.py
+</py_code>
+<testo_normale>
+Visto che l'esempio salta il normale percorso di uscita, il <em>callback</em> non viene eseguito. Anche la stampa del risultato non viene scaricata, quindi l'esempio è eseguito con l'opzione <code>-u</code> per abiltare l'I/O senza buffer.
+</testo_normale>
+<py_output>
+$ python3 atexit_os_exit.py
+</py_output>
+<testo_normale>
+Per assicurarsi che i <em>callback</em> vengano eseguiti, si consenta al programma di terminare esaurendo le istruzioni da eseguire oppure chiamando <code>sys.exit()</code>.
+</testo_normale>
+<py_code>
+# atexit_sys_exit.py
+</py_code>
+<testo_normale>
+Questo esempio chiama <code>sys.exit()</code>, quindi i <em>callback</em> registrati vengono chiamati.
+</testo_normale>
+<py_output>
+$ python3 atexit_sys_exit.py
+</py_output>
+<titolo_2>
+Gestire Eccezioni
+</titolo_2>
+<testo_normale>
+I <a href='https://www.wikiwand.com/en/Stack_trace' target='_blank'>traceback</a> per le eccezioni sollevate in <strong>atexit</strong> sono stampati alla console e l'ultima eccezione sollevata viene risollevata in modo da essere l'ultimo messaggio di errore del programma.
+</testo_normale>
+<py_code>
+# atexit_exception.py
+</py_code>
+<testo_normale>
+L'ordine di registrazione controlla l'ordine di esecuzione. Se un errore in un <em>callback</em> ne introduce un errore in un altro (registrato in precedenza ma chiamato successivamente), il messaggio di errore finale potrebbe non essere quello più utile da mostrare all'utente.
+</testo_normale>
+<py_output>
+$ python3 atexit_exception.py
 </py_output>
 <vedi_anche>
-https://docs.python.org/3.6/library/string.html|string|La documentazione della libreria standard per questo modulo.
-https://docs.python.org/3/library/stdtypes.html#string-methods|String Methods|Metodi degli oggetti <code>str</code> che rimpiazzano le funzioni deprecate in  <code>string</code>
-https://www.python.org/dev/peps/pep-0292|PEP 292|Sostituzioni di stringa più semplici
-https://docs.python.org/3.5/library/string.html#format-string-syntax|Format String Syntax|La definizione formale delle specifiche di linguaggio usate da <code>Formatter</code> e <code>str.format()</code>
+https://docs.python.org/3.7/library/atexit.html|atexit|La documentazione della libreria standard per questo modulo
+#|Gestione delle eccezioni (di prossima traduzione)|Gestione globale delle eccezinoi non catturate
+riferimenti_moduli_modificati.html#atexit|Nonte di portabilità per atexit|
 </vedi_anche>
+</documento_tradotto>
 </documento_tradotto>
