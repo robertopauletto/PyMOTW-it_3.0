@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Caratteristiche della Fase di Esecuzione</categoria><documento_tradotto>
+<titolo_1>
+resource - Gestione delle Risorse di Sistema
+</titolo_1>
+<descrizione>
+Gestisce i limiti delle risorse di sistema per un programma Unix
+
+</descrizione>
+<testo_normale>
+Le funzioni in <strong>resource</strong> rilevano le risorse del sistema corrente consumate da un processo, e pongono limiti su di esse per controllare quanto carico un programma può imporre ad un sistema.
+</testo_normale>
+<titolo_2>
+Utilizzo Corrente
+</titolo_2>
+<testo_normale>
+Si usi <code>getrusage()</code> per rilevare le risorse usate dal processo corrente e/o dai suoi figli. Il valore di ritorno è una struttura dati contenente parecchie metriche di risorse basate sullo stato corrente del sistema.
+</testo_normale>
+<note>
+Non tutte i valori delle risorse raccolti sono qui visualizzati. Si faccia riferimento alla documentazione della libreria standard per <strong>resource</strong> per un elenco più completo
+</note>
+<py_code>
+# resource_getrusage.py
+</py_code>
+<testo_normale>
+Il programma di test è estremamente semplice, quindi non usa molte risorse.
+</testo_normale>
+<py_output>
+$ python3 resource_getrusage.py
+</py_output>
+<titolo_2>
+Limiti delle Risorse
+</titolo_2>
+<testo_normale>
+Oltre al reale utilizzo, è possibile verificare i limit imposti all'applicazione, per puoi modificarli.
+</testo_normale>
+<py_code>
+# resource_getrlimit.py
+</py_code>
+<testo_normale>
+Il valore di ritorno per ciascun limite è una tupla che contiene il limite <em>soft</em> imposto dalla configurazione corrente ed il limite <em>hard</em> imposto dal sistema operativo.
+</testo_normale>
+<note>
+Un limite <em>hard</em> può essere alzato solo da <strong>root</strong> e qualsiasi processo lo può abbassare.
+Un limite <em>soft</em> può essere cambiato da un processo in qualunque momento
+</note>
+<py_output>
+$ python3 resource_getrlimit.py
+</py_output>
+<testo_normale>
+I limiti possono essere cambiati con <code>setrlimit()</code>.
+</testo_normale>
+<py_code>
+# resource_setrlimit_nofile.py
+</py_code>
+<testo_normale>
+Questo esempio usa <code>RLIMIT_NOFILE</code> per controllare il numero di file aperti consentiti, modificandolo con un limite <em>soft</em> inferiore rispetto al predefinito.
+</testo_normale>
+<py_output>
+$ python3 resource_setrlimit_nofile.py
+</py_output>
+<testo_normale>
+Può anche essere utile limitare l'ammontare di tempo di CPU che un processo può consumare, per evitarne di utilizzarne troppo. Quando il processo supera il limite di tempo allocato, invia un segnale <code>SIGXCPU</code>.
+</testo_normale>
+<py_code>
+# resource_setrlimit_cpu.py
+</py_code>
+<testo_normale>
+Normalmente un gestore di segnale finisce di scrivere tutti i file aperti e li chiude, ma in questo caso stampa semplicemente un messaggio ed esce.
+</testo_normale>
+<py_output>
+$ python3 resource_setrlimit_cpu.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/resource.html|resource|La documentazione della libreria standard per questo modulo.
+signal.html|signal|Per dettagli sulla registrazione dei gestori di segnale.
+</vedi_anche>
+</documento_tradotto>

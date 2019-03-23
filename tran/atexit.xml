@@ -37,7 +37,7 @@ L'ordine di chiamata delle funzioni in uscita è inverso rispetto a quello di re
 </testo_normale>
 <py_output>
 $ python3 atexit_multiple.py
-</py_output>atexit_unregister.py
+</py_output>
 <titolo_2>
 Sintassi per Decoratore
 </titolo_2>
@@ -50,6 +50,9 @@ Le funzioni che non richiedono argomenti possono essere registrate utilizzando <
 <testo_normale>
 Visto che la funzione è registrata così com'è definita, è anche importante assicurarsi che essa funzioni regolarmente anche se nessun altra attività viene eseguita dal modulo. Se le risorse che si suppone debbano essere pulite non sono mai inizializzate, la chiamata della funzione di uscita non dovrebbe produrre un errore.
 </testo_normale>
+<py_output>
+$ python3 atexit_decorator.py
+</py_output>
 <titolo_2>
 Cancellare Callback
 </titolo_2>
@@ -81,7 +84,7 @@ $ python3 atexit_unregister_not_registered.py
 Quando Ci Sono Callaback Di atexit Non Chiamati?
 </titolo_2>
 <testo_normale>
-I <em>callback</em> registrati con <strong>atexit</strong> sono sono chiamati se si verifica almeno una delle seguenti condizioni:
+I <em>callback</em> registrati con <strong>atexit</strong> non sono chiamati se si verifica almeno una delle seguenti condizioni:
 </testo_normale>
 <lista>
 Il programma termina a causa di un segnale
@@ -95,7 +98,7 @@ Un esempio dall'articolo su <a href='subprocess.html' target='_blank'>subprocess
 # atexit_signal_parent.py
 </py_code>
 <testo_normale>
-Il figlio imposta un <em>callback</em> di uscita, poi si mette in pausa fino a che arriva il segnale
+Il figlio imposta un <em>callback</em> <strong>atexit</strong> di uscita, poi si mette in pausa fino a che arriva il segnale
 </testo_normale>
 <py_code>
 # atexit_signal_child.py
@@ -110,7 +113,7 @@ $ python3 atexit_signal_parent.py
 Il figlio non stampa il messaggio inserito in <code>not_called()</code>.
 </testo_normale>
 <testo_normale>
-Se il programma usa <code>os._exit()</code>, può evitare la chiamata dei <em>callback</em> <code>atexit</code>.
+Se il programma usa <code>os._exit()</code>, può evitare la chiamata dei <strong>callback</strong> <code>atexit</code>.
 </testo_normale>
 <py_code>
 # atexit_os_exit.py
@@ -119,7 +122,7 @@ Se il programma usa <code>os._exit()</code>, può evitare la chiamata dei <em>ca
 Visto che l'esempio salta il normale percorso di uscita, il <em>callback</em> non viene eseguito. Anche la stampa del risultato non viene scaricata, quindi l'esempio è eseguito con l'opzione <code>-u</code> per abiltare l'I/O senza buffer.
 </testo_normale>
 <py_output>
-$ python3 atexit_os_exit.py
+$ python3 -u atexit_os_exit.py
 </py_output>
 <testo_normale>
 Per assicurarsi che i <em>callback</em> vengano eseguiti, si consenta al programma di terminare esaurendo le istruzioni da eseguire oppure chiamando <code>sys.exit()</code>.
@@ -150,8 +153,8 @@ $ python3 atexit_exception.py
 </py_output>
 <vedi_anche>
 https://docs.python.org/3.7/library/atexit.html|atexit|La documentazione della libreria standard per questo modulo
-#|Gestione delle eccezioni (di prossima traduzione)|Gestione globale delle eccezinoi non catturate
-riferimenti_moduli_modificati.html#atexit|Nonte di portabilità per atexit|
+#|Gestione delle eccezioni (di prossima traduzione)|Gestione globale delle eccezioni non catturate
+riferimenti_moduli_modificati.html#4|Note di portabilità per atexit|
 </vedi_anche>
 </documento_tradotto>
 </documento_tradotto>

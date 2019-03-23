@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="Latin-1"?>
-<categoria>Caratteristiche di esecuzione</categoria><!-- # tag <descrizione> contiene le
+<categoria>Caratteristiche della fase di esecuzione</categoria><!-- # tag <descrizione> contiene le
 voci per la tabella di riepilogo iniziale -->
 <!-- # tag <titolo_1> titolo principale -->
 <!-- # tag <titolo_1> titolo principale -->
@@ -39,6 +39,19 @@ Il modulo <strong>sys</strong> include un pacchetto di servizi per esaminare o m
         <a href='#cmdargs'>Argomenti da Riga di Comando</a>
         <a href='#inpoutstr'>Flussi in Entrata e Uscita</a>
         <a href='#retstat'>Stato Ritornato</a>
+    </ul>
+</ul>
+<ul>
+    <a href ='#memmng'>Gestione e Limiti di Memoria
+    <ul>
+        <a href='#memmng-refcount'>Conteggio Riferimenti</a>
+        <a href='#memmng-objsize'>Dimensione Oggetti</a>
+        <a href='#memmng-recursion'>Ricorsione</a>
+        <a href='#memmng-maxval'>Valori Massimi</a>
+        <a href='#memmng-float'>Valori a Virgola Mobile</a>
+        <a href='#memmng-integers'>Valori Interi</a>
+        <a href='#memmng-byteordering'>Ordinamento Byte</a>
+
     </ul>
 </ul>
 </testo_normale>
@@ -307,7 +320,7 @@ Seguendo il paradigma Unix, i programmi Python possono accedere nella modalità 
 <py_output>
 $ cat sys_stdio.py | python3 -u sys_stdio.py
 </py_output>
-<a name='#retstat'></a>
+<a name='retstat'></a>
 <titolo_4>
 Stato Restituito
 </titolo_4>
@@ -326,6 +339,168 @@ $ python3 sys_exit.py 0 ; echo "Uscito $?"
 <py_output>
 $ python3 sys_exit.py 1 ; echo "Uscito $?"
 </py_output>
+<a name='memmng'></a>
+<titolo_2>
+Gestione e Limiti di Memoria
+</titolo_2>
+<testo_normale>
+<strong>sys</strong> contiene parecchie funzioni per comprendere e controllare l'uso della memoria.
+</testo_normale>
+<a name='memmng-refcount'></a>
+<titolo_4>
+Conteggio Riferimenti
+</titolo_4>
+<testo_normale>
+L'implementazione primaria di Python (CPython) usa il <em>conteggio dei riferimenti</em> e <a href='https://www.wikiwand.com/it/Garbage_collection' target='_blank'><em>garbage collection</em></a> per la gestione automatica della memoria. Un oggetto viene automaticamente marcato come raccoglibile quando il conteggio dei suoi riferimenti scende a zero. Per esaminare il conteggio di riferimenti per un oggetto esistente, si usi <code>getrefcount()</code>.
+</testo_normale>
+<py_code>
+# sys_getrefcount.py
+</py_code>
+<testo_normale>
+Il valore riportato è in realtà maggiore di una unità rispetto a quanto atteso in quanto vi è un riferimento temporaneo all'oggetto riferto da <code>getrefcount()</code> stesso.
+</testo_normale>
+<py_output>
+$ python3 sys_getrefcount.py
+</py_output>
+<vedi_anche>
+gc.html|gc|Controlla il <em>garbage collector</em> tramite funzioni esposte nel modulo <strong>gc</strong>
+</vedi_anche>
+<a name='memmng-objcount'></a>
+<titolo_4>
+Dimensione Oggetti
+</titolo_4>
+<testo_normale>
+Sapere quanti riferimenti ha un oggetto può forse aiutare per trovare cicli o <a href='https://www.wikiwand.com/it/Memory_leak' target='_blank'><em>memory leak</em></a>, ma non è abbastanza per determinare quali oggetti stanno consumando la <em>maggior</em> parte di memoria. Questo richiede la conoscenza della dimensione degli oggetti.
+</testo_normale>
+<py_code>
+# sys_getsizeof.py
+</py_code>
+<testo_normale>
+<code>getsizeof()</code> riporta la dimensione di un oggetto in byte.
+</testo_normale>
+<py_output>
+$ python3 sys_getsizeof.py
+</py_output>
+<testo_normale>
+La dimensione restituita per una classe personalizzata non comprende la dimensione dei valori degli attributi.
+</testo_normale>
+<py_code>
+# sys_getsizeof_object.py
+</py_code>
+<testo_normale>
+Si potrebbe avere una falsa imporessione dell'ammontare di memoria che si sta comsumando.
+</testo_normale>
+<py_output>
+$ python3 sys_getsizeof_object.py
+</py_output>
+<testo_normale>
+Per una stima più completa dello spazio usato da una classe si fornisca un metodo <code>__sizeof__()</code> per calcolare il valore aggregando le dimensioni degli attributi di un oggetto.
+</testo_normale>
+<py_code>
+# sys_getsizeof_custom.py
+</py_code>
+<testo_normale>
+Questa versione aggiunge alla dimensione base dell'oggetto quelle di tutti gli attributi conservati in <code>__dict__</code>.
+</testo_normale>
+<py_output>
+$ python3 sys_getsizeof_custom.py
+</py_output>
+<a name='memmng-recursion'></a>
+<titolo_4>
+Ricorsione
+</titolo_4>
+<testo_normale>
+Il consentire ricorsioni infinite in Python potrebbe tradurre uno <a href='https://www.wikiwand.com/it/Stack_overflow' target='_blank'><em>stack overflow</em></a> nell'interprete stesso provocando il <em>crash</em> dell'applicazione. Per eliminare questa situazione l'interprete fornisce un modo per controllare la profondità massima di ricorsione, usando <code>setrecursionlimit()</code> e <code>getrecursionelimit()</code>.
+</testo_normale>
+<py_code>
+# sys_recursionlimit.py
+</py_code>
+<testo_normale>
+Una volta che la dimensione dello <em>stack</em> raggiungete il limite di ricorsione, l'interprete solleva una eccezione <code>RuntimeError</code> in modo che il programma abbia l'opportunità di gestire la situazione.
+</testo_normale>
+<py_output>
+$ python3 sys_recursionlimit.py
+</py_output>
+<a name='memmng-maxval'></a>
+<titolo_4>
+Valori Massimi
+</titolo_4>
+<testo_normale>
+Asseieme ai valori configurabili in vase di esecuzione, <strong>sys</strong> include variabili per definire i valori massimi per i tipi che può variare da sistema a sistema.
+</testo_normale>
+<py_code>
+# sys_maximums.py
+</py_code>
+<testo_normale>
+<code>maxsize</code> è la dimensione massima di lista, dizionario, stringa od altra struttura dati dettata dal tipo di dimensione dell'interprete C, <code>maxunicode</code> è il più grande punto Unicode intero supportato dall'interprete così come attualmente configurato.
+</testo_normale>
+<py_output>
+$ python3 sys_maximums.py
+</py_output>
+<a name='memmng-float'></a>
+<titolo_4>
+Valori a Virgola Mobile
+</titolo_4>
+<testo_normale>
+La struttura <code>float_info</code> contiene informazioni circa la rappresentazione del tipo a virgola mobile usato dall'interprete, basato sulla sottostante implementazione di <code>float</code> del sistema
+</testo_normale>
+<py_code>
+# sys_float_info.py
+</py_code>
+<testo_normale>
+Questi valori dipendono dal compilatore e dal sistema sottostante. Questi esempi sono stati prodotti con un PC con SO Linux Ubuntu 18.04 con Intel Core i5.
+</testo_normale>
+<py_output>
+$ python3 sys_float_info.py
+</py_output>
+<a name='memmng-integers'></a>
+<titolo_4>
+Valori Interi
+</titolo_4>
+<testo_normale>
+La struttura <code>int_info</code> contiene le informazioni circa la rappresentazoine interna degli interi usati dall'interprete.
+</testo_normale>
+<py_code>
+# sys_int_info.py
+</py_code>
+<testo_normale>
+Questi esempi sono stati prodotti con un PC con SO Linux Ubuntu 18.04 con Intel Core i5.
+</testo_normale>
+<py_output>
+$ python3 sys_int_info.py
+</py_output>
+<testo_normale>
+Il tipo C usato per conservare interi internamente è determinato quando l'interprete viene compilato. Le architetture a 64 bit usano automaticamente interi a 30 bit nella modalità predefinita, e  possono essere abilitati per le architetture a 32 bit con il flag di configurazione <code>--enable-big-digits</code>.
+</testo_normale>
+<a name='memmng-byteordering'></a>
+<titolo_4>
+Ordinamento Byte
+</titolo_4>
+<testo_normale>
+<code>byteorder</code> viene impostato all'ordinamento byte nativo.
+</testo_normale>
+<py_code>
+# sys_byteorder.py
+</py_code>
+<testo_normale>
+
+</testo_normale>
+<py_output>
+$ python3 sys_byteorder.py
+</py_output>
+
+<a name=''></a>
+</titolo_2>
+<testo_normale>
+
+</testo_normale>
+<a name=''></a>
+<titolo_4>
+
+</titolo_4>
+<testo_normale>
+
+</testo_normale>
 <vedi_anche>
 https://docs.python.org/3.5/library/pwd.html|pwd|La documentazione della libreria standard per questo modulo.
 </vedi_anche>

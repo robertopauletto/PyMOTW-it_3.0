@@ -8,7 +8,7 @@ b = ['a', 'b', 'c']
 print('a =', a)
 print('b =', b)
 
-print('\nContruttivi:')
+print('\nCostruzione:')
 print('  concat(a, b):', concat(a, b))
 
 print('\nRicerca:')
@@ -30,7 +30,7 @@ print('  setitem(a, slice(1, 3), [4, 5]):', end=' ')
 setitem(a, slice(1, 3), [4, 5])
 print(a)
 
-print('\nDistruttivi:')
+print('\nDistruzione:')
 print('  delitem(b, 1)          :', end=' ')
 delitem(b, 1)
 print(b)

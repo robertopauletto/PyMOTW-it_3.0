@@ -1,5 +1,7 @@
 # string_template_missing.py
+
 import string
+
 
 values = {'var': 'foo'}
 

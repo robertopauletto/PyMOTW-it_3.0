@@ -18,9 +18,9 @@ t = timeit.Timer(
     from {module_name} import Dictionary
     words = [
         l.strip()
-        for l in open('/usr/share/dict/words', 'rt')
+        for l in open('/usr/share/dict/mywords', 'rt')
     ]
     """).format(module_name=module_name)
     )
 iterations = 10
-print('TEMPO: {:0.4f}'.format(t.timeit(iterations)/iterations))
+print('TEMPO: {:0.4f}'.format(t.timeit(iterations) / iterations))

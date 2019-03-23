@@ -68,6 +68,7 @@ Il tipo <code>'u</code> per i caratteri da stringhe unicode è stato deprecato e
 <testo_normale>
 I metodi <code>tostring()</code> e <code>fromstring()</code> sono stati rinominati <code>tobytes()</code> e <code>frombytes()</code> per eliminare una ambiguità (<a href="http://bugs.python.org/issue8990">Python issue 8990</a>)
 </testo_normale>
+<a name='atexit'></a>
 <titolo_2>
 atexit
 </titolo_2>
@@ -291,6 +292,7 @@ pdb
 <testo_normale>
 L'alias di comando <code>print</code> è stata rimossa. Si utilizzi al suo posto <code>do ch</ funzione <code>print()</code> (<a href="http://bugs.python.org/issue18764">Python issue 18764</a>). La scorciatoia <code>p</code> è contenuta.
 </testo_normale>
+<a name='platform'></a>
 <titolo_2>
 platform
 </titolo_2>

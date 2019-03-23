@@ -16,14 +16,14 @@ Analizza le opzioni e gli argomenti di riga di comando
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>argparse</strong> include strumenti per costruire processori di argomenti ed opzioni da riga di comando. E' stato aggiunto a Python 2.7 come rimpiazzo per optparse. L'implementazione di <strong>argparse</strong> supporta caratteristiche che non sarebbe stato facile aggiungere ad optparse, e che avrebbe richiesto modifiche all'API incompatibili con le versioni precedenti; così è stato portato nella libreria un nuovo modulo. optparse è ora <strong>deprecato</strong>.
+Il modulo <strong>argparse</strong> include strumenti per costruire processori di argomenti e opzioni da riga di comando. E' stato aggiunto a Python 2.7 come rimpiazzo per optparse. L'implementazione di <strong>argparse</strong> supporta caratteristiche che non sarebbe stato facile aggiungere a optparse, e che avrebbe richiesto modifiche all'API incompatibili con le versioni precedenti; così è stato portato nella libreria un nuovo modulo. optparse è ora <strong>deprecato</strong>.
 </testo_normale>
 <titolo_2>
 Impostare un Analizzatore
 </titolo_2>
 <testo_normale>
 Quando si usa <strong>argparse</strong>, il primo passo consiste nel creare un oggetto analizzatore (<a href='https://it.wikipedia.org/wiki/Parsing' target='_blank'>parser</a>), e dirgli quale argomenti attendersi. Il parser può poi essere usato per elaborare gli argomenti di riga di comando quando il programma viene eseguito.
-Il costruttore per la classe <code>ArgumentParser</code> riceve diversi argomenti per impostare le descrizioni usate nel testo di aiuto per il programma e per altri comportamenti od impostazioni globali.
+Il costruttore per la classe <code>ArgumentParser</code> riceve diversi argomenti per impostare le descrizioni usate nel testo di aiuto per il programma e per altri comportamenti o impostazioni globali.
 </testo_normale>
 <py_code>
 import argparse
@@ -36,10 +36,10 @@ parser = argparse.ArgumentParser(
 Definire gli Argomenti
 </titolo_2>
 <testo_normale>
-<strong>argparse</strong> è una libreria completa per l'elaborazione degli argomenti. Essi possono attivare diverse azioni, specificate dall'argomento <code>action</code> di <code>add_argument()</code>. Le azioni supportate comprendono la memorizzazione dell'argomento (singolarmente o come parte di una lista), la memorizzazione di un valore costante quando viene rilevato l'argomento (compresa la gestione speciale per i valori true/false degli switch booleani), il conteggio del numero di volte nelle quali viene rilevato un argomento ed una chiamata di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> per usare istruzioni di elaborazione personalizzate.
+<strong>argparse</strong> è una libreria completa per l'elaborazione degli argomenti. Essi possono attivare diverse azioni, specificate dall'argomento <code>action</code> di <code>add_argument()</code>. Le azioni supportate comprendono la memorizzazione dell'argomento (singolarmente o come parte di una lista), la memorizzazione di un valore costante quando viene rilevato l'argomento (compresa la gestione speciale per i valori true/false degli switch booleani), il conteggio del numero di volte nelle quali viene rilevato un argomento e una chiamata di <a href='https://it.wikipedia.org/wiki/Callback' target='_blank'>callback</a> per usare istruzioni di elaborazione personalizzate.
 </testo_normale>
 <testo_normale>
-L'azione predefinita è la memorizzazione del valore dell'argomento. In questo caso, se viene passato un tipo, il valore viene convertito in quel tipo prima di essere memorizzato. Se viene passato l'argomento <code>dest</code> il valore viene salvato usando quel nome quando la riga di comando viene analizzata.
+L'azione predefinita è la memorizzazione del valore dell'argomento. In questo caso, se viene passato un tipo, il valore viene convertito in quel tipo prima di essere memorizzato mentre se si passa l'argomento <code>dest</code> il valore viene salvato usando quel nome quando la riga di comando viene analizzata.
 </testo_normale>
 <titolo_2>
 Analizzare una Riga di Comando

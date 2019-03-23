@@ -3,6 +3,7 @@
 import shlex
 import sys
 
+
 if len(sys.argv) != 2:
     print('Prego specificare un nome file da riga di comando.')
     sys.exit(1)

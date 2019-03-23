@@ -1,15 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# atexit_os_exit.py
 
 import atexit
 import os
 
+
 def not_called():
-    print 'Questa non dovrebbe essere chiamata'
+    print('Questa non dovrebbe essere chiamata')
 
-print 'Sto registrando ...'
+
+print('In registrazione')
 atexit.register(not_called)
-print 'Registrata'
+print('Registrato')
 
-print 'Sto uscendo...'
+print('In uscita...')
 os._exit(0)

@@ -7,4 +7,4 @@ try:
 except Exception as err:
     print('ERRORE:', err)
 else:
-    print('Hai digitato:', p)
+    print('Hai digitato: {}'.format(p))

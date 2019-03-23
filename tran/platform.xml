@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>Caratteristiche della Fase di Esecuzione</categoria>
+<titolo_1>
+platform - Informazioni sulla Versione del Sistema
+</titolo_1>
+<descrizione>
+Esplora l'hardware della piattaforma sottostante, il sistema operativo, ottiene informazioni sulla versione dell'interprete
+
+</descrizione>
+<testo_normale>
+Python non viene spesso usato come un linguaggio multipiattaforma, ma occasionalmente è necessario sapere su quale sorta di sistema un programma è in esecuzione. Strumenti di assemblaggio hanno bisogno di questa informazione, ma una applicazione potrebbe anche sapere se alcune delle librerie o comandi esterni che usa abbiano diverse interfacce in base al sistema operativo in cui risiedono. Ad esempio uno strumento per gestire la configurazione di rete di un sistema operativo potrebbe definire una rappresentazione portabile delle interfacce di rete, alias, indirizzi IP ecc. Ma quando occorre modificare file di configurazione, occorre saperne di più circa il sistema operativo ospitante in modo che  possa usare i corretti comandi e file di configurazione del sistema operativo. Il modulo <strong>platform</strong> include gli strumenti per ottenere informazioni circa l'interprete, il sistema operativo e la piattaforma hardware sulla quale è in esecuzione un programma.
+</testo_normale>
+<note>
+I risultati degli esempi sono stati generati su 2 sistemi: un PC con sistema operativo Ubuntu 18.04 ed un PC con sistema operativo Windows 10. Python è stato installato su Windows usando i pacchetti precompilati a disposizione su <a href='www.python.org'>python.org</a> mentre il sistema Linux esegue una versione compresa nei pacchetti di sistema.
+</note>
+<titolo_2>
+Interprete
+</titolo_2>
+<testo_normale>
+Ci sono quattro funzioni per ottenere informazioni circa l'interprete corrente Python: <code>python_version()</code> e <code>python_version_tuple()</code> ritornano diversi formati della versione dell'interprete con le componenti maggiore, minore e livello di <em>patch</em>. <code>python_compiler()</code> riporta informazioni sul compilatore usato per assemblare l'interprete e <code>python_build()</code> fornisce una versione stringa dell'assemblaggio dell'interprete.
+</testo_normale>
+<py_code>
+# platform_python.py
+</py_code>
+<testo_normale>
+Linux:
+</testo_normale>
+<py_output>
+$ python3 platform_python.py
+</py_output>
+<testo_normale>
+Windows:
+</testo_normale>
+<py_output>
+$ python3 platform_python.py
+
+Versione        : 3.7.2rc1
+Versione (tuple): ('3', '7', '2rc1')
+Compilatore     : MSC v.1916 64 bit (AMD64)
+Assemblaggio    : ('tags/v3.7.2rc1:75a402a217', 'Dec 11 2018 23:05:39')
+</py_output>
+<titolo_2>
+Platform (Piattaforma)
+</titolo_2>
+<testo_normale>
+La funzione <code>platform()</code> ritorna una stringa che contiene un identificatore per usi generici. La funzione accetta due argomenti booleani opzionali. Se <code>aliased</code> è <code>True</code>, i nomi nel valore di ritorno sono convertiti da un nome formale alla loro accezione più comune. Quanto <code>terse</code> è <code>True</code>, viene ritornato un valore minimale con alcune parti omesse invece della stringa completa.
+</testo_normale>
+<py_code>
+# platform_platform.py
+</py_code>
+<testo_normale>
+Linux:
+</testo_normale>
+<py_output>
+$ python3 platform_platform.py
+</py_output>
+<testo_normale>
+Windows:
+</testo_normale>
+<py_output>
+$ python3 platform_platform.py
+
+Normale: Windows-10-10.0.17134-SP0
+Aliased: Windows-10-10.0.17134-SP0
+Terse  : Windows-10
+</py_output>
+<titolo_2>
+Informazioni sul Sistema Operativo e Hardware
+</titolo_2>
+<testo_normale>
+E' possibile recuperare anche le informazioni epiù dettagliate sul sistema operativo e sull'harwdare sul quale è in esecuzione l'interprete. <code>uname()</code> ritorna una <me>tuple</me> che contiene i valori di sistema, nodo, rilascio, versione, macchina e processore. E' possibile accedere ai valori individuali tramite funzioni con lo stesso nome, come da tabella seguente:
+</testo_normale>
+<tabella_semplice>
+FUNZIONE;VALORE RITORNATO
+<code>system()</code>;nome del sistema operativo
+<code>node()</code>;nome host del server, non qualificato interamente
+<code>release()</code>;numero di rilascio del sistema operativo
+<code>version()</code>;ulteriori dettagli sulla versione del sistema
+<code>machine()</code>;identificatore del tipo di hardware, ad esempio <code>i386</code>
+<code>processor()</code>;identificatore reale per il processore (lo stesso valore di <code>machine</code> nella maggior parte dei casi)
+</tabella_semplice>
+<py_code>
+# platform_os_info.py
+</py_code>
+<testo_normale>
+Linux:
+</testo_normale>
+<py_output>
+$ python3 platform_os_info.py
+</py_output>
+<testo_normale>
+Windows:
+</testo_normale>
+<py_output>
+$ python3 platform_os_info.py
+
+uname: uname_result(system='Windows', node='LAPTOP-QUA2RDV8', release='10', version='10.0.17134', machine='AMD64', processor='Intel64 Family 6 Model 142 Stepping 10, GenuineIntel')
+
+systema   : Windows
+nodo      : LAPTOP-QUA2RDV8
+rilascio  : 10
+versione  : 10.0.17134
+macchina  : AMD64
+processore: Intel64 Family 6 Model 142 Stepping 10, GenuineIntel
+</py_output>
+<titolo_2>
+Architettura dell'Eseguibile
+</titolo_2>
+<testo_normale>
+Le informazioni sui singoli programmi possono essere rilevate usando la funzione <code>architecture()</code>. Il primo argomento è il percorso di un programma eseguibile (predefinito <code>sys.executable</code>, l'interprete Python). Il valore di ritorno è una tupla che contiene il bit di architettura ed il formato di link usato.
+</testo_normale>
+<py_code>
+# platform_architecture.py
+</py_code>
+<testo_normale>
+Linux:
+</testo_normale>
+<py_output>
+$ python3 platform_architecture.py
+</py_output>
+<testo_normale>
+Windows:
+</testo_normale>
+<py_output>
+$ python3 platform_architecture.py
+
+interprete : ('64bit', 'WindowsPE')
+/bin/ls    : ('64bit', '')
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/platform.html|platform|La documentazione della libreria standard per questo modulo
+riferimenti_moduli_modificati.html#platform|Note di portabilità per <strong>platform</strong>
+</vedi_anche>
+</documento_tradotto>

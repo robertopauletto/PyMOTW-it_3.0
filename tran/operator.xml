@@ -250,7 +250,7 @@ Distruttivi:
 Operatori Sul Posto
 </titolo_2>
 <testo_normale>
-Oltre agli operatori standard, molti tipi di oggetti supportano modifiche "sul posto" attraverso operatori speciali tipo <code>+=</code>. Ci sono anche delle funzioni equivalenti anche per queste modifiche.
+Oltre agli operatori standard, molti tipi di oggetti supportano modifiche "sul posto" attraverso operatori speciali tipo <code>+=</code>. Ci sono delle funzioni equivalenti anche per queste modifiche.
 </testo_normale>
 <py_code>
 # operator_inplace.py

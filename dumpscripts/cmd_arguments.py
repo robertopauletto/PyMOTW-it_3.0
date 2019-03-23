@@ -7,7 +7,7 @@ class HelloWorld(cmd.Cmd):
 
     def do_greet(self, person):
         """greet [person]
-        Saluta person"""
+        Saluta la persona"""
         if person:
             print("Salve,", person)
         else:

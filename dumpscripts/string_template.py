@@ -1,5 +1,7 @@
 # string_template.py
+
 import string
+
 
 values = {'var': 'foo'}
 
@@ -9,7 +11,7 @@ Escape            : $$
 Variabile in testo: ${var}iable
 """)
 
-print('TEMPLATE:', t.substitute(values))
+print('MODELLO:', t.substitute(values))
 
 s = """
 Variabile         : %(var)s

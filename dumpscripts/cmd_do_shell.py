@@ -20,7 +20,7 @@ class ShellEnabled(cmd.Cmd):
 
     def do_echo(self, line):
         """Stampa l'input, sostituendo '$out' con
-        l'output dell'ultimo comando shell
+        il risultato dell'ultimo comando shell
         """
         # Ovviamente non robusto
         print(line.replace('$out', self.last_output))

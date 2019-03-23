@@ -15,7 +15,7 @@ L'utilizzo di <a href='https://www.wikiwand.com/it/Thread_(informatica)' target=
 Oggetti Thread
 </titolo_2>
 <testo_normale>
-Il modo più semplice di usare un thread è  di istanziare <code>Thread</code> con una funzione obiettiv, chiamare <code>start()</code> e lasciare che inizi a lavorare.
+Il modo più semplice di usare un thread è  di istanziare <code>Thread</code> con una funzione obiettivo, chiamare <code>start()</code> e lasciare che inizi a lavorare.
 </testo_normale>
 <py_code>
 # threading_simple.py
@@ -48,7 +48,7 @@ Utilizzare argomenti per identificare o nominare il thread è poco gestibile e n
 # threading_names.py
 </py_code>
 <testo_normale>
-Il risultato del debug include il nome del thread corrente su ciascuna riga. Le righe con "<code>Thread-1</code>" nella colonna del nome del thread corrisponde al thread senza nome <code>w2</code>.
+Il risultato del debug include il nome del thread corrente su ciascuna riga. Le righe con "<code>Thread-1</code>" nella colonna del nome del thread corrispondono al thread senza nome <code>w2</code>.
 </testo_normale>
 <py_output>
 $ python3 threading_names.py
@@ -60,7 +60,7 @@ Molti programmi non usano <code>print</code> per debug. Il modulo <a href='loggi
 # threading_names_log.py
 </py_code>
 <testo_normale>
-<a href='logging.html' target='_blank'>logging</a> è anche <a href='https://www.wikiwand.com/it/Thread_safety' target='_blank'><em>thread-safe</em></a>, quindi i messaggi da diversi thread sono mantenuti distinti nell'output.
+<a href='logging.html' target='_blank'>logging</a> è anche <a href='https://www.wikiwand.com/it/Thread_safety' target='_blank'><em>thread-safe</em></a>, quindi i messaggi da diversi thread sono mantenuti distinti nel risultato.
 </testo_normale>
 <py_output>
 $ python3 threading_names_log.py
@@ -123,7 +123,7 @@ $ python3 threading_enumerate.py
 Subclassare i Thread
 </titolo_2>
 <testo_normale>
-Alla partenza, <code>Thread</code> esegue alcune basiche inizializzazioni, quindi chiamo il proprio metodo <code>run()</code>, che a sua volta chiama la funzione passata al costuttore. Per creare una sottoclasse di <code>Thread</code> si deve sovrascrivere <code>run()</code> per eseguire qualsiasi cosa si ritenga necessario
+Alla partenza, <code>Thread</code> esegue alcune basiche inizializzazioni, quindi chiama il proprio metodo <code>run()</code>, che a sua volta chiama la funzione passata al costuttore. Per creare una sottoclasse di <code>Thread</code> si sovrascriva <code>run()</code> per eseguire qualsiasi cosa si ritenga necessario
 </testo_normale>
 <py_code>
 # threading_subclass.py
@@ -243,7 +243,7 @@ I bloccaggi implementano le API del gestore di contesto se sono compatibili con 
 # threading_lock_with.py
 </py_code>
 <testo_normale>
-Le due funzioni <code>worker_with()</code> e <code>workder_no_wit()</code> gestiscono il bloccaggio in modo equivalente.
+Le due funzioni <code>worker_with()</code> e <code>workder_no_with()</code> gestiscono il bloccaggio in modo equivalente.
 </testo_normale>
 <py_output>
 $ python3 threading_lock_with.py
@@ -252,7 +252,7 @@ $ python3 threading_lock_with.py
 Sincronizzare i Thread
 </titolo_2>
 <testo_normale>
-Oltre all'utilizzo di <code>Events</code>, un altro modo di sincronizzare i thread è tramite l'oggetto <code>Condition</code>. Visto che <code>Condition</code> usa <code>Lock</code>, potrebbe essere legato ad una risorsa condivisa, consentendo a thread multipli di attendere che la risorsa sia aggiornata. In questo esempio, i thread in <code>consumers()</code> attendono che la condizione venga impostata in <code>Condition</code> prima di continuare. Il thread <code>producer()</code> è responsabile dell'impostazione della condizione e della notifica di via libera agli altri thread
+Oltre all'utilizzo di <code>Events</code>, un altro modo di sincronizzare i thread è tramite l'oggetto <code>Condition</code>. Visto che <code>Condition</code> usa <code>Lock</code>, potrebbe essere legato ad una risorsa condivisa, consentendo a thread multipli di attendere che la risorsa sia aggiornata. In questo esempio, i thread in <code>consumer()</code> attendono che la condizione venga impostata in <code>Condition</code> prima di continuare. Il thread <code>producer()</code> è responsabile dell'impostazione della condizione e della notifica di via libera agli altri thread
 </testo_normale>
 <py_code>
 # threading_condition.py
@@ -264,25 +264,25 @@ I thread usano <code>with</code> per acquisire il bloccaggio associato a <code>C
 $ python3 threading_condition.py
 </py_output>
 <testo_normale>
-La barriera è un altro meccanismo di sincronizzazione dei thread. <code>Barrier</code> imposta un punto di controllo e tutti i thread partecipanti si bloccano fino a che tutte le parti partecipanti hanno raggiunto quel punto. Consente ai thread di partire separatamente, quindi interrompe fino a che tutti sono pronti a procedere.
+La barriera è un altro meccanismo di sincronizzazione dei thread. <code>Barrier</code> imposta un punto di controllo e tutti i thread partecipanti si bloccano fino a che tutte le parti in causa hanno raggiunto quel punto. Consente ai thread di partire separatamente, quindi interrompe fino a che tutti sono pronti a procedere.
 </testo_normale>
 <py_code>
 # threading_barrier.py
 </py_code>
 <testo_normale>
-In questo esempio, la barriera <code>Barrier</code> viene configurata per bloccare fino a quando ci sono 3 thread in attesa. Quando la condizione viene raggiunta, i thread sono rilasciati oltre il punto di controllo simultaneamente. Il valore di ritorno di <code>wait()</code> indica il numero di parti che sono state rilasciate, e può essere usato per limitare alcuni thread dal intraprendere una azione tipo la pulizia di una risorsa condivisa.
+In questo esempio, la barriera <code>Barrier</code> viene configurata per bloccare fino a quando ci sono 3 thread in attesa. Quando la condizione viene soddisfatta, i thread sono rilasciati oltre il punto di controllo simultaneamente. Il valore di ritorno di <code>wait()</code> indica il numero di parti che sono state rilasciate, e può essere usato per limitare alcuni thread dall'intraprendere una azione tipo la pulizia di una risorsa condivisa.
 </testo_normale>
 <py_output>
 $ python3 threading_barrier.py
 </py_output>
 <testo_normale>
-Il metodo <code>abort()</code> di <code>Barriere</code> fa sì che tutti i thread in attesa ricevano un segnale <code>BrokenBarrierError</code>, che consente ai thread di eseguire una pulizia se il processo viene interrotto mentre sono bloccati in <code>wait()</code>
+Il metodo <code>abort()</code> di <code>Barrier</code> fa sì che tutti i thread in attesa ricevano un segnale <code>BrokenBarrierError</code>, che consente ai thread di eseguire una pulizia se il processo viene interrotto mentre sono bloccati in <code>wait()</code>
 </testo_normale>
 <py_code>
 # threading_barrier_abort.py
 </py_code>
 <testo_normale>
-Questo esempio configura <code>Barrier</code> per attendersi uno o puù thread partecipanti, quindi viene fatto effettivamente partire in modo che l'elaborazione in tutti i thread sia bloccata. La chiamata di <code>abort()</code> solleva una eccezione in ogni thread bloccato.
+Questo esempio configura <code>Barrier</code> per attendersi un ulteriore thread partecipante rispetto a quanti realmente partiti, quindi l'elaborazione in tutti i thread è bloccata. La chiamata di <code>abort()</code> solleva una eccezione in ogni thread bloccato.
 </testo_normale>
 <py_output>
 $ python3 threading_barrier_abort.py
@@ -291,7 +291,7 @@ $ python3 threading_barrier_abort.py
 Limitare l'Accesso Concorrenziale alle Risorse
 </titolo_2>
 <testo_normale>
-Talvota è utile consentire a più di un elaboratore l'accesso contemporaneo ad una risorsa, mantenendo sempre la possibilità di limitarne il numero complessivo. Ad esempio un <em>connection pool</em> potrebbe supportare un numero definito di connessioni simultanee, oppure una applicazione di rete potrebbe supportare un numero definito di scaricamenti concorrenti. Un modo per gestire queste connessioni può essere <code>Semaphore</code>.
+Talvota è utile consentire a più di un elaboratore l'accesso contemporaneo ad una risorsa, mantenendo sempre la possibilità di limitarne il numero complessivo. Ad esempio un <em>pool</em> di connessionio potrebbe supportare un numero definito di connessioni simultanee, oppure una applicazione di rete potrebbe supportare un numero definito di scaricamenti concorrenti. Un modo per gestire queste connessioni può essere <code>Semaphore</code>.
 </testo_normale>
 <py_code>
 # threading_semaphore.py
@@ -306,7 +306,7 @@ $ python3 threading_semaphore.py
 Dati Specifici al Thread
 </titolo_2>
 <testo_normale>
-Mentre alcune risorse devono essere bloccate in modo che possano essere usate da thread multipli, le altre devono essree protette in modo che siano nascoste ai thread che non le detengono. La classe <code>locat()</code> crea un oggetto in grado di nascondere i valori dalla vista in thread separati.
+Mentre alcune risorse devono essere bloccate in modo che possano essere usate da thread multipli, le altre devono essree protette in modo che siano nascoste ai thread che le detengono. La classe <code>local()</code> crea un oggetto in grado di nascondere i valori dalla vista in thread separati.
 </testo_normale>
 <py_code>
 # threading_local.py
@@ -330,7 +330,10 @@ Per inizializzare le impostazioni in modo che tutti i thread partano con lo stes
 $ python3 threading_local_defaults.py
 </py_output>
 <vedi_anche>
-https://docs.python.org/3.7/library/thread.html|resource|La documentazione della libreria standard per questo modulo.
-signal.html|signal|Per dettagli sulla registrazione dei gestori di segnale.
+https://docs.python.org/3.7/library/threading.html|threading|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#44|Note di portabilità per threading|
+#|multiprocessing (di prossima traduzione)|Una API per lavorare con processi che rispecchiano l'API di threading
+queue.html|Queue|Coda <em>thread-safe</em>, utile per passare messaggi tra thread
+#|thread|Api thread di basso livello
 </vedi_anche>
 </documento_tradotto>

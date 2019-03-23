@@ -1,13 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# warnings_filterwarnings_lineno.py
 
 import warnings
 
 warnings.filterwarnings(
-	'ignore',
-	'.*',
-	UserWarning, 
-	'warnings_filtering', 
-	14
+    'ignore',
+    '.*',
+    UserWarning,
+    'warnings_filter',
+    6,
 )
-import warnings_filtering
+
+import warnings_filter

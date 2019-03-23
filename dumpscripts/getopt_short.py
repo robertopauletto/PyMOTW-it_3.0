@@ -1,6 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getopt_short.py
 
 import getopt
 
-print getopt.getopt(['-a', '-bval', '-c', 'val'], 'ab:c:')
+
+opts, args = getopt.getopt(['-a', '-bval', '-c', 'val'], 'ab:c:')
+
+for opt in opts:
+    print(opt)

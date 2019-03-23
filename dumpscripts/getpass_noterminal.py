@@ -1,13 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getpass_noterminal.py
 
 import getpass
 import sys
 
+
 if sys.stdin.isatty():
-    p = getpass.getpass('Si usa getpass: ')
+    p = getpass.getpass('Si sta usando getpass: ')
 else:
-    print 'Si usa readline'
+    print('Si sta usando readline')
     p = sys.stdin.readline().rstrip()
 
-print 'Letto: ', p
+print('Letto: ', p)

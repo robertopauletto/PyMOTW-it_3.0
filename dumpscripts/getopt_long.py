@@ -1,8 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getopt_long.py
 
 import getopt
 
-print getopt.getopt([ '--noarg', '--witharg', 'val', '--witharg2=another' ],
-                    '',
-                    [ 'noarg', 'witharg=', 'witharg2=' ])
+
+opts, args = getopt.getopt(
+    ['--noarg',
+     '--witharg', 'val',
+     '--witharg2=another'],
+    '',
+    ['noarg', 'witharg=', 'witharg2='],
+)
+for opt in opts:
+    print(opt)

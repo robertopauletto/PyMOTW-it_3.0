@@ -2,7 +2,7 @@
 
 import shlex
 
-text = "Questo testo dice di passare a source apici.txt prima di continuare."
+text = "Questo testo dice di passare a source quotes.txt prima di continuare."
 print('ORIGINALE: {!r}'.format(text))
 print()
 

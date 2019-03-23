@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# atexit_exception.py
 import atexit
+
 
 def exit_with_exception(message):
     raise RuntimeError(message)
 
-atexit.register(exit_with_exception, 'Registrata per prima')
-atexit.register(exit_with_exception, 'Registrata per seconda')
+
+atexit.register(exit_with_exception, 'Registrato per primo')
+atexit.register(exit_with_exception, 'Registrato per secondo')

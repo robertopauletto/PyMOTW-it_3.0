@@ -1,20 +1,28 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# getopt_example.py
 
 import getopt
 import sys
+
 
 version = '1.0'
 verbose = False
 output_filename = 'default.out'
 
-print 'ARGV      :', sys.argv[1:]
+print('ARGV      :', sys.argv[1:])
 
-options, remainder = getopt.getopt(sys.argv[1:], 'o:v', ['output=', 
-                                                         'verbose',
-                                                         'version=',
-                                                         ])
-print 'OPZIONI   :', options
+try:
+    options, remainder = getopt.getopt(
+        sys.argv[1:],
+        'o:v',
+        ['output=',
+         'verbose',
+         'version=',
+         ])
+except getopt.GetoptError as err:
+    print('ERRORE:', err)
+    sys.exit(1)
+
+print('OPZIONI   :', options)
 
 for opt, arg in options:
     if opt in ('-o', '--output'):
@@ -24,7 +32,7 @@ for opt, arg in options:
     elif opt == '--version':
         version = arg
 
-print 'VERSION   :', version
-print 'VERBOSE   :', verbose
-print 'OUTPUT    :', output_filename
-print 'RIMASTE   :', remainder
+print('VERSION   :', version)
+print('VERBOSE   :', verbose)
+print('OUTPUT    :', output_filename)
+print('RIMANENTI :', remainder)

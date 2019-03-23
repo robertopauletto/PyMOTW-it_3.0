@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<documento_tradotto>
+<categoria>Caratteristiche della Fase di Esecuzione</categoria>
+<titolo_1>
+sysconfig - Configurazione Interprete in Fase di Compilazione
+</titolo_1>
+<descrizione>
+Accede alle impostazioni di configurazione usate per compilare Python
+
+</descrizione>
+<testo_normale>
+Le caratteristiche di <strong>sysconfig</strong> sono state estratte da <strong>distutils</strong> per creare un modulo a se stante. Esso include funzioni per determinare le impostazioni usate per compilare ed installare l'interprete corrente.
+</testo_normale>
+<titolo_2>
+Variabili di Configurazione
+</titolo_2>
+<testo_normale>
+L'accesso alle impostazioni di configurazione in fase di compilazione sono fornite tramite due funzioni, <code>get_config_vars()</code> ritorna un dizionario che mappa i nomi delle variabili di configurazione ai valori.
+</testo_normale>
+<py_code>
+# sysconfig_get_config_vars.py
+</py_code>
+<testo_normale>
+Il livello di dettaglio disponibile attraverso le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> di <strong>sysconfig</strong> dipendono dalla piattaforma nella quale il programma è in esecuzione. Su sistemi POSIX tipo Linux od OS X, il file <code>Makefile</code> usato per compilare l'interprete ed il file <em>header</em> <code>config.h</code> generato per la compilazione sono esaminati e vengono rese disponibili tutte le variablii trovate all'interno. Su sistemi non POSIX tipo Windows, le impostazioni sono limitate a pochi percorsi, estensioni di nomi di file e dettagli di versione.
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_config_vars.py
+</py_output>
+<testo_normale>
+Passando nomi di variabili a <code>get_config_vars()</code> si modifica il valore di ritorno in una lista creata aggiungendo tutti i valori per quelle variabili.
+</testo_normale>
+<py_code>
+# sysconfig_get_config_vars_by_name.py
+</py_code>
+<testo_normale>
+Questo esempio costruisce una lista di tutte le directory base di installazione dove si possono trovare i moduli nel sistema corrente
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_config_vars_by_name.py
+</py_output>
+<testo_normale>
+Quando è necessario un solo valore di configurazione, si usi <code>get_config_var()</code> per ottenerlo.
+</testo_normale>
+<py_code>
+# sysconfig_get_config_var.py
+</py_code>
+<testo_normale>
+Se la variabile non viene trovata, <code>get_config_var()</code> ritorna <code>None</code> invcece che sollevare una eccezione.
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_config_var.py
+</py_output>
+<titolo_2>
+Percorsi di Installazione
+</titolo_2>
+<testo_normale>
+<strong>sysconfig</strong> è principalmente concepito per essere usato dagli strumenti di installaizone ed assemblaggio. Come risultato, mentre fornisce accesso ad impostazioni di configurazione generali tipo la versione dell'interprete, è focalizzato sulle informazioni necessarie per trovare parti della distribuzione  di Python attualmente installate su di un sistema. Le locazioni usate per installare un pacchetto dipendono dallo schema usato.
+</testo_normale>
+<testo_normale>
+Uno schema (<em>scheme</em>) è un insieme di directory predefinite specifiche alla piattaforma organizzate in base agli standard e le linee guida della piattaforma per l'assemblaggio. Ci sono diversi schemi per installare in una locazione a livello di sito oppure una directory privata che appartiene all'utente. L'intero insieme di schemi può essere ottenuto con <code>get_scheme_names()</code>
+</testo_normale>
+<py_code>
+# sysconfig_get_scheme_names.py
+</py_code>
+<testo_normale>
+Non esiste il concetto di "schema corrente" <em>per se</em>. Lo schema predefinito dipende dalla piattaforma, e lo schema effettivamente utlizzato dipende da opzioni fornite al programma di installazione. Se il sistema corrente sta eseguendo un sistema operativo conforme POSIX, l'impostazione predefinita è <code>posix_prefix</code>. Altrimenti l'impostazione predefinita è il nome del sistema operativo, definita in <code>os.name</code>
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_scheme_names.py
+</py_output>
+<testo_normale>
+Ogni schema definisce un insieme di percorsi usati per i pacchetti di installazione. Per un elenco dei nomi di percorso, si usi <code>get_path_names()</code>.
+</testo_normale>
+<py_code>
+# sysconfig_get_path_names.py
+</py_code>
+<testo_normale>
+Alcuni dei percorsi potrebbero essere gli stessi per un dato schema, ma gli installatori non dovrebbe fare alcuna assunzione circa la locazione effettiva dei percorsi. Ciascun nome ha un particolare significato semantico, quindi dovrebbe essere usato il nome corretto per trovare il percorso per un dato file durante una installazione. Si faccia riferimento alla tabella di seguto per un elenco completo dei nomi di percorso e del loro significato
+</testo_normale>
+<tabella_semplice>
+NOME;DESCRIZIONE
+<code>stlib</code>;File della libreria standard Python, non specifici alla piattaforma
+<code>platstlib</code>;File della libreria standard Python, specifici alla piattaforma
+<code>platlib</code>;File specifici alla piattaforma ed al sito
+<code>purelib</code>;File non specifici alla piattaforma, specifici al sito
+<code>include</code>;File <em>header</em>, non specifici alla piattaforma
+<code>platinclude</code>;File <em>header</em>, specifici alla piattaforma
+<code>scripts</code>;File script eseguibili
+<code>data</code>;File dati
+</tabella_semplice>
+<py_output>
+$ python3 sysconfig_get_path_names.py
+</py_output>
+<testo_normale>
+Si usi <code>get_paths()</code> per ottenere le effettive directory associate ad uno schema.
+</testo_normale>
+<py_code>
+# sysconfig_get_paths.py
+</py_code>
+<testo_normale>
+Questo esempio mostra la differenza tra percorsi a livello di sistema usati per <code>posix_prefix</code> sotto una infrastruttura costruita su un sistema Linux, e i valori specifici utente per <code>posix_user</code>.
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_paths.py
+</py_output>
+<testo_normale>
+Per un percorso individuale si chiami <code>get_path()</code>.
+</testo_normale>
+<py_code>
+# sysconfig_get_path.py
+</py_code>
+<testo_normale>
+Usando <code>get_path()</code> equivale a salvare il valore di <code>get_paths()</code> e cercare la chiave nel dizionario. Se sono necessari diversi percorsi, <code>get_paths()</code> è più efficiente in quanto non ricalcola tutti i percorsi ogni volta.
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_path.py
+</py_output>
+<titolo_2>
+Versioni di Python e Piattaforma
+</titolo_2>
+<testo_normale>
+Sebbene <strong>sys</strong> includa qualche identificazione basica riguardo alla piattaforma, non è sufficientemente dettagliata affinchè possa essere usata per installare pacchetti binari visto che <code>sys.platform</code> non sempre include informazioni sull'architettura hardware, dimensioni di istruzione o altri valori che condizionano la compatibilità dei binari delle librerie. Per una specifica più precisa della piattaforma, si usi <code>get_platform()</code>.
+</testo_normale>
+<py_code>
+# sysconfig_get_platform.py
+</py_code>
+<py_output>
+$ python3 sysconfig_get_platform.py
+</py_output>
+<testo_normale>
+Per praticità, la versione dell'interprete via <code>sys.version_info</code> è anche disponibile via <code>get_python_version()</code> in <strong>sysconfig</strong>
+</testo_normale>
+<py_code>
+# sysconfig_get_python_version.py
+</py_code>
+<testo_normale>
+<code>get_python_version()</code> ritorna una stringa adatta all'uso nella costruzione di percorsi specifici a livello di versione.
+</testo_normale>
+<py_output>
+$ python3 sysconfig_get_python_version.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/sysconfig.html|sysconfig|La documentazione della libreria standard per questo modulo
+#|distutils|<code>sysconfig</code> è usato come parte del pacchetto <code>distutils</code>
+site.html|site|Il modulo <strong>site</strong> descrive più dettagliatamente i percorsi che vengono cercati in fase di importazione
+#|os (in corso di traduzione)|comprende <code>os.name</code>, il nome del sistema operativo corrente
+#|sys (in corso di traduzione)|comprende altre informazioni in fase di compilazione tipo la piattaforma.
+</vedi_anche>
+</documento_tradotto>

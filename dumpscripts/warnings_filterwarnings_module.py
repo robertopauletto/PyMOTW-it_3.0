@@ -1,12 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# warnings_filterwarnings_module.py
 
 import warnings
 
 warnings.filterwarnings(
-	'ignore',
-	'.*',
-	UserWarning, 
-	'warnings_filtering'
+    'ignore',
+    '.*',
+    UserWarning,
+    'warnings_filter',
 )
-import warnings_filtering
+
+import warnings_filter

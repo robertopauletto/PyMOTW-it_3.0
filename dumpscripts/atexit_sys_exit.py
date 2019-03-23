@@ -1,15 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
+# atexit_sys_exit.py
 import atexit
 import sys
 
+
 def all_done():
-    print 'all_done()'
+    print('all_done()')
 
-print 'Sto registrando ...'
+
+print('In registrazione')
 atexit.register(all_done)
-print 'Registrata'
+print('Registrato')
 
-print 'Sto uscendo...'
+print('In uscita...')
 sys.exit()

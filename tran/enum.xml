@@ -80,7 +80,7 @@ for status in BugStatus:
 I membri sono prodotti nell'ordine nel quale sono stati dichiarati nelle definizione della classe. I nomi ed i valori non sono utilizzati in alcun modo per un ordinamento.
 </testo_normale>
 <py_output>
-3 enum_iterate.py
+$ python3 enum_iterate.py
 
 new             = 7
 incomplete      = 6
@@ -305,7 +305,7 @@ incomplete      = 6
 new             = 7
 </py_output>
 <testo_normale>
-Per un maggriore controllo sui valori associati ai membri, la stringa <code>names</code> può essere sostituita da un a sequenza di tuple da due elementi o da un dizionario che mappi nomi ai valori.
+Per un maggiore controllo sui valori associati ai membri, la stringa <code>names</code> può essere sostituita da un a sequenza di tuple da due elementi o da un dizionario che mappi nomi ai valori.
 </testo_normale>
 <py_code>
 import enum

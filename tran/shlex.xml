@@ -10,17 +10,17 @@
 <!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
 <documento_tradotto>
 <titolo_1>
-shlex - Analisi delle Sintassi Tipo Shell
+shlex - Analisi delle Sintassi Stile Shell
 </titolo_1>
 <descrizione>
-Analisi lessicale delle sintassi tipo shell.
+Analisi lessicale delle sintassi Stile shell.
 
 </descrizione>
 <testo_normale>
-Il modulo <strong>shlex</strong> implementa una classe per analizzare semplici sintassi tipo shell. Può essere usato per scrivere un proprio <a href='http://it.wikipedia.org/wiki/Programmazione_dichiarativa'>linguaggio di programmazione <em>domain specific</em></a>, o per analizzare stringhe racchiuse tra apici (un compito più complesso di quello che può sembrare a prima vista).
+Il modulo <strong>shlex</strong> implementa una classe per analizzare semplici sintassi tipo shell. Può essere usato per scrivere un proprio linguaggio di programmazione <a href='http://it.wikipedia.org/wiki/Programmazione_dichiarativa'> <em>domain specific</em></a> (DSL), o per analizzare stringhe racchiuse tra apici (un compito più complesso di quello che può sembrare a prima vista).
 </testo_normale>
 <titolo_2>
-Stringhe Racchiuse tra Apici
+Elaborare Stringhe Racchiuse tra Apici
 </titolo_2>
 <testo_normale>
 Un problema comune quando si lavora con un testo in input è quello di identificare una sequenza di parole racchiuse tra apici come singola entità. Dividere la stringa in base agli apici non sempre fornisce il risultato sperato, specialmente se si sono livelli di apici annidati. Si prenda ad esempio il testo seguente:
@@ -29,13 +29,13 @@ Un problema comune quando si lavora con un testo in input è quello di identific
 Questa stringa contiene "doppi apici" ed 'apici singoli' incorporati in essa, ed anche "un esempio 'annidato'".
 </py_output>
 <testo_normale>
-Un approccio ingenuo potrebbe essere quello di tentare di costruire una espressione regolare per trovare le parti di testo al di fuori degli apici per separarle da quelle all'interno degli stessi, o viceversa. Detto approccio sarebbe inutilmente complesso e prono ad errori risultanti da casi limite come gli apostrofi od anche errori ortografici. Una soluzione migliore è quella di usare un vero e proprio analizzatore, tipo quello fornito dal modulo  <strong>shlex</strong>. Di seguito un semplice esempio che stampa i <a href='https://www.wikiwand.com/it/Token_(testo)' target='_blank'>token</a>  identificati nel file di input usando la classe <code>shlex</code>:
+Un approccio ingenuo potrebbe essere quello di tentare di costruire una espressione regolare per trovare le parti di testo al di fuori degli apici per separarle da quelle all'interno degli stessi, o viceversa. Detto approccio sarebbe inutilmente complesso e prono a errori risultanti da casi limite come gli apostrofi o anche errori ortografici. Una soluzione migliore è quella di usare un vero e proprio analizzatore, tipo quello fornito dal modulo  <strong>shlex</strong>. Di seguito un semplice esempio che stampa i <a href='https://www.wikiwand.com/it/Token_(testo)' target='_blank'>token</a>  identificati nel file di input usando la classe <code>shlex</code>:
 </testo_normale>
 <py_code>
 # shlex_example.py
 </py_code>
 <testo_normale>
-Quando si esegue su dati che contengono apici annidati, l'analizzatore produce l'elenco di token attesi.
+Quando si esegue su dati che contengono apici all'interno, l'analizzatore produce l'elenco di token attesi.
 </testo_normale>
 <py_output>
 $ python3 shlex_example.py quotes.txt
@@ -56,7 +56,7 @@ $ python3 shlex_example.py apostrophe.txt
 Rendere le Stringhe Sicure per le Shell
 </titolo_2>
 <testo_normale>
-La funzione <tc>quote</tc> esegue l'operazione inversa, utilizzando <em>sequenze di escape</em> per gli apici esistenti ed aggiungendo gli apici mancanti  per le stringhe in modo da renderne l'uso sicuro in comandi di shell
+La funzione <code>quote()</code> esegue l'operazione inversa, utilizzando <em>sequenze di escape</em> per gli apici esistenti ed aggiungendo gli apici mancanti  per le stringhe in modo da renderne l'uso sicuro in comandi di shell
 </testo_normale>
 <py_code>
 # shlex_quote.py
@@ -68,7 +68,7 @@ E' comunque più sicuro usare una lista di argomenti quando si sta usando <code>
 $ python3 shlex_quote.py
 </py_output>
 <titolo_2>
-Commenti Annidati
+Commenti Incorporati
 </titolo_2>
 <testo_normale>
 Visto che l'analizzatore è inteso per l'uso con linguaggi di comando, deve gestire i commenti. Nella modalità predefinita qualsiasi testo che segua un <code>#</code> è considerato parte di un commento, quindi ignorato. A causa della natura dell'analizzatore, solo i prefissi di commento a singolo carattere sono supportati. L'insieme dei caratteri di commento usati può essere configurato attraverso la proprietà <code>commenters</code>
@@ -95,13 +95,13 @@ $ python3 shlex_split.py
 Includere altre Sorgenti di Token
 </titolo_2>
 <testo_normale>
-La classe <code>shlex</code> comprende parecchie proprietà di configurazione che ne controllano il comportamento. La proprietà <code>source</code> abilita la funzionalità di riutilizzo del codice (o della configurazione) consentendo ad un flusso di token di includerne un altro. E' un comportamento simile a quella dell'operatore  <code>source</code> della <a href='https://www.wikiwand.com/it/Bourne_shell' target='_blank'>Bourne shell</a>, da qui il nome.
+La classe <code>shlex</code> comprende parecchie proprietà di configurazione che ne controllano il comportamento. La proprietà <code>source</code> abilita la funzionalità di riutilizzo del codice (o della configurazione) consentendo a un flusso di token di includerne un altro. E' un comportamento simile a quello dell'operatore  <code>source</code> della <a href='https://www.wikiwand.com/it/Bourne_shell' target='_blank'>Bourne shell</a>, da qui il nome.
 </testo_normale>
 <py_code>
 # shlex_source.py
 </py_code>
 <testo_normale>
-La stringa <code>source quotes.txt</code> nel testo originale riceve un trattamento speciale. Visto che la proprietà <code>source</code> del <a href='https://www.wikiwand.com/it/Analizzatore_lessicale' target='_blank'>lexer</a> viene impostata a <code>"source"</code>, quando la parola chiave viene rilevata il nome del file che segue viene incluso automaticamente. Per fare sì che il nome del file appaia come singolo token, occorre aggiungere il carattere <code>.</code> all'interno dell'elenco dei caratteri che sono inclusi nelle parole (altrimenti "<code>quotes.txt$</code>" avrebbe prodotto tre token: "<code>quotes</code>", "<code>.</code>" e "<code>txt</code>". Il risultato è:
+La stringa <code>source quotes.txt</code> nel testo originale riceve un trattamento speciale. Visto che la proprietà <code>source</code> del <a href='https://www.wikiwand.com/it/Analizzatore_lessicale' target='_blank'>lexer</a> viene impostata a <code>"source"</code>, quando la parola chiave viene rilevata, il nome del file che segue è incluso automaticamente. Per fare sì che il nome del file appaia come singolo token, occorre aggiungere il carattere <code>.</code> deve essere aggiunto all'elenco dei caratteri che sono inclusi nelle parole (altrimenti "<code>quotes.txt</code>" avrebbe prodotto tre token: "<code>quotes</code>", "<code>.</code>" e "<code>txt</code>". Il risultato è:
 </testo_normale>
 <py_output>
 $ python3 shlex_source.py
@@ -113,7 +113,7 @@ La funzionalità "source" usa un metodo chiamato <code>sourcehook()</code> per c
 Controllare il Parser
 </titolo_2>
 <testo_normale>
-In un esempio precedente si dimostrava che la modifica del valore di <code>wordchars</code> controllava quali caratteri sono inclusi nelle parole. E' anche possibile impostare il carattere per <code>quotes</code> per usare apici alternativi od addizionali. Ogni valore deve essere singolo, non è possibile avere caratteri di apertura e chiusura diversi (come le parentesi, as esempio).
+In un esempio precedente si dimostrava che la modifica del valore di <code>wordchars</code> controlla quali caratteri sono inclusi nelle parole. E' anche possibile impostare il carattere per <code>quotes</code> per usare apici alternativi o addizionali. Ogni valore deve essere singolo, non è possibile avere caratteri di apertura e chiusura diversi (come le parentesi, ad esempio).
 </testo_normale>
 <py_code>
 # shlex_table.py
@@ -131,7 +131,8 @@ E' anche possibile controllare spazi, ritorni a capo, tabulazioni usati per la d
 # shlex_whitespace.py
 </py_code>
 <testo_normale>
-Se l'esempio in <code>shlex_example.py</code> viene modificato per includere punti e virgole, il risultato cambia </testo_normale>
+Se l'esempio in <code>shlex_example.py</code> viene modificato per includere punti e virgole, il risultato cambia
+</testo_normale>
 <py_output>
 $ python3 shlex_whitespace.py quotes.txt
 </py_output>
@@ -139,7 +140,7 @@ $ python3 shlex_whitespace.py quotes.txt
 Gestione Errori
 </titolo_2>
 <testo_normale>
-Quando l'analizzatore giunge alla fine del suo input prima che tutte le stringhe tra apici siano chiuse, solleva una eccezione <code>ValueError</code>. Quando questo succede, è utile esaminare alcune delle proprietà dell'analizzatore mantenute mentre viene elaborato l'input. Ad esempio <code>infile</code> fa riferimento al nome del file che si sta elaborando (che potrebbe essere diverso dal file originale, se un file chiama "source" verso un altro). Quando l'errore viene scoperto <code>lineno</code> riporta la riga. Tipicamente <code>lineno</code> è la fine del file, che potrebbe essere ben lontano dal primo apice. L'attributo <code>token</code> contiene il buffer di testo che non è stato ancora incluso in un token valido. Il metodo <code>error_leader()</code> produrre un prefisso di messaggio in uno stile simile a quello dei compilatori Unix, che consente ad editor tipo emacs di analizzare l'errore e portare l'utente direttamente a quella riga non valida.
+Quando l'analizzatore giunge alla fine del suo input prima che tutte le stringhe tra apici siano chiuse, solleva una eccezione <code>ValueError</code>. Quando questo succede, è utile esaminare alcune delle proprietà dell'analizzatore mantenute mentre viene elaborato l'input. Ad esempio <code>infile</code> fa riferimento al nome del file che si sta elaborando (che potrebbe essere diverso dal file originale, se un file chiama "source" verso un altro). Quando l'errore viene scoperto <code>lineno</code> riporta la riga. Tipicamente <code>lineno</code> è la fine del file, che potrebbe essere ben lontana dal primo apice. L'attributo <code>token</code> contiene il buffer di testo che non è stato ancora incluso in un token valido. Il metodo <code>error_leader()</code> produrre un prefisso di messaggio in uno stile simile a quello dei compilatori Unix, che consente a editor tipo emacs di analizzare l'errore e portare l'utente direttamente a quella riga non valida.
 </testo_normale>
 <py_code>
 # shlex_errors.py
@@ -154,7 +155,7 @@ $ python3 shlex_errors.py
 Elaborazione POSIX contro Non-POSIX
 </titolo_2>
 <testo_normale>
-Il comportamento predefinito per l'analizzatore è quello di usare uno stile retro compatibile che non è conforme alle specifiche POSIX. Per ottenere un comportamento POSIX si impostu il parametro <code>posix</code> quando si costruisce l'analizzatore.
+Il comportamento predefinito per l'analizzatore è quello di usare uno stile retro compatibile che non è conforme alle specifiche POSIX. Per ottenere un comportamento POSIX si imposti l'argomento <code>posix</code> quando si costruisce l'analizzatore.
 </testo_normale>
 <py_code>
 # shlex_posix.py

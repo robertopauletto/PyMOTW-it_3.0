@@ -5,6 +5,7 @@ import textwrap
 
 # Carica tutti i dati dei gruppi, ordinati per nome
 all_groups = grp.getgrall()
+all_groups = grp.getgrall()
 interesting_groups = {
     g.gr_name: g
     for g in all_groups
