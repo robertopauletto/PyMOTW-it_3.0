@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="Latin-1"?>
+<categoria>componenti dell'applicazione</categoria>
+<!-- # tag <descrizione> contiene le voci per la tabella di riepilogo iniziale -->
+<!-- # tag <titolo_1> titolo principale -->
+<!-- tag <testo_normale> contiene il testo normale dell'articolo -->
+<!-- tag <titolo_2> contiene il testo per l'intestazione di un paragrafo -->
+<!-- tag <py_code> contiene il testo che rappresenta delle istruzioni python -->
+<!-- tag <py_output> contiene il testo che rappresenta l'output di uno script python -->
+<!-- tag <vedi_anche> contiene il testo che rappresentano i riferimenti esterni -->
+<!-- tag <lista> ogni riga all'interno del tag rappresenta una riga di una lista non ordinata'-->
+<documento_tradotto>
+<titolo_1>
+fileinput - Struttura di Filtri da Riga di Comando
+</titolo_1>
+<descrizione>
+Crea programmi di filtro da riga di comando per elaborare righe da flussi di input
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>fileinput</strong> è una struttura per creare programmi da riga di comando in grado di agire come filtro per file di testo.
+</testo_normale>
+<titolo_2>
+Convertire file  M3U in RSS
+</titolo_2>
+<testo_normale>
+Un esempio di un filtro è  <a href='https://pypi.python.org/pypi/m3utorss'>m3utorss</a> - scritta dall'autore dell'articolo originale Doug Hellmann (n.d.t.) - una applicazione per convertire un insieme di file MP3  in un flusso  <a href='https://www.wikiwand.com/it/RSS' target='_blank'>RSS</a>  che possa essere condiviso come podcast. Gli input per il programma sono uno o più file <a href='https://www.wikiwand.com/it/M3U' target='_blank'>m3u</a>  contenenti l'elenco dei file MP3 da distribuire. Il risultato è un flusso RSS stampato alla console. Per elaborare l'input, il programma deve iterare attraverso una lista di nomi di file e:
+</testo_normale>
+<lista>
+Aprire ciascun file.
+Leggere ogni riga del file.
+Identificare se la riga fa riferimento ad un file MP3.
+In caso positivo, aggiungere un nuovo elemento al flusso RSS.
+Stampare il risultato.
+</lista>
+<testo_normale>
+Tutto questo si sarebbe potuto codificare manualmente. Non è così complicato, e con qualche test si sarebbero potuti gestire correttamente anche gli errori. Ma <strong>fileinput</strong> è in grado di gestire tutti i dettagli, quindi la stesura del programma è semplificata.
+</testo_normale>
+<py_code>
+# fileinput_example.py
+</py_code>
+<testo_normale>
+La funzione <code>input()</code> riceve come argomento una lista di nomi di file da esaminare. Se la lista è vuota, il modulo legge i dati dallo standard input. La funzione ritorna un iteratore che a sua volta restituisce le singole righe dal file di testo che sta elaborando. Il chiamante deve eseguire un ciclo per ogni riga, saltando quelle vuote ed i commenti, per trovare i riferimenti ai file MP3.
+</testo_normale>
+<testo_normale>
+Il file di input di esempio contiene i nomi di parecchi file MP3.
+</testo_normale>
+<py_code>
+# sample_data.m3u
+
+# Questo è un file campione m3u
+episode-one.mp3
+episode-two.mp3
+</py_code>
+<testo_normale>
+L'esecuzione di <code>fileinput_example.py</code> con l'input di esempio produre dati XML usando il formato RSS
+</testo_normale>
+<py_output>
+$ python3 fileinput_example.py sample_data.m3u
+</py_output>
+<titolo_2>
+Metadati in Progressione
+</titolo_2>
+<testo_normale>
+Nell'esempio precedente, non interessa quale file o numero di riga si sta elaborando in fase di input. Per altri strumenti (per ricerche sul tipo di grep, ad esempio) queste informazioni potrebbero essere necessarie. Il modulo <strong>fileinput</strong>  include funzioni per accedere a tutti i metadati rispetto alla riga corrente (<code>filename()</code>, <code>filelineno()</code> e <code>lineno()</code> restituiscono nell'ordine il nome del file, il numero di riga nel file corrente ed il numero totale di righe lette.
+</testo_normale>
+<py_code>
+# fileinput_grep.py
+</py_code>
+<testo_normale>
+Si può usare questo basico ciclo per la corrispondenza di stringhe per trovare le occorrenze di "fileinput" nel sorgente di questi esempi.
+</testo_normale>
+<py_output>
+$ python3 fileinput_grep.py fileinput *.py
+</py_output>
+<testo_normale>
+Il testo può anche essere letto dallo standard input
+</testo_normale>
+<py_output>
+$ cat *.py | python3 fileinput_grep.py fileinput
+
+1:# fileinput_change_subnet_noisy.py
+3:import fileinput
+11:for line in fileinput.input(files, inplace=True):
+12:    if fileinput.isfirstline():
+14:            fileinput.filename()))
+23:# fileinput_change_subnet.py
+25:import fileinput
+32:for line in fileinput.input(files, inplace=True):
+35:# fileinput_example.py
+37:import fileinput
+57:for line in fileinput.input(sys.argv[1:]):
+72:# fileinput_grep.py
+74:import fileinput
+80:for line in fileinput.input(sys.argv[2:]):
+82:        if fileinput.isstdin():
+86:        print(fmt.format(filename=fileinput.filename(),
+87:                         lineno=fileinput.filelineno(),
+</py_output>
+<titolo_2>
+Filtrare sul Posto
+</titolo_2>
+<testo_normale>
+Un'altra comune operazione di elaborazione file è la modifica contestuale del contenuto, senza la creazione di un nuovo file. Ad esempio un file <em>hosts</em> Unix potrebbe avere bisogno di essere aggiornato se viene modificato l'intervallo di una sottorete. Di seguito il file di esempio prima delle modifiche
+</testo_normale>
+<py_code>
+# etc_hosts.txt
+</py_output>
+<testo_normale>
+Il modo sicuro per eseguire le modifiche automaticamente è creare un nuovo file basato sull'input, quindi rimpiazzare l'originale con la copia modificata. <strong>fileinput</strong> supporta questo automaticamente usando l'opzione <code>inplace</code>.
+</testo_normale>
+<py_code>
+# fileinput_change_subnet.py
+</py_code>
+<testo_normale>
+Nonostante lo script usi <code>print()</code>, non viene prodotto alcun output perchè <strong>fileinput</strong> redirige lo standard output al file che si sta sovrascrivendo.
+</testo_normale>
+<py_output>
+$ python3 fileinput_change_subnet.py 10.16 10.17 etc_hosts.txt
+</py_output>
+<testo_normale>
+Il file aggiornato ha gli indirizzi IP modificati per tutti i server sulla rete 10.16.0.0/16. Ecco il file  dopo la modifica
+</testo_normale>
+<py_code>
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+fe80::1%lo0     localhost
+10.17.177.128  hubert hubert.hellfly.net
+10.17.177.132  cubert cubert.hellfly.net
+10.17.177.136  zoidberg zoidberg.hellfly.net
+</py_code>
+<testo_normale>
+Prima che inizi l'elaborazione, una copia del file viene creata usando il nome originale più <code>.bak</code>.
+</testo_normale>
+<py_code>
+# fileinput_change_subnet_noisy.py
+</py_code>
+<testo_normale>
+La copia del file viene rimossa quando viene chiuso l'input.
+</testo_normale>
+<py_output>
+$ python3 fileinput_change_subnet_noisy.py 10.16 10.17 etc_hosts.txt
+
+Iniziata elaborazione etc_hosts.txt
+La directory contiene: ['etc_hosts.txt', 'etc_hosts.txt.bak']
+Terminata elaborazione
+La directory contiene: ['etc_hosts.txt']
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/fileinput.html|fileinput|La documentazione della libreria standard per questo modulo.
+https://pypi.python.org/pypi/m3utorss|m3utorss|Script per convertire file m3u con elenchi di MP3 in un file RSS adatto all'uso come flusso di podcast.
+#|xml.etree (di prossima traduzione)|Maggiori dettagli sull'utilizzo di <code>ElementTree</code> per produrre XML
+</vedi_anche>
+</documento_tradotto>
