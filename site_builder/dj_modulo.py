@@ -12,6 +12,7 @@ from footer import Footer
 import os.path
 
 class DjModulo(object):
+    fixed_sidebar = 20
     baseurl = 'examples'
     def __init__(self, indice, corpo, modulo, footer=Footer(), zipfile=None):
         self._indice_sidebar = indice
@@ -52,8 +53,18 @@ class DjModulo(object):
 
     @property
     def main_content(self):
-        return "\n".join(self._corpo)
+        try:
+            tmp = "\n".join(self._corpo)
+        except Exception as err:
+            print(err)
+            return "Errore: ", err.message
+        return tmp
+
+    @property
+    def sidebarnav_type(self):
+        return "fixed" if len(self.indice_laterale) <= DjModulo.fixed_sidebar \
+            else "absolute"
 
 
 if __name__ == '__main__':
-    print __doc__
+    print(__doc__)

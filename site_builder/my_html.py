@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple, defaultdict
+import os
+import re
+import subprocess
+from inline_sub import InlineSubs
+from ast import literal_eval
+from pyg import colora_codice
+from lib.capture_output import CaptureOutputScript
+
+
 __date__=''
 __version__='0.1'
 __doc__="""Metodi per la costruzione di codice html per le pagine di
@@ -8,10 +18,6 @@ moduli ed indice
 Versione %s %s
 """ % ( __version__, __date__ )
 
-from inline_sub import InlineSubs
-from collections import namedtuple
-from ast import literal_eval
-from pyg import colora_codice
 
 class MyHtml(object):
     """Si occupa della costruzione di elementi HTML"""
@@ -20,7 +26,13 @@ class MyHtml(object):
         'br',
         'hr',
     )
-    
+
+    def __init__(self, **kwargs):
+        self.subs = kwargs.get('subs', [
+            (r'/home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts',
+             '...')
+        ])
+
     def _get_tag(self, tag_name, **kwargs):
         """(str [, **kvargs]) -> str
         
@@ -92,7 +104,7 @@ class MyHtml(object):
                 **kwargs
             ))
         return self._get_start_end_tag(tag, " ".join(acc))
-    
+
     def _codice(self, value, **kwargs):
         return colora_codice(value)
 
@@ -108,7 +120,6 @@ class MyHtml(object):
     def _codice_xml_con_numerazione(self, value, **kwargs):
         return colora_codice(value, numera_righe=True, lexer_name='xml')
 
-        
     def _vedi_anche(self, lista, dd_class=None, **kwargs):
         """(list [,str]) ->
         
@@ -139,7 +150,7 @@ class MyHtml(object):
             if len(riga) == 2:
                 riga.append("")
             if len(riga) != 3:
-                print "Riga bibliografica malformata !!\n", riga
+                print("Riga bibliografica malformata !!\n".format(riga))
                 continue
             biblio = Biblio(*riga)
             if biblio.url == '#':
@@ -207,7 +218,6 @@ class MyHtml(object):
         pigmentato = self._codice_xml(value)
         return self._get_start_end_tag('div', pigmentato, **kwargs)
 
-
     def code_with_lineno(self, value, **kwargs):
         pigmentato = self._codice_con_numerazione(value)
         return self._get_start_end_tag('div', pigmentato, **kwargs)
@@ -216,14 +226,91 @@ class MyHtml(object):
         pigmentato = self._codice_xml_con_numerazione(value)
         return self._get_start_end_tag('div', pigmentato, **kwargs)
     
-    
     def output_console(self, value, **kwargs):
         """(str) -> str
-        
-        Mostra l'output console"""
-        testo = self._convert(value, "\n")
+
+        Mostra l'output console. Se value è una lista con più elementi si
+        presume che sia il testo di output da rendere. Se `value` contiene
+        un solo elemento si assume che sia un comando da eseguire in un
+        sottoprocesso per catturare e rendere il suo risultato; in questo
+        caso `value` viene elaborato per ottenere una valido parametro per
+        l'esecuzione dall'interprete python definito nell'istanza della
+        classe
+
+        Prerequisito: se `value` è un comando da eseguire **deve** iniziare
+        con `#` o `$`
+
+        :param value: è una lista contenente il comando da eseguire oppure
+                      l'output da rendere direttamente
+        :param kwargs: se chiave *script_folder* deve contenere il percorso
+                       nel quale si trova lo script da eseguire, altrimenti si
+                       assume la  directory corrente. Se contiene la stringa
+                       `?preproc` esegue il comando che segue.
+                       Se chiave 'subs', deve contenere una lista di tuple il
+                       ui primo elemento è il valore da sostituire ed il
+                       secondo il nuovo valore
+        """
+        script_folder = '.'
+        if len(value) > 1:
+            preproc = [row for row in value if row.startswith('?preproc')]
+            self._preproc(preproc)
+            if preproc:
+                value = [
+                    row for row in value if not row.startswith('?preproc')
+                ]
+
+        if len(value) == 1 and value[0].startswith(('#','$')):
+            # lo script non è nella directory di lavoro?
+            script_folder = kwargs.get('script_folder', '.')
+            subdir = re.findall(r'\[.*]', value[0])
+            if subdir:
+                subdir = subdir[0][1:-1]
+                value[0] = re.sub(r'\[.*]', '', value[0])
+                script_folder = os.path.join(script_folder, subdir)
+            # cmd = self._parse_cmd(value[0], script_folder)
+            cmd = value[0]
+            testo = self._convert(CaptureOutputScript().run(
+                cmd, script_folder, substitute=self.subs), "\n"
+            )
+        else:
+            testo = self._convert(value, "\n")
+            for fnd, rpl in self.subs:
+                testo = testo.replace(fnd, rpl)
+
+        testo = self._sub_angulars(testo)
         return self._get_start_end_tag('pre', testo, **kwargs)
-    
+
+    def _sub_angulars(self, testo):
+        """Bootstrap non gestisce le parentesi angolari nei tag pre, quindi
+        occorre effettuare manualmente la sostituzione eventuale per l'output
+        del comeando"""
+        testo = testo.replace('<', '&lt;')
+        testo = testo.replace('>', '&gt;')
+        return testo
+
+    def _preproc(self, cmds):
+        print(os.path.abspath(os.curdir))
+        try:
+            for cmd in cmds:
+                subprocess.call(cmd.split()[1:], stderr=open('r.t', mode='a'))
+        except Exception as ex:
+            print(ex)
+
+    def _parse_cmd(self, cmd, script_folder):
+        # Si assume che i primi due elementi siano sempre '$ <py_exe>`
+        parts = cmd.split()[2:]
+        cmdline = list()
+        if len(parts) == 1:  # solo lo script da eseguire (caso più frequente)
+            cmdline.append(os.paths.join(script_folder, parts[0]))
+        else:  # abbiamo dei parametri che possono essere prima o dopo lo script
+            for arg in parts:
+                if '.py' in arg.lower():
+                    # Si imposta il percorso completo dello script
+                    cmdline.append(os.path.join(script_folder, arg))
+                else:
+                    cmdline.append(arg)
+        return ' '.join(cmdline)
+
     def biblio(self, value, dd_class='indent', **kwargs):
         """Prepara la parte bibliografica dell'articolo"""
         header = self.p(self.strong('Vedere anche:'))
@@ -276,10 +363,7 @@ class MyHtml(object):
             output.append(self._get_start_end_tag('dd', dd, **kwargs))
         output.append("")
         return self._get_start_end_tag('dl',"\n".join(output))
-        
-    
-    
-    
+
     def _alerts(self, value, **kvargs):
         """(list|str) -> str
         
@@ -300,19 +384,19 @@ class MyHtml(object):
         
     def warning(self, value, **kwargs):
         """Metodo di convenienza che ottiene un box di avvertimento"""
-        return self._alerts(value, class_='alert alert-warning')
+        return self._alerts(value, class_='alert alert-warning fade in')
 
     def info(self, value, **kwargs):
         """Metodo di convenienza che ottiene un box di informazioni"""
-        return self._alerts(value, class_='alert alert-info')
+        return self._alerts(value, class_='alert alert-info fade in')
     
     def success(self, value, **kwargs):
         """Metodo di convenienza che ottiene un box di successo"""
-        return self._alerts(value, class_='alert alert-success')
+        return self._alerts(value, class_='alert alert-success fade in')
 
     def danger(self, value, **kwargs):
         """Metodo di convenienza che ottiene un box di attenzione"""
-        return self._alerts(value, class_='alert alert-danger')
+        return self._alerts(value, class_='alert alert-danger fade in')
 
 
 if __name__ == '__main__':

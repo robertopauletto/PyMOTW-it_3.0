@@ -1,82 +1,89 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+import string
+from os.path import exists
+from collections import defaultdict
+
+
 __date__=''
-__version__='0.1'
+__version__='0.2'
 __doc__="""Sostituzioni di stringhe specifiche con il corrispondente
 codice html
 Versione %s %s
 """ % ( __version__, __date__ )
 
-import string
-from os.path import exists
-from collections import defaultdict
 
 DEFAULT_SUBS = [
     "sbk|<code>",
     "ebk|</code>",
     "sev|<span class='bkItem'>",
     "eev|</span>",
+    "<|&lt;",
+    ">|&gt;",
 ]
 
 class InlineSubs(object):
     """
-    Si occupa della sostituzione in linea di tag proprietari
-    con le appropriate istruzioni html
+    Gestione di abbreviazioni nel testo che vengono espanse nei valori
+    da rendere
     """
     def __init__(self, file_diz=None):
-        """(str)
+        """(str [, list])
 
         Inizializza e carica gli elementi predefiniti nel
         dizionario di traduzione oppure gli elementi presenti nel file
-        `file_diz`
+        ``file_diz``
 
-        Prerequisito: `file_diz` contiene valori nel formato
+        Prerequisito: ``file_diz`` contiene valori nel formato
         chiave|valore dove valore è un valido pezzo di codice html
         """
-        self.diz = defaultdict(str)
+        self._diz = defaultdict(str)
         self.carica_diz(file_diz)
 
     def aggiungi_voce(self, chiave, valore):
         """(str, str)
 
-        Incrementa il dizionario dei valori da sostituire
+        Incrementa il dizionario dei valori da sostituire, oppure sostituisce
+        il valore se `chiave` già presente
         """
-        self.diz[chiave] = valore
-
+        self._diz[chiave] = valore
 
     def carica_diz(self, file_diz):
         """([str])
 
         Carica le chiavi che restituiscono il codice html dal file
-        `file_diz` se valorizzato oppure un insieme predefinito
+        ``file_diz`` se valorizzato oppure un insieme predefinito (entrambi
+        se le chiavi del diz. predefinito non esistono nel file in input.
+
+        Se ``self._diz`` non è vuoto **viene sovrascritto**
         """
-        if not file_diz or not exists(file_diz):
-            to_parse = DEFAULT_SUBS
-        else:
-            to_parse = [riga.strip for riga in open(file_diz).readlines()
-                        if riga and not riga.startswith("#")]
+        to_parse = DEFAULT_SUBS
+        if file_diz and exists(file_diz):
+            to_parse.extend([riga.strip for riga in open(file_diz)
+                             if riga and not riga.startswith("#")])
 
         for riga in to_parse:
+            # se i commenti sono anche nel file predefinito
             if not riga or riga.startswith("#"):
                 continue
             chiave, valore = riga.strip().split('|')
-            self.diz[chiave] = valore
+            self._diz[chiave.strip()] = valore.strip()
 
 
     def rimpiazza(self, testo):
         """(str) -> str
 
-        Ritorna la stringa modificata con il codice html
+        Se un elemento che è chiave di ``self.diz`` si trova in ``testo`` viene
+        sostituito con il valore nel dizionario
         """
-        return string.Template(testo).safe_substitute(self.diz)
-
-
+        return string.Template(testo).safe_substitute(self._diz)
 
 
 if __name__ == '__main__':
-    print __doc__
+    print(__doc__)
     i = InlineSubs()
     import pprint
-    pprint.pprint(i.diz)
+    pprint.pprint(i._diz)
 

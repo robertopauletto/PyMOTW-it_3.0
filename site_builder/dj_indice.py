@@ -1,49 +1,70 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from modulo import Modulo
+import datetime
+
+
 __date__=''
-__version__='0.1'
+__version__='0.2'
 __doc__="""Costruisce le pagine indice
 Versione %s %s
 """ % ( __version__, __date__ )
 
-from modulo import Modulo
-import datetime
 
 class Indice(object):
-    base_url = 'index%s.html'
+    base_url = 'index{}.html'
     moduli_per_riga = 3
     """
-    Rappresenta una pagina indice con elenco moduli in ordine
-    cronologicamente decrescente
+    Rappresenta una pagina indice con elenco moduli contenuti in ordine
+    alfabetico
     """
-    def __init__(self, elenco_moduli, footer, categ, nr_pagina=None):
-        """(list of :py:class:Modulo, :py:class:`Footer` [,int])"""
-        assert len(elenco_moduli) < 13  # 12 moduli per pagina
+    def __init__(self, elenco_moduli, footer, categ, page_no, tot_pages):
+        """
+
+        :param list elenco_moduli: i moduli per la pagina
+        :param Footer footer: il footer della pagina
+        :param list categ: le categorie da rendere in spalla dx della pagina
+        :param int nr_pagina: il numero pagina nell'ambito
+        :param int tot_pages: numero totale pagine
+        """
         self.moduli = elenco_moduli
-        self._ind_s = 0
-        self._ind_e = 0
-        self._retind = 0
-        self.prev_nr_page = -1
-        self.next_nr_page = -1
+        self.page = page_no
         self.footer = footer
         self.elenco_categorie = categ
+        self.tot_pages = int(tot_pages)
 
+    def get_prev_page(self, page):
+        page -= 1
+        if page <= 0:
+            return self.tot_pages
+        elif page == 1:
+            return ''
+        return page
 
+    def get_next_page(self, page):
+        page += 1
+        return page if page <= self.tot_pages else ''
 
     @property
     def prev_url(self):
-        if self.prev_nr_page >= 0:
-            return Indice.base_url % ("_" + str(self.prev_nr_page))
-        else:
-            return Indice.base_url % ''
+        page = self.get_prev_page(self.page)
+        x = Indice.base_url.format('_' + str(page) if page else '')
+        return x
+        # if self.prev_nr_page >= 0:
+        #     return Indice.base_url % ("_" + str(self.prev_nr_page))
+        # else:
+        #     return Indice.base_url % ''
 
     @property
     def next_url(self):
-        if self.next_nr_page > 0:
-            return Indice.base_url % ("_" + str(self.next_nr_page))
-        else:
-            return Indice.base_url % ''
+        page = self.get_next_page(self.page)
+        x = Indice.base_url.format('_' + str(page) if page else '')
+        return x
+        # if self.next_nr_page > 0:
+        #     return Indice.base_url % ("_" + str(self.next_nr_page))
+        # else:
+        #     return Indice.base_url % ''
 
         
     @property

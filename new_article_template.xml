@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>${categ}</categoria>
+<documento_tradotto>${indicizza}
+<titolo_1>
+${titolo_articolo}
+</titolo_1>
+<descrizione>
+${descrizione_articolo}
+
+</descrizione>
+<testo_normale>
+</testo_normale>
+<titolo_2>
+
+</titolo_2>
+<testo_normale>
+
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.7/library/${nome_modulo}.html|${nome_modulo}|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

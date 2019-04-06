@@ -22,10 +22,15 @@ def comprimi(folder, elenco, outfolder, outfile):
     :param outfile: il nome del file .zip (senza estensione)
     :return: il nome completo del file compresso
     """
+    not_found = list()
     zipname = os.path.join(outfolder, outfile + ".zip")
     if os.path.exists(zipname):
         unlink(zipname)
     with zipfile.ZipFile(zipname, mode='w') as zf:
         for filename in elenco:
-            zf.write(os.path.join(folder, filename), os.path.basename(filename))
-    return zipname
+            fn = os.path.join(folder, filename)
+            if not os.path.exists(fn):
+                not_found.append(fn)
+                continue
+            zf.write(fn, os.path.basename(filename))
+    return zipname, not_found

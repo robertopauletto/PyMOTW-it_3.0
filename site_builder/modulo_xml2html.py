@@ -10,6 +10,7 @@ from shutil import copyfile
 from django.utils.encoding import smart_text
 import my_html
 from comprimi_esempi import comprimi
+from inline_sub import InlineSubs
 
 
 __date__='02/07/2017'
@@ -50,7 +51,8 @@ RE_STRIP_TAG = re.compile(r'[<>/]')
 
 
 # Lista dei tag - serve ad is_my_tag() per accertarsi di avere trovato un 
-# MIO tag e non un pezzo di codice od altro
+# MIO tag e non un pezzo di codice od altro I valori sono funzioni parziali
+# per le quali viene valorizzata la parte relativa alla gestione css
 MY_TAGS = {
     'avvertimento': partial(h.warning),
     'categoria': None, 
@@ -63,17 +65,22 @@ MY_TAGS = {
     'lista_ricorsiva': partial(h.ul),
     'mk_xml_code': partial(h.code_xml, class_='well pre-scrollable'),
     'mk_xml_code_lineno': partial(
-        h.code_xml_with_lineno, class_='well pre-scrollable'
-        ),
+        h.code_xml_with_lineno,
+        class_='well pre-scrollable'
+    ),
     'note': partial(h.info),
     'success': partial(h.success),
     'danger': partial(h.danger),
     'py_code': partial(h.code, class_='well pre-scrollable'),
     'py_code_lineno': partial(h.code_with_lineno, class_='well pre-scrollable'),
-    'py_output': partial(h.output_console, class_='well pre-scrollable console'),
+    'py_output': partial(
+        h.output_console,
+        class_='well pre-scrollable console',
+        script_folder='/home/robby/Dropbox/Code/python/pymotw-it3.0/dumpscripts'
+    ),
     'sottotitolo': partial(h.h4),
     'sql_code': partial(h.code_sql, class_='well pre-scrollable'),
-    'tabella_semplice': partial(h.table, with_header=True, class_='table'),
+    # 'tabella_semplice': partial(h.table, with_header=True, class_='table'),
     'tabella_1': None,
     'testo_normale': partial(h.p), 
     'titolo_1': None,
@@ -82,6 +89,11 @@ MY_TAGS = {
     'titolo_4': partial(h.h4),
     'vedi_anche': partial(h.biblio, class_='well'),
     'indicizza': None,
+    'tabella_semplice': partial(
+        h.table,
+        with_header=True,
+        class_='table table-responsive table-bordered table_striped table-hover'
+    )
 }
 
 MY_TAG_KEYS = MY_TAGS.keys()
@@ -90,7 +102,8 @@ MY_TAG_KEYS = MY_TAGS.keys()
 def is_my_tag(tag):
     """(str) -> bool
     
-    Cerca `tag`  nella lista dei tag ammessi, ritorna True se trovato
+    Cerca `tag` nella lista dei tag ammessi, ritorna True se trovato dopo
+    avere tolto le parentesi angolari
     
     Precondizione: `tag` deve essere *lowercase*
     """
@@ -106,7 +119,8 @@ def pulisci_tag(tag):
     return RE_STRIP_TAG.sub('', tag.strip())
 
 
-entities = {"à":"&agrave;", "è":"&egrave;", "ì":"&igrave;", "ò":"&ograve;", "ù":"&ugrave;"}
+entities = {"à":"&agrave;", "è":"&egrave;", "ì":"&igrave;", "ò":"&ograve;",
+            "ù":"&ugrave;"}
 
 
 def text2entity(file_name):
@@ -122,10 +136,10 @@ def text2entity(file_name):
     return "\n".join(log)
 
 
-def load(xml_file, dir_esempi, log):
-    """(str, str) -> list of dict
+def load(xml_file, dir_esempi, log, builder_conf):
+    """(str, str, :class InlineSubs:, str) -> list of dict
     
-    Legge il contenuto di `xml_file` filtrando le righe con commenti.
+    Legge il contenuto di ``xml_file`` filtrando le righe con commenti.
 
     Ritorna:
     
@@ -140,12 +154,13 @@ def load(xml_file, dir_esempi, log):
     
     Sono ammessi tag di commento a patto che si trovino su di una sola riga
     """
-    seq_elementi = []  # Conterrà elementi di dizionario 'tag': righe
-    buffer = []  # Le righe da assegnare ad un tag ancora aperto
+    seq_elementi = list()  # Conterrà elementi di dizionario 'tag': righe
+    buffer = list()  # Le righe da assegnare ad un tag ancora aperto
     is_aperto = False  # Se true la riga viene aggiunta al buffer del tag
     tag = ''  # conserva il nome del tag da utilizzare come chiave nel diz
-    righe = []
+    righe = list()
     indicizza = None
+
     for i, riga in enumerate([riga.rstrip() for riga in
                              codecs.open(xml_file, encoding='utf-8')
                              if riga and not riga.startswith('<!--')]):
@@ -155,11 +170,11 @@ def load(xml_file, dir_esempi, log):
             is_aperto = True
             tag = pulisci_tag(riga.lower())
         elif RE_TAG_END.match(riga) and is_my_tag(riga.lower()):
-            if tag == 'py_code' and len(buffer) == 1:
+            if tag in builder_conf['code_tags'] and len(buffer) == 1:
                 buffer = _get_codice_di_esempio(buffer, dir_esempi, log)
             elif tag == 'testo_normale':
                 _norm_testo_normale(buffer)
-            elif tag == 'py_output':
+            elif tag in builder_conf["output_tags"]:
                 _norm_output(buffer)
             seq_elementi.append({'tag': tag, 'buffer': buffer, 'row':  i})
             buffer = []
@@ -177,14 +192,39 @@ def load(xml_file, dir_esempi, log):
 PUNTEGGIATURA = ('.', ';', ':')
 
 
+def _get_file_esempio(seq_elementi):
+    """Cerca nel codice di esempio (tag: py_code) il nome del file
+
+    **precondizione** il file di esempio deve avere una riga con il nome del
+    file commentata
+
+    :param seq_elementi: gli elementi che costituiscono la pagina da rendere
+    :return: la lista con i nomi dei file di esempio trovati
+    """
+    files = []
+    for elemento in seq_elementi:
+        if not elemento['tag'] == 'py_code':
+            continue
+        for line in elemento['buffer']:
+            if not line.startswith("#"):
+                continue
+            if line.find('.py') < 0:
+                continue
+            end = line.index('.py')
+            filename = line[0:end + 3].split()[-1]
+            files.append(filename)
+            break
+    return files
+
+
 def _norm_testo_normale(buffer):
     """(list of str)
 
-    Verifica se l'ultimo carattere della lista è un carattere di punteggiatura.
+    Verifica se l'ultimo carattere della lista  un carattere di punteggiatura.
     In caso contrario aggiunge un punto (assumendo che, trattandosi di un
     paragrafo sia la punteggiatura più probabile se non fornita
     """
-    if not buffer[-1].strip().endswith(PUNTEGGIATURA):
+    if buffer and not buffer[-1].strip().endswith(PUNTEGGIATURA):
         buffer[-1] += "."
 
 
@@ -210,45 +250,32 @@ def _norm_output(buffer):
     return buffer
 
 
-
-
-
 def _get_codice_di_esempio(buffer, dir_esempi, log):
-    if not buffer[0].startswith("#"):
+    """(list, str, list) -> list
+
+    Parse di `buffer` per vedere se esiste un file che corrisponde al testo, che
+    viene letto ed il contenuto restituito
+
+    Se `buffer` contiene più di un elemento viene ritornato *as is*
+
+    :param buffer: il testo da esaminare
+    :param dir_esempi: la directory dove si trova l'eventuale esempio
+    :param log:
+    :return: il testo originale oppure il contenuto del file raggpresentato
+             da `buffer`
+    """
+    if len(buffer) > 1:
+        return buffer
+    if not buffer[0].startswith(("#", "<")):
         return buffer
     try:
-        _, filename = re.split(r'\s+', buffer[0].strip())
+        _, filename = re.split(r'\s+', buffer[0].strip(), 2)
         with open(os.path.join(dir_esempi, filename)) as fh:
-            return [row.strip() for row in fh.readlines()]
+            return [row.rstrip() for row in fh.readlines()]
     except:
         prompt = "Fallita importazione del codice di esempio per %s" % buffer[0]
         log.append(prompt)
         return buffer
-
-
-def _get_file_esempio(seq_elementi):
-    """Cerca nel codice di esempio (tag: py_code) il nome del file
-    
-    **precondizione** il file di esempio deve avere una riga con il nome del
-    file commentata
-    
-    :param seq_elementi: gli elementi che costituiscono la pagina da rendere
-    :return: la lista con i nomi dei file di esempio trovati
-    """
-    files = []
-    for elemento in seq_elementi:
-        if not elemento['tag'] == 'py_code':
-            continue
-        for line in elemento['buffer']:
-            if not line.startswith("#"):
-                continue
-            if line.find('.py') < 0:
-                continue
-            end = line.index('.py')
-            filename = line[0:end+3].split()[-1]
-            files.append(filename)
-            break
-    return files
 
 
 def check_my_tags(seq_elementi):
@@ -266,6 +293,7 @@ def check_my_tags(seq_elementi):
         if not is_my_tag(tag):
             not_found.append(tag)
     return not_found
+
 
 # In produzione questo sparisce
 TEMP_FATTI = ('titolo_2', 'titolo_3', 'titolo_4', 'testo_normale',
@@ -292,7 +320,7 @@ def _raccogli_per_check_sintassi(tag,  row,  text,  check_sintassi):
         check_sintassi.append( { 'row': row, 'text': striphtml(text) } )
 
 
-def prepara_articolo(seq_elementi, tag_da_indicizzare=('titolo_2', 'titolo_3')):
+def prepara_articolo(seq_elementi, tag_ind=('titolo_2', 'titolo_3')):
     """(list of str, tuple of str) -> list, list
     
     Prepara il codice html per la pagina del modulo
@@ -301,6 +329,7 @@ def prepara_articolo(seq_elementi, tag_da_indicizzare=('titolo_2', 'titolo_3')):
     
     - il codice per l'indice nella barra destra
     - il codice per il contenuto dell'articolo
+    - Il testo per la verifica della sintassi
     """
     indice = []
     contenuti = []
@@ -312,7 +341,7 @@ def prepara_articolo(seq_elementi, tag_da_indicizzare=('titolo_2', 'titolo_3')):
             _raccogli_per_check_sintassi(
                 tag, item['row'], item['buffer'], check_sintassi
             )
-            if tag in tag_da_indicizzare:
+            if tag in tag_ind:
                 item['a_name'] = h.a_name(str(prg))
                 b = " ".join(item['buffer'])
                 if '3' in tag:
@@ -325,7 +354,7 @@ def prepara_articolo(seq_elementi, tag_da_indicizzare=('titolo_2', 'titolo_3')):
                 contenuti.append(h.section(str(prg)))
                 prg += 1
             if tag in TEMP_FATTI:
-                codice=MY_TAGS[tag](item['buffer'] )
+                codice = MY_TAGS[tag](item['buffer'])
                 contenuti.append(codice)
             else:
                 print("{0} {1}".format(tag, "da gestire"))
@@ -339,26 +368,34 @@ def striphtml(data):
     return p.sub('', smart_text(data, encoding='utf-8'))
 
 
-def render_articolo(file_xml, example_folder, zip_folder, log=None):
+def render_articolo(file_xml, example_folder, zip_folder, tag_ind,
+                    log=None, builder_conf=None):
     """(str) -> list, list
     
     Prepara il file html con l'articolo per il modulo contenuta in
     `file_xml`
     """
-    if 'counter' in file_xml.lower():
-        pass
-    seq_elementi, indicizza, lista_esempi = load(file_xml, example_folder, log)
+    # if 'counter' in file_xml.lower():
+    #    pass
+    seq_elementi, indicizza, lista_esempi = load(file_xml, example_folder,
+                                                 log, builder_conf)
     outfile = os.path.splitext(os.path.basename(file_xml))[0]
     file_compresso = None
     if not lista_esempi:
         log.append("Nessun file di esempio trovato per il modulo")
     if lista_esempi:
-        file_compresso = comprimi(example_folder, lista_esempi,
-                                  zip_folder, outfile)
+        file_compresso, not_found = comprimi(example_folder, lista_esempi,
+                                             zip_folder, outfile)
         if isinstance(log, list):
+            if not_found:
+                prompt = "I seguenti file esempio non sono stati trovati\n"
+                prompt += '\n'.join([fn for fn in not_found])
+                log.append(prompt)
             log.append("{0} file di esempio compressi in {1}".format(
                 len(lista_esempi), os.path.abspath(file_compresso)))
-    indice_articolo, contenuti, chk_sintassi = prepara_articolo(seq_elementi)
+    indice_articolo, contenuti, chk_sintassi = prepara_articolo(
+        seq_elementi, builder_conf['tag_summary']
+    )
     return indice_articolo, contenuti, indicizza, chk_sintassi, file_compresso
 
 
@@ -367,6 +404,6 @@ def render_articolo(file_xml, example_folder, zip_folder, log=None):
 #     print h2("testo h2")
 
 if __name__ == '__main__':
-    c = ['Rig<a>1', '<Riga2', 'riga']
-    print(norm_output(c))
+    c = ['Rig<a>1', '<Riga2', 'riga:']
+    print(_norm_output(c))
     # test_partial()

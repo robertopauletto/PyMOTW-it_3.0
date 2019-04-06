@@ -9,9 +9,11 @@ __doc__="""Crea il file xml che rappresenta un feed rss
 from rss2feed import RSS2Feed
 import datetime
 
+
 class FeedItem(object):
     """Rappresenta un elemento di un feed"""
-    def __init__(self, title, lnk, descr='', date=datetime.datetime.utcnow(), guid=None):
+    def __init__(self, title, lnk, descr='', date=datetime.datetime.utcnow(),
+                 guid=None):
         """(str, str [,str] [,datetime] [,guid] )
         
         Istanzia i campi di un feed
@@ -48,14 +50,20 @@ class Feed(object):
         if not self._items:
             raise AttributeError("Almeno un elemento deve essere presente")
         feed = RSS2Feed(self._title, self._link, self._descr)
-        for item in self._items:
-            feed.append_item(
-                title=item._title,
-                link=item._lnk,
-                description=item._descr, 
-                pub_date=item._dt,
-                guid=item._guid
-            )
-        return feed.get_xml(pretty)
-    
-    
+        with open(r'/home/robby/deb.txt', mode='w') as fh:
+
+            for item in self._items:
+                #print item._title
+                # try:
+                #     fh.write("%s %s %s\n" % (item._title, item._lnk, item._descr))
+                # except:
+                #     print item._title
+                #     raise
+                feed.append_item(
+                    title=item._title,
+                    link=item._lnk,
+                    description=item._descr.decode('utf-8'),
+                    pub_date=item._dt,
+                    guid=item._guid
+                )
+        return feed.get_xml(pretty, encoding='utf-8')

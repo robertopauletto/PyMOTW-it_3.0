@@ -1,20 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__date__=''
-__version__='0.1'
-__doc__="""Costruisce le pagine indice
+import sys
+sys.path.append(r'../lib')
+from lib.common import ottieni_moduli_tradotti, ottieni_modulo
+#from common import ottieni_moduli_tradotti, ottieni_modulo
+from inline_sub import InlineSubs
+
+
+__date__='2018-07-30'
+__version__='0.2'
+__doc__="""Rappresenta un modulo da rendere
 Versione %s %s
 """ % ( __version__, __date__ )
 
-import sys
-sys.path.append(r'../lib')
-from common import ottieni_moduli_tradotti, ottieni_modulo
-from inline_sub import InlineSubs
 
 class Modulo(object):
+    """Rappresenta un modulo tradotto"""
     insubs = InlineSubs()
+
     def __init__(self, nome):
+        """Ottiene il nome del modulo"""
         self.nome = nome
         self.versione = None
         self.titolo = ''
@@ -30,12 +36,10 @@ class Modulo(object):
     @property
     def nome_per_teaser(self):
         return self.nome.replace('_', ' ')
-    
-    
-
 
     @staticmethod
     def ottieni_modulo(nome_modulo):
+        """Ritorna un modulo elaborando `nome_modulo`"""
         diz = ottieni_modulo(nome_modulo)
         m = Modulo(nome_modulo)
         m.nome = diz['nome_modulo']
@@ -45,7 +49,6 @@ class Modulo(object):
         m.titolo = diz['titolo']
         m.versione = diz['versione']
         m.titolo_ref = m.titolo.split('-')[0]
-        
         return m
     
     def per_tabella_indice(self):
@@ -55,7 +58,6 @@ class Modulo(object):
             self.titolo
         ]
 
-    
     @staticmethod
     def ordina_per_data(moduli):
         moduli_ok =  [m for m in  moduli if m.data_pub]
@@ -64,12 +66,13 @@ class Modulo(object):
             print  m.data_pub, m.nome
         return x
 
+
 def elenco_per_indice():
     """Ritorna una lista di oggetti :py:class:`Modulo`"""
-    elenco = []
+    elenco = list()
     insubs = InlineSubs()
     for k, v in ottieni_moduli_tradotti().iteritems():
-        if not v['indicizza']:
+        if not v['indicizza']:  # Un modulo da ignorare
             continue
         modulo = Modulo(k)
         isinstance(modulo, Modulo)
@@ -82,4 +85,3 @@ def elenco_per_indice():
         elenco.append(modulo)
     #Modulo.ordina_per_data(elenco)
     return elenco
-        

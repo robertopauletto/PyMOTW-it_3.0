@@ -1,4 +1,5 @@
 """Provides the RSS2Feed class."""
+# -*- coding: utf-8 -*-
 
 from calendar import timegm
 from email.utils import formatdate
@@ -92,12 +93,12 @@ class RSS2Feed(object):
             element.appendChild(self._create_text_element('guid', guid))
         self._channel.appendChild(element)
 
-    def get_xml(self, pretty_print=True):
+    def get_xml(self, pretty_print=True, encoding=None):
         """Return the XML for the feed.
 
         :pretty_print: if `True` returns a pretty print representation 
         :returns: XML representation of the RSS feed
         """
-        return self._document.toxml() \
+        return self._document.toxml(encoding) \
                if not pretty_print else self._document.toprettyxml()
 

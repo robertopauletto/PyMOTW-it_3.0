@@ -1,20 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<form class="pure-form pure-form-aligned" action="{{ url_for('generator') }}" method="post" name="htmlgenerator">
+<form class="pure-form pure-form-aligned" action="{{ url_for('new_article') }}" method="post" name="newarticle">
   {{ form.hidden_tag() }}
-  <legend><h3>Generatore Pagine Moduli Tradotti</h3></legend>
   <fieldset>
+    <legend><h3>Crea nuovo articolo</h3></legend>
     {{ form.csrf_token }}
     <div class="pure-control-group">
-      <label for="moduli" ">Moduli</label>
-      {{ form.modules(size=50, placeholder="Nomi modulo da generare separati da spazio", value=defname) }}<br><br>
-      <label>Verifica Sintassi</label> {{ form.spellcheck }} Spuntare per il controllo ortografico<br><br>
-      <label>Indici</label> {{ form.rebuild_index }} Spuntare per ricostruire i file indice<br><br>
-      <label>Tabella Moduli</label> {{ form.rebuild_table }} Spuntare per ricostruire la tabella moduli<br><br>
+      <label for="moduli">Nome Template</label>
+      {{ form.template(size=50, placeholder="Nome template da derivare", value=deftemplate) }}<br><br>
+      <label for="moduli">Nome Articolo (modulo)</label>
+      {{ form.name(size=50, placeholder="Nome articolo da creare") }}<br><br>
+      <label for="categoria">Categoria</label>
+      {{ form.categ }}<br><br>
+      <label for="moduli">Descrizione</label>
+      {{ form.description(size=50, placeholder="descrizione sommaria") }}<br><br>
+      <label for="moduli">Scopo</label>
+      {{ form.purpose(size=50, placeholder="scopo del modulo") }}<br><br>
+      <label>Data di pubblicazione (gg/mm/aaaa)</label> {{ form.publish_date }}
+      {% for error in form.publish_date.errors %}
+        <p style="color: red;">&nbsp;&nbsp;&nbsp;{{error}}</p>
+      {% endfor %} <br><br>
+      <label>Aggiungi ad indice moduli</label> {{ form.add_to_index }} Spuntare per includere l'articolo nell'elenco moduli<br><br>
+      {{ form.editor }}
     </div>
     <hr>
-    <button class="pure-button pure-button-primary siimple-color--navy" onclick="loading()">Genera Pagina</button>
+    <button class="pure-button pure-button-primary siimple-color--navy" onclick="loading()">Genera File Articolo</button>
   </fieldset>
 </form>
+<div>
+</div>
+<!--
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='editor') }} -->
 <!-- <h3>{{ log | safe }}</h3> -->
 {% endblock %}

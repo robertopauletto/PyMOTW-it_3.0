@@ -7,8 +7,9 @@ __doc__="""Costruisce le pagine indice
 Versione %s %s
 """ % ( __version__, __date__ )
 
-from modulo import Modulo
+from collections import OrderedDict
 import datetime
+from modulo import Modulo
 
 class DjTabelleIndici(object):
     base_url = 'indice.html'
@@ -31,8 +32,20 @@ class DjTabelleIndici(object):
     @property
     def last_upd(self):
         return datetime.date.today().strftime("%d.%m.%Y") 
-        
-    
+
+    @property
+    def get_indice(self):
+        diz = OrderedDict()
+        moduli = self.elenco_moduli
+        for i in range(65, 91):
+            letter = chr(i)
+            if letter in diz:
+                continue
+            aref = [modulo.nome for modulo in moduli
+                    if modulo.nome.upper().startswith(letter)]
+            diz[letter] = aref[0] if aref else None
+        return diz
+
     
 if __name__ == '__main__':
     pass

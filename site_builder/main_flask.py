@@ -3,39 +3,53 @@
 # main_flask.py
 
 
+from collections import OrderedDict
+from flask import (
+    Flask, render_template, url_for, redirect, g, session, request
+)
+from flask_ckeditor import CKEditor
+from flask_forms import (
+    BuilderLog, HTMLGeneratorForm, ConfigurationForm, NewArticleForm
+)
+import jinja2
+import json
+from notifier import get_notifier, notify
 import os.path
 import webbrowser
-import json
-from collections import OrderedDict
-from flask import Flask, render_template, url_for, redirect, g, session, request
-from flask_wtf import FlaskForm
-import jinja2
-from wtforms import StringField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired
+import os
 from builder import build_module, build_index, build_module_table, \
-     set_builder_conf
-from notifier import get_notifier, notify
+     set_builder_conf, get_categorie, crea_nuovo_articolo
 
 
 __app__ = "Generatore Pagine HTML per PyMOTW-it 3"
-__doc__ = """Interfaccia utente flask"""
 __version__ = "0.2"
 __date__ = "2017-08-23"
 __changelog__ = """
 2017-08-16: Prima stesura
 2017-08-23: Compilazione di elenco di moduli
+2019-03-24: Form di creazione articolo
 """
 
-nobj = get_notifier()
+try:
+    nobj = get_notifier()
+except:
+    nobj = None
+
 app = Flask(__name__)
+ckeditor = CKEditor(app)
 app.config.from_object('config')
+
+# Dir template di flask diversa dal default
 my_loader = jinja2.ChoiceLoader([
     app.jinja_loader,
     jinja2.FileSystemLoader('flask_templates')
 ])
 app.jinja_loader = my_loader
+
 builder_config = json.load(open('site_builder_config.json'))
-set_builder_conf(OrderedDict(sorted(builder_config.items(), key=lambda t: t[0])))
+set_builder_conf(
+    OrderedDict(sorted(builder_config.items(), key=lambda t: t[0]))
+)
 
 
 @app.route('/')
@@ -45,6 +59,44 @@ def index():
     return render_template('index.html', titolo=__app__)
 
 
+@app.route('/new_article', methods=['GET', 'POST'])
+def new_article():
+    """Creaazione file nuovo articolo"""
+    form = NewArticleForm()
+    tmpl = os.path.join(
+        builder_config['new_article_folder'],
+        builder_config['new_article_template']
+    )
+    form.categ.choices = get_categorie()
+    if form.validate_on_submit():
+        template = form.template.data
+        nome_modulo = form.name.data
+        descrizione = form.description.data
+        categ = form.categ.data
+        purpose = form.purpose.data
+        pubdate = form.publish_date.data
+        ati = form.add_to_index.data
+        outfile = os.path.join(builder_config['tran_dir'], nome_modulo + '.xml')
+
+        crea_nuovo_articolo(
+            outfile=outfile,
+            filetemplate=template,
+            categoria=categ,
+            nome_modulo=nome_modulo,
+            scopo=purpose,
+            descrizione=descrizione,
+            data_pubb=pubdate,
+            aggiungi_a_indice=ati,
+            filecron=builder_config['translated_modules']
+        )
+        session['log'] = "Creato file {}".format(os.path.abspath(outfile))
+        return redirect(url_for('builder_log'))
+    return render_template(
+        'new_article.html', form=form, deftemplate=os.path.abspath(tmpl),
+        titolo='Creazione file per nuovo articolo'
+    )
+
+
 @app.route('/generator', methods=['GET', 'POST'])
 def generator():
     """Costruisce la pagina html per il modulo"""
@@ -52,7 +104,10 @@ def generator():
 
     if form.validate_on_submit():
         module = form.modules.data.lower()
-        log = '\n'.join(build_module(module.split()))
+        tmplog, check_sintassi = build_module(module.split())
+        if form.spellcheck:
+            pass
+        log = '\n'.join(tmplog)
         if form.rebuild_index.data:
             log += '\n'.join(build_index())
             session['rebuild_index'] = True
@@ -62,6 +117,8 @@ def generator():
 
         session['log'] = log
         session['module'] = module
+        session['check_sintassi'] = (check_sintassi if form.spellcheck.data
+                                     else None)
         return redirect(url_for('builder_log'))
     else:
         pass
@@ -93,20 +150,29 @@ def builder_log():
 
 @app.route('/config', methods=['GET', 'POST'])
 def config():
-    titolo = 'Configurazione'
-    return render_template("config.html", config=builder_config, titolo=titolo)
+    """Gestione dei parametri di configurazione"""
+    titolo = 'Parametri di configurazione Configurazione'
+    form = ConfigurationForm()
+    if form.validate_on_submit():
+        r = request
+        _tmp(r.form)
+    return render_template("config.html", myconf=builder_config,
+                           titolo=titolo, form=form)
 
 
-class BuilderLog(FlaskForm):
+def _tmp(conf_flds):
+    log = []
+    for k, v in conf_flds:
+        log.append(k)
+    x = builder_config
+    print()
 
-    log = TextAreaField()
 
-
-class HTMLGeneratorForm(FlaskForm):
-
-    modules = StringField('modules', validators=[DataRequired()])
-    rebuild_index = BooleanField('rebindex', default=False)
-    rebuild_table = BooleanField('rebtbl', default=False)
+@app.route('/uploader', methods=['GET', 'POST'])
+def uploader():
+    """Gestione aggiornamenti sito online"""
+    titolo = 'Gestione Aggiornamenti Sito'
+    return render_template('uploader.html', titolo=titolo)
 
 
 app.run(debug=True)

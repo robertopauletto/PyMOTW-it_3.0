@@ -14,12 +14,6 @@ class Footer(object):
         self.periodo = periodo
         self.data_agg = data_agg
         
-        
-
-
-
-
-
 
 if __name__ == '__main__':
     print __doc__
