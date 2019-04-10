@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Email</categoria>
+<documento_tradotto>
+<titolo_1>
+smtplib - Client Simple Mail Transfer Protocol
+</titolo_1>
+<descrizione>
+Interazione con i server SMTP, inclusa la spedizione email
+
+</descrizione>
+<testo_normale>
+<strong>smtp</strong> include la classe <code>SMTP</code>, che può essere usata per comunicare con i server di posta per inviare posta.
+</testo_normale>
+<note>
+Gli indirizzi mail, nomi host ed indirizzi IP negli esempi seguenti sono stati oscurati, ma per il resto gli script illustrano la sequenza dei comandi e delle risposte accuratamente.
+</note>
+<titolo_2>
+Inviare un Messaggio Email
+</titolo_2>
+<testo_normale>
+L'uso più comune di <code>SMTP</code> è la connessione ad un server di posta e l'invio di una messaggio. Il nome host del server di posta e la porta possono essere passate al costruttore, oppure si può invocare esplicitamente <code>connect()</code>. Una volta connessi, si chiami <code>sendmail()</code> con i parametri di busta e corpo del messaggio. Il testo del messaggio dovrebbe essere completamente formato e conforme alle specifiche <a href='https://tools.ietf.org/html/rfc5322.html' target='_blank'>RFC 5322</a>, visto che <strong>smtplib</strong> non modifica in alcun modo i contenuti o le intestazioni. Il che vuol dire che le intestazioni <code>From</code> e <code>To</code> devono essere aggiunte dal chiamante.
+</testo_normale>
+<py_code>
+# smtplib_sendmail.py
+</py_code>
+<testo_normale>
+In questo esempio, è stato attivato anche il debug per mostrare la comunicazione tra client e server. Altrimenti questo esempio non produrrebbe alcun risultato.
+</testo_normale>
+<py_output>
+$ python3 smtplib_sendmail.py
+
+send: 'ehlo 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.
+0.0.0.0.0.0.ip6.arpa\r\n'
+reply: b'250-1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0
+.0.0.0.0.0.0.ip6.arpa\r\n'
+reply: b'250-SIZE 33554432\r\n'
+reply: b'250 HELP\r\n'
+reply: retcode (250); Msg: b'1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0
+.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa\nSIZE 33554432\nHELP'
+send: 'mail FROM:<author@example.com> size=236\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'rcpt TO:<recipient@example.com>\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'data\r\n'
+reply: b'354 End data with <CR><LF>.<CR><LF>\r\n'
+reply: retcode (354); Msg: b'End data with <CR><LF>.<CR><LF>'
+data: (354, b'End data with <CR><LF>.<CR><LF>')
+send: b'Content-Type: text/plain; charset="us-ascii"\r\nMIME-Ver
+sion: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nTo: Recipient <r
+ecipient@example.com>\r\nFrom: Author <author@example.com>\r\nSu
+bject: Simple test message\r\n\r\nThis is the body of the messag
+e.\r\n.\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+data: (250, b'OK')
+send: 'quit\r\n'
+reply: b'221 Bye\r\n'
+reply: retcode (221); Msg: b'Bye'
+</py_output>
+<testo_normale>
+Il secondo argomento per <code>sendmail()</code>, i destinatari, sono passati come lista. E' possibile includere nell'elenco un qualsiasi numero di indirizzi per consegnare ad ognuno di essi il messaggio. Visto che le informazioni della busta sono separate dalle intestazioni di messaggio, è possibile aggiungere qualcuno in copia per conoscenza (BCC)
+includendolo nell'argomento del metodo, ma non nell'intestazione del messaggio.
+</testo_normale>
+<titolo_2>
+Autenticazione e Crittografia
+</titolo_2>
+<testo_normale>
+La classe <code>SMTP</code> include anche autenticazione e crittografia TLS (Sicurezza a livello di trasporto), qualora il server li supporti. Per determinare se il server supporta TLS, si chiami <code>ehlo()</code> direttamente per fare identificare il client al server e richiedere quali estensioni sono disponibili. Successivamente si chiami <code>has_extn()</code> per verificare i risultati. Dopo che è partito TLS, <code>ehlo()</code> deve essere chiamato nuovamente prima dell'autenticazione. Molti provider che ospitano server di posta ora supportano solamente connessioni basate su TLS. Per la comunicazione con tali server, si utilizzi <code>SMTP_SSL</code> per partire con una connessione criptata.
+</testo_normale>
+<py_code>
+# smtplib_authenticated.py
+</py_code>
+<testo_normale>
+Esempi seguenti rispettivamente con connessione non sicura e connessione sicura. L'estensione <code>STARTTLS</code> non compare nella risposta a <code>EHLO</code> dopo che viene abilitato TLS.
+</testo_normale>
+<py_output>
+$ python3 smtplib_authenticated.py
+
+Recipient: doug@pymotw.com
+Mail server name: localhost
+Server port: 1025
+Use TLS? (yes/no): no
+Mail username: test
+test's password:
+starting with an insecure connection
+send: 'ehlo 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0
+.0.0.0.0.0.ip6.arpa\r\n'
+reply: b'250-1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.
+0.0.0.0.0.0.ip6.arpa\r\n'
+reply: b'250-SIZE 33554432\r\n'
+reply: b'250 HELP\r\n'
+reply: retcode (250); Msg: b'1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.
+0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa\nSIZE 33554432\nHELP'
+(no STARTTLS)
+(no AUTH)
+send: 'mail FROM:<author@example.com> size=220\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'rcpt TO:<doug@pymotw.com>\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'data\r\n'
+reply: b'354 End data with <CR><LF>.<CR><LF>\r\n'
+reply: retcode (354); Msg: b'End data with <CR><LF>.<CR><LF>'
+data: (354, b'End data with <CR><LF>.<CR><LF>')
+send: b'Content-Type: text/plain; charset="us-ascii"\r\n
+MIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nTo:
+Recipient <doug@pymotw.com>\r\nFrom: Author <author@example.com>
+\r\nSubject: Test from PyMOTW\r\n\r\nTest message from PyMOTW.
+\r\n.\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+data: (250, b'OK')
+send: 'quit\r\n'
+reply: b'221 Bye\r\n'
+reply: retcode (221); Msg: b'Bye'
+</py_output>
+<py_output>
+$ python3 smtplib_authenticated.py
+
+Recipient: doug@pymotw.com
+Mail server name: mail.isp.net
+Server port: 465
+Use TLS? (yes/no): yes
+Mail username: doughellmann@isp.net
+doughellmann@isp.net's password:
+starting with a secure connection
+send: 'ehlo 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0
+.0.0.0.0.0.ip6.arpa\r\n'
+reply: b'250-mail.isp.net\r\n'
+reply: b'250-PIPELINING\r\n'
+reply: b'250-SIZE 71000000\r\n'
+reply: b'250-ENHANCEDSTATUSCODES\r\n'
+reply: b'250-8BITMIME\r\n'
+reply: b'250-AUTH PLAIN LOGIN\r\n'
+reply: b'250 AUTH=PLAIN LOGIN\r\n'
+reply: retcode (250); Msg: b'mail.isp.net\nPIPELINING\nSIZE
+71000000\nENHANCEDSTATUSCODES\n8BITMIME\nAUTH PLAIN LOGIN\n
+AUTH=PLAIN LOGIN'
+(no STARTTLS)
+(logging in)
+send: 'AUTH PLAIN AGRvdWdoZWxsbWFubkBmYXN0bWFpbC5mbQBUTUZ3MDBmZmF
+zdG1haWw=\r\n'
+reply: b'235 2.0.0 OK\r\n'
+reply: retcode (235); Msg: b'2.0.0 OK'
+send: 'mail FROM:<author@example.com> size=220\r\n'
+reply: b'250 2.1.0 Ok\r\n'
+reply: retcode (250); Msg: b'2.1.0 Ok'
+send: 'rcpt TO:<doug@pymotw.com>\r\n'
+reply: b'250 2.1.5 Ok\r\n'
+reply: retcode (250); Msg: b'2.1.5 Ok'
+send: 'data\r\n'
+reply: b'354 End data with <CR><LF>.<CR><LF>\r\n'
+reply: retcode (354); Msg: b'End data with <CR><LF>.<CR><LF>'
+data: (354, b'End data with <CR><LF>.<CR><LF>')
+send: b'Content-Type: text/plain; charset="us-ascii"\r\n
+MIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nTo:
+Recipient <doug@pymotw.com>\r\nFrom: Author <author@example.com>
+\r\nSubject: Test from PyMOTW\r\n\r\nTest message from PyMOTW.
+\r\n.\r\n'
+reply: b'250 2.0.0 Ok: queued as A0EF7F2983\r\n'
+reply: retcode (250); Msg: b'2.0.0 Ok: queued as A0EF7F2983'
+data: (250, b'2.0.0 Ok: queued as A0EF7F2983')
+send: 'quit\r\n'
+reply: b'221 2.0.0 Bye\r\n'
+reply: retcode (221); Msg: b'2.0.0 Bye'
+</py_output>
+<titolo_2>
+Verificare un Indirizzo Email
+</titolo_2>
+<testo_normale>
+Il protocollo SMTP include un comando per chiedere ad un server se un indirizzo è valido. In genere <code>VRFY</code> è disabilitato per prevenire chi vuole compiere azioni di <em>spam</em> dal trovare indirizzi email legittimi, ma se è abilitato un client può passare al server un indirizzo e ricevere un codice di stato che indica la validità assieme al nome completo dell'utente, se disponibile.
+</testo_normale>
+<py_code>
+# smtplib_verify.py
+</py_code>
+<testo_normale>
+Come mostrato nelle ultime due righe del risultato, l'indirizzo <code>dhellmann</code> è valido ma <code>notthere</code> no.
+</testo_normale>
+<py_output>
+$ python3 smtplib_verify.py
+
+send: 'vrfy <dhellmann>\r\n'
+reply: '250 2.1.5 Doug Hellmann <dhellmann@mail>\r\n'
+reply: retcode (250); Msg: 2.1.5 Doug Hellmann <dhellmann@mail>
+send: 'vrfy <notthere>\r\n'
+reply: '550 5.1.1 <notthere>... User unknown\r\n'
+reply: retcode (550); Msg: 5.1.1 <notthere>... User unknown
+send: 'quit\r\n'
+reply: '221 2.0.0 mail closing connection\r\n'
+reply: retcode (221); Msg: 2.0.0 mail closing connection
+dhellmann: (250, '2.1.5 Doug Hellmann <dhellmann@mail>')
+notthere : (550, '5.1.1 <notthere>... User unknown')
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/smtplib.html|smtplib|La documentazione della libreria standard per questo modulo.
+https://tools.ietf.org/html/rfc821.html|RFC 821|Le specifiche SMTP (Simple Mail Transfer Protocol)
+https://tools.ietf.org/html/rfc1869.html|RFC 1869| Estensioni di servizio SMTP per il protocollo base
+https://tools.ietf.org/html/rfc822.html|RFC 822|Le specifiche di formato per il messaggio email originale: "Standard for the Format of ARPA Internet Text Messages"
+https://tools.ietf.org/html/rfc5322.html|RFC 5322|"Internet Message Format", aggiornamenti al formato del messaggio email
+#|email|Modulo della libreria standard per costruire ed analizzare messaggi email
+#|smptd (di prossima traduzione)|Implementa un semplice server SMTP
+</vedi_anche>
+</documento_tradotto>
