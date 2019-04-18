@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Email</categoria>
+<documento_tradotto>
+<titolo_1>
+smtpd - SMTP Server
+</titolo_1>
+<descrizione>
+Include classi per implementare server SMTP
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>smtpd</strong> include classi per la costruzione di semplici server SMTP. Rappresenta il lato server del protocollo usato da <a href='smptlib.html' target='_blank'>smtplib</a>
+</testo_normale>
+<titolo_2>
+Classe Base del Server Mail
+</titolo_2>
+<testo_normale>
+La classe base per tutti gli esempi di server forniti è <code>SMTPServer</code>. Gestisce la comunicazione con il client, riceve dati in arrivo, e fornisce un comodo aggancio di sovrascrittura per elaborare il messaggio quando lo stesso è completamente disponibile.
+</testo_normale>
+<testo_normale>
+Gli argomenti del costruttore sono l'indirizzo locale per rilevare le connessioni e l'indirizzo remoto dove messaggi in transito dovrebbero essere consegnati. Il metodo <code>process_message()</code> viene fornito come aggancio perchè possa essere sovrascritto da una classe derivata. Viene chiamato quando il messaggio è completamente ricevuto, e viene corredato dei seguenti argomenti:
+</testo_normale>
+<tabella_semplice>
+NOME ARGOMENTO;DESCRIZIONE
+<code>peer</code>;indirizzo del client, una tupla che contiene IP e porta in arrivo
+<code>mailfrom</code>;informazioni della parte "from" della busta del messaggio, dato al server dal client quando il messaggio viene consegnato. Non necesariamente trova sempre corrispondenza con l'intestazione <code>From</code>
+<code>rcpttos</code>;lista dei destinatari dalla busta del messaggio. Non necessariamente trova corrispondenza con l'intestazione <code>To</code>, specialmente se il destinatario è in <a href='https://www.wikiwand.com/it/Copia_conoscenza_nascosta' target='_blank'>copia conoscenza nascosta (bcc)</a>
+<code>data</code>;Il corpo del messaggio completo <a href='https://tools.ietf.org/html/rfc5322.html' target='_blank'>RFC 5322</a>
+</tabella_semplice>
+<testo_normale>
+L'implementazione predefinita di <code>process_message()</code> solleva <code>NotImplementedError</code>. L'esempio che segue definisce una sottoclasse che sovrascrive il metodo per stampare informazioni circa i messaggi ricevuti.
+</testo_normale>
+<py_code>
+# smtpd_custom.py
+</py_code>
+<testo_normale>
+<code>SMTPServer</code> usa <strong>asyncore</strong>, quindi per eseguire il server si chiami <code>asyncore.loop()</code>
+</testo_normale>
+<testo_normale>
+Per la dimostrazione del server occorre un client. Si può adattare uno degli esempi da <a href='smtplib.html' target='_blank'>smtplib</a> per creare un client per inviare dati al server di test, in esecuzione localmente sulla porta 1025
+</testo_normale>
+<py_code>
+# smtpd_senddata.py
+</py_code>
+<testo_normale>
+Per verificare i programmi, si esegua <code>smtpd_custom.py</code> in un terminale, quindi <code>smtpd_senddata.py</code> in un altro.
+</testo_normale>
+<py_output>
+$ python3 smtpd_custom.py
+
+Messaggio in ricezione da: ('127.0.0.1', 43994)
+Mittente del messaggio   : autore@esempio.com
+Messaggio indirizzato a  : ['destinatario@esempio.com']
+Lunghezza del messaggio  : 237
+</py_output>
+<testo_normale>
+Il risultato di debug da <code>smtpd_senddata.py</code> mostra tutte le comunicazioni con il server.
+</testo_normale>
+<py_output>
+$ python3 smtpd_senddata.py
+
+send: 'ehlo [127.0.1.1]\r\n'
+reply: b'250-robby-desktop\r\n'
+reply: b'250-SIZE 33554432\r\n'
+reply: b'250-8BITMIME\r\n'
+reply: b'250 HELP\r\n'
+reply: retcode (250); Msg: b'robby-desktop\nSIZE 33554432\n8BITMIME\nHELP'
+send: 'mail FROM:<autore@esempio.com> size=244\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'rcpt TO:<destinatario@esempio.com>\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+send: 'data\r\n'
+reply: b'354 End data with <CR><LF>.<CR><LF>\r\n'
+reply: retcode (354); Msg: b'End data with <CR><LF>.<CR><LF>'
+data: (354, b'End data with <CR><LF>.<CR><LF>')
+send: b'Content-Type: text/plain; charset="us-ascii"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\nTo: Recipient <destinatario@esempio.com>\r\nFrom: Author <autore@esempio.com>\r\nSubject: Semplice messaggio di test\r\n\r\nQuesto il corpo del messaggio.\r\n.\r\n'
+reply: b'250 OK\r\n'
+reply: retcode (250); Msg: b'OK'
+data: (250, b'OK')
+send: 'quit\r\n'
+reply: b'221 Bye\r\n'
+reply: retcode (221); Msg: b'Bye'
+</py_output>
+<testo_normale>
+Per interrompere il server, si prema <code>Ctrl-C</code>
+</testo_normale>
+<titolo_2>
+Server di Debug
+</titolo_2>
+<testo_normale>
+L'esempio precedente mostra gli argomenti a <code>process_message()</code>, ma <strong>smtpd</strong> include anche un server progettato specificamente per un debug più completo: <code>DebuggingServer</code>. Stampa l'intero messaggio in arrivo alla console, quindi interrompe l'elaborazione (non smista il messaggio ad un server mail reale)
+</testo_normale>
+<py_code>
+# smtpd_debug.py
+</py_code>
+<testo_normale>
+Usando il programma client <code>smtpd_senddata.py</code> qui sopra, il risultato è:
+</testo_normale>
+<py_output>
+---------- MESSAGE FOLLOWS ----------
+mail options: ['SIZE=244']
+b'Content-Type: text/plain; charset="us-ascii"'
+b'MIME-Version: 1.0'
+b'Content-Transfer-Encoding: 7bit'
+b'To: Recipient <destinatario@esempio.com>'
+b'From: Author <autore@esempio.com>'
+b'Subject: Semplice messaggio di test'
+b'X-Peer: 127.0.0.1'
+b''
+b'Questo il corpo del messaggio.'
+------------ END MESSAGE ------------
+</py_output>
+<titolo_2>
+Proxy Server
+</titolo_2>
+<testo_normale>
+La classe <code>PureProxy</code> implementa un <a href='https://www.wikiwand.com/it/Proxy' target='_blank'>proxy server</a>. I messaggi in arrivo vengono inoltrati a monte al server passato come argomento al costruttore
+</testo_normale>
+<avvertimento>
+La documentazione della libreria standard per <strong>smtpd</strong> dice, "eseguendo questo è probabile che si entri in un relay aperto, usare cautela"
+</avvertimento>
+<testo_normale>
+I passi per impostare il proxy server sono simili a quelli del server di debug
+</testo_normale>
+<py_code>
+# smtpd_proxy.py
+</py_code>
+<testo_normale>
+Non viene stampato alcun risultato, quindi per verificarne il funzionamento occorre cercare nei log del server mail
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.7/library/smtpd.html|smtpd|La documentazione della libreria standard per questo modulo.
+smtplib.html|smtplib|Fornisce una interfaccia client
+#|email|Elabora messaggi email
+#|asyncore|Modulo base per scrivere server asincroni
+https://tools.ietf.org/html/rfc2822.html|RFC 2822|<em>Internet Message Format</em>, definisce il formato del messaggio email
+https://tools.ietf.org/html/rfc5322.html|RFC 5322|Sostituisce RFC 2822
+</vedi_anche>
+</documento_tradotto>
