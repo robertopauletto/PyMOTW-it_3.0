@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Email</categoria>
+<documento_tradotto>
+<titolo_1>
+imaplib - Libreria Client IMAP4
+</titolo_1>
+<descrizione>
+Libreria Client per comunicare con IMAP4
+
+</descrizione>
+<testo_normale>
+<strong>imaplib</strong> implementa un client per comunicare con i server con il protocollo <a href='https://www.wikiwand.com/it/Internet_Message_Access_Protocol' target='_blank'>IMAP</a> (Internet Message Access Protocol), versione 4. Il protocollo IMAP definisce un insieme di comandi da inviare al server e le risposte ritornate al client. La maggior parte dei comandi è disponibile come metodi dell'oggetto <code>IMAP4</code> usato per comunicare con il server
+</testo_normale>
+<testo_normale>
+Questi esempi trattano parte del protocollo IMAP, ma non sono da ritenersi esaustivi. Si faccia riferimento a <a href='https://tools.ietf.org/html/rfc3501.html' target='_blank'>RFC 3501</a> per i dettagli completi.
+</testo_normale>
+<titolo_2>
+Variazioni
+</titolo_2>
+<testo_normale>
+Ci sono tre classi client per comunicare con i server usando vari meccanismi. Il primo, <code>IMAP4</code>, usa socket con testo in chiaro; <code>IMAP4_SSL</code> usa una comunicazione criptata su socket SSL e <code>IMAP4_stream</code> usa l'input e l'output standard di un comando esterno. Tutti gli esempi qui sotto useranno <code>IMAP4_SSL</code> ma le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per le altre classi sono simili
+</testo_normale>
+<titolo_2>
+Connessione al Server
+</titolo_2>
+<testo_normale>
+Ci sono due passi necessari per stabilire una connessione con un server IMAP. Prima si imposta la connessione stessa al socket, poi ci si autentica come utente con una utenza sul server. Il codice seguente leggerà le informazioni  di server e utente da un file di configurazione.
+</testo_normale>
+<py_code>
+# imaplib_connect.py
+</py_code>
+<testo_normale>
+Quando in esecuzione, <code>open_connection()</code> legge le informazioni di configurazione da un file nella directory <em>home</em> dell'utente, quindi apre una connessione <code>IMAP4:SSL</code> e avviene l'autenticazione
+</testo_normale>
+<py_output>
+$ python3 imaplib_connect.py
+</py_output>
+<testo_normale>
+Gli altri esempi di questo articolo riutilizzano lo script di cui sopra, per evitare duplicazione di codice.
+</testo_normale>
+<titolo_3>
+Autenticazione Fallita
+</titolo_3>
+<testo_normale>
+Se la connessione viene stabilita, ma l'autenticazione fallisce, viene sollevata una eccezione
+</testo_normale>
+<py_code>
+# imaplib_connect_fail.py
+</py_code>
+<testo_normale>
+Questo esempio usa apposta una password sbagliata per attivare una eccezione
+</testo_normale>
+<py_output>
+$ python3 imaplib_connect_fail.py
+
+Autenticazione come pymotw-it@robyp.x10host.com
+ERRORE: b'[AUTHENTICATIONFAILED] Authentication failed.'
+</py_output>
+<titolo_2>
+
+</titolo_2>
+<testo_normale>
+
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.7/library/imaplib.html|imaplib|La documentazione della libreria standard per questo modulo.
+</vedi_anche>
+</documento_tradotto>

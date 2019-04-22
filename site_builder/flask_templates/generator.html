@@ -2,18 +2,20 @@
 {% block content %}
 <form class="pure-form pure-form-aligned" action="{{ url_for('generator') }}" method="post" name="htmlgenerator">
   {{ form.hidden_tag() }}
-  <legend>Generatore Pagine Moduli Tradotti</legend>
+  <legend><h3>Generatore Pagine Moduli Tradotti</h3></legend>
   <fieldset>
     {{ form.csrf_token }}
     <div class="pure-control-group">
       <label for="moduli" ">Moduli</label>
       {{ form.modules(size=50, placeholder="Nomi modulo da generare separati da spazio", value=defname) }}<br><br>
-      <label>Indici</label> {{ form.rebuild_index }} Spuntare per ricostruire gli indici<br><br>
-      <label>Tabella Moduli</label> {{ form.rebuild_table }} Spuntare per ricostruire i file indice<br><br>
+      <label>Verifica Sintassi</label> {{ form.spellcheck }} Spuntare per il controllo ortografico<br><br>
+      <label>Indici</label> {{ form.rebuild_index }} Spuntare per ricostruire i file indice<br><br>
+      <label>Tabella Moduli</label> {{ form.rebuild_table }} Spuntare per ricostruire la tabella moduli<br><br>
+      <label>Indice Modulo Fisso</label> {{ form.fixed_sidebar }} Spuntare se l'indice articolo deve essere fisso durante lo scorrimento verticale<br><br>
     </div>
     <hr>
-    <button class="pure-button pure-button-primary siimple-color--navy">Genera Pagina</button>
+    <button class="pure-button pure-button-primary siimple-color--navy" onclick="loading()">Genera Pagina</button>
   </fieldset>
 </form>
-<h3>{{ log | safe }}</h3>
+<!-- <h3>{{ log | safe }}</h3> -->
 {% endblock %}

@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
+  <h3>Gestione Configurazione</h3>
   <form method="POST" action="" class="pure-form pure-form-aligned">
-    <legend>Configurazione</legend>
-    {% for k, v in config.iteritems() %}
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    <legend>Parametri</legend>
+    {% for k, v in myconf.iteritems() %}
       <div class="pure-control-group">
         <label>{{ k|e }}</label><input size="60"  name="{{ k|e }}" value="{{ v|e }}"><br>
       </div>
     {% endfor %}
+    <p>{{ form.submit(class_="pure-button pure-button-primary siimple-color--navy") }}</p>
   </form>
 {% endblock %}

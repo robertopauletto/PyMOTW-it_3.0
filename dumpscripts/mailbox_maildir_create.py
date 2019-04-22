@@ -1,42 +1,45 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# mailbox_maildir_create.py
 
 import mailbox
 import email.utils
 import os
 
-from_addr = email.utils.formataddr(('Author', 'author@example.com'))
-to_addr = email.utils.formataddr(('Recipient', 'recipient@example.com'))
+from_addr = email.utils.formataddr(('Autore', 'autore@esempio.com'))
+to_addr = email.utils.formataddr(('Destinatario', 'destinatario@esempio.com'))
 
-mbox = mailbox.Maildir('Example')
+payload = '''Questo e' il corpo.
+From (non viene preceduta da sequenza di escape).
+Ci sono tre righe.
+'''
+
+mbox = mailbox.Maildir('Esempio')
 mbox.lock()
 try:
     msg = mailbox.mboxMessage()
-    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg.set_unixfrom('autore Sat Feb  7 01:05:34 2009')
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'Messaggio di prova n. 1'
-    msg.set_payload('Questo è il corpo del messaggio.\nFrom (dovrebbe essere prefissato da >).\nCi sono 3 righe.\n')
+    msg['Subject'] = 'Messaggio campione 1'
+    msg.set_payload(payload)
     mbox.add(msg)
     mbox.flush()
 
     msg = mailbox.mboxMessage()
-    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg.set_unixfrom('autore Sat Feb  7 01:05:34 2009')
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'Messaggio di prova n. 2'
-    msg.set_payload('Questo è il corpo del secondo messaggio.\n')
+    msg['Subject'] = 'Messaggio campione 2'
+    msg.set_payload("Questo e' il secondo corpo.\n")
     mbox.add(msg)
     mbox.flush()
 finally:
     mbox.unlock()
 
-for dirname, subdirs, files in os.walk('Example'):
-    print dirname
-    print '\tDirectories:', subdirs
+for dirname, subdirs, files in os.walk('Esempio'):
+    print(dirname)
+    print('  Directory:', subdirs)
     for name in files:
         fullname = os.path.join(dirname, name)
-        print
-        print '***', fullname
-        print open(fullname).read()
-        print '*' * 20
+        print('\n***', fullname)
+        print(open(fullname).read())
+        print('*' * 20)

@@ -7,15 +7,19 @@
   <title>{% block title %}{{ titolo }}{% endblock %}</title>
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/jquery-3.3.1.min.js"></script>
 </head>
 <body>
+  <div id="loading"></div>
   <div id="header">
     <div class="pure-menu pure-menu-horizontal">
       <a href="{{ url_for("index") }}" class="pure-menu-heading pure-menu-lin">
         <span style="color: green;">PyM</span><span style="color: white;">OTW</span><span style="color: red;">-it 3</span></a>
       <ul class="pure-menu-list">
         <li class="pure-menu-item"><a href="{{ url_for('generator') }}" class="pure-menu-link">Generatore</a></li>
-        <li class="pure-menu-item"><a href="#" class="pure-menu-link ">Uploader</a></li>
+        <li class="pure-menu-item"><a href="{{ url_for('new_article') }}" class="pure-menu-link ">Nuovo Articolo</a></li>
+        <li class="pure-menu-item"><a href="{{ url_for('categorie') }}" class="pure-menu-link ">Categorie</a></li>
+        <li class="pure-menu-item"><a href="{{ url_for('uploader') }}" class="pure-menu-link ">Aggiorna Sito Online</a></li>
         <li class="pure-menu-item"><a href="{{ url_for('config') }}" class="pure-menu-link ">Configurazione</a></li>
       </ul>
     </div>
@@ -35,11 +39,20 @@
       <div class="pure-u-4-24"></div>
       <div class="pure-u-16-24">
         {% block footer %}
-         &copy; {{ titolo }}
+          {{ config['APP_NAME'] }}
         {% endblock %}
       </div>
       <div class="pure-u-4-24"></div>
     </div>
   </div>
+  <script type="text/javascript">// <![CDATA[
+    function loading() {
+      $("#loading").show();
+      $("#content").hide();
+      $("#header").hide();
+      $(".clearfooter").hide();
+      $(".footer").hide();
+    }
+  // ]]></script>
 </body>
 </html>

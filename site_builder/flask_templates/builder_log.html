@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-  <h3>{{ log }}</h3>
+  <h3>Risultato dell'elaborazione</h3>
   <hr>
   <form class="pure-form pure-form-aligned" action="" method="post" name="builderlog">
     {{ form.hidden_tag() }}
-    <legend>Risultato dell'elaborazione</legend>
     <fieldset>
       {{ form.csrf_token }}
       <div class="pure-control-group">
-        <textarea rows="10", cols="85">{{ logcontent | safe }}</textarea><br><br>
+        <textarea rows="15" cols="108">{{ logcontent | safe }}</textarea><br><br>
       </div>
       <hr>
       <button class="pure-button pure-button-primary" name="generatore" title="Torna al generatore di pagine">Generatore</button>
-      <button class="pure-button pure-button-secondary" name="apri" title="Apri la pagina generata (in un altra finestra)">Vai alla pagina</button>
+      <button class="pure-button pure-button-secondary" name="apri" title="Apri la pagina generata (in un altra scheda)">Vai alla pagina</button>
     </fieldset>
 {% endblock %}

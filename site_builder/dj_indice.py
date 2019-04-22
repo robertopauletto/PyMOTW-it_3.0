@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from modulo import Modulo
-import datetime
 
-
-__date__=''
-__version__='0.2'
-__doc__="""Costruisce le pagine indice
+__date__ = ''
+__version__ = '0.2'
+__doc__ = """Costruisce le pagine indice
 Versione %s %s
-""" % ( __version__, __date__ )
+""" % (__version__, __date__)
 
 
 class Indice(object):
@@ -25,7 +22,7 @@ class Indice(object):
         :param list elenco_moduli: i moduli per la pagina
         :param Footer footer: il footer della pagina
         :param list categ: le categorie da rendere in spalla dx della pagina
-        :param int nr_pagina: il numero pagina nell'ambito
+        :param int page_no: il numero pagina nell'ambito
         :param int tot_pages: numero totale pagine
         """
         self.moduli = elenco_moduli
@@ -51,22 +48,13 @@ class Indice(object):
         page = self.get_prev_page(self.page)
         x = Indice.base_url.format('_' + str(page) if page else '')
         return x
-        # if self.prev_nr_page >= 0:
-        #     return Indice.base_url % ("_" + str(self.prev_nr_page))
-        # else:
-        #     return Indice.base_url % ''
 
     @property
     def next_url(self):
         page = self.get_next_page(self.page)
         x = Indice.base_url.format('_' + str(page) if page else '')
         return x
-        # if self.next_nr_page > 0:
-        #     return Indice.base_url % ("_" + str(self.next_nr_page))
-        # else:
-        #     return Indice.base_url % ''
 
-        
     @property
     def modulo_tre(self):
         """
@@ -74,9 +62,4 @@ class Indice(object):
         `py:class:Modulo`
         """
         return [self.moduli[i:i+Indice.moduli_per_riga]
-             for i in range(0, len(self.moduli), Indice.moduli_per_riga)]
-        
-    
-    
-if __name__ == '__main__':
-    pass
+                for i in range(0, len(self.moduli), Indice.moduli_per_riga)]

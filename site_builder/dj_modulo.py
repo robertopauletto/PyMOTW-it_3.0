@@ -11,17 +11,31 @@ from modulo import Modulo
 from footer import Footer
 import os.path
 
+
 class DjModulo(object):
+    """Caratteristiche dell'articolo sul modulo che saranno passate al
+    template di DJango per il rendering"""
     fixed_sidebar = 20
     baseurl = 'examples'
-    def __init__(self, indice, corpo, modulo, footer=Footer(), zipfile=None):
+
+    def __init__(self, indice, corpo, modulo, footer=Footer(), zipfile=None,
+                 sidebar_is_fixed=True):
+        """
+
+        :param indice: contenuto della spalla destra (indice articolo)
+        :param corpo: corpo dell'articolo
+        :param modulo: info sul modulo
+        :param footer:
+        :param zipfile: file con gli esempi dell'articolo
+        :param sidebar_is_fixed: se `True` la spalla destra è fissa
+        """
         self._indice_sidebar = indice
         self._corpo = corpo
         self.modulo = modulo
         self.footer = footer
         self._zip = zipfile
         isinstance(self.modulo, Modulo)
-
+        self._fixed_sidebar = sidebar_is_fixed
 
     @property
     def lnkzip(self):
@@ -62,8 +76,7 @@ class DjModulo(object):
 
     @property
     def sidebarnav_type(self):
-        return "fixed" if len(self.indice_laterale) <= DjModulo.fixed_sidebar \
-            else "absolute"
+        return "fixed" if self._fixed_sidebar else "absolute"
 
 
 if __name__ == '__main__':

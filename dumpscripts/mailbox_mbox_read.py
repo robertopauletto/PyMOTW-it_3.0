@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# mailbox_mbox_read.py
 
 import mailbox
 
-mbox = mailbox.mbox('example.mbox')
+mbox = mailbox.mbox('esempio.mbox')
 for message in mbox:
-    print message['subject']
+    print(message['subject'])

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Strutture Dati</categoria>
+<documento_tradotto>
+<titolo_1>
+struct - Strutture Dati Binari
+</titolo_1>
+<descrizione>
+Converte tra stringhe e dati binari
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>struct</strong> include funzioni per la conversione tra stringhe di byte e tipi dati nativi di Python come numeri e stringhe.
+</testo_normale>
+<titolo_2>
+Funzioni Contro la Classe Struct
+</titolo_2>
+<testo_normale>
+E' disponibile per lavorare con valori strutturati sia un insieme di funzioni a livello di modulo che la classe <code>Struct</code>. Gli specificatori di formato sono convertiti dal loro formato stringa in una rappresentazione compilata, simile al modo nel quale sono gestite le espressioni regolari. La conversione richiede qualche risorsa, quindi è tipicamente più efficiente farlo una sola volta quando si crea l'istanza di <code>Struct</code>, poi chiamare i metodi sull'istanza invece che usare le funzioni a livello di modulo. Tutti gli esempi che seguono utilizzano la classe <code>Struct</code>.
+</testo_normale>
+<titolo_2>
+Impacchettare e Spacchettare
+</titolo_2>
+<testo_normale>
+Le struttura supportano l'<em>impacchettamento</em> dei dati in stringhe, e lo <em>spacchettamento</em> di dati da stringhe usando specificatori di formato composti da caratteri che rappresentano il tipo di dato ed indicatori opzionali di contatori ed <a href='https://www.wikiwand.com/it/Ordine_dei_byte' target='_blank'><em>endianness</em></a>. Si faccia riferimento alla documentazione della libreria standard per un elenco completo degli specificatori di formato supportati.
+</testo_normale>
+<testo_normale>
+In questo esempio, lo specificatore chiama un valore intero o intero lungo, una stringa di due byte ed un numero a virgola mobile. Gli spazi nello specificatore di formato sono inclusi per separare gli indicatori di tipo, e vengono ignorati quanto il formato viene compilato.
+</testo_normale>
+<py_code>
+# struct_pack.py
+</py_code>
+<testo_normale>
+Questo esempio converte il valore impacchettato in una sequenza di byte esadecimali per la stampa con <code>binascii.hexlify</code>, visto che alcuni caratteri sono <em>null</em>.
+</testo_normale>
+<py_output>
+$ python3 struct_pack.py
+</py_output>
+<testo_normale>
+Si usi <code>unpack()</code> per estrarre dati dalla loro rappresentazione impacchettata.
+</testo_normale>
+<py_code>
+# struct_unpack.py
+</py_code>
+<testo_normale>
+In pratica, passando il valore impacchettato a <code>unpack()</code> vengono restituiti gli stessi valori (si noti la discrepanza nel valore a virgola mobile).
+</testo_normale>
+<py_output>
+$ python3 struct_unpack.py
+</py_output>
+<titolo_2>
+Endianness
+</titolo_2>
+<testo_normale>
+Nella modalità predefinita, i valori sono codificati usando la nozione di <em>endianness</em> della libreria C nativa. E' facile annullare questa scelta fornendo una direttiva di <em>endianness</em> esplicita nella stringa di formato.
+</testo_normale>
+<py_code>
+# struct_endianness.py
+</py_code>
+<testo_normale>
+La tabella qui sotto elenca gli specificatori di ordine dei byte usati da <code>Struct</code>.
+</testo_normale>
+<tabella_semplice>
+CODICE;SIGNIFICATO
+@;Ordine nativo
+=;Standard nativo
+&lt;little-endian
+&gt;big-endian
+!;Ordine network
+</tabella_semplice>
+<py_output>
+$ python3 struct_endianness.py
+</py_output>
+<titolo_2>
+Buffer
+</titolo_2>
+<testo_normale>
+Il lavoro con dati binari impacchettati è tipicamente riservato per situazioni sensibili alle prestazioni o per passare dati da/per moduli di estensione. In questi casi è possibile eseguire una ottimizzazione evitando il sovraccarico dell'allocazione di un nuovo buffer per ogni struttura impacchettata. I metodi <code>pack_into()</code> e <code>unpack_from()</code> supportano la scrittura diretta verso buffer pre allocati
+</testo_normale>
+<py_code>
+# struct_buffers.py
+</py_code>
+<testo_normale>
+L'attributo <code>size</code> di <code>Struct</code> mostra quanto grande deve essere il buffer.
+</testo_normale>
+<py_output>
+$ python3 struct_buffers.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/struct.html|struct|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html#struct|Note di portabilità per questo modulo|
+array.html|array|Il modulo <code>array</code> è per lavorare con sequenze di valori di tipo prefissato.
+#|binascii|Il modulo <code>binascii</code> produce rappresentazioni ASCII di dati binari
+https://www.wikiwand.com/it/Ordine_dei_byte|Endiannes (Wikipedia)|Spiegazione dell'ordine dei byte ed <em>endianness</em> nella codifica.
+</vedi_anche>
+</documento_tradotto>

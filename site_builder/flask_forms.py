@@ -30,8 +30,11 @@ class NewArticleForm(FlaskForm):
     categ = SelectField('categ')
     publish_date = DateField('publishdate', format='%d/%M/%Y')
     add_to_index = BooleanField('addtoindex', default=True)
-    editor = CKEditorField('test')
+    # editor = CKEditorField('test')
 
+
+class CategorieForm(FlaskForm):
+    nome = StringField('catname')
 
 
 class HTMLGeneratorForm(FlaskForm):
@@ -40,6 +43,7 @@ class HTMLGeneratorForm(FlaskForm):
     rebuild_index = BooleanField('rebindex', default=False)
     rebuild_table = BooleanField('rebtbl', default=False)
     spellcheck = BooleanField('spcheck', default=False)
+    fixed_sidebar = BooleanField('sbfixed', default=True)
 
 
 class ConfigurationForm(FlaskForm):

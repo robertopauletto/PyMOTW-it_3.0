@@ -9,7 +9,8 @@ from flask import (
 )
 from flask_ckeditor import CKEditor
 from flask_forms import (
-    BuilderLog, HTMLGeneratorForm, ConfigurationForm, NewArticleForm
+    BuilderLog, HTMLGeneratorForm, ConfigurationForm, NewArticleForm,
+    CategorieForm
 )
 import jinja2
 import json
@@ -18,7 +19,7 @@ import os.path
 import webbrowser
 import os
 from builder import build_module, build_index, build_module_table, \
-     set_builder_conf, get_categorie, crea_nuovo_articolo
+     set_builder_conf, get_categorie, crea_nuovo_articolo, save_categorie
 
 
 __app__ = "Generatore Pagine HTML per PyMOTW-it 3"
@@ -59,6 +60,20 @@ def index():
     return render_template('index.html', titolo=__app__)
 
 
+@app.route('/categorie', methods=['GET', 'POST'])
+def categorie():
+    file_categ = builder_config['file_categories']
+    form = CategorieForm()
+    listcat = [c[0] for c in get_categorie(file_categ)]
+    if form.validate_on_submit():
+        listcat.append(form.nome.data)
+        save_categorie(file_categ, listcat)
+        listcat = [c[0] for c in get_categorie(file_categ)]
+        print()
+    return render_template('categorie.html', form=form,
+                           titolo='Categorie', listcat=listcat)
+
+
 @app.route('/new_article', methods=['GET', 'POST'])
 def new_article():
     """Creaazione file nuovo articolo"""
@@ -67,7 +82,9 @@ def new_article():
         builder_config['new_article_folder'],
         builder_config['new_article_template']
     )
-    form.categ.choices = get_categorie()
+    form.categ.choices = get_categorie(builder_config['file_categories'])
+    save_categorie(builder_config['file_categories'],
+                   [c[0] for c in form.categ.choices])
     if form.validate_on_submit():
         template = form.template.data
         nome_modulo = form.name.data
@@ -104,7 +121,8 @@ def generator():
 
     if form.validate_on_submit():
         module = form.modules.data.lower()
-        tmplog, check_sintassi = build_module(module.split())
+        is_sidebar_fixed = form.fixed_sidebar.data
+        tmplog, check_sintassi = build_module(module.split(), is_sidebar_fixed)
         if form.spellcheck:
             pass
         log = '\n'.join(tmplog)

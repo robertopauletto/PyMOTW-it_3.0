@@ -1,34 +1,39 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8*-
+# mailbox_mbox_create.py
 
 import mailbox
 import email.utils
 
-from_addr = email.utils.formataddr(('Author', 'author@example.com'))
-to_addr = email.utils.formataddr(('Recipient', 'recipient@example.com'))
+from_addr = email.utils.formataddr(('Autore',
+                                    'autore@esempio.com'))
+to_addr = email.utils.formataddr(('Destinatario',
+                                  'destinatario@esempio.com'))
 
-mbox = mailbox.mbox('example.mbox')
+payload = '''Questo e' il corpo.
+From (sara' prefissato da sequenza di escape).
+Ci sono 3 righe.
+'''
+
+mbox = mailbox.mbox('esempio.mbox')
 mbox.lock()
 try:
     msg = mailbox.mboxMessage()
-    msg.set_unixfrom('author Sat Feb  7 01:05:34 2009')
+    msg.set_unixfrom('autore Sat Feb  7 01:05:34 2009')
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'Messaggio di prova n. 1'
-    msg.set_payload('Questo è il corpo del messaggio.\nFrom (dovrebbe essere prefissato da >).\nCi sono 3 righe.\n')
+    msg['Subject'] = 'Messaggio campione 1'
+    msg.set_payload(payload)
     mbox.add(msg)
     mbox.flush()
 
     msg = mailbox.mboxMessage()
-    msg.set_unixfrom('author')
+    msg.set_unixfrom('autore')
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'Messaggio di prova n. 2'
-    msg.set_payload('Questo è il corpo del secondo messaggio.\n')
+    msg['Subject'] = 'Messaggio campione 2'
+    msg.set_payload("Questo e' il secondo corpo.\n")
     mbox.add(msg)
     mbox.flush()
 finally:
     mbox.unlock()
 
-print open('example.mbox', 'r').read()
-
+print(open('esempio.mbox', 'r').read())

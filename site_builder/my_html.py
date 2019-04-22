@@ -229,7 +229,7 @@ class MyHtml(object):
     def output_console(self, value, **kwargs):
         """(str) -> str
 
-        Mostra l'output console. Se value è una lista con più elementi si
+        Mostra l'output console. Se `value` è una lista con più elementi si
         presume che sia il testo di output da rendere. Se `value` contiene
         un solo elemento si assume che sia un comando da eseguire in un
         sottoprocesso per catturare e rendere il suo risultato; in questo

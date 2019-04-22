@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Email</categoria>
+<documento_tradotto>
+<titolo_1>
+mailbox - Manipola Archivi Email
+</titolo_1>
+<descrizione>
+Lavora con messaggi email in vari formati di file locali
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>mailbox</strong> definisce una <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> comune per accedere a messaggi email conservati in formati disco locale, inclusi:
+</testo_normale>
+<lista>
+Maildir
+mbox
+MH
+Babyl
+MMDF
+</lista>
+<testo_normale>
+Ci sono classi base per <code>Mailbox</code> e <code>Message</code>, e ciascun formato di casella di posta include un paio di sottoclassi corrispondenti per implementare i dettagli per quel formato.
+</testo_normale>
+<titolo_2>
+mbox
+</titolo_2>
+<testo_normale>
+Il formato mbox è quello più semplice da mostrare nella documentazione, visto è interamente in testo semplice. Ogni casella di posta è conservata in un singolo file, con tutti i messaggi concatenati assieme. Ogni volta che viene rilevata  una riga che inizia con "<code>From </code>" ("From" seguito da un singolo spazio) essa viene trattata come l'inizio di un nuovo messaggio. Ogni volta che detti caratteri appaiono all'inizio di una riga di corpo del messaggio vengono prefissati dalla sequenza di <em>escape</em> "<code>&gt;</code>"
+</testo_normale>
+<titolo_3>
+Creare una Casella di Posta mbox
+</titolo_3>
+<testo_normale>
+Si istanzi la classe <code>mbox</code> passando il nome del file al costruttore. Se il file non esiste, viene creato, quando si utilizza <code>add()</code>  per accodare i messaggi.
+</testo_normale>
+<py_code>
+# mailbox_mbox_create.py
+</py_code>
+<testo_normale>
+Il risultato dello script è un nuovo file di casella di posta con due messaggi email
+</testo_normale>
+<py_output>
+?preproc mailbox_1.sh
+$ python3 mailbox_mbox_create.py
+</py_output>
+<titolo_3>
+Leggere una Casella di Posta mbox
+</titolo_3>
+<testo_normale>
+Per leggere una casella di posta esistente, la si apra e si tratti l'oggetto <code>mbox</code> come un dizionario. Le chiavi sono valori arbitrari definiti dall'isatnza <code>mailbox</code> e non hanno un particolare significato se non quello di fungere da identificatori interni per gli oggetti messaggio.
+</testo_normale>
+<py_code>
+# mailbox_mbox_read.py
+</py_code>
+<testo_normale>
+La casella di posta aperta supporta il protocollo iteratore, ma al contrario dei veri oggetti dizionario l'iteratore predefinito per la casella di posta lavora sui <em>valori</em> in luogo delle <em>chiavi</em>.
+</testo_normale>
+<py_output>
+$ python3 mailbox_mbox_read.py
+</py_output>
+<titolo_3>
+Rimuovere Messaggi da una Casella di Posta mbox
+</titolo_3>
+<testo_normale>
+Per rimuovere un messaggio esistente da un file mbox, si usi la sua chiave con <code>remove()</code> oppure si usi <code>del</code>
+</testo_normale>
+<py_code>
+# mailbox_mbox_remove.py
+</py_code>
+<testo_normale>
+I metodi <code>lock()</code> e <code>unlock()</code> sono utilizzati per prevenire problemi derivanti da accessi simultanei al file, e <code>flush()</code> forza la scrittura su disco delle modifiche
+</testo_normale>
+<py_output>
+$ python3 mailbox_mbox_remove.py
+</py_output>
+<titolo_2>
+Maildir
+</titolo_2>
+<testo_normale>
+Il formato Maildir fu creato per elimiare il problema di modifiche concorrenti ad un file mbox. Invece che usare un file singolo, la casella di posta è organizzata come directory nella quale ciascun messaggio è contenuto nel suo proprio file. Questo consente anche un annidamento delle caselle di posta, quindi la API per una casella di posta Mailbox è estesa con metodi che lavorano con sottocartelle
+</testo_normale>
+<titolo_3>
+Creare una Casella di Posta Maildir
+</titolo_3>
+<testo_normale>
+La sola reale differenza tra la creazione di una <code>Maildir</code> rispetto ad una <code>mbox</code> è che l'argomento per il costruttore è un nome di directory invece che un nome di file. Come prima, se la casella di posta non esiste, viene creata quando vengono aggiunti i messaggi.
+</testo_normale>
+<py_code>
+# mailbox_maildir_create.py
+</py_code>
+<testo_normale>
+Quando i messaggi sono aggiunti alla casella di posta, vanno nella nuova sottodirectory
+</testo_normale>
+<avvertimento>
+Anche se è sicuro scrivere alla stessa maildir da processi multipli, <code>add()</code> non è sicuro a livello di <em>thread</em>. Si utilizzi un semaforo o altro dispositivo di bloccaggio per prevenire modifiche simultanee alla casella di posta da <em>thread</em> multipli dello stesso processo.
+</avvertimento>
+<py_output>
+?preproc mailbox_1.sh
+$ python3 mailbox_maildir_create.py
+</py_output>
+<testo_normale>
+Qualora fosse necessario, dopo avere letto i messaggi, è possibile spostarli dalla sottodirectory <code>cur</code> tramite il metodo <code>set_subdir()</code> di <code>MaildirMessage</code>
+</testo_normale>
+<py_code>
+# mailbox_maildir_set_subdir.py
+</py_code>
+<testo_normale>
+Anche se una casella maildir già include una directory "<code>tmp</code>", i soli argomenti validi per <code>set_subdir()</code> sono "<code>cur</code>" e "<code>new</code>"
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_set_subdir.py
+</py_output>
+<titolo_3>
+Leggere una Casella di Posta Maildir
+</titolo_3>
+<testo_normale>
+Il meccanismo di lettura di una Maildir esistente è uguale a quella di una casella mbox
+</testo_normale>
+<py_code>
+# mailbox_maildir_read.py
+</py_code>
+<testo_normale>
+Non è garantito che i messaggi vengano letti con un ordine particolare.
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_read.py
+
+Messaggio campione 2
+Messaggio campione 1
+</py_output>
+<titolo_3>
+Rimuovere Messaggi da una Casella di Posta Maildir
+</titolo_3>
+<testo_normale>
+Per rimuovere un messaggio esistente da una Maildir, si passi la sua chiave a <code>remove()</code> oppure si usi <code>del</code>
+</testo_normale>
+<py_code>
+# mailbox_maildir_remove.py
+</py_code>
+<testo_normale>
+Non vi è modo di calcolare la chiave per un messaggio, quindi si usi <code>items()</code> o <code>iteritems()</code> per recuperare contemporaneamente la chiave e l'oggetto messaggio dalla casella di posta.
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_remove.py
+</py_output>
+<titolo_3>
+Cartelle Maildir
+</titolo_3>
+<testo_normale>
+Le sottodirectory o cartelle di una casella di posta Maildir possono essere gestite direttamente con i metodi della classe <code>Maildir</code>. I chiamanti possono elencare, recuperare, creare e rimuovere sottocartelle per una data casella di posta.
+</testo_normale>
+<py_code>
+# mailbox_maildir_folders.py
+</py_code>
+<testo_normale>
+Il nome della directory per la cartella viene costruito prefissando il nome della cartella con un punto (<code>.</code> )
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_folders.py
+</py_output>
+<titolo_2>
+Segnalatori di Messaggio
+</titolo_2>
+<testo_normale>
+I messaggi nelle caselle di posta hanno segnalatori per tenere traccia di vari aspetti, tipo il fatto che il messaggio sia stato letto oppure no, che un messaggio sia stato contrassegnato come importante o meno, o marcato per una successiva cancellazione. I segnalatori sono conservati come sequenza di specifici codici lettera e le classi <code>Message</code> hanno metodi per recuperarli e modificarne il valore. Questo esempio mostra i segnalatori per i messaggi nella casella di posta <code>Esempio</code> prima di aggiungere un segnalatore che indica che quel messaggio è considerato importante.
+</testo_normale>
+<py_code>
+# mailbox_maildir_add_flag.py
+</py_code>
+<testo_normale>
+Nella modalità predefinita, i messaggi non hanno segnalatori. L'aggiunta di un segnalatore cambia il messaggio in memoria, ma non aggiorna la versione su disco. Per aggiornare il messaggio su disco si salvi l'oggetto messaggio nella casella di posta usando il suo identificatore.
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_add_flag.py
+</py_output>
+<testo_normale>
+Aggiungere segnalatori con <code>add_flag()</code> preserva eventuali segnalatori già esistenti. Si utilizzi <code>set_flags()</code> per sovrascrivere qualsiasi segnalatore esistente, sostituendoli con i nuovi valori passati al metodo.
+</testo_normale>
+<py_code>
+# mailbox_maildir_set_flags.py
+</py_code>
+<testo_normale>
+Il segnalatore <code>F</code> aggiunto con l'esempio precedente viene perso quando <code>set_flags()</code> sostituisce i segnalatori con <code>S</code> in questo esempio.
+</testo_normale>
+<py_output>
+$ python3 mailbox_maildir_set_flags.py
+</py_output>
+<titolo_2>
+Altri Formati
+</titolo_2>
+<testo_normale>
+<strong>mailbox</strong> supporta qualche altro formato, ma nessuno di essi è conosciuto come mbox o Maildir. MH è un altro formato di casella di posta multi file, usato da alcuni gestori di mail. Babyl e MMDF sono formati a file singolo con separatori di messaggio diversi da quelli di mbox. I formati a singolo file supportano la stessa API di mbox, e MH include i metodi per la gestione delle cartelle visti nella classe <code>Maildir</code>
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.7/library/mailbox.html|mailbox|La documentazione della libreria standard per questo modulo.
+riferimenti_moduli_modificati.html|Note di portabilità da Python 2 a 3 per mailbox|
+http://www.qmail.org/man/man5/mbox.html|Pagina di manuale per mbox da qmail|Documentazione del formato mbox (inglese)
+http://www.qmail.org/man/man5/maildir.html|Pagina di manuale per Maildir da qmail|Documentazione del formato Maildir (inglese)
+#|email|Il modulo <strong>email</strong>
+#|imaplib (di prossima traduzione)|Il modulo <strong>imaplib</strong> può lavorare con messaggi email salvati su di un server IMAP
+</vedi_anche>
+</documento_tradotto>

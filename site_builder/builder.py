@@ -22,15 +22,14 @@ try:
     from dj_indice import Indice
     from dj_modulo import DjModulo
     from dj_tabelle_indici import DjTabelleIndici
+    from footer import Footer
     from modulo import Modulo, elenco_per_indice
     import modulo_xml2html
     from index_builder import ottieni_tabella
-
     from lib.common import clear_console, my_title
-    from footer import Footer
+    import lib.last_ten as lt
     from inline_sub import InlineSubs
     from rss_feed_builder import Feed, FeedItem
-    import lib.last_ten as lt
 except ImportError as imperr:
     raise Exception("Errore importazione modulo\n\n" + imperr.message)
 
@@ -82,7 +81,7 @@ def set_builder_conf(dictconf):
 
 FOOTER = Footer(
     'PyMOTW-it 3',
-    periodo=str(datetime.date.year),
+    periodo=str(datetime.date.today().year),
     data_agg=datetime.date.today().strftime("%d-%m-%Y")
 )
 
@@ -94,7 +93,7 @@ def imposta_param_django(template_dirs):
     percorsi per i file template in `template_dirs`
     """
     from django.conf import settings
-    if  not settings.configured:
+    if not settings.configured:
         settings.configure(
             DEBUG=True, TEMPLATE_DEBUG=True,
             TEMPLATE_DIRS=template_dirs,
@@ -153,13 +152,53 @@ def _categorie_per_indice(elenco_moduli):
     return l
 
 
-def get_categorie():
-    moduli =  sorted(elenco_per_indice(), key=lambda x: x.nome.lower())
-    return [(cat[0], cat[0]) for cat in _categorie_per_indice(moduli)]
+def get_categorie(file_categ):
+    """
+    Ottiene le categorie degli articoli
+
+    :param file_categ: il file da leggere
+    :return: una tupla con il nome della categoria in ordine alfabetico
+    """
+    if not os.path.exists(file_categ):
+        moduli = sorted(elenco_per_indice(), key=lambda x: x.nome.lower())
+        return [(cat[0], cat[0]) for cat in _categorie_per_indice(moduli)]
+    else:
+        moduli = sorted([row.strip() for row in open(file_categ)])
+        print()
+        return [(m, m) for m in moduli]
+
+
+def save_categorie(file_categ, lista_categ):
+    """
+    Sslva `lista_categ` in `file_categ`
+
+    :param file_categ: il file su cui salvare (sovrascrive)
+    :param lista_categ: l'elenco delle categorie da salvare
+    :return:
+    """
+    with open(file_categ, 'w') as fh:
+        fh.write('\n'.join(lista_categ))
 
 
 def crea_nuovo_articolo(filetemplate, outfile, categoria, nome_modulo, scopo,
                         descrizione, data_pubb, aggiungi_a_indice, filecron):
+    """
+    Crea un file da utilizzare come base per la scrittura di un nuovo articolo
+
+    :param filetemplate: il file template di partenza
+    :param outfile: il file da creare per utilizzarlo nella traduzione
+    :param categoria: la categoria dell'articolo
+    :param nome_modulo: il nome del modulo (utilizzato nel jumbo)
+    :param scopo: lo scopo del modulo (utilizzato nel jumbo)
+    :param descrizione: incipit dell'articolo
+    :param data_pubb: data pubblicazione da usare nella home
+    :param aggiungi_a_indice: se `True` l'articolo si aggiunge alla tabella dei
+                              moduli
+    :param filecron: il file che traccia le data di pubblicazione degli
+                     articoli (che verrà aggiornato con `data_pubb`,
+                    `nome_modulo` e `scopo`
+    :return: il percorso del file creato
+    """
     titolo_articolo = "{} - {}".format(nome_modulo, descrizione)
     data_pubb = datetime.date.strftime(data_pubb, '%d.%M.%Y')
     subs = {
@@ -182,7 +221,7 @@ def crea_nuovo_articolo(filetemplate, outfile, categoria, nome_modulo, scopo,
     with open(filetemplate) as fhi:
         with open(outfile, mode='w') as fho:
             fho.write(string.Template(fhi.read()).safe_substitute(subs))
-    return
+    return os.path.abspath(outfile)
 
 
 def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
@@ -199,7 +238,7 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
 
     # Gestione sezione ultimi moduli aggiornati
     with open(builder_conf["translated_modules"]) as fh:
-        last_ten = lt.LastTen_factory(
+        last_ten = lt.lastTen_factory(
             [row.strip() for row in fh.readlines()]
         )
     nr_ultimi_agg = builder_conf['show_last_updated']
@@ -216,28 +255,13 @@ def crea_pagine_indice(template_name, file_indice, mod_per_pagina, footer):
     for pagina, moduli in moduli_per_pagina.iteritems():
         indice = Indice(moduli, footer, categ_per_indice, pagina, pagine)
 
-    # for gruppo_moduli in _chunks(moduli, mod_per_pagina):
-    #     for m in gruppo_moduli:
-    #         gm.append(m)
-    #     i = Indice(gm, footer, categ_per_indice)
-    #     if ((prg + 1) < pagine):
-    #         i.prev_nr_page = prg + 1
-    #     elif (prg + 1 ) == 1:
-    #         i.next_nr_page = int(pagine - 1)
-    #     elif (prg + 1) < pagine:
-    #         i.next_nr_page = prg - 1
-    #     else:
-    #         i.next_nr_page = int(pagine-2)
-
-        render_dic = {'indice': indice,}
+        render_dic = {'indice': indice, }
         render_dic['last_ten'] = last_ten
         fn = '{}{}.html'.format(
             file_indice, '_' + str(pagina) if pagina else ''
         )
         build(template_name, render_dic,
               os.path.join(builder_conf["html_dir"], fn))
-        # prg += 1
-        # gm = []
     return
 
 
@@ -253,20 +277,20 @@ def _crea_pagina_indice(moduli, mpp):
     coda_moduli = deque(moduli)
     max_pagine = int(ceil(len(moduli) / mpp))
     diz = OrderedDict()
-    page = 1
     for pagina in range(0, max_pagine):
         cnt = 0
         while cnt < mpp:
             if not coda_moduli:
                 break
-            if not pagina in diz:
+            if pagina not in diz:
                 diz[pagina] = list()
             diz[pagina].append(coda_moduli.popleft())
             cnt += 1
     return diz
 
 
-def crea_pagina_modulo(template_name, file_modulo, footer, tag_ind, log=None):
+def crea_pagina_modulo(template_name, file_modulo, footer, tag_ind,
+                       log=None, is_sidebar_fixed=True):
     """(str, str, str [, list])
 
     Crea la pagina per un modulo.
@@ -278,6 +302,8 @@ def crea_pagina_modulo(template_name, file_modulo, footer, tag_ind, log=None):
     :param tag_ind: indici da usare per l'indice di spalla
     :param log: una lista che conterrà le info di log rilasciate dai metodi che
                 compongono la pagina
+    :param is_sidebar_fixed: se `True` la spalla destra con indice articolo sarà
+                             fissa durante lo scorrimento verticale
     """
     indice, main_content, is_ind, check_sintassi, zipfile = \
         modulo_xml2html.render_articolo(
@@ -286,9 +312,12 @@ def crea_pagina_modulo(template_name, file_modulo, footer, tag_ind, log=None):
         )
     fn = os.path.splitext(os.path.basename(file_modulo))[0]
     modulo = Modulo.ottieni_modulo(fn)
-    m = DjModulo(indice, main_content, modulo, footer, zipfile)
+    m = DjModulo(indice, main_content, modulo, footer, zipfile,
+                 sidebar_is_fixed=is_sidebar_fixed)
+
     fn += '.html'
-    dic = {'modulo': m,}
+    dic = {'modulo': m, }
+
     build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
     return is_ind, check_sintassi
 
@@ -358,9 +387,9 @@ def crea_feed_rss(base_path, outfile, title, description=''):
             guid=link_guid
 
         )
-
         feed.set_item(item)
-    print modulo.nome, modulo.descrizione
+        # print(modulo.nome, modulo.descrizione)
+
     with codecs.open(local_feed, mode='w', encoding='utf-8') as fh:
         fh.write(feed.get_feed())
 
@@ -373,11 +402,11 @@ def crea_tabella_indice(template_name):
     `template_name` è il nome del modello per il rendering
     """
     moduli = elenco_per_indice()
-    #corpo = ottieni_tabella(moduli)
+    # corpo = ottieni_tabella(moduli)
     m = DjTabelleIndici(moduli, FOOTER)
     diz_indice = m.get_indice
     fn = 'indice_alfabetico.html'
-    dic = {'modulo': m,}
+    dic = {'modulo': m, }
     dic['idx'] = diz_indice
     build(template_name, dic, os.path.join(builder_conf["html_dir"], fn))
 
@@ -399,49 +428,45 @@ def rebuild_all():
     for choice in glob.glob(pattern):
         if not os.path.exists(choice):
             exit(0)
-        print "Costruzione pagina %s in corso ..." % os.path.basename(choice)
+        print("Costruzione pagina {} in corso ...".format(
+            os.path.basename(choice))
+        )
         if 'riferimenti_' in choice:
-            is_ind =  crea_pagina_modulo(builder_conf["template_ref_name"], choice, FOOTER)
+            is_ind = crea_pagina_modulo(
+                builder_conf["template_ref_name"], choice, FOOTER)
         else:
-            is_ind =  crea_pagina_modulo(builder_conf["template_module_name"], choice, FOOTER)
-        #crea_pagina_modulo(TEMPLATE_MODULE_NAME, choice, FOOTER)
+            is_ind = crea_pagina_modulo(
+                builder_conf["template_module_name"], choice, FOOTER)
+        # crea_pagina_modulo(TEMPLATE_MODULE_NAME, choice, FOOTER)
 
 
-def pubblica(moduli):
-    crea_pagine_indice(
-        builder_conf["template_index_name"],
-        builder_conf["file_indice"],
-        builder_conf["modules_by_page"],
-        FOOTER
-    )
-    crea_tabella_indice(builder_conf["template_tabalfa_name"])
+# def pubblica(moduli):
+#     crea_pagine_indice(
+#         builder_conf["template_index_name"],
+#         builder_conf["file_indice"],
+#         builder_conf["modules_by_page"],
+#         FOOTER
+#     )
+#     crea_tabella_indice(builder_conf["template_tabalfa_name"])
 
 
 def _norm_path(modulo, def_dir, def_ext='.xml'):
     if not modulo.endswith(def_ext):
         modulo += def_ext
     return os.path.abspath(os.path.join(def_dir, modulo))
-    #
-    # fn, ext = os.path.splitext(modulo)
-    # if not ext:
-    #     ext = def_ext
-    # else:
-    #     if not ext == def_ext:
-    #         fn = fn + ext
-    # return os.path.abspath(os.path.join(def_dir, fn + ext))
 
 
 # Funzioni da utilizzare se modulo chiamato
-def build_module(moduli):
+def build_module(moduli, is_sidebar_fixed):
     """Funzione principale per i consumatori del modulo
 
     :param moduli: una lista di moduli da rendere (percorso completo)
     """
     imposta_param_django([builder_conf["template_dirs"]])
     log = []
+    check_sintassi = None
 
     for modulo in moduli:
-
         modulo = _norm_path(modulo, builder_conf["tran_dir"])
         x = os.getcwd()
         if not os.path.exists(modulo):
@@ -457,7 +482,7 @@ def build_module(moduli):
             is_ind, check_sintassi = crea_pagina_modulo(
                 builder_conf["template_module_name"],
                 modulo, FOOTER,
-                builder_conf["tag_summary"], log
+                builder_conf["tag_summary"], log, is_sidebar_fixed
             )
         log.append("Costruzione pagina %s terminata" % os.path.basename(modulo))
     return log, check_sintassi
@@ -488,7 +513,5 @@ def build_module_table():
 
 
 if __name__ == '__main__':
-    print __doc__
     print ("Utilizzare l'interfaccia web")
     print ("Fine")
-    #crea_feed_rss(r'/home/robby/tmpdebug', 'outfile.xml', 't', 'd')

@@ -35,7 +35,7 @@ leggibile e facile da elaborare. La condizione fondamentale, infatti,
 HTML sia sempre da solo **ad inizio riga**
 
 Versione %s %s
-""" % ( __version__, __date__ )
+""" % (__version__, __date__ )
 
 
 h = my_html.MyHtml()  # Si occupa del rendering in HTML dei dati
@@ -45,8 +45,8 @@ DEF_CHARSET = 'utf-8'
 TESTSDIR = os.path.abspath(os.path.dirname(__file__))
 TEST_XML_FILE = r'/home/robby/Dropbox/Code/python/pymotw-it/tran/abc.xml'
 HTML_OUTPUT = 'xmt2html_test.html'
-RE_TAG_START = re.compile('^\<\w+\>')
-RE_TAG_END = re.compile('^\<\/\w+\>')
+RE_TAG_START = re.compile(r'^<\w+>')
+RE_TAG_END = re.compile(r'^<\/\w+>')
 RE_STRIP_TAG = re.compile(r'[<>/]')
 
 
@@ -119,8 +119,8 @@ def pulisci_tag(tag):
     return RE_STRIP_TAG.sub('', tag.strip())
 
 
-entities = {"à":"&agrave;", "è":"&egrave;", "ì":"&igrave;", "ò":"&ograve;",
-            "ù":"&ugrave;"}
+entities = {"à": "&agrave;", "è": "&egrave;", "ì": "&igrave;", "ò": "&ograve;",
+            "ù": "&ugrave;"}
 
 
 def text2entity(file_name):
@@ -128,11 +128,11 @@ def text2entity(file_name):
     if not os.path.exists(file_name):
         raise IOError("Manca " + file_name)    
     copyfile(file_name, file_name + ".bak")
-    buffer = open(file_name, "r").read()
+    buf = open(file_name, "r").read()
     for k,v in entities.iteritems():
         log.append( "Sostituzione di %s con %s " % (k,v))
-        buffer = buffer.replace(k,v)
-    open(file_name, 'w').write(buffer)    
+        buf = buf.replace(k,v)
+    open(file_name, 'w').write(buf)    
     return "\n".join(log)
 
 
@@ -155,7 +155,7 @@ def load(xml_file, dir_esempi, log, builder_conf):
     Sono ammessi tag di commento a patto che si trovino su di una sola riga
     """
     seq_elementi = list()  # Conterrà elementi di dizionario 'tag': righe
-    buffer = list()  # Le righe da assegnare ad un tag ancora aperto
+    buf = list()  # Le righe da assegnare ad un tag ancora aperto
     is_aperto = False  # Se true la riga viene aggiunta al buffer del tag
     tag = ''  # conserva il nome del tag da utilizzare come chiave nel diz
     righe = list()
@@ -170,19 +170,19 @@ def load(xml_file, dir_esempi, log, builder_conf):
             is_aperto = True
             tag = pulisci_tag(riga.lower())
         elif RE_TAG_END.match(riga) and is_my_tag(riga.lower()):
-            if tag in builder_conf['code_tags'] and len(buffer) == 1:
-                buffer = _get_codice_di_esempio(buffer, dir_esempi, log)
+            if tag in builder_conf['code_tags'] and len(buf) == 1:
+                buf = _get_codice_di_esempio(buf, dir_esempi, log)
             elif tag == 'testo_normale':
-                _norm_testo_normale(buffer)
+                _norm_testo_normale(buf)
             elif tag in builder_conf["output_tags"]:
-                _norm_output(buffer)
-            seq_elementi.append({'tag': tag, 'buffer': buffer, 'row':  i})
-            buffer = []
+                _norm_output(buf)
+            seq_elementi.append({'tag': tag, 'buffer': buf, 'row':  i})
+            buf = []
             tag = ''
             is_aperto = False
         else:
             if is_aperto:
-                buffer.append(riga)
+                buf.append(riga)
     # Visto che i tag sono sempre di apertura/chiusura non mi preoccupo
     # di svuotare il buffer
     file_esempio = _get_file_esempio(seq_elementi)
@@ -217,15 +217,15 @@ def _get_file_esempio(seq_elementi):
     return files
 
 
-def _norm_testo_normale(buffer):
+def _norm_testo_normale(buf):
     """(list of str)
 
     Verifica se l'ultimo carattere della lista  un carattere di punteggiatura.
     In caso contrario aggiunge un punto (assumendo che, trattandosi di un
     paragrafo sia la punteggiatura più probabile se non fornita
     """
-    if buffer and not buffer[-1].strip().endswith(PUNTEGGIATURA):
-        buffer[-1] += "."
+    if buf and not buf[-1].strip().endswith(PUNTEGGIATURA):
+        buf[-1] += "."
 
 
 ENTITIES = {
@@ -234,48 +234,48 @@ ENTITIES = {
 }
 
 
-def _norm_output(buffer):
+def _norm_output(buf):
     """(list of str)
 
     Sostituisce caratteri che non vengono resi dal motore html nelle
     corrispondenti entità
     """
-    for i, row in enumerate(buffer):
+    for i, row in enumerate(buf):
         to_sub = []
         for key in ENTITIES.keys():
             if key in row:
                 to_sub.append(key)
         for char in to_sub:
-            buffer[i] = buffer[i].replace(char, ENTITIES[char])
-    return buffer
+            buf[i] = buf[i].replace(char, ENTITIES[char])
+    return buf
 
 
-def _get_codice_di_esempio(buffer, dir_esempi, log):
+def _get_codice_di_esempio(buf, dir_esempi, log):
     """(list, str, list) -> list
 
-    Parse di `buffer` per vedere se esiste un file che corrisponde al testo, che
+    Parse di `buf` per vedere se esiste un file che corrisponde al testo, che
     viene letto ed il contenuto restituito
 
-    Se `buffer` contiene più di un elemento viene ritornato *as is*
+    Se `buf` contiene più di un elemento viene ritornato *as is*
 
-    :param buffer: il testo da esaminare
+    :param buf: il testo da esaminare
     :param dir_esempi: la directory dove si trova l'eventuale esempio
     :param log:
     :return: il testo originale oppure il contenuto del file raggpresentato
-             da `buffer`
+             da `buf`
     """
-    if len(buffer) > 1:
-        return buffer
-    if not buffer[0].startswith(("#", "<")):
-        return buffer
+    if len(buf) > 1:
+        return buf
+    if not buf[0].startswith(("#", "<")):
+        return buf
     try:
-        _, filename = re.split(r'\s+', buffer[0].strip(), 2)
+        _, filename = re.split(r'\s+', buf[0].strip(), 2)
         with open(os.path.join(dir_esempi, filename)) as fh:
             return [row.rstrip() for row in fh.readlines()]
     except:
-        prompt = "Fallita importazione del codice di esempio per %s" % buffer[0]
+        prompt = "Fallita importazione del codice di esempio per %s" % buf[0]
         log.append(prompt)
-        return buffer
+        return buf
 
 
 def check_my_tags(seq_elementi):
@@ -304,11 +304,11 @@ TEMP_FATTI = ('titolo_2', 'titolo_3', 'titolo_4', 'testo_normale',
               'mk_xml_code_lineno', 'lista_ordinata')
 
 CHECK_SYNTAX = ('titolo_2', 'titolo_3', 'titolo_4', 'testo_normale',
-              'lista', '', 
-              'tabella_semplice', 
-              'avvertimento', 'note', 'titolo_3', 'deflist', 
-              'sottotitolo', 'lista_ricorsiva', 
-              'lista_ordinata')
+                'lista', '',
+                'tabella_semplice',
+                'avvertimento', 'note', 'titolo_3', 'deflist',
+                'sottotitolo', 'lista_ricorsiva',
+                'lista_ordinata')
 
 
 def _is_for_syntax(tag, tags=CHECK_SYNTAX):
@@ -320,7 +320,7 @@ def _raccogli_per_check_sintassi(tag,  row,  text,  check_sintassi):
         check_sintassi.append( { 'row': row, 'text': striphtml(text) } )
 
 
-def prepara_articolo(seq_elementi, tag_ind=('titolo_2', 'titolo_3')):
+def prepara_articolo(seq_elementi, tag_ind=('titolo_2', 'titolo_3'), log=None):
     """(list of str, tuple of str) -> list, list
     
     Prepara il codice html per la pagina del modulo
@@ -344,12 +344,10 @@ def prepara_articolo(seq_elementi, tag_ind=('titolo_2', 'titolo_3')):
             if tag in tag_ind:
                 item['a_name'] = h.a_name(str(prg))
                 b = " ".join(item['buffer'])
-                if '3' in tag:
-                    b = "&nbsp;&nbsp;&nbsp;&nbsp;" + b
+                # if '3' in tag:
+                #     b = "&nbsp;&nbsp;&nbsp;&nbsp;" + b
                 indice.append(
-                    h.a(
-                        "#"+str(prg), smart_text(b, encoding='utf-8')
-                    )
+                    h.a("#"+str(prg), smart_text(b, encoding='utf-8'))
                 )
                 contenuti.append(h.section(str(prg)))
                 prg += 1
@@ -357,7 +355,9 @@ def prepara_articolo(seq_elementi, tag_ind=('titolo_2', 'titolo_3')):
                 codice = MY_TAGS[tag](item['buffer'])
                 contenuti.append(codice)
             else:
-                print("{0} {1}".format(tag, "da gestire"))
+                # print("{0} {1}".format(tag, "da gestire"))
+                if log:
+                    log.append("{0} {1}".format(tag, "non gestito"))
         else:
             print(tag)
     return indice, contenuti, check_sintassi   
@@ -375,8 +375,6 @@ def render_articolo(file_xml, example_folder, zip_folder, tag_ind,
     Prepara il file html con l'articolo per il modulo contenuta in
     `file_xml`
     """
-    # if 'counter' in file_xml.lower():
-    #    pass
     seq_elementi, indicizza, lista_esempi = load(file_xml, example_folder,
                                                  log, builder_conf)
     outfile = os.path.splitext(os.path.basename(file_xml))[0]
@@ -394,7 +392,7 @@ def render_articolo(file_xml, example_folder, zip_folder, tag_ind,
             log.append("{0} file di esempio compressi in {1}".format(
                 len(lista_esempi), os.path.abspath(file_compresso)))
     indice_articolo, contenuti, chk_sintassi = prepara_articolo(
-        seq_elementi, builder_conf['tag_summary']
+        seq_elementi, builder_conf['tag_summary'], log
     )
     return indice_articolo, contenuti, indicizza, chk_sintassi, file_compresso
 
