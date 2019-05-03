@@ -18,7 +18,7 @@ class DjModulo(object):
     fixed_sidebar = 20
     baseurl = 'examples'
 
-    def __init__(self, indice, corpo, modulo, footer=Footer(), zipfile=None,
+    def __init__(self, indice, corpo, modulo, footer=None, zipfile=None,
                  sidebar_is_fixed=True):
         """
 

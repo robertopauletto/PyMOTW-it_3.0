@@ -11,12 +11,12 @@ from pyg import colora_codice
 from lib.capture_output import CaptureOutputScript
 
 
-__date__=''
-__version__='0.1'
-__doc__="""Metodi per la costruzione di codice html per le pagine di
+__date__ = ''
+__version__ = '0.1'
+__doc__ = """Metodi per la costruzione di codice html per le pagine di
 moduli ed indice
 Versione %s %s
-""" % ( __version__, __date__ )
+""" % (__version__, __date__)
 
 
 class MyHtml(object):
@@ -85,6 +85,7 @@ class MyHtml(object):
         passato attraverso una lista, ad esempio per generare elementi li
         oppure tabelle
         """
+
         if isinstance(value, basestring):
             pass
         elif isinstance(value, list) or isinstance(value,  tuple):
@@ -283,7 +284,7 @@ class MyHtml(object):
     def _sub_angulars(self, testo):
         """Bootstrap non gestisce le parentesi angolari nei tag pre, quindi
         occorre effettuare manualmente la sostituzione eventuale per l'output
-        del comeando"""
+        del comando"""
         testo = testo.replace('<', '&lt;')
         testo = testo.replace('>', '&gt;')
         return testo
@@ -301,7 +302,7 @@ class MyHtml(object):
         parts = cmd.split()[2:]
         cmdline = list()
         if len(parts) == 1:  # solo lo script da eseguire (caso più frequente)
-            cmdline.append(os.paths.join(script_folder, parts[0]))
+            cmdline.append(os.path.join(script_folder, parts[0]))
         else:  # abbiamo dei parametri che possono essere prima o dopo lo script
             for arg in parts:
                 if '.py' in arg.lower():
@@ -400,21 +401,4 @@ class MyHtml(object):
 
 
 if __name__ == '__main__':
-    print __doc__
-    h = MyHtml()
-    print h.h3('tag h3', id=123)
-    print h.h1('tag h1')
-    #print h.a('www.python.org', 'Python!', title='sito python')
-    #print h.a_name('tag a name')
-    lista = [
-        'http://docs.python.org/library/abc.html|abc|La documentazione della libreria standard per questo modulo', 
-        'http://www.python.org/dev/peps/pep-3119|PEP 3119|Introduzione alle classi base astratte', 
-        'http://docs.python.org/library/collections.html|collections|La documentazione della libreria standard per le collezioni'
-    ]
-    #print h._vedi_anche(lista)
-    
-    l = (
-        ('qui', 'pippo', 'ciccio di nonna papera'),
-        ('snoopy', 'lucy', 'charlie'),
-    )
-    print h.table(l)
+    print(__doc__)

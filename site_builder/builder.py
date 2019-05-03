@@ -200,7 +200,7 @@ def crea_nuovo_articolo(filetemplate, outfile, categoria, nome_modulo, scopo,
     :return: il percorso del file creato
     """
     titolo_articolo = "{} - {}".format(nome_modulo, descrizione)
-    data_pubb = datetime.date.strftime(data_pubb, '%d.%M.%Y')
+    data_pubb = datetime.date.strftime(data_pubb, '%d.%m.%Y')
     subs = {
         "categ": categoria,
         "titolo_articolo": titolo_articolo,

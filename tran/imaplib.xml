@@ -9,7 +9,7 @@ Libreria Client per comunicare con IMAP4
 
 </descrizione>
 <testo_normale>
-<strong>imaplib</strong> implementa un client per comunicare con i server con il protocollo <a href='https://www.wikiwand.com/it/Internet_Message_Access_Protocol' target='_blank'>IMAP</a> (Internet Message Access Protocol), versione 4. Il protocollo IMAP definisce un insieme di comandi da inviare al server e le risposte ritornate al client. La maggior parte dei comandi è disponibile come metodi dell'oggetto <code>IMAP4</code> usato per comunicare con il server
+<strong>imaplib</strong> implementa un client per comunicare con i server che utilizzano il protocollo <a href='https://www.wikiwand.com/it/Internet_Message_Access_Protocol' target='_blank'>IMAP</a> (Internet Message Access Protocol), versione 4. Il protocollo IMAP definisce un insieme di comandi da inviare al server e le risposte ritornate al client. La maggior parte dei comandi è disponibile come metodi dell'oggetto <code>IMAP4</code> usato per comunicare con il server
 </testo_normale>
 <testo_normale>
 Questi esempi trattano parte del protocollo IMAP, ma non sono da ritenersi esaustivi. Si faccia riferimento a <a href='https://tools.ietf.org/html/rfc3501.html' target='_blank'>RFC 3501</a> per i dettagli completi.
@@ -18,7 +18,7 @@ Questi esempi trattano parte del protocollo IMAP, ma non sono da ritenersi esaus
 Variazioni
 </titolo_2>
 <testo_normale>
-Ci sono tre classi client per comunicare con i server usando vari meccanismi. Il primo, <code>IMAP4</code>, usa socket con testo in chiaro; <code>IMAP4_SSL</code> usa una comunicazione criptata su socket SSL e <code>IMAP4_stream</code> usa l'input e l'output standard di un comando esterno. Tutti gli esempi qui sotto useranno <code>IMAP4_SSL</code> ma le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per le altre classi sono simili
+Ci sono tre classi client per comunicare con i server usando vari meccanismi. La prima, <code>IMAP4</code>, usa socket con testo in chiaro; <code>IMAP4_SSL</code> usa una comunicazione criptata su socket SSL e <code>IMAP4_stream</code> usa l'input e l'output standard di un comando esterno. Tutti gli esempi qui sotto useranno <code>IMAP4_SSL</code> ma le <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per le altre classi sono simili
 </testo_normale>
 <titolo_2>
 Connessione al Server
@@ -30,10 +30,15 @@ Ci sono due passi necessari per stabilire una connessione con un server IMAP. Pr
 # imaplib_connect.py
 </py_code>
 <testo_normale>
-Quando in esecuzione, <code>open_connection()</code> legge le informazioni di configurazione da un file nella directory <em>home</em> dell'utente, quindi apre una connessione <code>IMAP4:SSL</code> e avviene l'autenticazione
+Quando in esecuzione, <code>open_connection()</code> legge le informazioni di configurazione da un file nella directory <em>home</em> dell'utente, quindi apre una connessione <code>IMAP4_SSL</code> e avviene l'autenticazione
 </testo_normale>
 <py_output>
 $ python3 imaplib_connect.py
+
+Connessione a xo2.x10hosting.com
+
+Autenticazione come test@robyp.x10host.com
+<imaplib.IMAP4_SSL object at 0x7fcc25438ef0>
 </py_output>
 <testo_normale>
 Gli altri esempi di questo articolo riutilizzano lo script di cui sopra, per evitare duplicazione di codice.
@@ -48,7 +53,7 @@ Se la connessione viene stabilita, ma l'autenticazione fallisce, viene sollevata
 # imaplib_connect_fail.py
 </py_code>
 <testo_normale>
-Questo esempio usa apposta una password sbagliata per attivare una eccezione
+Questo esempio usa apposta una password sbagliata per far scattare una eccezione
 </testo_normale>
 <py_output>
 $ python3 imaplib_connect_fail.py
@@ -57,12 +62,536 @@ Autenticazione come pymotw-it@robyp.x10host.com
 ERRORE: b'[AUTHENTICATIONFAILED] Authentication failed.'
 </py_output>
 <titolo_2>
-
+Esempio di configurazione
 </titolo_2>
 <testo_normale>
-
+Dal punto di vista di questa dimostrazione, l'utenza di esempio he le seguenti cartelle di posta significative in gerarchia. le altre (Junk, Trash, Drafts, Sent) sono irrilevanti e sono state stralciate dalla stampa dei risultati.
 </testo_normale>
+<lista>
+INBOX
+INBOX.Messaggi Eliminati
+INBOX.Archive
+INBOX.Esempio<ul><li>2019</li></ul>
+</lista>
+<testo_normale>
+C'è un messaggio non letto nella cartella <code>INBOX</code> ed un messaggio letto in <code>Esempio/2019</code>
+</testo_normale>
+<titolo_2>
+Elencare le caselle
+</titolo_2>
+<testo_normale>
+Per recuperare le caselle disponibili per una utenza si usi il metodo <code>list()</code>
+</testo_normale>
+<py_code>
+# imaplib_list.py
+</py_code>
+<testo_normale>
+Il valore restituito è una <code>tuple</code> contenente un codice di risposta e il dato ritornato dal server. Il codice di risposta è <code>OK</code>, a meno che non ci sia un errore. Il dato per <code>list()</code> è rappresentato da una sequenza di stringhe che contengono <em>segnalatori</em>, il <em>delimitatore di gerarchia</em> ed il <em>nome di casella</em> per ciascuna casella di posta.
+</testo_normale>
+<py_output>
+$ python3 imaplib_list.py
+
+Codice risposta: OK
+Risposta:
+[b'(\\HasChildren) "." INBOX',
+ b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"',
+ b'(\\HasChildren) "." INBOX.Esempio',
+ b'(\\HasNoChildren) "." INBOX.Esempio.2019',
+ b'(\\HasNoChildren \\Archive) "." INBOX.Archive']
+</py_output>
+<testo_normale>
+Ogni stringa di risposta può essere divisa in tre parti usando <a href='re.html' target='_blank'>re</a> oppure <a href='csv.html' target='_blank'>csv</a> (si veda <em>IMAP Backup Script</em> nei riferimenti di questo articolo per un esempio che usa <strong>csv</strong>).
+</testo_normale>
+<py_code>
+# imaplib_list_parse.py
+</py_code>
+<testo_normale>
+Il server racchiude tra apici le caselle il cui nome contiene spazi, ma questi apici devono essere eliminati per usare il nome della casella in altre chiamate al server successivamente.
+</testo_normale>
+<py_output>
+$ python3 imaplib_list_parse.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+</py_output>
+<testo_normale>
+<code>list()</code> riceve argomenti per specificare caselle in parti della gerarchia, Ad esempio per elemcare le sottocartelle di <code>Esempio</code> si passi "<code>INBOX.Esempio</code>" come argomento di <code>directory</code>
+</testo_normale>
+<py_code>
+# imaplib_list_subfolders.py
+</py_code>
+<testo_normale>
+Vengono ritornate le cartelle genitore e figlie
+</testo_normale>
+<py_output>
+$ python3 imaplib_list_subfolders.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+</py_output>
+<testo_normale>
+In alternativa, per elencare cartelle che corrispondono ad un modello, si passi un modello all'argomento <code>pattern</code>
+</testo_normale>
+<py_code>
+# imaplib_list_pattern.py
+</py_code>
+<testo_normale>
+In questo caso, sia <code>INBOX.Esempio</code> che <code>INBOX.Esempio.2019</code> sono incluse nella risposta
+</testo_normale>
+<py_output>
+$ python3 imaplib_list_pattern.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+</py_output>
+<titolo_2>
+Stato della Casella di Posta
+</titolo_2>
+<testo_normale>
+Si usi <code>status()</code> per richiedere informazioni aggregate circa i contenuti. La tabella di seguito elenca le condizioni di stato definite dallo standard.
+</testo_normale>
+<tabella_semplice>
+CONDIZIONE;SIGNIFICATO
+<code>MESSAGES</code>;Il numero di messaggi nella casella di posta
+<code>RECENT</code>;Il numero di messaggi con il segnalatore <code>\Recent</code> impostato
+<code>UIDNEXT</code>;Il valore del prossimo identificatore univoco della casella di posta
+<code>UIDVALIDITY</code>;Il valore di validità dell'identificatore univoco della casella di posta
+<code>UNSEEN</code>;Il numero di messaggi che non hanno il segnalatore <code>\Seen</code> impostato
+</tabella_semplice>
+<testo_normale>
+Le condizioni di stato devono essere formattate come una stringa separata da spazio, racchiusa tra parentesi, la codifica per una "lista" nelle specifiche IMAP4. Il nome della casella di posta è racchiuso tra <code>"</code> qualora il nome includa spazi o altri caratteri che potrebbero disorientare l'elaboratore.
+</testo_normale>
+<py_code>
+# imaplib_status.py
+</py_code>
+<testo_normale>
+Il valore di ritorno è la solita <code>tuple</code> che contiene il codice di risposta ed una lista di informazioni dal server. In questo caso contiene una singola stringa formattata con il nome della casella tra apici (se necessario), poi le condizioni di stato ed i valori fra parentesi.
+</testo_normale>
+<py_output>
+$ python3 imaplib_status.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+Casella di posta INBOX
+('OK', [b'INBOX (MESSAGES 1 RECENT 0 UIDNEXT 4 UIDVALIDITY 1556044852 UNSEEN 1)'])
+Casella di posta INBOX.Drafts
+('OK', [b'"INBOX.Messaggi Eliminati" (MESSAGES 0 RECENT 0 UIDNEXT 1 UIDVALIDITY 1556044859 UNSEEN 0)'])
+Casella di posta INBOX.Esempio
+('OK', [b'INBOX.Esempio (MESSAGES 0 RECENT 0 UIDNEXT 1 UIDVALIDITY 1556044855 UNSEEN 0)'])
+Casella di posta INBOX.Esempio.2019
+('OK', [b'INBOX.Esempio.2019 (MESSAGES 1 RECENT 0 UIDNEXT 2 UIDVALIDITY 1556044856 UNSEEN 0)'])
+Casella di posta INBOX.Archive
+('OK', [b'INBOX.Archive (MESSAGES 0 RECENT 0 UIDNEXT 1 UIDVALIDITY 1556044854 UNSEEN 0)'])
+</py_output>
+<titolo_2>
+Selezionare una Casella di Posta
+</titolo_2>
+<testo_normale>
+Il modo base per operare, una volta che il client è autenticato, è di selezionare una casella, quindi interrogare il server circa i messaggi nella casella. La connessione è <em>stateful</em> (per <em>stateful</em> si intende un programma che ricordi eventi od interazioni precedenti - note come <strong>stato</strong> del sistema - n.d.t.); quindi dopo che viene selezionata una casella, tutti i comandi opereranno su quella casella fino a quando non viene selezionata una nuova casella
+</testo_normale>
+<py_code>
+# imaplib_select.py
+</py_code>
+<testo_normale>
+Il dato in risposta contiene il numero di messaggi nella casella
+</testo_normale>
+<py_output>
+$ python3 imaplib_select.py
+
+OK [b'1']
+Ci sono 1 messaggi in INBOX
+</py_output>
+<testo_normale>
+Se viene specificata una casella non valida, il codice di risposta è <code>NO</code>
+</testo_normale>
+<py_code>
+# imaplib_select_invalid.py
+</py_code>
+<testo_normale>
+Il dato ritornato contiene un messaggio di errore che descrive il problema
+</testo_normale>
+<py_output>
+$ python3 imaplib_select_invalid.py
+
+NO [b'Client tried to access nonexistent namespace. (Mailbox name should probably be prefixed with: INBOX.) (0.000 + 0.000 secs).']
+</py_output>
+<titolo_2>
+Cercare Messaggi
+</titolo_2>
+<testo_normale>
+Dopo aver selezionato la casella di posta, si usi <code>search()</code> per recuperare gli identificativi dei messaggi nella casella.
+</testo_normale>
+<py_code>
+# imaplib_search_all.py
+</py_code>
+<testo_normale>
+Gli identificativi dei messaggi sono assegnati dal server, e dipendono dall'implementazione. Il protocollo IMAP4 fa una distinzione tra identificativi sequenziali per i messaggi ad un dato punto nel tempo durante una transazione e identificativi UID per i messaggi, ma non tutti i server li implementano entrambi.
+</testo_normale>
+<py_output>
+$ python3 imaplib_search_all.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+
+INBOX OK [b'1']
+INBOX.Messaggi Eliminati OK [b'']
+INBOX.Esempio OK [b'']
+INBOX.Esempio.2019 OK [b'1']
+INBOX.Archive OK [b'']
+</py_output>
+<testo_normale>
+In questo caso <code>INBOX</code> e <code>INBOX.Esempio.2019</code> hanno ciascuno un messaggio differente con identificativo <code>1</code>. Le altre caselle sono vuote
+</testo_normale>
+<titolo_2>
+Criteri di Ricerca
+</titolo_2>
+<testo_normale>
+E' possibile usare una varietà di criteri di ricerca, inclusi la data dei messaggi, segnalatori ed altre intestazioni. Si faccia riferimento alla sezione 6.4.4 di <a href='https://tools.ietf.org/html/rfc3501.html' target='_blank'>RFC 3501</a> per i dettagli completi.
+</testo_normale>
+<testo_normale>
+Per trovare messaggi che contengono <code>Pymotw3-it imaplib</code> nell'oggetto, il criterio di ricerca verrebbe così costruito:
+</testo_normale>
+<py_code>
+(SUBJECT "Pymotw3-it imaplib")
+</py_code>
+<testo_normale>
+Questo esempio cerca tutti i messaggi con la stringa sopra specificata su tutte le caselle
+</testo_normale>
+<py_code>
+# imaplib_search_subject.py
+</py_code>
+<testo_normale>
+C'è un solo messaggio con questa stringa nell'utenza, e si trova in <code>INBOX</code>
+</testo_normale>
+<py_output>
+$ python3 imaplib_search_subject.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+
+INBOX OK [b'1']
+INBOX.Messaggi Eliminati OK [b'']
+INBOX.Esempio OK [b'']
+INBOX.Esempio.2019 OK [b'']
+INBOX.Archive OK [b'']
+</py_output>
+<testo_normale>
+I criteri di ricerca possono anche essere combinati
+</testo_normale>
+<py_code>
+# imaplib_search_from.py
+</py_code>
+<testo_normale>
+I criteri sono combinati con operatori logici ed aritmetici
+</testo_normale>
+<py_output>
+$ python3 imaplib_search_from.py
+
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+
+INBOX OK [b'1']
+INBOX.Messaggi Eliminati OK [b'']
+INBOX.Esempio OK [b'']
+INBOX.Esempio.2019 OK [b'']
+INBOX.Archive OK [b'']
+</py_output>
+<titolo_2>
+Recuperare Messaggi
+</titolo_2>
+<testo_normale>
+Gli identificativi ritornati da <code>search()</code> sono usati per recuperare il contenuto dei messaggi, intero o parziale, per successive elaborazioni tramite il metodo <code>fetch()</code>. Esso riceve due argomenti, l'identificativo del messaggio e la/le porzioni di messaggio da recuperare.
+</testo_normale>
+<testo_normale>
+L'argomento <code>message_ids</code> è una lista di identificativi separati da virgola (es. "1", "1,2") o intervalli di identificativi (es. 1:2). L'argomento <code>message_parts</code> è una lista IMAP di nomi di segmenti di messaggio. Così come per i criteri di ricerca per <code>search()</code>, il protocollo IMAP specifica nomi di segmenti di messaggio in modo che i client possano recuperare con efficienza solo le parti delle quali necessitano. Ad esempio per recuperare le intestazioni dei messaggi in una casella, si usi <code>fetch()</code> con argomento <code>BODY.PEEK[HEADER]</code>.
+</testo_normale>
+<avvertimento>
+Un altro modo per recuperare le intestaioni è <code>BODY[HEADERS]</code>, ma quella forma ha l'effetto collaterale di marcare implicitamente il messaggio come letto, il che nella maggior parte dei casi non è consigliabile.
+</avvertimento>
+<py_code>
+# imaplib_fetch_raw.py
+</py_code>
+<testo_normale>
+Il valore di ritorno di <code>FETCH</code>è stato parzialmente analizzato, quindi è talvolta più complicato lavorarci rispetto al valore di ritorno da <code>list()</code>. Attivando il debug, si ottengono le interazioni complete tra il client e il server per ben comprenderne il meccanismo.
+</testo_normale>
+<py_output>
+$ python3 imaplib_fetch_raw.py
+
+ 07:12.39 imaplib version 2.58
+  07:12.39 new IMAP4 connection, tag=b'BIFJ'
+  07:12.55 < b'* OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE NAMESPACE AUTH=PLAIN AUTH=LOGIN] Dovecot ready.'
+  07:12.55 > b'BIFJ0 CAPABILITY'
+  07:12.68 < b'* CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE NAMESPACE AUTH=PLAIN AUTH=LOGIN'
+  07:12.68 < b'BIFJ0 OK Pre-login capabilities listed, post-login capabilities have more.'
+  07:12.68 CAPABILITIES: ('IMAP4REV1', 'LITERAL+', 'SASL-IR', 'LOGIN-REFERRALS', 'ID', 'ENABLE', 'IDLE', 'NAMESPACE', 'AUTH=PLAIN', 'AUTH=LOGIN')
+
+  07:12.68 > b'BIFJ1 LOGIN test@robyp.x10host.com "C60cP26vS8tl"'
+  07:13.22 < b'* CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE SORT SORT=DISPLAY THREAD=REFERENCES THREAD=REFS THREAD=ORDEREDSUBJECT MULTIAPPEND URL-PARTIAL CATENATE UNSELECT CHILDREN NAMESPACE UIDPLUS LIST-EXTENDED I18NLEVEL=1 CONDSTORE QRESYNC ESEARCH ESORT SEARCHRES WITHIN CONTEXT=SEARCH LIST-STATUS BINARY MOVE NAMESPACE SPECIAL-USE COMPRESS=DEFLATE QUOTA'
+  07:13.22 < b'BIFJ1 OK Logged in'
+  07:13.22 > b'BIFJ2 EXAMINE INBOX'
+  07:13.35 < b'* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)'
+  07:13.35 < b'* OK [PERMANENTFLAGS ()] Read-only mailbox.'
+  07:13.35 < b'* 1 EXISTS'
+  07:13.35 < b'* 0 RECENT'
+  07:13.35 < b'* OK [UNSEEN 1] First unseen.'
+  07:13.35 < b'* OK [UIDVALIDITY 1556044852] UIDs valid'
+  07:13.35 < b'* OK [UIDNEXT 4] Predicted next UID'
+  07:13.35 < b'* OK [HIGHESTMODSEQ 8] Highest'
+  07:13.35 < b'BIFJ2 OK [READ-ONLY] Examine completed (0.000 + 0.000 secs).'
+  07:13.35 > b'BIFJ3 FETCH 1 (BODY.PEEK[HEADER] FLAGS)'
+  07:13.81 < b'* 1 FETCH (FLAGS () BODY[HEADER] {3410}'
+  07:13.81 read literal size 3410
+  07:14.44 < b')'
+  07:14.44 < b'BIFJ3 OK Fetch completed (0.003 + 0.000 secs).'
+[(b'1 (FLAGS () BODY[HEADER] {3410}',
+  b'Return-path: <mariorossi@mail.com>\r\nEnvelope-to: test@robyp.x10'
+  b'host.com\r\nDelivery-date: Wed, 24 Apr 2019 14:21:12 -0400\r\nReceived: '
+  b'from out2-smtp.messagingengine.com ([66.111.4.26]:38999)\r\n\tby xo2.x10hos'
+  b'ting.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)\r\n\t(Exim 4'
+  b'.87)\r\n\t(envelope-from <mariorossi@mail.com>)\r\n\tid 1hJMW8-00'
+  b'5k3G-3K\r\n\tfor test@robyp.x10host.com; Wed, 24 Apr 2019 14:21:12 -040'
+  b'0\r\nReceived: from compute5.internal (compute5.nyi.internal [10.202.2.45]'
+  b')\r\n\tby mailout.nyi.internal (Postfix) with ESMTP id BAC7322237\r\n\tfor'
+  b' <test@robyp.x10host.com>; Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nReceiv'
+  b'ed: from imap22 ([10.202.2.72])\r\n  by compute5.internal (MEProxy); Wed, '
+  b'24 Apr 2019 14:20:31 -0400\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed'
+  b'/relaxed; d=fastmail.com; h=\r\n\tmime-version:message-id:date:from:to:subj'
+  b'ect:content-type; s=\r\n\tfm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSAva6XV12N1KHx'
+  b'V0=; b=WrQCZqyi\r\n\t0NseMjoERiLA09jt+N+J+gEQoNcECsTcrldGrxEk/006XhA9J1f3Mh'
+  b'VqYOqsPeyE\r\n\tTbS6tqQ5yn2leezBM+CTk8MorSIb2QysUHUYMYFX7g9SybP7L/RzF5e+3U+'
+  b'NZlUP\r\n\tbOobjIGZJoDFD3xWxxOc8F+BX0cxEn8OHAmnaoSYGTmRkP4woewF9fTYT31hY7fd'
+  b'\r\n\t8pES7DWlMMxW3NT/5FYXIpukIbeRJucUyBEFAt6Q3elJgr+C6jMdc7EMKB0MdRvs\r'
+  b'\n\t/dis9aGulbzxgJfM72tovDxXu9fnr8i4eUKmg2XCgFL+UVm3n6CFaKkjpaGvtg8z\r\n'
+  b'\tC6SJvxzYg4JgLw==\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;'
+  b' d=\r\n\tmessagingengine.com; h=content-type:date:from:message-id\r\n\t:mi'
+  b'me-version:subject:to:x-me-proxy:x-me-proxy:x-me-sender\r\n\t:x-me-sender:x'
+  b'-sasl-enc; s=fm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSA\r\n\tva6XV12N1KHxV0=; b='
+  b'iPO92nsu+2d0Jz2jHET+68xSaTLKi8WPklRNEi4iuwuJ3\r\n\tiGlc7v33TyxDl4zmz6quFw1K'
+  b'W5QqfSooW5jSlskKkc+JeW11H2S2lw7OqK44CId0\r\n\tZidN0eJOf70jNovyypiwXRA4564jS'
+  b'meyLARV4mlx42gc6GNTXqd5zrJTf3X1c6A8\r\n\tfXUdosbMKxmGEIK9HK/79zxOcOD7l2/cNn'
+  b'3RBsOMF7lzWLDmbTMKwAhmXrVBkNdf\r\n\t2RkKqU8jc46wxaFFfrN3/ORhxYvetoQHR9B6eD6'
+  b'azOb5gwYfwRQ7o5B5NK4JEyA5\r\n\tZx1KuQQnvxC6mplPs6Pg4+C3yiwS8OEi1sWiusFI'
+  b'w==\r\nX-ME-Sender: <xms:76jAXHI03CAT8nZWkpTPUITivXhym1H0GufCd4PfgQpCgKqEH'
+  b'RYL_g>\r\nX-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrhedvgddule'
+  b'cutefuodetggdotefrodftvf\r\n    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgf'
+  b'vfdpuffrtefokffrpgfnqfghnecu\r\n    uegrihhlohhuthemuceftddtnecunecujfgurh'
+  b'epofgfggfkfffhvffutgesrgdtreerre\r\n    ertdenucfhrhhomhepfdftohgsvghrthho'
+  b'ucfrrghulhgvthhtohdfuceorhhosggvrhht\r\n    ohhprghulhgvthhtohesfhgrshhtmh'
+  b'grihhlrdgtohhmqeenucfrrghrrghmpehmrghilh\r\n    hfrhhomheprhhosggvrhhtohhp'
+  b'rghulhgvthhtohesfhgrshhtmhgrihhlrdgtohhmnecu\r\n    vehluhhsthgvrhfuihiivg'
+  b'epud\r\nX-ME-Proxy: <xmx:76jAXLK864WUuZGpCbgBySK0Z43ydkjA2jwIPUP4Wc_hW2LVv'
+  b'QR_eQ>\r\n    <xmx:76jAXF3iKiqIXOtr6e2argbf1CXf17uC03aAi9L_iDOpXNqJjLTWqg>'
+  b'\r\n    <xmx:76jAXPHKddJtLlc_TeabTAiLsIKsclqGzlc_2wvZEVtcrv91LEv2Ng>\r\n'
+  b'    <xmx:76jAXA8GlJ27VmxEk4vJFkW1JruET4Q0wex5DnclTB_WzObYjcxfGQ>\r\nReceiv'
+  b'ed: by mailuser.nyi.internal (Postfix, from userid 501)\r\n\tid 5A6EAE80F; '
+  b'Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nX-Mailer: MessagingEngine.com Web'
+  b'mail Interface\r\nUser-Agent: Cyrus-JMAP/3.1.6-444-g755619f-fmstable-20190'
+  b'423v1\r\nMime-Version: 1.0\r\nMessage-Id: <8a8a24db-06b8-49a5-9974-40d1b'
+  b'd0f5b1b@www.fastmail.com>\r\nDate: Wed, 24 Apr 2019 14:20:31 -0400\r\nFr'
+  b'om: "Roberto Pauletto" <mariorossi@mail.com>\r\nTo: test@robyp.x1'
+  b'0host.com\r\nSubject: Pymotw3-it Imaplib\r\nContent-Type: multipart/alte'
+  b'rnative;\r\n boundary=14c7d7383ef34ccd976a3caefb445a41\r\nX-Spam-Status:'
+  b' No, score=\r\nX-Spam-Score: \r\nX-Spam-Bar: \r\nX-Ham-Report: \r\nX-Spa'
+  b'm-Flag: NO\r\n\r\n'),
+ b')']
+  07:14.44 > b'BIFJ4 LOGOUT'
+  07:14.56 < b'* BYE Logging out'
+  07:14.56 BYE response: b'Logging out'
+</py_output>
+<testo_normale>
+La risposta per il comando <code>FETCH</code> inizia con i segnalatori, quindi indica la dimnensione di dati di intestazione. Il client costruisce una tupla con la risposta per il messaggio, quindi chiude la sequenza con una singola stringa che contiene la parentesi chiusa "<code>')'</code>" che il server invia alla fine della risposta recuperata. A causa della formattazione, potrebbe essere più semplice recuperare le diverse parti di informazione separatamente, oppure ricombinare la risposta ed elaborarla verso il client.
+</testo_normale>
+<py_code>
+# imaplib_fetch_separately.py
+</py_code>
+<testo_normale>
+Con il recupero dei valori separati si ottiene il beneficio di facilitare l'uso di <code>ParseFlags()</code> per elaborare i segnalatori dalla risposta.
+</testo_normale>
+<py_output>
+$ python3 imaplib_fetch_separately.py
+
+INTESTAZIONE:
+b'Return-path: <mariorossi@mail.com>\r\nEnvelope-to: test@robyp.x10host.com\r\nDelivery-date: Wed, 24 Apr 2019 14:21:12 -0400\r\nReceived: from out2-smtp.messagingengine.com ([66.111.4.26]:38999)\r\n\tby xo2.x10hosting.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)\r\n\t(Exim 4.87)\r\n\t(envelope-from <mariorossi@mail.com>)\r\n\tid 1hJMW8-005k3G-3K\r\n\tfor test@robyp.x10host.com; Wed, 24 Apr 2019 14:21:12 -0400\r\nReceived: from compute5.internal (compute5.nyi.internal [10.202.2.45])\r\n\tby mailout.nyi.internal (Postfix) with ESMTP id BAC7322237\r\n\tfor <test@robyp.x10host.com>; Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nReceived: from imap22 ([10.202.2.72])\r\n  by compute5.internal (MEProxy); Wed, 24 Apr 2019 14:20:31 -0400\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=\r\n\tmime-version:message-id:date:from:to:subject:content-type; s=\r\n\tfm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSAva6XV12N1KHxV0=; b=WrQCZqyi\r\n\t0NseMjoERiLA09jt+N+J+gEQoNcECsTcrldGrxEk/006XhA9J1f3MhVqYOqsPeyE\r\n\tTbS6tqQ5yn2leezBM+CTk8MorSIb2QysUHUYMYFX7g9SybP7L/RzF5e+3U+NZlUP\r\n\tbOobjIGZJoDFD3xWxxOc8F+BX0cxEn8OHAmnaoSYGTmRkP4woewF9fTYT31hY7fd\r\n\t8pES7DWlMMxW3NT/5FYXIpukIbeRJucUyBEFAt6Q3elJgr+C6jMdc7EMKB0MdRvs\r\n\t/dis9aGulbzxgJfM72tovDxXu9fnr8i4eUKmg2XCgFL+UVm3n6CFaKkjpaGvtg8z\r\n\tC6SJvxzYg4JgLw==\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=\r\n\tmessagingengine.com; h=content-type:date:from:message-id\r\n\t:mime-version:subject:to:x-me-proxy:x-me-proxy:x-me-sender\r\n\t:x-me-sender:x-sasl-enc; s=fm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSA\r\n\tva6XV12N1KHxV0=; b=iPO92nsu+2d0Jz2jHET+68xSaTLKi8WPklRNEi4iuwuJ3\r\n\tiGlc7v33TyxDl4zmz6quFw1KW5QqfSooW5jSlskKkc+JeW11H2S2lw7OqK44CId0\r\n\tZidN0eJOf70jNovyypiwXRA4564jSmeyLARV4mlx42gc6GNTXqd5zrJTf3X1c6A8\r\n\tfXUdosbMKxmGEIK9HK/79zxOcOD7l2/cNn3RBsOMF7lzWLDmbTMKwAhmXrVBkNdf\r\n\t2RkKqU8jc46wxaFFfrN3/ORhxYvetoQHR9B6eD6azOb5gwYfwRQ7o5B5NK4JEyA5\r\n\tZx1KuQQnvxC6mplPs6Pg4+C3yiwS8OEi1sWiusFIw==\r\nX-ME-Sender: <xms:76jAXHI03CAT8nZWkpTPUITivXhym1H0GufCd4PfgQpCgKqEHRYL_g>\r\nX-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrhedvgddulecutefuodetggdotefrodftvf\r\n    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu\r\n    uegrihhlohhuthemuceftddtnecunecujfgurhepofgfggfkfffhvffutgesrgdtreerre\r\n    ertdenucfhrhhomhepfdftohgsvghrthhoucfrrghulhgvthhtohdfuceorhhosggvrhht\r\n    ohhprghulhgvthhtohesfhgrshhtmhgrihhlrdgtohhmqeenucfrrghrrghmpehmrghilh\r\n    hfrhhomheprhhosggvrhhtohhprghulhgvthhtohesfhgrshhtmhgrihhlrdgtohhmnecu\r\n    vehluhhsthgvrhfuihiivgepud\r\nX-ME-Proxy: <xmx:76jAXLK864WUuZGpCbgBySK0Z43ydkjA2jwIPUP4Wc_hW2LVvQR_eQ>\r\n    <xmx:76jAXF3iKiqIXOtr6e2argbf1CXf17uC03aAi9L_iDOpXNqJjLTWqg>\r\n    <xmx:76jAXPHKddJtLlc_TeabTAiLsIKsclqGzlc_2wvZEVtcrv91LEv2Ng>\r\n    <xmx:76jAXA8GlJ27VmxEk4vJFkW1JruET4Q0wex5DnclTB_WzObYjcxfGQ>\r\nReceived: by mailuser.nyi.internal (Postfix, from userid 501)\r\n\tid 5A6EAE80F; Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nX-Mailer: MessagingEngine.com Webmail Interface\r\nUser-Agent: Cyrus-JMAP/3.1.6-444-g755619f-fmstable-20190423v1\r\nMime-Version: 1.0\r\nMessage-Id: <8a8a24db-06b8-49a5-9974-40d1bd0f5b1b@www.fastmail.com>\r\nDate: Wed, 24 Apr 2019 14:20:31 -0400\r\nFrom: "Roberto Pauletto" <mariorossi@mail.com>\r\nTo: test@robyp.x10host.com\r\nSubject: Pymotw3-it Imaplib\r\nContent-Type: multipart/alternative;\r\n boundary=14c7d7383ef34ccd976a3caefb445a41\r\nX-Spam-Status: No, score=\r\nX-Spam-Score: \r\nX-Spam-Bar: \r\nX-Ham-Report: \r\nX-Spam-Flag: NO\r\n\r\n'
+
+TESTO NEL CORPO:
+b'--14c7d7383ef34ccd976a3caefb445a41\r\nContent-Type: text/plain\r\n\r\nUn messaggio dimostrativo per l\'articolo sul modulo imaplib\r\n\r\n\r\n\r\n--14c7d7383ef34ccd976a3caefb445a41\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title></title><style type="text/css">p.MsoNormal,p.MsoNoSpacing{margin:0}</style></head><body><div>Un messaggio dimostrativo per l\'articolo sul modulo imaplib</div><div><br></div><div id="sig58218369"><div class="signature"><br></div></div><div><br></div></body></html>\r\n--14c7d7383ef34ccd976a3caefb445a41--\r\n'
+
+SEGNALATORI:
+b'1 (FLAGS ())'
+()
+</py_output>
+<titolo_2>
+Messaggi Completi
+</titolo_2>
+<testo_normale>
+Come illustrato in precedenza, il client può chiedere al server singole parti di messaggio separatamente. E' anche possibile recuperare l'intero messaggio formattato secondo le specifiche RFC 822 ed elaborarlo con le classi del modulo <strong>email</strong>
+</testo_normale>
+<py_code>
+# imaplib_fetch_rfc822.py
+</py_code>
+<testo_normale>
+Nel modulo <strong>email</strong> l'elaboratore rende molto facile l'accesso e la manipolazione dei messaggi. Questo esempio stampa solo alcune intestazioni per ogni messaggio
+</testo_normale>
+<py_output>
+$ python3 imaplib_fetch_rfc822.py
+
+SUBJECT : Pymotw3-it Imaplib
+   TO   : test@robyp.x10host.com
+  FROM  : "Xxxxxx Yxxxxx" <mariorossi@mail.com>
+</py_output>
+<titolo_2>
+Caricare Messaggi
+</titolo_2>
+<testo_normale>
+Per aggiungere un nuovo messaggio ad una casella di posta si costruisca una istanza di <code>Message</code> e la si passi al metodo <code>append()</code>, assieme alla <a href='https://www.wikiwand.com/it/Marca_temporale' target='_blank'>marca temporale</a>  per il messaggio
+</testo_normale>
+<py_code>
+# imaplib_append.py
+</py_code>
+<testo_normale>
+I dati usati per questo esempio sono un semplice corpo di email in testo semplice. <code>Message</code> supporta anche messaggi multi parte codificati MIME
+</testo_normale>
+<py_output>
+$ python3 imaplib_append.py
+
+Subject: Oggetto va qui
+From: pymotw3@esempio.com
+To: esempio@esempio.com
+
+Il corpo del messaggio.
+
+
+b'1':
+b'Return-path: <mariorossi@gmail.com>\r\nEnvelope-to: test@robyp.x10host.com\r\nDelivery-date: Wed, 24 Apr 2019 14:21:12 -0400\r\nReceived: from out2-smtp.messagingengine.com ([66.111.4.26]:38999)\r\n\tby xo2.x10hosting.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)\r\n\t(Exim 4.87)\r\n\t(envelope-from <mariorossi@gmail.com>)\r\n\tid 1hJMW8-005k3G-3K\r\n\tfor test@robyp.x10host.com; Wed, 24 Apr 2019 14:21:12 -0400\r\nReceived: from compute5.internal (compute5.nyi.internal [10.202.2.45])\r\n\tby mailout.nyi.internal (Postfix) with ESMTP id BAC7322237\r\n\tfor <test@robyp.x10host.com>; Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nReceived: from imap22 ([10.202.2.72])\r\n  by compute5.internal (MEProxy); Wed, 24 Apr 2019 14:20:31 -0400\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=\r\n\tmime-version:message-id:date:from:to:subject:content-type; s=\r\n\tfm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSAva6XV12N1KHxV0=; b=WrQCZqyi\r\n\t0NseMjoERiLA09jt+N+J+gEQoNcECsTcrldGrxEk/006XhA9J1f3MhVqYOqsPeyE\r\n\tTbS6tqQ5yn2leezBM+CTk8MorSIb2QysUHUYMYFX7g9SybP7L/RzF5e+3U+NZlUP\r\n\tbOobjIGZJoDFD3xWxxOc8F+BX0cxEn8OHAmnaoSYGTmRkP4woewF9fTYT31hY7fd\r\n\t8pES7DWlMMxW3NT/5FYXIpukIbeRJucUyBEFAt6Q3elJgr+C6jMdc7EMKB0MdRvs\r\n\t/dis9aGulbzxgJfM72tovDxXu9fnr8i4eUKmg2XCgFL+UVm3n6CFaKkjpaGvtg8z\r\n\tC6SJvxzYg4JgLw==\r\nDKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=\r\n\tmessagingengine.com; h=content-type:date:from:message-id\r\n\t:mime-version:subject:to:x-me-proxy:x-me-proxy:x-me-sender\r\n\t:x-me-sender:x-sasl-enc; s=fm2; bh=pa7QRViXlYKtXmb3+UUJsRWyS+BSA\r\n\tva6XV12N1KHxV0=; b=iPO92nsu+2d0Jz2jHET+68xSaTLKi8WPklRNEi4iuwuJ3\r\n\tiGlc7v33TyxDl4zmz6quFw1KW5QqfSooW5jSlskKkc+JeW11H2S2lw7OqK44CId0\r\n\tZidN0eJOf70jNovyypiwXRA4564jSmeyLARV4mlx42gc6GNTXqd5zrJTf3X1c6A8\r\n\tfXUdosbMKxmGEIK9HK/79zxOcOD7l2/cNn3RBsOMF7lzWLDmbTMKwAhmXrVBkNdf\r\n\t2RkKqU8jc46wxaFFfrN3/ORhxYvetoQHR9B6eD6azOb5gwYfwRQ7o5B5NK4JEyA5\r\n\tZx1KuQQnvxC6mplPs6Pg4+C3yiwS8OEi1sWiusFIw==\r\nX-ME-Sender: <xms:76jAXHI03CAT8nZWkpTPUITivXhym1H0GufCd4PfgQpCgKqEHRYL_g>\r\nX-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrhedvgddulecutefuodetggdotefrodftvf\r\n    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu\r\n    uegrihhlohhuthemuceftddtnecunecujfgurhepofgfggfkfffhvffutgesrgdtreerre\r\n    ertdenucfhrhhomhepfdftohgsvghrthhoucfrrghulhgvthhtohdfuceorhhosggvrhht\r\n    ohhprghulhgvthhtohesfhgrshhtmhgrihhlrdgtohhmqeenucfrrghrrghmpehmrghilh\r\n    hfrhhomheprhhosggvrhhtohhprghulhgvthhtohesfhgrshhtmhgrihhlrdgtohhmnecu\r\n    vehluhhsthgvrhfuihiivgepud\r\nX-ME-Proxy: <xmx:76jAXLK864WUuZGpCbgBySK0Z43ydkjA2jwIPUP4Wc_hW2LVvQR_eQ>\r\n    <xmx:76jAXF3iKiqIXOtr6e2argbf1CXf17uC03aAi9L_iDOpXNqJjLTWqg>\r\n    <xmx:76jAXPHKddJtLlc_TeabTAiLsIKsclqGzlc_2wvZEVtcrv91LEv2Ng>\r\n    <xmx:76jAXA8GlJ27VmxEk4vJFkW1JruET4Q0wex5DnclTB_WzObYjcxfGQ>\r\nReceived: by mailuser.nyi.internal (Postfix, from userid 501)\r\n\tid 5A6EAE80F; Wed, 24 Apr 2019 14:20:31 -0400 (EDT)\r\nX-Mailer: MessagingEngine.com Webmail Interface\r\nUser-Agent: Cyrus-JMAP/3.1.6-444-g755619f-fmstable-20190423v1\r\nMime-Version: 1.0\r\nMessage-Id: <8a8a24db-06b8-49a5-9974-40d1bd0f5b1b@www.fastmail.com>\r\nDate: Wed, 24 Apr 2019 14:20:31 -0400\r\nFrom: "Roberto Pauletto" <mariorossi@gmail.com>\r\nTo: test@robyp.x10host.com\r\nSubject: Pymotw3-it Imaplib\r\nContent-Type: multipart/alternative;\r\n boundary=14c7d7383ef34ccd976a3caefb445a41\r\nX-Spam-Status: No, score=\r\nX-Spam-Score: \r\nX-Spam-Bar: \r\nX-Ham-Report: \r\nX-Spam-Flag: NO\r\n\r\n'
+
+b'2':
+b'Subject: Oggetto va qui\r\nFrom: pymotw3@esempio.com\r\nTo: esempio@esempio.com\r\n\r\n'
+</py_output>
+<titolo_2>
+Spostare e Copiare Messaggi
+</titolo_2>
+<testo_normale>
+Una volta che il messaggio è su di un server, può essere spostato o copiato senza doverlo scaricare usando <code>move()</code> o <code>copy()</code>. Questi metodi operano su intervalli di codici identificativi, proprio come fa <code>fetch()</code>.
+</testo_normale>
+<py_code>
+# imaplib_archive_read.py
+</py_code>
+<testo_normale>
+Questo script di esempio crea una nuova casella sotto <code>INBOX.Esempio</code> e copia in essa i messaggi letti da <code>INBOX</code>.
+</testo_normale>
+<py_output>
+$ python3 imaplib_archive_read.py
+
+Creato INBOX.Esempio.Oggi: [b'Create completed (0.000 + 0.000 secs).']
+IN COPIA: 1,2
+COPIATI: b'1 2'
+</py_output>
+<testo_normale>
+L'esecuzione dello stesso script una seconda volta mostra l'importanza della verifica dei codici di ritorno. Invece che sollevare una eccezione, la chiamata a <code>create()</code> per creare una nuova casella riporta che la cartella esiste già
+</testo_normale>
+<py_output>
+$ python3 imaplib_archive_read.py
+
+Creato INBOX.Esempio.Oggi: [b'[ALREADYEXISTS] Mailbox already exists (0.000 + 0.000 secs).']
+IN COPIA: 1,2
+COPIATI: b'1 2'
+</py_output>
+<testo_normale>
+<titolo_2>
+Cancellare Messaggi
+</titolo_2>
+<testo_normale>
+Anche se molti client mail moderni usano un modello che prevede una cartella "Cestino" per lavorare con i messaggi eliminati, i messaggi in genere non sono spostati in una effettiva cartella. Invece i loro segnalatori sono aggiornati aggiungendo <code>\Deleted</code>. L'operazione dello "svuotamento" del cestino viene implementata tramite il comando <code>EXPUNGE</code>. Questo script di esempio trova i messaggi archiviati con oggetto "Lorem ipsum", imposta il segnalatore di cancellazione, poi dimostra che quei messaggi sono comunque presenti nella cartella interrogando nuovamente il server.
+</testo_normale>
+<py_code>
+# imaplib_delete_messages.py
+</py_code>
+<testo_normale>
+La chiamata esplicita di <code>Expunge</code> rimuove i messaggi, ma chiamando <code>close()</code> si ottiene lo stesso effetto. La differenza è che il client non viene notificato delle cancellazioni quando viene chiamato <code>close()</code>
+</testo_normale>
+<py_output>
+$ python3 imaplib_delete_messages.py
+
+Codice di risposta: OK
+Risposta del server: b'(\\HasChildren) "." INBOX'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX')
+Risposta del server: b'(\\HasChildren) "." INBOX.Esempio'
+Risposta analizzata: ('\\HasChildren', '.', 'INBOX.Esempio')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.Oggi'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.Oggi')
+Risposta del server: b'(\\HasNoChildren) "." INBOX.Esempio.2019'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Esempio.2019')
+Risposta del server: b'(\\HasNoChildren) "." "INBOX.Messaggi Eliminati"'
+Risposta analizzata: ('\\HasNoChildren', '.', 'INBOX.Messaggi Eliminati')
+Risposta del server: b'(\\HasNoChildren \\Archive) "." INBOX.Archive'
+Risposta analizzata: ('\\HasNoChildren \\Archive', '.', 'INBOX.Archive')
+test@robyp.x10host.com C60cP26vS8tl
+Messaggi di partenza: b'1 2'
+Messaggi corrispondenti: 2
+Segnalatori prima: [b'2 (FLAGS (\\Seen))']
+Segnalatori after: [b'2 (FLAGS (\\Deleted \\Seen))']
+Cancellati definitivamente: [b'2']
+Messaggi rimasti: b'1'
+</py_output>
 <vedi_anche>
 https://docs.python.org/3.7/library/imaplib.html|imaplib|La documentazione della libreria standard per questo modulo.
+#|rfc822|Il modulo rfc822 include un elaboratore per RFC 822 / RFC 5322
+#|email|Il modulo <strong>email</strong> per elaborare messaggi email
+mailbox.html|mailbox|Elaboratore di caselle di posta locali
+configparser.html|ConfigParser|Legge e scrive file di configurazione
+https://tools.ietf.org/html/rfc3501.html|RFC 3501|Protocollo di Accesso Messaggio Internet
+https://tools.ietf.org/html/rfc5322.html|RFC 5322|Formato Messaggio Internet
+http://snipplr.com/view/7955/imap-backup-script/|IMAP Backup Script|Uno script per effettuare copie di email da un server IMAP
+http://imapclient.freshfoo.com/|Client IMAP|Un client ad alto livello per parlare con i server IMAP, scritto da Menno Smits
+http://www.offlineimap.org/|offlineimap|Una applicazione Python per mantenere un insieme locale di caselle di posta sincronizzate con un server IMAP
+https://pymotw.com/3/porting_notes.html#porting-imaplib|Note di portabilità da Python2 a 3 per imaplib|
 </vedi_anche>
 </documento_tradotto>

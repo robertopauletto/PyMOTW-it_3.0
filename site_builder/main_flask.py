@@ -14,7 +14,7 @@ from flask_forms import (
 )
 import jinja2
 import json
-from notifier import get_notifier, notify
+# from notifier import get_notifier, notify
 import os.path
 import webbrowser
 import os
@@ -31,10 +31,10 @@ __changelog__ = """
 2019-03-24: Form di creazione articolo
 """
 
-try:
-    nobj = get_notifier()
-except:
-    nobj = None
+#try:
+#    nobj = get_notifier()
+#except:
+#    nobj = None
 
 app = Flask(__name__)
 ckeditor = CKEditor(app)
@@ -160,7 +160,7 @@ def builder_log():
         else:
             return redirect(url_for('generator'))
 
-    notify(nobj, 'Scritta pagina ' + session.get('module', ''))
+    # notify(nobj, 'Scritta pagina ' + session.get('module', ''))
     return render_template('builder_log.html',
                            titolo="Log elaborazione",
                            form=form, logcontent=lc)

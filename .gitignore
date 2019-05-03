@@ -139,14 +139,19 @@ dumpscripts/mywords
 dumpscripts/pkgwithdata
 dumpscripts/sample_data.m3u
 dumpscripts/trace_run.py2
+dumpscripts/logging_rotating*
+dumpscripts/string
 etc_hosts.txt
 lib/_pyrunner.sh
-
 
 pymotw3.sublime-workspace
 pymotw3.wpr
 pymotw3.wpu
-
+requirements.txt
+req_ubuntu.txt
+requisiti.txt
+.ugo.sh
+.venv/
 
 
 
