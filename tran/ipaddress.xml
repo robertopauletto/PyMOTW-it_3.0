@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="Latin-1"?>
+<categoria>Reti</categoria>
+<documento_tradotto>
+<titolo_1>
+ipaddress - Indirizzi Internet
+</titolo_1>
+<descrizione>
+Classi per lavorare con indirizzi di Protocollo Internet (IP)
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>ipaddress</strong> include classi per lavorare con indirizzi di rete IPv4 e IPv6. Le classi supportano validazione, la ricerca di <em>host</em> e indirizzi su una rete ed altre comuni operazioni
+</testo_normale>
+<titolo_2>
+Indirizzi
+</titolo_2>
+<testo_normale>
+L'oggetto più basico rappresenta l'indirizzo di rete stesso. Si passi una stringa, intero, o sequenza di byte a <code>ip_address()</code> per costruire un indirizzo. Il valore di ritorno sarà una istanza di <code>IPv4Address</code> o <code>IPv6Address</code>, a seconda del tipo di indirizzo usato.
+</testo_normale>
+<py_code>
+# ipaddress_addresses.py
+</py_code>
+<testo_normale>
+Entrambe le classi forniscono varie rappresentazioni dell'indirizzo per scopi diversi, così come basiche asserzioni tipo se l'indirizzo è riservato per comunicazioni <a href='https://www.wikiwand.com/it/Broadcasting_(informatica)' target='_blank'>multicast</a> oppure se si tratta di una rete privata
+</testo_normale>
+<py_output>
+$ python3 ipaddress_addresses.py
+</py_output>
+<titolo_2>
+Reti
+</titolo_2>
+<testo_normale>
+Una rete viene definita come un intervallo di indirizzi, generalmente espressi con un indirizzo base ed una maschera che indica quali porzioni dell'indirizzo rappresentano la rete e quali porzioni rimangono per rappresentare gli indirizzi su quella rete. La maschera può essere espressa esplicitamente, oppure usando come prefisso un valore di lunghezza, come nell'esempio di seguito
+</testo_normale>
+<py_code>
+# ipaddress_networks.py
+</py_code>
+<testo_normale>
+Come per gli indirizzi, ci sono due classi rete per le reti IPv4 e IPv6. Ogni classe fornisce proprietà o metodi per accedere valori associati alla rete tipo l'indirizzo <a href='https://www.wikiwand.com/it/Broadcasting_(informatica)' target='_blank'><em>broadcast</em></a> e gli indirizzi sulla rete disponibili per l'uso dagli <me>host</me>
+</testo_normale>
+<py_output>
+$ python3 ipaddress_networks.py
+</py_output>
+<testo_normale>
+Una istanza di rete è iterabile, e mantiene gli indirizzi sulla rete.
+</testo_normale>
+<py_code>
+# ipaddress_network_iterate.py
+</py_code>
+<testo_normale>
+Questo esempio stampa solo alcuni indirizzi, visto che una rete IPv6 può contenere molti più indirizzi di quanti ne possa contenere il risultato.
+</testo_normale>
+<py_output>
+$ python3 ipaddress_network_iterate.py
+</py_output>
+<testo_normale>
+L'iterazione sulla rete estrae gli indirizzi, ma non tutti sono validi per gli <em>host</em>. Ad esempio sono inclusi sia l'indirizzo base di una rete che quello di  <a href='https://www.wikiwand.com/it/Broadcasting_(informatica)' target='_blank'><em>broadcast</em></a>. Per trovare gli indirizzi che possono essere usati da normali <em>host</em> sulla rete, si usi il metodo <code>hosts()</code>, che produce un generatore.
+</testo_normale>
+<py_code>
+# ipaddress_network_iterate_hosts.py
+</py_code>
+<testo_normale>
+Confrontando il risultato di questo esempio con quello precedente si nota che gli indirizzi host non includono i primi valori prodotti quando si itera sull'intera rete.
+</testo_normale>
+<py_output>
+$ python3 ipaddress_network_iterate_hosts.py
+</py_output>
+<testo_normale>
+Oltre al protocollo di iterazione, viene supportato l'operatore <code>in</code> per determinare su un indirizzo faccia parte di una rete.
+</testo_normale>
+<py_code>
+# ipaddress_network_membership.py
+</py_code>
+<testo_normale>
+L'implementazione di <code>in</code> usa la maschera di rete per verificare l'indirizzo, quindi è molto più efficiente rispetto all'espansione della lista completa degli indirizzi sulla rete.
+</testo_normale>
+<py_output>
+$ python3 ipaddress_network_membership.py
+</py_output>
+<titolo_2>
+Interfacce
+</titolo_2>
+<testo_normale>
+Una interfaccia di rete rappresenta un indirizzo specifico su di una rete e può esserer rappresentato da un indirizzo <em>host</em> e da un prefisso di rete o maschera di rete.
+</testo_normale>
+<py_code>
+# ipaddress_interfaces.py
+</py_code>
+<testo_normale>
+L'oggetto interfaccia ha proprietà per accedere all'intera rete e agli indirizzi sepataramente, così come ha diversi modi per esprimere l'interfaccia e la maschera di rete.
+</testo_normale>
+<py_output>
+$ python3 ipaddress_interfaces.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.7/library/ipaddress.html|ipaddresses|La documentazione della libreria standard per questo modulo.
+https://www.python.org/dev/peps/pep-3144|PEP 3144|Libreria per la manipolazione di inidirizzi IP per la libreria standard Python
+https://docs.python.org/3.5/howto/ipaddress.html#ipaddress-howto|An introduction to the ipaddress module|Introduzione al modulo ipaddress
+https://www.wikiwand.com/it/Indirizzo_IP|Wikipedia: Indirizzi IP|Introduzione agli indirizzi IP e alle reti.
+#|Computer Networks (5th Edition)|Di Andrew S. Tanenbaum e David J. Wetherall. Pubblicato da Pearson, 2010. ISBN-10: 0132126958
+</vedi_anche>
+</documento_tradotto>

@@ -1,0 +1,554 @@
+<xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<indicizza>no</indicizza>
+<categoria>Concomitanza con processi, thread e coroutines</categoria>
+<documento_tradotto>
+<titolo_1>
+multiprocessing - Gestisce Processi come Thread
+</titolo_1>
+<descrizione>
+Fornisce una <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per la gestione dei processi
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>multiprocessing</strong> fornisce un <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per suddividere il lavora tra processi molteplici basati sulla API di <a href='threading.html' target='_blank'>threading</a>. In taluni casi <strong>multiprocessing</strong> può essere usato come rimpiazzo al posto di <strong>threading</strong> per trarre vantaggio dei <a href='https://www.wikiwand.com/it/Core_(informatica)' target='_blank'>core</a>  multipli di CPU per evitare colli di bottiglia computazionali associati con i bloccaggi dell'interprete globale di Python.
+</testo_normale>
+<testo_normale>
+Viste le similarità, i primi pochi esempi di seguito sono tratti dagli esempi di <a href='threading.html' target='_blank'>threading</a>. Le caratterisctiche fornite da <strong>multiprocessing</strong> non disponibili in <strong>threading</strong> sono trattate successivamente.
+</testo_normale>
+<titolo_2>
+Concetti base di multiprocessing
+</titolo_2>
+<testo_normale>
+Il modo più semplice di generare un secondo processo è istanziare un oggetto <code>Process</code> con una funzione obiettivo. quindi chiamare <code>start()</code> per iniziare il lavoro
+</testo_normale>
+<py_code>
+# multiprocessing_simple.py
+</py_code>
+<testo_normale>
+Il risultato include la parola "Worker" stampata cinque volte, sebbene possa non ancora essere completamente pulito, a seconda dell'ordine di esecuzione, visto che ogni processo sta tentando di accedere al flusso in uscita
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_simple.py
+</py_output>
+<testo_normale>
+In genere è' più utile essere in grado di generare un processo con argomenti per dirgli che lavoro dovrà fare. A differenza di <strong>threading</strong>, per passare argomenti ad un oggetto <code>multiprocessing.Process</code>, essi devono potere essere serializzati usando <a href="pickle.html">pickle</a>. Questo esempio passa a ciascun elaboratore un numero da stampare.
+</testo_normale>
+<py_code>
+# multiprocessing_simpleargs.py
+</py_code>
+<testo_normale>
+L'intero passato come argomento ora viene incluso nel messaggio stampato da ogni elaboratore
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_simpleargs.py
+</py_output>
+<titolo_2>
+Funzioni Obiettivo Importabili
+</titolo_2>
+<testo_normale>
+Una differnza tra gli esempi per <strong>threading</strong> e <strong>multiprocessing</strong> è la protezione supplementare per <code>__main__</code> usata negli esempi <strong>multiprocessing</strong>. A causa del modo con il quale i nuovi processi sono fatti partire, il processo filgio deve essere capace di importare lo script che contiene la funzione obiettivo. Impacchettando la parte principale dell'applicazione in una verifica per <code>__main__</code> assicura che non venga eseguita in modo ricorsivo in ogni figlio quando il modulo viene importato. Un altro approccio è di importare la funzione obeittivo da uno script separato. Ad esempio <code>multiprocessing_import_main.py</code> usa una funzione elaboratore definita in un secondo modulo.
+</testo_normale>
+<py_code>
+# multiprocessing_import_main.py
+</py_code>
+<testo_normale>
+La funzione elaboratore viene definita in <strong>multiprocessing_import_worker.py</strong>
+</testo_normale>
+<py_code>
+# multiprocessing_import_worker.py
+</py_code>
+<testo_normale>
+La chiamata del programma principale produce un risultato simile al primo esempio
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_import_main.py
+</py_output>
+<titolo_2>
+Determinare il Processo Corrente
+</titolo_2>
+<testo_normale>
+Passare argomenti per identificare o nominare il processo è difficoltoso e non necessario. Ogni istanza di <code>Process</code> ha un nome con un valore predefinito che può essere modificato alla creazione del processo. Attribuire nomi ai processi è untile per tenerne traccia, specialmente in applicazioni con molteplici tipi di processi in esecuzione simultaneamente.
+</testo_normale>
+<py_code>
+# multiprocessing_names.py
+</py_code>
+<testo_normale>
+Il risultato di debug include il nome del processo corrente su ogni riga. Le righe con <code>Process-3</code> nella colonna del nome corrispondono al processo non nominato <code>worker_2</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_names.py
+</py_output>
+<titolo_2>
+Processi Demone
+</titolo_2>
+<testo_normale>
+Nella modalità predefinita, il programma principale non esce fino a quando non sono usciti tutti i figli. Ci sono volte nelle quali è utile far partire un processo in <em>background</em> che viene eseguito senza impedire al programma principale di uscire, come ad esempio in servizi dove potrebbe non essere facile interrompere l'elaboratore, o dove lasciarlo morire nel mezzo dell'esecuzione del suo lavoro non comporta perdita o corruzione di dati (ad esempio un compito che genera "battiti" per uno strumento di monitoraggio di servizi).
+</testo_normale>
+<testo_normale>
+Per marcare un processo come demone si imposti il suo attributo <code>daemon</code> a <code>True</code>. Nella modalità predefinita i processi non sono demoni
+</testo_normale>
+<py_code>
+# multiprocessing_daemon.py
+</py_code>
+<testo_normale>
+Il risultato non comprende il messaggio "In uscita" dal processo demone, visto che tutti i processi non demoni (compreso il programma principale) escono prima che il processo demone si attivi dopo la sua seconda pausa.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_daemon.py
+</py_output>
+<testo_normale>
+Il processo demone viene terminato automaticamente prima che il programma principale esca, il che evita di lasciare processi orfani in esecuzione. Questo può essere verificato cercando l'identificativo del processo stampato quando il programma è in esecuzione, poi cercando quel processo con un comando tipo <a href='https://www.wikiwand.com/it/Ps_(Unix)' target='_blank'>ps</a>.
+</testo_normale>
+<titolo_2>
+Attendere Processi
+</titolo_2>
+<testo_normale>
+Per attendere fino a quando un processo ha completato il suo lavoro ed è uscito, si usi il metodo <code>join()</code>.
+</testo_normale>
+<py_code>
+# multiprocessing_daemon_join.py
+</py_code>
+<testo_normale>
+Visto che usando <code>join()</code> il processo principale attende che il demone esca, il messaggio "In uscita" questa volta viene stampato.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_daemon_join.py
+</py_output>
+<testo_normale>
+Nella modalità predefinita, <code>join()</code> blocca indefinitivamente. E' anche possibile passare un argomento di <em>timeout</em> (un numero a virgola mobile che rappresenta il numero di secondi da attendere affichè il processo divenga inattivo). Se il processo non si completa entro il periodo di <em>timeout</em>, <code>join()</code> ritorna comunque.
+</testo_normale>
+<py_code>
+# multiprocessing_daemon_join_timeout.py
+</py_code>
+<testo_normale>
+Visto che il tempo nel quale il demone è in pausa è maggiore rispetto al <em>timeout</em> passato, il processo è ancora "vivo" dopo che <code>join()</code> ritorna.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_daemon_join_timeout.py
+</py_output>
+<titolo_2>
+Terminare i Processi
+</titolo_2>
+<testo_normale>
+Quantunque sia meglio usare il metodo della <em>pillola avvelenata</em> di segnalare ad un processo che dovrebbe uscire (vedere <a href='multiprocessing.html#pmp'>Passare Messaggi ai Processi</a>), se un processo appare bloccato potrebbe essere utile essere capaci di eliminarlo forzatamente. La chiamata di <code>terminate()</code> su di un oggetto processo elimina il processo figlio
+</testo_normale>
+<py_code>
+# multiprocessing_terminate.py
+</py_code>
+<note>
+E' importante usare <code>join()</code> con il processo dopo averlo terminato per poter dare al codice che gestisce il processo il tempo di aggiornare lo stato dell'oggetto per rifletterne l'eliminazione.
+</note>
+<py_output>
+$ python3 multiprocessing_terminate.py
+</py_output>
+<titolo_2>
+Stato di Uscita di un Processo
+</titolo_2>
+<testo_normale>
+Il codice di stato prodotto quando un processo esce può essere indirizzato tramite l'attributo <code>exitcode</code>. L'intervallo di valori consentito è elencato nella tabella che segue.
+</testo_normale>
+<tabella_semplice>
+CODICE USCITA;DESCRIZIONE
+<code>== 0</code>;nessun errore prodotto
+<code>> 0</code>;il processo ha un errore, ed è uscito con quel codice
+<code>< 0</code>;il processo è stato eliminato con un segnale di <code>-1 * exitcode</code>
+</tabella_semplice>
+<py_code>
+# multiprocessing_exitcode.py
+</py_code>
+<testo_normale>
+I processi che sollevano automaticamente una eccezione ottengono un <code>exitcode</code> di 1
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_exitcode.py
+</py_output>
+<titolo_2>
+Registrazione
+</titolo_2>
+<testo_normale>
+Quando si deve effettuare un <em>debug</em> per problemi di concorrenza, può essere utile avere accesso ai dati interni degli oggetti forniti da <strong>multiprocessing</strong>. Esiste una funzione di convenienza a livello di modulo per abilitare la registrazione chiamata <code>log_to_stderr()</code>. Essa imposta un oggetto <code>logger</code> usando <a href='logging.html'>logging</a> ad aggiunge un gestore in modo che i messaggi registrati siano inviati al canale di errore standard.
+</testo_normale>
+<py_code>
+# multiprocessing_log_to_stderr.py
+</py_code>
+<testo_normale>
+Nella modalità predefinita, il livello di registrazione è impostato a <code>NOTSET</code>, quindi non viene prodotto alcun messsaggio. Si passi un livello differente al <em>logger</em> in fase di inizializzazione per ottenere il livello di dettaglio desiderato.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_log_to_stderr.py
+</py_output>
+<testo_normale>
+Per manipolare direttamente il <em>logger</em> (modificare il livello o aggiungere gestori), si usi <code>get_logger()</code>
+</testo_normale>
+<py_code>
+# multiprocessing_get_logger.py
+</py_code>
+<testo_normale>
+Il <em>logger</em> può anche essere configurato tramite l'API di configurazione file di <strong>logging</strong>, usando il nome "<code>multiprocessing</code>"
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_get_logger.py
+</py_output>
+<titolo_2>
+Derivare Processi
+</titolo_2>
+<testo_normale>
+Sebbene il modo più semplice di far partire una elaborazione in un processo separato sia usare <code>Process</code> passando una funzione obiettivo, è anche possibile usare una sottoclasse personalizzata.
+</testo_normale>
+<py_code>
+# multiprocessing_subclass.py
+</py_code>
+<testo_normale>
+La classe derivata dovrebbe riscrivere <code>run()</code> per eseguire il proprio lavoro.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_subclass.py
+</py_output>
+<testo_normale>
+<a name='pmp'></a>
+</testo_normale>
+<titolo_2>
+Passare Messaggi ai Processi</a>
+</titolo_2>
+<testo_normale>
+Analogamente ai <em>thread</em>, un modello di uso comune per processi multipli è dividere una attività tra diversi esecutori che sono in esecuzione in parallelo. Un uso efficace di processi multipli in genere richiede un certo livello di comunicazione tra di essi, in modo che il lavoro possa essere diviso ed i risultati aggregati. Un semplice modo di comunicare tra processi con <strong>multiprocessing</strong> è usare un oggetto <code>Queue</code> per passare messaggi. Qualunque oggetto che possa essere serializzato con <a href='pickle.html'>pickle</a> può essere passato attraverso <code>Queue</code>
+</testo_normale>
+<py_code>
+# multiprocessing_queue.py
+</py_code>
+<testo_normale>
+Questo breve esempio passa solo un singolo messaggio ad un singolo esecutore, poi il processo principale attende che l'esecutore finisca.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_queue.py
+</py_output>
+<testo_normale>
+Un esempio più complesso mostra come gestire parecchi esecutori che consumano dati da un oggetto <code>JoinableQueue</code>  e passano i risultati di nuovo al processo genitore. Viene usata la tecnica della <em>pillola avvelenata</em> per fermare gli esecutori. Dopo l'impostazione dei compiti reali, il programma principale aggiunge una valore di "arresto" per ogni esecutore alla coda dei lavori. Quando un esecutore trova quel valore speciale esce dal suo ciclo di elaborazione. Il processo principlae usa il metodo <code>join()</code> della coda dei compiti per attendere che tutti i compiti siano terminati prima di elaborare i risultati.
+</testo_normale>
+<py_code>
+# multiprocessing_producer_consumer.py
+</py_code>
+<testo_normale>
+Sebbene i lavori entrino nella coda in ordine, la loro esecuzione è parallelizzata in modo che non vi è garanzia circa l'ordine di completamento.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_producer_consumer.py
+</py_output>
+<titolo_2>
+Segnalazioni tra Processi
+</titolo_2>
+<testo_normale>
+La classe <code>Event</code> fornisce un semplice modo per comunicare informazioni di stato tra i processi. Un evento può alternare il suo stato tra impostato e non impostato. Gli utenti dell'oggetto evento possono attendere che lo stesso passi da non impostato ad impostato, usando un valore opzionale di pausa.
+</testo_normale>
+<py_code>
+# multiprocessing_event.py
+</py_code>
+<testo_normale>
+Quando <code>wait()</code> termina il periodo di pausa ritorna senza errori. Il chiamante è responsabile per la verifica dello stato dell'evento usando <code>is_set()</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_event.py
+</py_output>
+<titolo_2>
+Controllare Accesso alle Risorse
+</titolo_2>
+<testo_normale>
+In situazioni dove una singola risorsa debba essere condivisa tra processi multipli, si può utilizzare un oggetto <code>Lock</code> per evitare conflitti di accesso.
+</testo_normale>
+<py_code>
+# multiprocessing_lock.py
+</py_code>
+<testo_normale>
+In questo esempio, i messaggi stampati alla console possono essere mescolati assieme se i due processi non sincronizzano il proprio accesso al flusso in uscita con <code>Lock</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_lock.py
+</py_output>
+<titolo_2>
+Sincronizzare le Operazioni
+</titolo_2>
+<testo_normale>
+Si possono usare oggetti <code>Condition</code> per sincronizzare parti di flusso di lavoro in modo che alcune vengano eseguite in parallelo ed altri in modo sequenziale, anche se sono in processi separati.
+</testo_normale>
+<py_code>
+# multiprocessing_condition.py
+</py_code>
+<testo_normale>
+In questo esempio, due processi eseguono in parallelo il secondo segmento di un lavoro, ma solo dopo che il primo segmento è terminato.,
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_condition.py
+</py_output>
+<titolo_2>
+Controllare l'Accesso Simultaneo alle Risorse
+</titolo_2>
+<testo_normale>
+Talvolta è utile consentire a più di un esecutore alla volta di accedere ad una risorsa, limitando comunque il numero di accessi totale. Ad esempio un <em>pool</em> di connessioni potrebbe supportare un numero fisso di connessioni simultanee, oppure una applicazione di rete potrebbe supportare un numero fisso di scaricamenti concorrenti. Un modo per gestire queste connessioni è usare <code>Semaphore</code>
+</testo_normale>
+<py_code>
+# multiprocessing_semaphore.py
+</py_code>
+<testo_normale>
+In questo esempio, la classe <code>ActivePool</code> serve semplicemente come un sistema conveniente per tracciare quali processi sono in esecuzione ad un dato momento. Un vero <em>pool</em> di risorse probabilmente avrebbe allocato una connessione o un qualche altro valore al nuovo processo attivo, e recuperato il valore alla fine dell'esecuzione del compito. Qui il <em>pool</em> è usato semplicemente per mantenere i nomi dei processi attivi per mostrare che sono tre sono in esecuzione contemporanea.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_semaphore.py
+</py_output>
+<titolo_2>
+Gestire lo Stato Condiviso
+</titolo_2>
+<testo_normale>
+Nell'esempio precedente, la lista di processi attivi viene mantenuta centralmente nell'istanza <code>ActivePool</code> grazie ad un tipo di oggetto speciale creato da un <code>Manager</code>. Questo oggetto è responsabile del coordinamento delle informazioni di stato condivise tra tutti gli utenti
+</testo_normale>
+<py_code>
+# multiprocessing_manager_dict.py
+</py_code>
+<testo_normale>
+Creando la lista con il <code>Manager</code>, essa viene condivisa e gli aggiornamenti sono visti da tutti i processi. Sono supportati anche i dizionari
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_manager_dict.py
+</py_output>
+<titolo_2>
+Spazi dei nomi condivisi
+</titolo_2>
+<testo_normale>
+Oltre ai dizionari e alle liste, <code>Manager</code> può creare anche spazi dei nomi condivisi con <code>Namespace</code>
+</testo_normale>
+<py_code>
+# multiprocessing_namespaces.py
+</py_code>
+<testo_normale>
+Qualunque valore aggiunto a <code>Namespace</code> è visibile a chiunque riceva una istanza di <code>Namespace</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_namespaces.py
+</py_output>
+<testo_normale>
+E' importante sapere che gli aggiornamenti al contenuto di valori mutabili nello spazio dei nomi non vengono propagati automaticamente.
+</testo_normale>
+<py_code>
+# multiprocessing_namespaces_mutable.py
+</py_code>
+<testo_normale>
+Per aggiornare la lista occorre attaccare nuovamente allo spazio dei nomi l'oggetto
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_namespaces_mutable.py
+</py_output>
+<titolo_2>
+Pool di Processi
+</titolo_2>
+<testo_normale>
+La classe <code>Pool</code> può essere usata per gestire un numero fisso di esecutori per casi semplici nei quali il laovoro da compiere può essere diviso e distribuito indipendentemente tra gli esecutori. I valori di ritorno dai lavori sono raccolti e ritornati come lista. Gli argomenti per <code>Pool</code> includono il numero di processi e la funzione da eseguire quandi si fa partire il compito (chiamata una volta per figlio)
+</testo_normale>
+<py_code>
+# multiprocessing_pool.py
+</py_code>
+<testo_normale>
+Il risultato del metodo <code>map()</code> è funzionalmente equivalente al metodo <em>built-in</em> <code>map()</code> eccetto che i singoli compiti vengono eseguiti in parallelo. Visto che il <em>pool</em> sta elaborando i suoi input in parallelo, <code>close()</code> e <code>join()</code> possono essere usati per sincronizzare il processo principale con quelli che eseguono i compiti per consentire una corretta pulizia.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_pool.py
+</py_output>
+<testo_normale>
+Nella modalità predefinita, <code>Pool</code> crea un numero fisso di processi esecutori e a essi passa lavori fino a quando sono terminati. L'impostazione del paramentro <code>maxtaskperchild</code> indica al <em>pool</em> di far ripartire un processo esecutore dopo che ha finito alcuni compiti, prevenendo esecutori che di lunga esecuzione dal consumare ulteriori risorse di sistema.
+</testo_normale>
+<py_code>
+# multiprocessing_pool_maxtasksperchild.py
+</py_code>
+<testo_normale>
+Il <em>pool</em> fa ripartire gli esecutori quano hanno completato i compiti assegnati, anche se non ci sono più lavori. In questo risultato, sono creati otto esecutori, anche se ci sono solo 10 compiti, e ciascun esecutore può completarne due alla volta.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_pool_maxtasksperchild.py
+</py_output>
+<titolo_2>
+Passare Messaggi ai Processi
+</titolo_2>
+<testo_normale>
+Analogamente ai <em>thread</em>, un modello di uso comune per processi multipli è dividere una attività tra diversi esecutori che sono in esecuzione in parallelo. Un uso efficace di processi multipli in genere richiede un certo livello di comunicazione tra di essi, in modo che il lavoro possa essere diviso ed i risultati aggregati. Un semplice modo di comunicare tra processi con <strong>multiprocessing</strong> è usare un oggetto <code>Queue</code> per passare messaggi. Qualunque oggetto che possa essere serializzato con <a href='pickle.html'>pickle</a> può essere passato attraverso <code>Queue</code>
+</testo_normale>
+<py_code>
+# multiprocessing_queue.py
+</py_code>
+<testo_normale>
+Questo breve esempio passa solo un singolo messaggio ad un singolo esecutore, poi il processo principale attende che l'esecutore finisca.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_queue.py
+</py_output>
+<testo_normale>
+Un esempio più complesso mostra come gestire parecchi esecutori che consumano dati da un oggetto <code>JoinedQueue</code>  e passano i risultati di nuovo al processo genitore. Viene usata la tecnica della <em>pillola avvelenata</em> per fermare gli esecutori. Dopo l'impostazione dei compiti reali, il programma principale aggiunge una volore di "arresto" per ogni esecutore alla coda dei lavori. Quando un esecutore trova quel valore speciale esce dal suo ciclo di elaborazione. Il processo principlae usa il metodo <code>join()</code> della coda dei compiti per attendere che tutti ti compiti siano terminati prima di elaborare i risultati.
+</testo_normale>
+<py_code>
+# multiprocessing_producer_consumer.py
+</py_code>
+<testo_normale>
+Sebbene i lavori entrino nella coda in ordine, la loro esecuzione è parallelizzata in modo che non vi è garanzia circa l'ordine di completamento.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_producer_consumer.py
+</py_output>
+<titolo_2>
+Segnalazioni tra Processi
+</titolo_2>
+<testo_normale>
+La classe <code>Event</code> fornisce un semplice modo per comunicare informazioni di stao tra i processi. Un evento può essere portato in stato di impostato e non impostato. Gli utenti dell'oggetto evento possono attendere che lo stesso passi da non impostato ad impostato, usando un valore opzionale di pausa.
+</testo_normale>
+<py_code>
+# multiprocessing_event.py
+</py_code>
+<testo_normale>
+Quando <code>wait()</code> termina il periodo di pausa ritorna senza errori. Il chiamante è responsabile per la verifica dello stato dell'evento usando <code>is_set()</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_event.py
+</py_output>
+<titolo_2>
+Controllare Accesso alle Risorse
+</titolo_2>
+<testo_normale>
+In situazioni dove una singola risorse debba essere condivisa tra processi multipli, si può utilizzare un oggetto <code>Lock</code> per evitare conflitti di accesso.
+</testo_normale>
+<py_code>
+# multiprocessing_lock.py
+</py_code>
+<testo_normale>
+In questo esempio, i messaggi stampati alla console possono essere mescolati assieme se i due processi non sincronizzato il proprio accesso al flusso in uscita con <code>Lock</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_lock.py
+</py_output>
+<titolo_2>
+Sincronizzare le Operazioni
+</titolo_2>
+<testo_normale>
+Si possono usare oggetti <code>Condition</code> per sincronizzare parti di flusso di lavoro in modo che alcune vengano eseguite in parallelo ed altri in modo sequenziale, anche se sono in processi separati.
+</testo_normale>
+<py_code>
+# multiprocessing_condition.py
+</py_code>
+<testo_normale>
+In questo esempio, due processi eseguono in parallelo il secondo segmento di un lavoro, ma solo dopo che il primo segmento è terminato.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_condition.py
+</py_output>
+<titolo_2>
+Controllare l'Accesso Simultaneo alle Risorse
+</titolo_2>
+<testo_normale>
+Talvolta è utile consentire a più di un esecutore alla volta di accedere ad una risorsa, limitando comunque il numero di accessi totale. Ad esempio un <em>pool</em> di connessioni potrebbe supportare un numero fisso di connessioni simultanee, oppure una applicazione di rete potrebbe supportare un numero fisso di scaricamenti concorrenti. Un modo per gestire queste connessioni è usare <code>Semaphore</code>
+</testo_normale>
+<py_code>
+# multiprocessing_semaphore.py
+</py_code>
+<testo_normale>
+In questo esempio, la classe <code>ActivePool</code> serve semplicemente come un sistema conveniente per tracciare quali processi sono in esecuzione ad un dato momento. Un vero <em>pool</em> di risorse probabilmente avrebbe allocato una connessione o un qualche altro valore al nuovo processo attivo, e recuperato il valore alla fine dell'esecuzione del compito. Qui il <em>pool</em> è usato semplicemente per mantenere i nomi dei processi attivi per mostrare che solo tre sono in esecuzione contemporanea.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_semaphore.py
+</py_output>
+<titolo_2>
+Gestire lo Stato Condiviso
+</titolo_2>
+<testo_normale>
+Nell'esempio precedente, la lista di processi attivi viene mantenuta centralmente nell'istanza <code>ActivePool</code> grazie ad un tipo di oggetto lista speciale creato da un <code>Manager</code>. Questo oggetto è responsabile del coordinamento delle informazioni di stato condivise tra tutti gli utenti
+</testo_normale>
+<py_code>
+# multiprocessing_manager_dict.py
+</py_code>
+<testo_normale>
+Creando la lista con il <code>Manager</code>, essa viene condivisa e gli aggiornamenti sono visti da tutti i processi. Sono supportati anche i dizionari
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_manager_dict.py
+</py_output>
+<titolo_2>
+Spazi dei nomi condivisi
+</titolo_2>
+<testo_normale>
+Oltre ai dizionari e alle liste, <code>Manager</code> può creare anche spazi dei nomi condivisi con <code>Namespace</code>
+</testo_normale>
+<py_code>
+# multiprocessing_namespaces.py
+</py_code>
+<testo_normale>
+Qualunque valore aggiunto a <code>Namespace</code> è visibile a chiunque riceva una istanza di <code>Namespace</code>
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_namespaces.py
+</py_output>
+<testo_normale>
+E' importante sapere che gli aggiornamenti al contenuto di valori mutabili nello spazio dei nomi non vengono propagati automaticamente.
+</testo_normale>
+<py_code>
+# multiprocessing_namespaces_mutable.py
+</py_code>
+<testo_normale>
+Per aggiornare la lista occorre attaccare nuovamente allo spazio dei nomi l'oggetto
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_namespaces_mutable.py
+</py_output>
+<titolo_2>
+Pool di Processi
+</titolo_2>
+<testo_normale>
+La classe <code>Pool</code> può essere usata per gestire un numero fisso di esecutori per casi semplici nei quali il laovoro da compiere può essere diviso e distribuito indipendentemente tra gli esecutori. I valori di ritorno dai lavori sono raccolti e ritornati come lista. Gli argomenti per <code>Pool</code> includono il numero di processi e una funzione da eseguire quandi si fa partire il compito (chiamata una volta per figlio)
+</testo_normale>
+<py_code>
+# multiprocessing_pool.py
+</py_code>
+<testo_normale>
+Il risultato del metodo <code>map()</code> è funzionalmente equivalente al metodo <em>built-in</em> <code>map()</code> eccetto che i singoli compiti vengono eseguiti in parallelo. Visto che il <em>pool</em> sta elaborando i suoi input in parallelo, <code>close()</code> e <code>join()</code> possono essere usati per sincronizzare il processo principale con quelli che eseguono i compiti per consentire una corretta pulizia.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_pool.py
+</py_output>
+<testo_normale>
+Nella modalità predefinita, <code>Pool</code> crea un numero fisso di processi esecutori e a essi passa lavori fino a quando sono terminati. L'impostazione del paramentro <code>maxtaskperchild</code> indica al <em>pool</em> di far ripartire un processo esecutore dopo che ha finito alcuni compiti, prevenendo esecutori che sono in esecuzione da diverso tempo dal consumare ulteriori risorse di sistema.
+</testo_normale>
+<py_code>
+# multiprocessing_pool_maxtasksperchild.py
+</py_code>
+<testo_normale>
+Il <em>pool</em> fa ripartire gli esecutori quano hanno completato i compiti assegnati, anche se non ci sono più lavori. In questo risultato, sono creati otto esecutori, anche se ci sono solo 10 compiti, e ciascun esecutore può completarne due alla volta.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_pool_maxtasksperchild.py
+</py_output>
+<titolo_2>
+Implementare MapReduce
+</titolo_2>
+<testo_normale>
+La classe <code>Pool</code> può essere usata per creare una semplice implementazione MapReduce di un server singolo. Sebbene non fornisca i pieni benefici di una distribuzione del processo, illustra quanto sia facile suddividere e distribuire alcuni problemi in unità di elaborazione.
+</testo_normale>
+<testo_normale>
+In un sistema basato su MapReduce, i dati in entrata sono suddivisi in spezzoni da elaborare da diverse istanze di esecutori. Ogni spezzone viene <em>mappato</em> ad uno stato intermedio usando una semplice trasformazione. I dati intermedi vengono poi raccolti insieme e partizionati in base ad un valore chiave in modo che tutti i valori collegati siano insieme. In ultimo il dato partizionato viene <em>ridotto</em> ad un insieme di risultati.
+</testo_normale>
+<py_code>
+# multiprocessing_mapreduce.py
+</py_code>
+<testo_normale>
+Lo script di esempio che segue usa <code>SimpleMapReduce</code> per contare le parole più frequenti nel sorgente di questo articolo, ignorando i marcatori.
+</testo_normale>
+<py_code>
+# multiprocessing_wordcount.py
+</py_code>
+<testo_normale>
+La funzione <code>file_to_words</code> converte ogni file in input in una sequenza di tuple che contengono la parola e il numero <code>1</code> che rappresenta una singola occorrenza. I dati sono poi divisi da <code>partition</code> usando la parola come chiave, in modo che la struttura risultante consiste in una chiave ed una sequenza di valori <code>1</code> che rappresentano ciascuna occorrenza della parola. I dati partizionati sono convertiti in un insieme di tuple che contengono una parola ed il conteggio per quella parola effettuato da <code>count_words()</code> durante la fase di riduzione.
+</testo_normale>
+<py_output>
+$ python3 multiprocessing_wordcount.py
+</py_output>
+<vedi_anche>
+https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
+threading.html|threading|API di alto livello per lvaorare con i thread
+https://it.wikipedia.org/wiki/MapReduce|MapReduce - Wikipedia|Panoramica di MapReduce su Wikipedia
+http://research.google.com/archive/mapreduce.html|MapReduce: Simplified Dsta Processing on Large Clusters| Presentazione e documento su MapReduce da parte di Google Labs
+operator.html|Operator|Strumenti sugli operatori tipo <code>itemgetter</code>
+</vedi_anche>
+</documento_tradotto>
