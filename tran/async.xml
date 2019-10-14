@@ -1,0 +1,70 @@
+<xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Concomitanza con processi, thread e coroutines</categoria>
+<documento_tradotto>
+<titolo_1>
+asyncio - I/O Asincrono, ciclo di eventi e strumenti per la gestione della concorrenza
+</titolo_1>
+<descrizione>
+Una infrastruttura per I/O asincrono e concorrenza
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>asyncio</strong> fornisce strumenti per costruire applicazioni concorrenti usando <em>coroutine</em>. Mentre il modulo <a href='threading.html' target='_blank'>threading</a> implementa la concorrenza attraverso <em>thread</em> di applicazione e <a href='multiprocessing.html' target='_blank'>multiprocessing</a> implementa la concorrenza usando processi di sistema, <strong>asyncio</strong> usa un approccio a <em>thread</em> singolo e processo singolo nel quale parti di un'applicazione cooperano per passarsi a compiti esplicitamente con tempistiche ottimali. Molto spesso questo contesto di scambio accade quando il programma sarebbe altrimenti bloccato in attesa di leggere o scrivere dati, m <strong>asyncio</strong> include anche il supporto per pianificare l'esecuzione di codice ad una specifico spazio temporale futuro, per abilitare una <em>coroutine</em> ad attendere che un'altra si completi, per gestire segnali di sistema e per riconoscere altri eventi che possano costituire una ragione per un'applicazione per modificare quello su cui sta lavorando.
+</testo_normale>
+<titolo_2>
+Concetti di Concorrenza Asincrona
+</titolo_2>
+<testo_normale>
+La maggior parte dei programmi che usano altri modelli di concorrenza sono scritti linearmente, e fanno affidamento sulla gestione del <em>thread</em> o del processo del linguaggio in fase di esecuzione o del sistema operativo per cambiare contesto quando appropriato. Una applicazione basata su <code>asyncio</code> richiede che il suo codice gestisca esplicitamente i cambi di contesto, ed usare tecniche per fare questo correttamente dipende dalla comprensione di parecchi concetti interdipendenti.
+</testo_normale>
+<testo_normale>
+L'infrastruttura fornita da <strong>asyncio</strong> è centrata su di un <em>ciclo di eventi</em> (event loop), un oggetto di prima classe responsabile per la gestione efficiente degli eventi I/O, eventi di sistema e cambiamenti di contesto di applicazioni. Sono fornite parecchie implementazioni del ciclo per trarre vantaggio con efficienza della capacità del sistema operativo. Mentre una impostazione predefinita ragionevole è di solito selezionata automaticamente, è anche possibile scegliere una implementazione particolare del ciclo di eventi all'interno dell'applicazione. Questo è utile sotto Windows, ad esempio, dove alcune classi di ciclo aggiungono supporto per processi esterni in un modo nel quale ne potrebbe beneficiare un ambiente I/O di rete.
+</testo_normale>
+<testo_normale>
+Una applicazione interagisce con il ciclo di eventi in modo esplicito registrando il codice da eseguirsi, e lascia che il ciclo di eventi faccia le chiamate necessarie all'interno del codice dell'applicazione quando le risorse sono disponibili. Ad esempio un server di rete apre dei <em>socket</em>, quindi li registra per potere essere notificato quando su di essi si manifestano degli eventi di input. Il ciclo di eventi allerta il codice del server quando vi è una connessione in arrivo o quando ci sono dati da leggere. Ci si attende che il codice dell'applicazione riguadagni il controllo nuovamente dopo un breve periodo di tempo quando non c'è più lavoro da fare nel contesto corrente. Ad esempio se non ci sono più dati da leggere da un socket il server dovrebbe riaffidare il controllo al ciclo di eventi.
+</testo_normale>
+<testo_normale>
+Il meccanismo per restituire il controllo al ciclo di eventi dipende dalle <em>coroutine</em> di Python, esse sono funzioni speciali per restituire il controllo al chiamante senza perdere il proprio stato. Le <em>coroutine</em> sono simili alle funzioni generatore, ad in effetti si possono usare generatori per implementare le <em>coroutine</em> in versioni di Python inferiori alla 3.5 senza il supporto nativo degli oggetti di <em>coroutine</em>. <strong>asyncio</strong> fornisce anche uno strato di astrazione basato su classi per protocolli e <em>trasporti</em> per scrivere codice usando <em>callback</em> invece di scrivere direttamente <em>coroutine</em>. In entrambi i modelli basati su classi e <em>coroutine</em> modificando esplicitamente il contesto ritornando nel ciclo di eventi equivale ad una implicita implementazione dei <em>threading</em> di Python per il cambio di contesto.
+</testo_normale>
+<testo_normale>
+Un <em>future</em> è una struttura dati che rappresenta il risultato di un lavoro che non è ancora stato completato. Il ciclo di eventi può monitorare un oggetto <code>Future</code> per vedere quando viene impostato come ultimato, consentendo ad una parte di applicazione di attendere che un'altra parte finisca un lavoro. A parte i <em>future</em>, <strong>asyncio</strong> fornisce altri primitivi di concorrenzialità come i bloccaggi (<em>locks</em>) e i semafori.
+</testo_normale>
+<testo_normale>
+Un <em>task</em> (compito) è una sottoclasse di <code>Future</code> che sa come impacchettare e gestire l'esecuzione per una <em>coroutine</em>. I <em>task</em> possono essere pianificati con un ciclo di eventi per essere eseguiti quando le risorse a essi necessarie sono disponibili, a per prodrurre un risultato che può essere consumato da altre <em>coroutine</em>.
+</testo_normale>
+<titolo_2>
+Multiasking Cooperativo con Coroutine
+</titolo_2>
+<testo_normale>
+Le <em>coroutine</em> sono un costrutto di linguaggio progettato per operazioni concorrenti. Una funzione <em>coroutine</em> crea un oggetto <em>coroutine</em> quando chiamata, poi il chiamante può eseguire il codice della funzione usando il metodo della <em>coroutine</em> <code>send()</code>. Una <em>coroutine</em> può mettere in pausa l'esecuzione usando la parola chiave <code>await</code> con un'altra <em>coroutine</em>. Mentre è il pausa, lo stato della <em>coroutine</em> viene mantenuto, in modo che possa essere ripreso dove era stato lasciato la prossima volta che viene chiamata in causa.
+</testo_normale>
+<titolo_3>
+Fare Partire una Coroutine
+</titolo_3>
+<testo_normale>
+Ci sono alcuni modi diversi per fare in modo che un ciclo di eventi <code>asyncio</code> faccia partire una <em>coroutine</em>. Quello più semplice è usare <code>run_until_complete()</code>, passandogli la <em>coroutine</em> direttamente.
+</testo_normale>
+<py_code>
+# asyncio_coroutine.py
+</py_code>
+<testo_normale>
+Il primo passo è ottenere un riferimento al ciclo di eventi. Può essere usato il tipo di ciclo predefinito, oppure può essere istanziata una classe di ciclo specifica. In questo esempio, si usa il ciclo predefinito. Il metodo <code>run_until_complete()</code> fa partire il ciclo con l'oggetto <em>coroutine</em> ed interrompe il ciclo quando la <em>coroutine</em> esce ritornando.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine.py
+</py_output>
+<titolo_3>
+Ritornare Valori da Coroutine
+</titolo_3>
+<testo_normale>
+Il valore di ritorno di una <em>coroutine</em> viene passato al codice che la fa partire e lo attende.
+</testo_normale>
+<vedi_anche>
+https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
+threading.html|threading|API di alto livello per lvaorare con i thread
+https://it.wikipedia.org/wiki/MapReduce|MapReduce - Wikipedia|Panoramica di MapReduce su Wikipedia
+http://research.google.com/archive/mapreduce.html|MapReduce: Simplified Dsta Processing on Large Clusters| Presentazione e documento su MapReduce da parte di Google Labs
+operator.html|Operator|Strumenti sugli operatori tipo <code>itemgetter</code>
+</vedi_anche>
+</documento_tradotto>
