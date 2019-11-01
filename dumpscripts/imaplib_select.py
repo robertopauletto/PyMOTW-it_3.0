@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_select.py
 
 import imaplib
 import imaplib_connect
 
-c = imaplib_connect.open_connection()
-try:
+with imaplib_connect.open_connection() as c:
     typ, data = c.select('INBOX')
-    print typ, data
+    print(typ, data)
     num_msgs = int(data[0])
-    print 'There are %d messages in INBOX' % num_msgs
-finally:
-    c.close()
-    c.logout()
+    print('Ci sono {} messaggi in INBOX'.format(num_msgs))

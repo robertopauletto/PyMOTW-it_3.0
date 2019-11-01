@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# fileinput_change_subnet.py
 
 import fileinput
 import sys
@@ -10,4 +9,4 @@ files = sys.argv[3:]
 
 for line in fileinput.input(files, inplace=True):
     line = line.rstrip().replace(from_base, to_base)
-    print line
+    print(line)

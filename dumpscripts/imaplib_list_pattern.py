@@ -1,17 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_list_pattern.py
 
 import imaplib
 
 from imaplib_connect import open_connection
 
-if __name__ == '__main__':
-    c = open_connection()
-    try:
-        typ, data = c.list(pattern='*Archive*')
-    finally:
-        c.logout()
-    print 'Codice risposta:', typ
+with open_connection() as c:
+    typ, data = c.list(pattern='*Esempio*')
 
-    for line in data:
-        print 'Risposta del server:', line
+print('Codice risposta:', typ)
+
+for line in data:
+    print('Risposta del server:', line)

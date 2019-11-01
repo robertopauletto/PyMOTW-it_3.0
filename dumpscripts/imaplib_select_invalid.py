@@ -1,12 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_select_invalid.py
 
 import imaplib
 import imaplib_connect
 
-c = imaplib_connect.open_connection()
-try:
+with imaplib_connect.open_connection() as c:
     typ, data = c.select('Non Esiste')
-    print typ, data
-finally:
-    c.logout()
+    print(typ, data)

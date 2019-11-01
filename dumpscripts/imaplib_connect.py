@@ -1,35 +1,32 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_connect.py
 
 import imaplib
-import ConfigParser
+import configparser
 import os
 
+
 def open_connection(verbose=False):
-    # Lettura del file di configurazione
-    config = ConfigParser.ConfigParser()
-    config.read([os.path.expanduser('~/.pymotw')])
+    # Legge il file di configurazione
+    config = configparser.ConfigParser()
+    config.read([os.path.expanduser('~/.pymotw3')])
 
     # Connessione al server
     hostname = config.get('server', 'hostname')
-    # Aggiunto dal traduttore per utilizzare come esempio
-    # un account su google
-    port = config.get('server', 'port')
-    # Aggiunto dal traduttore
-    
-    if verbose: print 'Connessione a', hostname
-    connection = imaplib.IMAP4_SSL(hostname,port)
+    if verbose:
+        print('Connessione a', hostname)
+    connection = imaplib.IMAP4_SSL(hostname)
 
-    # Connessione al proprio account
+    # Accesso all'utenza
     username = config.get('account', 'username')
     password = config.get('account', 'password')
-    if verbose: print 'Collegamento come', username
+    print(username, password)
+    if verbose:
+        print('Autenticazione come', username)
     connection.login(username, password)
     return connection
 
+
 if __name__ == '__main__':
-    c = open_connection(verbose=True)
-    try:
-        print c
-    finally:
-        c.logout()
+    with open_connection(verbose=True) as c:
+        print(c)
+

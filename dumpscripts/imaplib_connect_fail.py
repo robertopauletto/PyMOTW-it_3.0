@@ -1,25 +1,24 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_connect_fail.py
 
 import imaplib
-import ConfigParser
+import configparser
 import os
 
-# Read the config file
-config = ConfigParser.ConfigParser()
-config.read([os.path.expanduser('~/.pymotw')])
 
-# Connect to the server
+# Legge il file di configurazione
+config = configparser.ConfigParser()
+config.read([os.path.expanduser('~/.pymotw3')])
+
+# Connessione al server
 hostname = config.get('server', 'hostname')
-# Aggiunto dal traduttore per utilizzare come esempio
-# un account su google
-port = config.get('server', 'port')
-# Aggiunto dal traduttore
-print 'Connessione a', hostname
-connection = imaplib.IMAP4_SSL(hostname, port)
+print('Connessione a', hostname)
+connection = imaplib.IMAP4_SSL(hostname)
 
-# Login to our account
+# Accesso all'utenza
 username = config.get('account', 'username')
-password = 'questa-è-la-password-sbagliata'
-print 'Connesso come', username
-connection.login(username, password)
+password = 'password_errata'
+print('Autenticazione come', username)
+try:
+    connection.login(username, password)
+except Exception as err:
+    print('ERRORE:', err)

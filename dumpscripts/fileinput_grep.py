@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
+# fileinput_grep.py
 
 import fileinput
 import re
@@ -12,8 +11,7 @@ for line in fileinput.input(sys.argv[2:]):
         if fileinput.isstdin():
             fmt = '{lineno}:{line}'
         else:
-            fmt = '{filename:<20}:{lineno}:{line}'
-        print fmt.format(filename=fileinput.filename(),
+            fmt = '{filename}:{lineno}:{line}'
+        print(fmt.format(filename=fileinput.filename(),
                          lineno=fileinput.filelineno(),
-                         line=line.rstrip())
-
+                         line=line.rstrip()))

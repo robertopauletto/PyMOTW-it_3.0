@@ -35,8 +35,7 @@ def file_to_words(filename):
 
 def count_words(item):
     """Converte i dati partizionati per una parola in una tupla
-    che contiene la parola e il numero di occorrenze
-    .
+    che contiene la parola e il numero di occorrenze.
     """
     word, occurences = item
     return (word, sum(occurences))

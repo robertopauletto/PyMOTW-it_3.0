@@ -1,34 +1,26 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_fetch_separately.py
 
 import imaplib
 import pprint
 import imaplib_connect
 
-c = imaplib_connect.open_connection()
-try:
+with imaplib_connect.open_connection() as c:
     c.select('INBOX', readonly=True)
-    
-    print 'HEADER:'
+
+    print('INTESTAZIONE:')
     typ, msg_data = c.fetch('1', '(BODY.PEEK[HEADER])')
     for response_part in msg_data:
         if isinstance(response_part, tuple):
-            print response_part[1]
-    
-    print 'BODY TEXT:'
+            print(response_part[1])
+
+    print('\nTESTO NEL CORPO:')
     typ, msg_data = c.fetch('1', '(BODY.PEEK[TEXT])')
     for response_part in msg_data:
         if isinstance(response_part, tuple):
-            print response_part[1]
+            print(response_part[1])
 
-    print '\nFLAGS:'
+    print('\nSEGNALATORI:')
     typ, msg_data = c.fetch('1', '(FLAGS)')
     for response_part in msg_data:
-        print response_part
-        print imaplib.ParseFlags(response_part)
-finally:
-    try:
-        c.close()
-    except:
-        pass
-    c.logout()
+        print(response_part)
+        print(imaplib.ParseFlags(response_part))

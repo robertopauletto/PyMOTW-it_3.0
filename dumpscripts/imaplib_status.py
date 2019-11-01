@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# imaplib_status.py
 
 import imaplib
 import re
@@ -7,12 +6,14 @@ import re
 from imaplib_connect import open_connection
 from imaplib_list_parse import parse_list_response
 
-if __name__ == '__main__':
-    c = open_connection()
-    try:
-        typ, data = c.list()
-        for line in data:
-            flags, delimiter, mailbox_name = parse_list_response(line)
-            print c.status(mailbox_name, '(MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)')
-    finally:
-        c.logout()
+
+with open_connection() as c:
+    typ, data = c.list()
+    for line in data:
+        flags, delimiter, mailbox = parse_list_response(line)
+        print('Casella di posta', mailbox)
+        status = c.status(
+            '"{}"'.format(mailbox),
+            '(MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)'
+        )
+        print(status)

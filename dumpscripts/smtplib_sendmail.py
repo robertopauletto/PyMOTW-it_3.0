@@ -5,7 +5,7 @@ import email.utils
 from email.mime.text import MIMEText
 
 # Create the message
-msg = MIMEText('Questo è il corpo del messaggio.')
+msg = MIMEText('Questo il corpo del messaggio.')
 msg['To'] = email.utils.formataddr(('Recipient',
                                     'recipient@example.com'))
 msg['From'] = email.utils.formataddr(('Author',
