@@ -19,7 +19,7 @@ Concetti di Concorrenza Asincrona
 La maggior parte dei programmi che usano altri modelli di concorrenza sono scritti linearmente, e fanno affidamento sulla gestione del <em>thread</em> o del processo del linguaggio in fase di esecuzione o del sistema operativo per cambiare contesto quando appropriato. Una applicazione basata su <code>asyncio</code> richiede che il suo codice gestisca esplicitamente i cambi di contesto, ed usare tecniche per fare questo correttamente dipende dalla comprensione di parecchi concetti interdipendenti.
 </testo_normale>
 <testo_normale>
-L'infrastruttura fornita da <strong>asyncio</strong> è centrata su di un <em>ciclo di eventi</em> (event loop), un oggetto di prima classe responsabile per la gestione efficiente degli eventi I/O, eventi di sistema e cambiamenti di contesto di applicazioni. Sono fornite parecchie implementazioni del ciclo per trarre vantaggio con efficienza della capacità del sistema operativo. Mentre una impostazione predefinita ragionevole è di solito selezionata automaticamente, è anche possibile scegliere una implementazione particolare del ciclo di eventi all'interno dell'applicazione. Questo è utile sotto Windows, ad esempio, dove alcune classi di ciclo aggiungono supporto per processi esterni in un modo nel quale ne potrebbe beneficiare un ambiente I/O di rete.
+L'infrastruttura fornita da <strong>asyncio</strong> è centrata su di un <em>ciclo di eventi</em> (event loop), un oggetto di prima classe responsabile per la gestione efficiente degli eventi I/O, eventi di sistema e cambiamenti di contesto di applicazioni. Sono fornite parecchie implementazioni del ciclo per trarre vantaggio con efficienza delsyla capacità del sistema operativo. Mentre una impostazione predefinita ragionevole è di solito selezionata automaticamente, è anche possibile scegliere una implementazione particolare del ciclo di eventi all'interno dell'applicazione. Questo è utile sotto Windows, ad esempio, dove alcune classi di ciclo aggiungono supporto per processi esterni in un modo nel quale ne potrebbe beneficiare un ambiente I/O di rete.
 </testo_normale>
 <testo_normale>
 Una applicazione interagisce con il ciclo di eventi in modo esplicito registrando il codice da eseguirsi, e lascia che il ciclo di eventi faccia le chiamate necessarie all'interno del codice dell'applicazione quando le risorse sono disponibili. Ad esempio un server di rete apre dei <em>socket</em>, quindi li registra per potere essere notificato quando su di essi si manifestano degli eventi di input. Il ciclo di eventi allerta il codice del server quando vi è una connessione in arrivo o quando ci sono dati da leggere. Ci si attende che il codice dell'applicazione riguadagni il controllo nuovamente dopo un breve periodo di tempo quando non c'è più lavoro da fare nel contesto corrente. Ad esempio se non ci sono più dati da leggere da un socket il server dovrebbe riaffidare il controllo al ciclo di eventi.
@@ -59,6 +59,201 @@ Ritornare Valori da Coroutine
 </titolo_3>
 <testo_normale>
 Il valore di ritorno di una <em>coroutine</em> viene passato al codice che la fa partire e lo attende.
+</testo_normale>
+<py_code>
+# asyncio_coroutine_return.py
+</py_code>
+<testo_normale>
+In questo caso <code>run_until_complete</code> ritorna anche il risultato che la coroutine sta attendendo.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine_return.py
+</py_output>
+<titolo_3>
+Concatenare Coroutine
+</titolo_3>
+<testo_normale>
+Una coroutine può far partire un'altra coroutine ed attenderne il risultato. Questo facilita la suddivisione  di un compito in parti riutilizzabili. L'esempio seguente ha due fasi che devono essere eseguite in ordine, ma che possono essere eseguite concorrenzialmente con altre opearazioni
+</testo_normale>
+<py_code>
+# asyncio_coroutine_chain.py
+</py_code>
+<testo_normale>
+La parola chiave <code>await</code> viene usata invece che aggiungere le nuove coroutine al ciclo, poichè il flusso di controllo è già all'interno di una coroutine che è gestita da ciclo non è necessario dire al ciclo di gestire la nuova coroutine.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine_chain.py
+</py_output>
+<titolo_3>
+Generatori Invece che Coroutine
+</titolo_3>
+<testo_normale>
+Le funzioni coroutine sono una componente chiave della progettazione di <strong>asyncio</strong>. Esse forniscono un costrutto di linugaggio per interrompere l'esecuzione di parti di un programm, preservando lo stato di quella chiamate, e rientrando in quello stato successivamente, tutte importanti capacità per una infrastruttura di concorrenzialità.
+</testo_normale>
+<testo_normale>
+Python 3.5 ha intradotto nuove caratteristiche di linguaggio per definire nativamente dette coroutine usando <code>async def</code> e per mantenere il controllo usando <code>await</code>. Gli esempio per <strong>asyncio</strong> traggono vantaggio dalle nuove caratteristiche. Versioni precedenti di Python 3 possono usare funzioni generatore impacchetate con il decoratore <code>asyncio.coroutine()</code> e <code>yield from</code> per ottenere lo stesso effetto.
+</testo_normale>
+<py_code>
+# asyncio_generator.py
+</py_code>
+<testo_normale>
+L'esempio precedente riproduce <code>asyncio_coroutine_chain.py</code> usando funzioni generatore in luogo di coroutine native.
+</testo_normale>
+<py_output>
+$ python3 asyncio_generator.py
+</py_output>
+<titolo_2>
+Pianificare Chiamate a Funzioni Normali
+</titolo_2>
+<testo_normale>
+Oltre a gestire coroutine e <em>callback</em> I/O, il ciclo di eventi di <strong>asyncio</strong> può pianificare chiamate a funzioni normli in base al valore di temporizzazione conservato nel ciclo
+</testo_normale>
+<titolo_3>
+Pianificare un Callback "Presto"
+</titolo_3>
+<testo_normale>
+Se la tempistica del callback non importa, <code>call_soon()</code> può essere usato per pianificare la chiamata per la successiva iterazione del ciclo. Qualunque altro argomento posizionale dopo la funzione viene passato al <em>callback</em> quando viene invocato. Per passare argomenti nominali al <em>callback</em> si usi <code>partial()</code> dal modulo <a href='functools.html' target='_blank'>functools</a>.
+</testo_normale>
+<py_code>
+# asyncio_call_soon.py
+</py_code>
+<testo_normale>
+I <em>callback</em> sono invocati nell'ordine nel quale sono pianificati.
+</testo_normale>
+<py_output>
+$ python3 asyncio_call_soon.py
+</py_output>
+<titolo_3>
+Pianificare un Callback per uno Specifico Orario
+</titolo_3>
+<testo_normale>
+E' anche possibile pianificare una chiamata ad uno specifico orario. Il ciclo usa un orologio monotonico, invece che un orologio "da muro", per assicurarsi che il valore di "adesso" non regredisca mai. Per scegliere un orario per un <em>callback</em> pianificato, è necessario partire dallo stato interno di quell'orologio usando il metodo del ciclo <code>time()</code>.
+</testo_normale>
+<py_code>
+# asyncio_call_at.py
+</py_code>
+<testo_normale>
+Si noti che il tempo secondo il ciclo non corrisponde al valore ritornato da <code>time.time()</code>
+</testo_normale>
+<py_output>
+$ python3 asyncio_call_at.py
+</py_output>
+<titolo_2>
+Produrre Risultati In Modo Asincrono
+</titolo_2>
+<testo_normale>
+Un <code>Future</code> rappresenta il risultato di un lavoro che non è ancora stato completato. Il ciclo di eventi può osservare lo stato di un oggetto <code>Future</code> per verificare quando questo è terminato, consentendo a una parte di applicazione di attendere che un'altra finisca una qualche attività
+</testo_normale>
+<py_code>
+# asyncio_future_event_loop.py
+</py_code>
+<testo_normale>
+Lo stato delle modifiche di un <code>Future</code> cambia a completato quando <code>set_result()</code> viene chiamato e l'istanza di <code>Future</code> trattiene il risultato dabo al metodo per recuperarlo successivamente.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_event_loop.py
+</py_output>
+<testo_normale>
+Un <code>Future</code> può anche essere usato con la parola chiave <code>await</code>, come in questo esempio
+</testo_normale>
+<py_code>
+# asyncio_future_await.py
+</py_code>
+<testo_normale>
+Il risultato del <code>Future</code> viene ritornato da <code>await</code>, quindi è spesso possibile avere lo stesso codice che funziona sia con una <em>coroutine</em> normale che con una istanza di <code>Future</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_await.py
+</py_output>
+<titolo_3>
+Callaback di Future
+</titolo_3>
+<testo_normale>
+Un <code>Future</code>, oltre che lavorare come una coroutine, può invocare <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a>  quando è completato. I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> sono invocati nell'ordine nel quale sono registrati
+</testo_normale>
+<py_code>
+# asyncio_future_callback.py
+</py_code>
+<testo_normale>
+I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> dovrebbero attendersi un argomento, l'istanza di <code>Future</code>. Per passare argomenti addizionali, si usi <code>functools.partial()</code> per inglobarli.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_callback.py
+</py_output>
+<titolo_2>
+Eseguire Task in Concomitanza
+</titolo_2>
+<testo_normale>
+I task (attività) costituiscono uno dei modi principali per interagire con il ciclo di eventi. I task inglobano <em>coroutine</em> e rilevano quando esse vengono completate. I <code>Task</code>  sono sottoclassi di <code>Future</code> quindi le altre coroutine possono attenderli e ciascuno di esse ha un risultato che può essere recuperato dopo che l'attività viene completata.
+</testo_normale>
+<titolo_3>
+Far Partire un task
+</titolo_3>
+<testo_normale>
+Per far partire un Task si usi <code>create_task()</code> per creare un istanza di <code>Task</code>. L'attività risultante verrà eseguita come parte delle operazioni concomitanti gestite dal ciclo di eventi fino a quando il ciclo è in esecuzione e la <em>coroutine</em> non ritorna.
+</testo_normale>
+<py_code>
+# asyncio_create_task.py
+</py_code>
+<testo_normale>
+Questo esempio attende che l'attività ritorni un risulato prima che la funzione <code>main()</code> esca.
+</testo_normale>
+<py_output>
+$ python3 asyncio_create_task.py
+</py_output>
+<titolo_3>
+Cancellare un Task
+</titolo_3>
+<testo_normale>
+Mantenendo l'oggetto <code>Task</code> ritornato da <code>create_task()</code> è possibile cancellare l'operazione dell'attività prima che si completi.
+</testo_normale>
+<py_code>
+# asyncio_cancel_task.py
+</py_code>
+<testo_normale>
+Questo esempio crea, quindi cancella un task prima di far partire il ciclo di eventi. Il risultato è una eccezione <code>CancelledError</code> da <code>run_until_complete()</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_cancel_task.py
+</py_output>
+<testo_normale>
+Se l'attività è cancellata mentre sta attendento un'altra operazione concomitante, viene notificata della cancellazione sollevando una eccezione <code>CancelledError</code> sollevata al punto di attesa.
+</testo_normale>
+<py_code>
+# asyncio_cancel_task2.py
+</py_code>
+<testo_normale>
+Catturando l'eccezione si ha una opportunità di pulire il lavoro già fatto, se necessario.
+</testo_normale>
+<py_output>
+$ python3 asyncio_cancel_task2.py
+</py_output>
+<titolo_3>
+Creare Task da Coroutine
+</titolo_3>
+<testo_normale>
+La funzione <code>ensure_future()</code> ritorna un <code>Task</code> legato all'eseuzione di una <em>coroutine</em>. Quell'istanza di <code>Task</code> può essere quindi passata ad altro codice, il quale può attenderlo senza sapere come la <em>coroutine</em> originale sia stata costruita o chiamata.
+</testo_normale>
+<py_code>
+# asyncio_ensure_future.py
+</py_code>
+<testo_normale>
+Si noti che la <em>coroutine</em> data a <code>ensure_future()</code> non viene fatta partire fino a quando qualcosa usa <code>await</code> per consentirne l'esecuzione.
+</testo_normale>
+<py_output>
+$ python3 asyncio_ensure_future.py
+</py_output>
+<titolo_2>
+Comporre Coroutine con Strutture di Controllo
+</titolo_2>
+<testo_normale>
+Il flusso di controllo lineare tra una serie di coroutine è facile da gestire con la parola chiave <em>built-in</em> <code>await</code>. E' anche possibile tramite strumenti in <strong>asyncio</strong> che strutture più complicate consentono a una <em>coroutine</em> di attendere che diverse altre siano completate in parallelo.
+</testo_normale>
+<titolo_3>
+Attendere Multiple Coroutine
+</titolo_3>
+<testo_normale>
+E' spesso utile dividere una operazione in diverse parti, quindi eseguirle separatamente. Ad esempio, per scaricare diverse risorse remote o interrogare API remote. In situazioni nelle quali l'ordine di esecuzione non importa, e dove ci potrebbe essere un arbitrario numero di operazioni, <code>wait()</code> può essere usato per mettere in pausa una <em>coroutine</em> fino a quando le altre operazioni siano completate.
 </testo_normale>
 <vedi_anche>
 https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
