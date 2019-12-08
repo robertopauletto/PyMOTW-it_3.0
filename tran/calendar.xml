@@ -196,7 +196,7 @@ Lu Ma Me Je Ve Sa Di
 Calcoli sulle Date
 </titolo_2>
 <testo_normale>
-Sebbene il modulo <strong>calendar</strong> si focalizzi principalmente nello stampare interi calendari in vari formati, esso fornisce anche utili funzioni per lavorare con le date in altri modi, tipo il calcolare date per un evento ricorrente. Ad esempio il Python Atlanta User's Groop si incontra il secondo giovedì di ogni mese. Per calcolare le date degli incontri per un anno, si utilizza il valore restituito da <code>monthcalendar()</code>.
+Sebbene il modulo <strong>calendar</strong> si focalizzi principalmente nello stampare interi calendari in vari formati, esso fornisce anche utili funzioni per lavorare con le date in altri modi, tipo il calcolare date per un evento ricorrente. Ad esempio il Python Atlanta User's Group si incontra il secondo giovedì di ogni mese. Per calcolare le date degli incontri per un anno, si utilizza il valore restituito da <code>monthcalendar()</code>.
 </testo_normale>
 <py_code>
 # calendar_monthcalendar.py

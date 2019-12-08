@@ -14,9 +14,13 @@ SECRET_KEY = 'development'
 APP_NAME = 'PyMOTW builder - Generatore di pagine per PyMOTW-it 3'
 
 # Pubblicazione file
-PYMOTW_FTP_PORT=os.environ['PYMOTW_FTP_PORT']
-PYMOTW_FTP_PW=os.environ['PYMOTW_FTP_PW']
-PYMOTW_FTP_USER=os.environ['PYMOTW_FTP_USER']
-PYMOTW_FTP_URL=os.environ['PYMOTW_FTP_URL']
+# PYMOTW_FTP_PORT=os.environ['PYMOTW_FTP_PORT']
+# PYMOTW_FTP_PW=os.environ['PYMOTW_FTP_PW']
+# PYMOTW_FTP_USER=os.environ['PYMOTW_FTP_USER']
+# PYMOTW_FTP_URL=os.environ['PYMOTW_FTP_URL']
 
+PYMOTW_FTP_PORT = ""
+PYMOTW_FTP_PW = ""
+PYMOTW_FTP_USER = ""
+PYMOTW_FTP_URL = ""
 

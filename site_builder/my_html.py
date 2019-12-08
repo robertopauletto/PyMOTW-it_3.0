@@ -333,13 +333,15 @@ class MyHtml(object):
     def tr(self, value,  **kwargs):
         return self._get_start_end_tag('tr', value, **kwargs)
     
-    def table(self, values, **kwargs):
+    def table(self, values, caption=False, **kwargs):
         """(list of lists) -> str
         
         Compone una tabella; ogni elemento in `values` è una lista
         """
         rows = []
         with_header = 'with_header' in kwargs
+        if caption:
+            rows.append('<caption>{}</caption>'.format(values.pop(0)))
         for i, row in enumerate(values):
             if with_header and i == 0:
                 rows.append(self.tr(self.td(row, True)))

@@ -93,7 +93,14 @@ MY_TAGS = {
         h.table,
         with_header=True,
         class_='table table-responsive table-bordered table_striped table-hover'
+    ),
+    'tabella_semplice_con_legenda': partial(
+        h.table,
+        with_header=True,
+        caption=True,
+        class_='table table-responsive table-bordered table_striped table-hover'
     )
+
 }
 
 MY_TAG_KEYS = MY_TAGS.keys()
@@ -298,7 +305,8 @@ def check_my_tags(seq_elementi):
 # In produzione questo sparisce
 TEMP_FATTI = ('titolo_2', 'titolo_3', 'titolo_4', 'testo_normale',
               'lista', 'py_code', '', 
-              'py_output', 'vedi_anche', 'tabella_semplice', 'mk_xml_code', 
+              'py_output', 'vedi_anche', 'tabella_semplice',
+              'tabella_semplice_con_legenda', 'mk_xml_code',
               'avvertimento', 'note', 'titolo_3', 'deflist', 'sql_code', 
               'sottotitolo', 'lista_ricorsiva', 'py_code_lineno',
               'mk_xml_code_lineno', 'lista_ordinata')

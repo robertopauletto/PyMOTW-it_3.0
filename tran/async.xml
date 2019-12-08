@@ -255,6 +255,230 @@ Attendere Multiple Coroutine
 <testo_normale>
 E' spesso utile dividere una operazione in diverse parti, quindi eseguirle separatamente. Ad esempio, per scaricare diverse risorse remote o interrogare API remote. In situazioni nelle quali l'ordine di esecuzione non importa, e dove ci potrebbe essere un arbitrario numero di operazioni, <code>wait()</code> può essere usato per mettere in pausa una <em>coroutine</em> fino a quando le altre operazioni siano completate.
 </testo_normale>
+<py_code>
+# asyncio_wait.py
+</py_code>
+<testo_normale>
+Internamente, <code>wait()</code> usa un <code>set</code> per mantenere le istanze di <code>Task</code> create. Ne consegue che esse sono attivate e completate in un ordine non prevedibile. Il valore di ritorno da <code>wait()</code>  è una tupla che contiene due insiemi che racchiudono le attività finite e in corso.
+</testo_normale>
+<py_output>
+$ python3 asyncio_wait.py
+</py_output>
+<testo_normale>
+Se <code>wait()</code> viene usato con un valore di <em>timeout</em> rimarranno solo le operazioni in corso.
+</testo_normale>
+<py_code>
+# asyncio_wait_timeout.py
+</py_code>
+<testo_normale>
+Le operazioni rimanenti dovrebbero essere cancellate oppure si dovrebbe attenderne il completamento. Lasciarle in corso mentre il ciclo di eventi continua farà sì che esse vengano eseguite in seguito, il che potrebbe essere non desiderabile se l'operazione generale viene considerata come abortita. Se si lasciano pendenti alla fine del processo verranno generati avvertimenti.
+</testo_normale>
+<py_output>
+$ python3 asyncio_wait_timeout.py
+</py_output>
+<titolo_3>
+Raccogliere i Risultati dalle Coroutine
+</titolo_3>
+<testo_normale>
+Se le fasi sottostanti sono state ben definite, e solo i risultati di queste fasi hanno importanza, allora <code>gather()</code> potrebbe essere più utile per attendere operazioni multiple.
+</testo_normale>
+<py_code>
+# asyncio_gather.py
+</py_code>
+<testo_normale>
+Le attività create da <code>gather()</code> non sono esposte, in modo che non possano essere cancellate. IL valore di ritorno è una lista di risultati nello stesso ordine degli argomenti passati a <code>gather()</code>, a prescindere dall'ordine delle operazioni sottostanti effettivamente completate.
+</testo_normale>
+<py_output>
+$ python3 asyncio_gather.py
+</py_output>
+<titolo_3>
+Gestire le Operazioni Sottostanti Quando Finiscono
+</titolo_3>
+<testo_normale>
+<code>as_completed()</code> è un genratore che gestisce l'esecuzione di una lista di <em>coroutine</em> fornitegli e produce i loro risultati uno alla volta non appena vengono completate. Come con <code>wait()</code>, l'ordine non è garantito da <code>as_completed()</code>, ma non è ncessario attendere che tutte le operazioni sottostanti siano completate prima di intraprendere altre azioni.
+</testo_normale>
+<py_code>
+# asyncio_as_completed.py
+</py_code>
+<testo_normale>
+Questo esempio fa partire parecchie fasi che finiscono in ordine inverso rispetto a quello di partenza. Mentre il generatore viene consumato, il ciclo attende il risultato della coroutine usando <code>await</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_as_completed.py
+</py_output>
+<titolo_2>
+Sincronizzare i Primitivi
+</titolo_2>
+<testo_normale>
+Sebbene le applicazioni <code>asyncio</code> in genere vengano eseguite in un processo a singolo <em>thread</em>, sono comunque costruite come applicazioni concorrenti. Ogni coroutine o <em>task</em> potrebbero essere eseguiti in un ordine non previsto, in base alle pause e agli <em>interrupt</em> da I/O e altri eventi esterni. Per supportare una concorrenzialità sicura, <code>asyncio</code> include implementazioni di alcuni degli stessi primitivi a basso livello che si trovano nei moduli <a href='threading.html' target='_blank'>threading</a> e <a href='multiprocessing.html' target='_blank'>multiprocessing</a>.
+</testo_normale>
+<titolo_3>
+Bloccaggi (Locks)
+</titolo_3>
+<testo_normale>
+Un <code>Lock</code> può essre usato per sorvegliare gli accessi a una risorsa condivisa. Solo il possessore del bloccaggio può usare la risorsa. I tentativi multipl di acquisire un bloccaggio verranno bloccati in modo che si sia un solo possessore alla volta
+</testo_normale>
+<py_code>
+# asyncio_lock.py
+</py_code>
+<testo_normale>
+Il metodo <code>acquire</code> per un bloccaggio può essere chiamato direttamente, usando <code>await</code> chiamando poi <code>release()</code> quando terminato (come in <code>colo2()</code> in questo esempio). Possono anche essere usati come gestori di contesto asincroni con le parole chiave <code>with await</code>, come in <code>coro1()</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_lock.py
+</py_output>
+<titolo_3>
+Eventi
+</titolo_3>
+<testo_normale>
+Un evento <code>asyncio.Event</code> è basato su <code>threading.Event</code>, e viene usato per consentire a molteplici consumatori di attendere che succeda qualcosa senza cercare un valore specifico da associare con la notifica.
+</testo_normale>
+<py_code>
+# asyncio_event.py
+</py_code>
+<testo_normale>
+Così come con <code>Lock</code>, sia <code>coro1()</code> che <code>coro2()</code> attendono che un evento sia impostato. La differenza è che entrambe possono partire non appeno lo stato dell'evento cambia, e non devono acquisire un possesso esclusivo sull'evento oggetto.
+</testo_normale>
+<py_output>
+$ python3 asyncio_event.py
+</py_output>
+<titolo_3>
+Condizioni
+</titolo_3>
+<testo_normale>
+Una condizione (<code>condition</code>) funziona in modo simile a <code>Event</code> eccetto che invece che notificare a tutte le coroutine in attesa il numero di processi attivati viene controllato con un argomento per <code>notify()</code>.
+</testo_normale>
+<py_code>
+# asyncio_condition.py
+</py_code>
+<testo_normale>
+Questo esempio fa partire cinque consumantori di una <code>Condition</code>. Ognuno di essi usa il metodo <code>wait()</code> per attendere via notifica che possono procedere. <code>manipulate_condition()</code> notifica un consumatore, poi due, infine i restanti.
+</testo_normale>
+<py_output>
+$ python3 asyncio_condition.py
+</py_output>
+<titolo_3>
+Code
+</titolo_3>
+<testo_normale>
+<code>asyncio.Queue</code> fornisce una struttura dati primo-che-entra, primo-che-esce per le coroutine come cosse una una coda <code>queue</code>. <code>Queue</code> fa quello per i <em>thread</em> quello che <code>multiprocessing.Queue</code> fa per i processi.
+</testo_normale>
+<py_code>
+# asyncio_queue.py
+</py_code>
+<testo_normale>
+Le operazioni di aggiunta o rimozione di elementi rispettivamente con <code>put()</code> e <code>get()</code> sono entrambe asincrone, visto che la dimensione della coda potrebbe essere fissa (bloccando una aggiunta) o la coda potrebbe essere vuota (bloccando una chiamata per ottenere un elemento)
+</testo_normale>
+<py_output>
+$ python3 asyncio_queue.py
+</py_output>
+<titolo_2>
+Input/Output Asincrono con Astrazioni del Protocollo di Classe
+</titolo_2>
+<testo_normale>
+Fino a questo punto gli esempi hanno tutti evitato di mischiare concorrenza e operazioni I/O per focalizzarsi su un concetto alla votla. Tuttavia lo scambio di contesti con bloccaggi di I/O è uno dei casi di uso primari per <code>asyncio</code>. Basata su concetti di concorrenza già introdotti, questa sezione esamina due programmi di esempio che implementano un semplice server e client che ripetono quanto ricevuto, simili agli esempi usati per <a href='socket.html' target='_blank'>socket</a> e <a href='socketserver' target='_blank'>socketserver</a>. Un client può connettersi al server, inviare dati, quindi ricevere gli stessi dati in risposta. Ogni volta che viene iniziata una opearazione I/O, il codice in esecuzione passa il controllo al ciclo di eventi, consentendo l'esecuzione di altre attività fino a che l'I/O è pronto.
+</testo_normale>
+<titolo_3>
+Server Che Invia Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Il server inizia importando i moduli che gli servono per impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea un oggetto ciclo di eventi.
+</testo_normale>
+<py_code>
+# asyncio_echo_server_protocol.py
+
+import asyncio
+import logging
+import sys
+
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+Quindi definisce una sottoclasse di <code>asyncio.Protocol</code> per gestire la comunicazione con il client. I metodi dell'oggetto protocollo sono chiamati in base agli eventi associati con il <em>socket</em> del server
+</testo_normale>
+<py_code>
+class EchoServer(asyncio.Protocol):
+</py_code>
+<testo_normale>
+Ogni nuova connessione client attiva una chiamata a <code>connection_made()</code>. L'argomento <code>transport</code> è una istanza di <code>asyncio.Transport</code>, che fornisce una astrazione per eseguire I/O asincrono usando il <em>socket</em>. Diversi tipi di comunicazione forniscono diverse implementazioni del trasporto, tutte con la stessa API. Ad esempio ci sono classi di trasporto separate per lavorare con i <em>socket</em> e per lavorare con <em>pipe</em> per i sottoprocessi. L'indirizzo del client in arrivo è disponibile dal trasporto tramite <code>get_extra_info()</code>, un metodo specifico all'imolementazione.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        self.transport = transport
+        self.address = transport.get_extra_info('peername')
+        self.log = logging.getLogger(
+            'EchoServer_{}_{}'.format(*self.address)
+        )
+        self.log.debug('connessione accetata')
+</py_code>
+<testo_normale>
+Dopo che viene stabilita una connessione, quando vengono spediti dati dal client al server, viene invocato il metodo del protocollo <code>data_received()</code> per passare i dati da elaborar. I dati sono passati come stringa di <em>byte</em>, e spetta all'applicazione la decodifica nel modo appropriato. Qui il risultato viene registrato, quindi viene ritornata una risposta immediata al client tramite <code>transport.write()</code>.
+</testo_normale>
+<py_code>
+    def data_received(self, data):
+        self.log.debug('ricevuto {!r}'.format(data))
+        self.transport.write(data)
+        self.log.debug('inviato {!r}'.format(data))
+</py_code>
+<testo_normale>
+Alcuni trasporti supportano un indicatore speciale di fine file ("EOF"). Quando viene rilevato un EOF, viene chiamato il metodo <code>eof_received()</code>. In questa implementazione, EOF viene restituito al client per indicare che è stato ricevuto. Visto che non tutti i trasporti supportano un EOF esplicito, questo protocollo chiede prima al trasporto se sia sicuro inviare un EOF.
+</testo_normale>
+<py_code>
+    def eof_received(self):
+        self.log.debug('ricevuto EOF')
+        if self.transport.can_write_eof():
+            self.transport.write_eof()
+</py_code>
+<testo_normale>
+Quando viene chiusa una connessione, sia normalmente che a causa di un errore, il metodo del protocollo <code>connection_lost()</code> viene chiamato. Se si era verificato un errore, l'argomento contiene un oggetto eccezione appropriato. Altrimenti è <code>None</code>.
+</testo_normale>
+<py_code>
+    def connection_lost(self, error):
+        if error:
+            self.log.error('ERRORE: {}'.format(error))
+        else:
+            self.log.debug('chiusura')
+        super().connection_lost(error)
+</py_code>
+<testo_normale>
+Ci sono due passi da compiere per far partire il server. Prima l'applicazione dice al ciclo di eventi di creare un nuovo oggetto server usando il protocollo di classe, il nome host e il <em>socket</em> sul quale è in ascolto. Il metodo <code>create_server()</code> è una coroutine, quindi i risultati devono essere elaborati dal ciclo di eventi in ordine per far veramente partire il server. Il completamento della coroutine produce una istanza di <code>asyncio.Server</code> legata al ciclo di eventi.
+</testo_normale>
+<py_code>
+# Crea il server e lasci che il ciclo finisca la coroutine prima di far
+# partire il vero ciclo di eventi.
+factory = event_loop.create_server(EchoServer, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+log.debug('in partenza on {} porta {}'.format(*SERVER_ADDRESS))
+</py_code>
+<testo_normale>
+Il ciclo di eventi poi deve esser eseguito nell'ordine per elaborare eventi e gestire le richieste del client. Per un servizio che debba restare in esecuione per lungo tempo, il metodo <code>run_forever()</code> è il modo più semplice per farlo. Quando viene arrestato un ciclo di eventi, sia dal codice applicativo che da un segnale inviato al processo, il server può essere chiuso per pulire correttamente il <em>socket</em>, quindi il ciclo di eventi può essere chiuso per terminare la gestione di altre coroutine prima che il programma esca.
+</testo_normale>
+<py_code>
+# Entra nel ciclo di eventi in modo permanente per gestire tutte le connessioni
+try:
+    event_loop.run_forever()
+finally:
+    log.debug('chiusura del server')
+    server.close()
+    event_loop.run_until_complete(server.wait_closed())
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Client Che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+
+</testo_normale>
 <vedi_anche>
 https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
 threading.html|threading|API di alto livello per lvaorare con i thread

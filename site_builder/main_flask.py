@@ -82,6 +82,8 @@ def new_article():
         builder_config['new_article_folder'],
         builder_config['new_article_template']
     )
+    if 'ati' in session:
+        form.add_to_index.data = session['ati']
     form.categ.choices = get_categorie(builder_config['file_categories'])
     save_categorie(builder_config['file_categories'],
                    [c[0] for c in form.categ.choices])
@@ -94,6 +96,7 @@ def new_article():
         pubdate = form.publish_date.data
         ati = form.add_to_index.data
         outfile = os.path.join(builder_config['tran_dir'], nome_modulo + '.xml')
+        session['ati'] = ati
 
         crea_nuovo_articolo(
             outfile=outfile,
