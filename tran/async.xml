@@ -477,8 +477,484 @@ finally:
 Client Che Riceve Quanto Inviato
 </titolo_3>
 <testo_normale>
-
+La costruzione di un client è molto simile a quella di un server. Il codice inizia sempre con l'importazione dei moduli, quindi occorre impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi viene creato un oggetto per la gestione del ciclo di eventi
 </testo_normale>
+<py_code>
+# asyncio_echo_client_protocol.py
+
+import asyncio
+import functools
+import logging
+import sys
+
+MESSAGES = [
+    b'Questo è il messaggio. ',
+    b'Sarà inviato ',
+    b'in parti.',
+]
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+La classe derivata da <code>asyncio.Protocol</code> definisce gli stessi metodi del server, con implementazioni differenti. Il costruttore della classe accetta due argomenti, una lista dei messaggi da inviare e una istanza di <code>Future</code> da usare per segnalare che il client ha completato un ciclo di lavoro in quanto ha ricevuto una risposta dal server.
+</testo_normale>
+<py_code>
+class EchoClient(asyncio.Protocol):
+
+    def __init__(self, messages, future):
+        super().__init__()
+        self.messages = messages
+        self.log = logging.getLogger('EchoClient')
+        self.f = future
+</py_code>
+<testo_normale>
+Quando il client si connette con successo al server, inizia immediatamente la comunicazione. La sequenza dei messaggi viene inviata una alla vota, anche se il codice di rete sottostante possa combinare più messaggi in un'unica tramissione. Quando tutti i messaggi sono consumati, viene inviato un EOF.
+</testo_normale>
+<testo_normale>
+Anche se sembra che tutti i dati siano stati inviati immediatamente, in effetti l'oggetto trasportatore parcheggia i dati in uscita e imposta un <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> per inviare effettivamente i dati quando il <a href='https://www.wikiwand.com/it/Buffer' target='_blank'><em>buffer</em>r</a>  del <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'><em>socket</em>r</a>  è pronto a ricevere dati. Tutto questo è gestito in modo trasparente, quindi il codice dell'applicazione può essere scritto come se le operazioni di I/O avvenissero immediatamente.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        self.transport = transport
+        self.address = transport.get_extra_info('peername')
+        self.log.debug(
+            'connessione a {} porta {}'.format(*self.address)
+        )
+        # Potrebbe essere transport.writelines() eccetto che
+        # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+        # che sta per essere spedito..
+        for msg in self.messages:
+            transport.write(msg)
+            self.log.debug('in invio {!r}'.format(msg))
+        if transport.can_write_eof():
+            transport.write_eof()
+</py_code>
+<testo_normale>
+Quando viene ricevuta la risposta dal server, viene registrata.
+</testo_normale>
+<py_code>
+    def data_received(self, data):
+        self.log.debug('ricevuto {!r}'.format(data))
+</py_code>
+<testo_normale>
+Sia che venga ricevuto un marcatore di fine file (EOF) oppure che la connessione sia chiusa lato server, l'oggetto trasportatore locale vien chiuso e l'oggetto <code>Future</code> viene marcato come completato, impostandone il risultato
+</testo_normale>
+<py_code>
+    def eof_received(self):
+        self.log.debug('ricevuto EOF')
+        self.transport.close()
+        if not self.f.done():
+            self.f.set_result(True)
+
+    def connection_lost(self, exc):
+        self.log.debug('il server ha chiuso la connessione')
+        self.transport.close()
+        if not self.f.done():
+            self.f.set_result(True)
+        super().connection_lost(exc)
+</py_code>
+<testo_normale>
+Normalmente la classe derivata da <code>asyncio.Protocol</code> è passata al ciclo di eventi per creare la connessione. In questo caso, visto che il ciclo di eventi non ha un modo per passare argomenti supplementari al costruttore del protocollo, è necessario creare un <code>partial</code> per impacchettare la classe client e passare l'elenco dei messaggi da inviare e l'istanza di <code>Future</code>. Il nuovo chiamabile viene poi usato sul posto dalla classe quando si chiama <code>create_connection()</code> per stabilire la connessione client.
+</testo_normale>
+<py_code>
+client_completed = asyncio.Future()
+
+client_factory = functools.partial(
+    EchoClient,
+    messages=MESSAGES,
+    future=client_completed,
+)
+factory_coroutine = event_loop.create_connection(
+    client_factory,
+    *SERVER_ADDRESS,
+)
+</py_code>
+<testo_normale>
+Per attivare l'esecuzione del client, il ciclo di eventi viene chiamato una volta con la <em>coroutine</em> per creare il cliente, quindi nuovamente con l'istanza di <code>Future</code> data al client per comunicare quando ha terminato. Usando due chiamate si evita l'avere un ciclo infinito nel programma client, che probabilmente vorrebbe terminare dopo che ha finito di comunicare con il server. Se fosse usata solo la prima chiamata per attendere la <em>coroutine</em> per creare il client, potrebbero non essere propriamente elaborati tutti i dati di risposta  e la pulizia della connessione al server.
+</testo_normale>
+<py_code>
+log.debug('in attesa del client per completare')
+try:
+    event_loop.run_until_complete(factory_coroutine)
+    event_loop.run_until_complete(client_completed)
+finally:
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Risultato
+</titolo_3>
+<testo_normale>
+L'esecuzione del server in una finestra e del client in un'altra produce il seguente risultato
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_client_protocol.py
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_protocol.py
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_protocol.py
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+</py_output>
+<testo_normale>
+Anche se il client manda sempre i messaggi separatamente, la prima volta che il client viene eseguito, il server riceve un unico comprensivo messaggio e lo ritorna al client. Questi risultati variano in esecuzioni susseguenti, in base a quanto sia sovraccarica la rete e se i <a href='https://www.wikiwand.com/it/Buffer' target='_blank'><em>buffer</em>r</a> di rete siano svuotati prima che tutti i dati siano preparati.
+</testo_normale>
+<py_output>
+python3.7 asyncio_echo_server_protocol.py
+asyncio: Using selector: EpollSelector
+main: in partenza on localhost porta 10000
+EchoServer_127.0.0.1_46464: connessione accettata
+EchoServer_127.0.0.1_46464: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoServer_127.0.0.1_46464: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+EchoServer_127.0.0.1_46464: ricevuto EOF
+EchoServer_127.0.0.1_46464: chiusura
+
+EchoServer_127.0.0.1_46470: connessione accettata
+EchoServer_127.0.0.1_46470: ricevuto b"Questo e' il messaggio. "
+EchoServer_127.0.0.1_46470: inviato b"Questo e' il messaggio. "
+EchoServer_127.0.0.1_46470: ricevuto b"Sara' inviato in parti."
+EchoServer_127.0.0.1_46470: inviato b"Sara' inviato in parti."
+EchoServer_127.0.0.1_46470: ricevuto EOF
+EchoServer_127.0.0.1_46470: chiusura
+
+EchoServer_127.0.0.1_46472: connessione accettata
+EchoServer_127.0.0.1_46472: ricevuto b"Questo e' il messaggio. Sara' inviato "
+EchoServer_127.0.0.1_46472: inviato b"Questo e' il messaggio. Sara' inviato "
+EchoServer_127.0.0.1_46472: ricevuto b"in parti."
+EchoServer_127.0.0.1_46472: inviato b"in parti."
+EchoServer_127.0.0.1_46472: ricevuto EOF
+EchoServer_127.0.0.1_46472: chiusura
+</py_output>
+<titolo_2>
+I/O Asincrono Usando Coroutine e Canali
+</titolo_2>
+<testo_normale>
+Questa sezione esamina versioni alternative dei due programmi di esempio qui sopra, usando <em>coroutine</em> e <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per i canali di <code>asyncio</code> in luogo delle astrazioni di classi per il protocollo e il trasporto. Questi esempi operano a un livello di astrazione inveriore rispetto all'<a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> <code>Protocol</code> discussa precedentemente, ma gli eventi elaborati sono simili.
+</testo_normale>
+<titolo_3>
+Server Che Invia Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Il server inizia importando i moduli e deve impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea l'oggetto per il ciclo di eventi.
+</testo_normale>
+<py_code>
+# asyncio_echo_server_coroutine.py
+
+import asyncio
+import logging
+import sys
+
+SERVER_ADDRESS = ('localhost', 10000)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+Quindi definisce una coroutine per gestire la comunicazione. Ogni volta che si connette un client, viene invocata una nuova istanza della coroutine in modo che all'interno della funzione il codice comunichi con un solo client alla volta. Il linguaggio in esecuzione di Python gesetisce lo stato per ciascuna istanza di coroutine, in modo che il codice dell'applicazione non deve gestire strutture dati supplementari per tracciare client separati.
+</testo_normale>
+<testo_normale>
+Gli argomenti per le coroutine sono istanze di <code>StreamrReader</code> e <code>StreamWrite</code> associate con la nuova connessione. Così come per <code>Transport</code>, l'indirizzo del client può essere raggiunto attraverso il metodo <code>get_extra_info()</code>.
+</testo_normale>
+<py_code>
+async def echo(reader, writer):
+    address = writer.get_extra_info('peername')
+    log = logging.getLogger('echo_{}_{}'.format(*address))
+    log.debug('connessione accettata')
+</py_code>
+<testo_normale>
+Sebbele la coroutine sia chiamata quando viene stabilita la connessione, potrebbero non esserci ancora dati da leggere. Per evitare di bloccare mentre si sta leggendo, la coroutine usa <code>await</code> con la chiamata di <code>read()</code> per consentire al ciclo di eventi di proseguire elaborando altri compiti fino a quando non ci sono dati da leggere.
+</testo_normale>
+<py_code>
+    while True:
+        data = await reader.read(128)
+</py_code>
+<testo_normale>
+Se il client invia dati, sono ritornati da <code>await</code> e possono essere restituiti al client passandolo all'oggetto che li scrive. Chiamate multiple a <code>write()</code> possono essere usate per accumulare dati in uscita, per poi usare <code>drain()</code> per far uscire i dati. Visto che questa opearzione di I/O su rete può bloccare, ancora una volta viene usato <code>await</code> per riportare il controllo al ciclo di eventi, che monitora il <em>socket</em> di scrittura e chiama l'oggetto che scrive quando possibile per inviare ulteriori dati.
+</testo_normale>
+<py_code>
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+            writer.write(data)
+            await writer.drain()
+            log.debug('inviato {!r}'.format(data))
+</py_code>
+<testo_normale>
+Se il client non ha inviato dati, <code>read()</code> ritorna una stringa di byte vuota per indicare che la connessione è chiusa. Il server deve chiudere il socket per scrivere al client, poi la coroutine può ritornare per indicare che ha terminato.
+</testo_normale>
+<py_code>
+        else:
+            log.debug('in chiusura')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+Ci sono due passi per far partire il server. Prima l'applicazione dice al ciclo di eventi di creare un nuovo oggetto server usando la coroutine, il nome host e il <em>socket</em> sul quale ascoltare. Il metodo <code>start_server()</code> è esso stesso una coroutine, quindi i risultati devono essere elaborati dal ciclo di eventi per far effettivamente partire il server. Il completamento della coroutine produce una istanza di <code>asyncio.Server</code> legata al ciclo di eventi
+</testo_normale>
+<py_code>
+# Crea il server e lascia che ciclo termini la coroutine prima di far
+# partire il ciclo di eventi effettivo.
+factory = asyncio.start_server(echo, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+log.debug('in partenza su {} porta {}'.format(*SERVER_ADDRESS))
+</py_code>
+<testo_normale>
+Successivamente il ciclo di eventi deve essere eseguito per elaborare eventi e gestire le richieste dei cleint. Per un servizio che sia attivo per lunghi periodi, il metodo <code>run_forever()</code> è il modo più semplice per farlo. Quando il ciclo di eventi viene fermato, sia dal codice dell'applicazione che da un segnale inviato al processo, il server puà essere chiuso per pulire correttamente il <em>socket</em>, quindi il ciclo di eventi puà essere chiuso per finire la gestione di ogni altra coroutine prima che il programma esca.
+</testo_normale>
+<py_code>
+# Entra nel ciclo di eventi permanentemente per gestire tutte le connesisoni.
+try:
+    event_loop.run_forever()
+except KeyboardInterrupt:
+    pass
+finally:
+    log.debug('server in chiusura')
+    server.close()
+    event_loop.run_until_complete(server.wait_closed())
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Client che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+La costruzione di un client usando una <em>coroutine</em> è molto simile alla costruzione di un server. Ancora una volta il codice inizia importando i moduli necessari per impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea un oggetto per il ciclo di eventi
+</testo_normale>
+<py_code>
+# asyncio_echo_client_coroutine.py
+
+import asyncio
+import logging
+import sys
+
+MESSAGES = [
+    b"Questo e' il messaggio. ",
+    b"Sara' inviato ",
+    b'in parti.',
+]
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>echo_client</code> riceve argomenti che indicano dove sia il server e quale messaggi spedire
+</testo_normale>
+<py_code>
+async def echo_client(address, messages):
+</py_code>
+<testo_normale>
+La <em>coroutine</em> viene chiamata quando inizia l'attività, ma non ha connessioni attive con cui lavorare. Il primo passo, quindi, è quello di impostare al client la sua propria connessione. Usa <code>await</code> per evitare di bloccare altre attività mentre è in esecuzione la <em>coroutine</em> <code>open_connection()</code>.
+</testo_normale>
+<py_code>
+    log = logging.getLogger('echo_client')
+
+    log.debug('connessione a {} porta {}'.format(*address))
+    reader, writer = await asyncio.open_connection(*address)
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>open_connection()</code> ritorna istanze di <code>StreamReader</code>  e <code>StreamWrite</code> associate con il nuovo socket. Il prossimo passo è usare l'oggetto di scrittura per inviare dati al server. Sul server, l'oggetto di scrittura accumulerà i dati in arrivo fino a che il socket è pronto oppure venga usato <code>drain()</code> per forzare la fuoriuscita. Visto questa azione di I/O sulla rete può bloccare, viene usato <code>async</code> ancora una volta per restituire il controllo al ciclo di eventi, il quale monitora il socket di scrittura e chiama l'oggetto che scrive quando possibile per inviare ulteriori dati.
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('in invio {!r}'.format(msg))
+    if writer.can_write_eof():
+        writer.write_eof()
+    await writer.drain()
+</py_code>
+<testo_normale>
+Successivamente il client cerca una risposa dal server tentando di leggere i dati fino che quando non rimane più nulla da leggere. Per evitare il bloccaggio su ogni singola chiamata di <code>read()</code>, <code>await</code> restituisce il controllo al ciclo di eventi. Se il server ha inviato dati, vengono registrati. Se il server non ha inviato dati, <code>read()</code> ritorna una stringa di byte vuota per indicate che la connessione è chiusa. Il client deve chiudere il socket usato per inviare dati al server, quindi ritornare per indicare che ha terminato.
+</testo_normale>
+<py_code>
+    log.debug('in attesa di risposta')
+    while True:
+        data = await reader.read(128)
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+        else:
+            log.debug('in chiusura')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+Per far partire il client, il ciclo di eventi viene chiamato con la <em>coroutine</em> per la creazione del client. L'utilizzo di <code>run_until_complete()</code> evita di avere un ciclo infinito nel programma client. Al contrario dell'esempio sul protocollo visto in precedenza, non è necessario un <em>future</em> separato per segnalare quando la coroutine è finita, poichè <code>echo_client()</code> contiene esso stesso tutta la logica client e non ritorna fino a che ha ricevuto una risposta e chiuso la connessione al server.
+</testo_normale>
+<titolo_3>
+Risultato
+</titolo_3>
+<testo_normale>
+L'esecuzione del server in una finestra di terminale e del client in un'altra, produce il seguente risultato
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_client_coroutine.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_coroutine.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_coroutine.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato "
+echo_client: ricevuto b"in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<testo_normale>
+Sebbene il client invii sempre i messaggi separatamente, le prime due volta che il client viene eseguito il server riceve un messaggio più grande che ripete al client. Questi risultati variano nelle esecuzioni successive, in base a quanto impegnata sia la rete e se i buffer di rete vengano svuotati prima che tutti i dati siano preparati.
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_server_coroutine.py
+
+asyncio: Using selector: EpollSelector
+main: in partenza su localhost porta 10000
+echo_127.0.0.1_50818: connessione accettata
+echo_127.0.0.1_50818: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50818: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50818: in chiusura
+echo_127.0.0.1_50820: connessione accettata
+echo_127.0.0.1_50820: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50820: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50820: in chiusura
+echo_127.0.0.1_50822: connessione accettata
+echo_127.0.0.1_50822: ricevuto b"Questo e' il messaggio. Sara' inviato"
+echo_127.0.0.1_50822: inviato b"Questo e' il messaggio. Sara' inviato"
+echo_127.0.0.1_50822: ricevuto b" in parti"
+echo_127.0.0.1_50822: inviato b" in parti"
+echo_127.0.0.1_50822: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<titolo_2>
+Usare SSL
+</titolo_2>
+<testo_normale>
+<code>asyncio</code> ha incorporato il supporto per permetter di comunicazioni SSL sui socket. Il passaggio di una istanza di <code>SSLContext</code> alle <em>coroutine</em> che creano connessioni server o client abilita i supporto e fa sì che l'impostazione del protocollo SSL sia compiuta prima che il socket sia presentato come pronto all'utilizzo dall'applicazione
+</testo_normale>
+<testo_normale>
+I server e client basati sulle <em>coroutine</em> della sezione precedente possono essere aggiornati con pochi piccoli cambiamenti. Il primo passo è la creazione del certificato e dei file chiave. Un certificato auto firmato può essere create con un comando tipo:
+</testo_normale>
+<py_output>
+$ openssl req -newkey rsa:2048 -nodes -keyout pymotw.key \
+-x509 -days 365 -out pymotw.crt
+</py_output>
+<testo_normale>
+Il comando <code>openssl</code> richiederà all'utente diversi valor che verranno usati per generare il certificato, quindi produrrà i file in uscita richiesti.
+</testo_normale>
+<testo_normale>
+L'impostazione non sicura del socket dell'esempio del server precedente usa <code>start_server()</code> per creare il socket in ascolto.
+</testo_normale>
+<py_code>
+factory = asyncio.start_server(echo, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+</py_code>
+<testo_normale>
+Per aggiungere la codifica, si crei un oggetto <code>SSLContext</code> con il certificato e la chiave appena generati, quindi lo si passi a <code>start_server()</code>
+</testo_normale>
+<py_code>
+# Il certificato è creato con pymotw.com come nome host,
+# il che non corrisponderà quando il codice di esempio viene eseguito
+# altrove, quindi si disabiliti la verifica del nome host
+ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+ssl_context.check_hostname = False
+ssl_context.load_cert_chain('pymotw.crt', 'pymotw.key')
+
+# Crea il server e lascia che il ciclo finisca la coroutine prima di
+# far partire il ciclo di eventi effettivo
+factory = asyncio.start_server(echo, *SERVER_ADDRESS, ssl=ssl_context)
+</py_code>
+<testo_normale>
+Simili modifiche sono necessarie nel client. La vecchia versione usa <code>open_connection()</code> per creare il socket connesso al server
+</testo_normale>
+<py_code>
+reader, writer = await asyncio.open_connection(*address)
+</py_code>
+<testo_normale>
+Anche qui è richiesto un <code>SSLContext</code> per mettere in sicurezza la parte client del socket. L'identità del client non viene forzata, quindi si deve caricare solo il certificato.
+</testo_normale>
+<py_code>
+    # Il certificato è creato con pymotw.com come nome host,
+    # il che non corrisponderà quando il codice di esempio viene eseguito
+    # altrove, quindi si disabiliti la verifica del nome host
+    ssl_context = ssl.create_default_context(
+        ssl.Purpose.SERVER_AUTH,
+    )
+    ssl_context.check_hostname = False
+    ssl_context.load_verify_locations('pymotw.crt')
+    reader, writer = await asyncio.open_connection(
+        *server_address, ssl=ssl_context)
+</py_code>
+
+
 <vedi_anche>
 https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
 threading.html|threading|API di alto livello per lvaorare con i thread

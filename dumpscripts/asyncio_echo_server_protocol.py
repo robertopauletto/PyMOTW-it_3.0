@@ -23,7 +23,7 @@ class EchoServer(asyncio.Protocol):
         self.log = logging.getLogger(
             'EchoServer_{}_{}'.format(*self.address)
         )
-        self.log.debug('connessione accetata')
+        self.log.debug('connessione accettata')
 
     def data_received(self, data):
         self.log.debug('ricevuto {!r}'.format(data))
