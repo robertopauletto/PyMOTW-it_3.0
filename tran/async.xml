@@ -953,6 +953,530 @@ Anche qui è richiesto un <code>SSLContext</code> per mettere in sicurezza la pa
     reader, writer = await asyncio.open_connection(
         *server_address, ssl=ssl_context)
 </py_code>
+<testo_normale>
+Un'altra piccola modifica è richiesta nel client. Visto che la connessione SSL non supporta l'invio di un carattere di fine file (EOF), il client usa al suo postao un byte NULL.
+</testo_normale>
+<testo_normale>
+La vecchia versione del ciclo di invio del client usa <code>write_eof()</code>.
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('in invio {!r}'.format(msg))
+    if writer.can_write_eof():
+        writer.write_eof()
+    await writer.drain()
+</py_code>
+<testo_normale>
+La nuova versione invia byte zero (<code>b'\x00'</code>)
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('sending {!r}'.format(msg))
+    # SSL non supporta EOF, quindi si invia un byte null per indicare
+    # la fine del messaggio.
+    writer.write(b'\x00')
+    await writer.drain()
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>echo()</code> del server deve cercare il byte NULL e chiudere la connessione con il client quando esso viene ricevuto.
+</testo_normale>
+<py_code>
+async def echo(reader, writer):
+    address = writer.get_extra_info('peername')
+    log = logging.getLogger('echo_{}_{}'.format(*address))
+    log.debug('connessione accettata')
+
+    while True:
+        data = await reader.read(128)
+        terminate = data.endswith(b'\x00')
+        data = data.rstrip(b'\x00')
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+            writer.write(data)
+            await writer.drain()
+            log.debug('inviato {!r}'.format(data))
+        if not data or terminate:
+            log.debug('messaggio terminato, chiusura connessione')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+L'esecuzione del server in una finestra di terminale e del client in un'altra, produce questo risultato:
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_server_ssl.py
+asyncio: Using selector: EpollSelector
+main: in partenza su localhost porta 10000
+echo_127.0.0.1_54812: connessione accettata
+echo_127.0.0.1_54812: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_54812: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_54812: messaggio terminato, chiusura connessione
+
+$ python3.7 asyncio_echo_client_ssl.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: sending b"Questo e' il messaggio. "
+echo_client: sending b"Sara' inviato "
+echo_client: sending b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<titolo_3>
+Interagire con i Servizi di Nome di Dominio (DNS)
+</titolo_3>
+<testo_normale>
+Le applicazioni usano la rete per comunicare con i server per operazioni DNS tipo la conversione tras nomi host e indirizzi IP, <strong>asyncio</strong> ha metodi di convenienza sul ciclo di eventi per gestire queste operazioni in <em>background</em> senza bloccare durante le interrogazioni.
+</testo_normale>
+<titolo_3>
+Ricerca Indirizzo per Nome
+</titolo_3>
+<testo_normale>
+Si usi la <em>coroutine</em> <code>getaddrinfo()</code> per convertire un nome host e un numero di porta in un indirizzo IP o IPv6. Come per la versione della funzione del modulo <a href='socket.html' target='_blank'>socket</a> il valore ritornato è una tupla che contiene cinque elementi:
+</testo_normale>
+<lista_ordinata>
+La famiglia dell'indirizzo
+Il tipo di indirizzo
+Il protocollo
+Il nome canonico del server
+Una tupla con l'indirizzo del <em>socket</em> utilizzabile per aprire una connessione al server sulla porta specificata in origine.
+</lista_ordinata>
+<testo_normale>
+Le interrogazioni possono essere filtrate per protocollo, come in questo esempio, dove sono ritornate solo le risposte TCP.
+</testo_normale>
+<py_code>
+# asyncio_getaddrinfo.py
+</py_code>
+<testo_normale>
+Questo esempio converte un nome host e un protocollo in un indirizzo IP e numero di porta
+</testo_normale>
+<py_output>
+$ python3 asyncio_getaddrinfo.py
+
+pymotw.com          : 66.33.211.242
+robyp.x10host.com   : 198.91.81.13
+python.org          : 45.55.99.72
+</py_output>
+<titolo_3>
+Ricerca del Nome per Indirizzo
+</titolo_3>
+<testo_normale>
+La <em>coroutine</em> <code>getnameinfo()</code> converte un indirizzo IP in un nome host e un numero di porta in un nome di protocollo, dove possibile
+</testo_normale>
+<py_code>
+# asyncio_getnameinfo.py
+</py_code>
+<testo_normale>
+Questo esempio mostra che l'indirizzo IP per <code>xrobyp.x10hos.com</code> fa riferimento a un server specificato mentre quello per <code>python.org</code> non viene risolto in un nome host.
+</testo_normale>
+<py_output>
+$ python3 asyncio_getnameinfo.py
+
+104.130.43.121 : 104.130.43.121 https
+198.91.81.13   : xo12.x10hosting.com http
+</py_output>
+<titolo_2>
+Lavorare con Sottoprocessi
+</titolo_2>
+<testo_normale>
+E' di frequente necessario lavorare con altri programmi e processi, per trarre vantaggio dal codice esistente senza riscriverlo o per accedere a librerie o caratteristiche non disponibili all'interno di Python. Come per l'I/O di rete, <strong>asyncio</strong> include due astrazioni per lanciare un altro programma e interagire con esso.
+</testo_normale>
+<titolo_3>
+Usare l'Astrazione di Protocollo con Sottoprocessi
+</titolo_3>
+<testo_normale>
+Questo esempio usa una <em>coroutine</em> per lanciare un processo che esegue il comando unix <a href='https://www.wikiwand.com/it/Df_(Unix)' target='_blank'>df</a> per ottenere lo spazio libero su dischi locali. Usa <code>subprocess_exec()</code> per lanciare il processo e legarlo a una protocollo di classe che sa come leggere ed elaborare il risultato del comando <code>df</code>. I metodo della classe sono chiamati automaticamente in base a eventi I/O del sottoprocesso. Visto che entrambi gli argomenti <code>stdin</code> e <code>stderr</code> sono impostati a <code>None</code>, questi canali di comunicazione cono sono connessi al nuovo processo.
+</testo_normale>
+<py_code>
+asyncio_subprocess_protocol.py
+import asyncio
+import functools
+
+
+async def run_df(loop):
+    print('in run_df')
+
+    cmd_done = asyncio.Future(loop=loop)
+    factory = functools.partial(DFProtocol, cmd_done)
+    proc = loop.subprocess_exec(
+        factory,
+        'df', '-hl',
+        stdin=None,
+        stderr=None,
+    )
+    try:
+        print('launching process')
+        transport, protocol = await proc
+        print('waiting for process to complete')
+        await cmd_done
+    finally:
+        transport.close()
+
+    return cmd_done.result()
+</py_code>
+<testo_normale>
+La classe <code>DFProtocol</code> è derivata da <code>SubProcessProtocol</code>, che definisci una <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>api</a> per comunicare con un altro processo via conduttura. Ci si attende che l'argomento <code>done</code> sia un <code>Future</code> che il chiamante userà per conoscere quando termina il processo.
+</testo_normale>
+<py_code>
+class DFProtocol(asyncio.SubprocessProtocol):
+
+    FD_NAMES = ['stdin', 'stdout', 'stderr']
+
+    def __init__(self, done_future):
+        self.done = done_future
+        self.buffer = bytearray()
+        super().__init__()
+</py_code>
+<testo_normale>
+Come per la comunicazione via <em>socket</em>, viene chiamato <code>connection_made()</code> con descrittore di file dove i dati sono emessi e gli effettivi dati letti dalla conduttura. La classe salva il risultato dal canale di output standaard in un <em>buffer</em> per successiva elaborazione.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        print('processo iniziato {}'.format(transport.get_pid()))
+        self.transport = transport
+</py_code>
+<testo_normale>
+Così come per una comunicazione via <em>socket</em>, <code>connection_made()</code> viene chiamata quando i canali in input per il nuovo processo sono impoestati. L'argomento <code>transport</code> è una istanza di una sottoclasse di <code>BaseSubprocessTransport</code>. Può leggere dati fatti uscire dal processo e scrvere dati al canale in input per il processo, se il processo è stato configurato per ricevere input.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        print('processo iniziato {}'.format(transport.get_pid()))
+        self.transport = transport
+</py_code>
+<testo_normale>
+Quando il processo termina, viene chiamato <code>process_exited()</code>. Il codice di uscita del processo è disponibile dall'oggetto di trasporto tramite <code>get_returncode()</code>. In questo caso, se non ci sono errori segnalati il risultato disponibile viene decodificato ed elaborato prima di essere ritornato tramite l'istanza <code>Future</code>. Se c'è un errore, i risultati si considerano vuoti. L'impostazione del <code>Future</code> dice a <code>run_df()</code> che il processo è uscito, quindi viene effettuata una pulizia e ritornato il risultato.
+</testo_normale>
+<py_code>
+    def process_exited(self):
+        print('process uscito')
+        return_code = self.transport.get_returncode()
+        print('codice ritornato {}'.format(return_code))
+        if not return_code:
+            cmd_output = bytes(self.buffer).decode()
+            results = self._parse_results(cmd_output)
+        else:
+            results = []
+        self.done.set_result((return_code, results))
+</py_code>
+<testo_normale>
+Il risultato del comando viene disposto in una sequenza di dizionari che mappano i nomi dell'intestazione ai loro valori per ogni riga del risultato, quindi viene restituita la lista risultante
+</testo_normale>
+<py_code>
+    def _parse_results(self, output):
+        print('elaborazione risultati')
+        # Il risultato ha una riga di intestazioni, tutte parole singole.
+        # Le righe rimanenti sono una per il filesystem, con colonne
+        # che corrispondono alle intestazioni (assumendo che nessun punti di
+        # montaggio abbia spazi nel nome).
+        if not output:
+            return []
+        lines = output.splitlines()
+        headers = lines[0].split()
+        devices = lines[1:]
+        results = [
+            dict(zip(headers, line.split()))
+            for line in devices
+        ]
+        return results
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>run_df()</code> viene eseguita usando <code>run_until_complete()</code>, poi i risultati sono esaminati e viene stampato lo spazio libero su ogni dispositivo.
+</testo_normale>
+<py_code>
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        run_df(event_loop)
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('\nSpazio libero:')
+    for r in results:
+        print('{Mounted:25}: {Avail}'.format(**r))
+</py_code>
+<testo_normale>
+Il risultato qui sotto mostra la sequenza di passi compiuti, e lo spazio libero sui drive del sistema dove è stato eseguito il programma.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_protocol.py
+in run_df
+lancio del processo
+processo iniziato 14200
+in attesa del completamento del processo
+letti 1319 byte da stdout
+processo uscito
+codice ritornato 0
+elaborazione risultati
+
+Spazio libero:
+/dati2                   : 41G
+/dati3                   : 60G
+/dati                    : 47G
+/dati1                   : 30G
+</py_output>
+<titolo_3>
+Chiamare Sottoprocessi con Coroutine e Canali
+</titolo_3>
+<testo_normale>
+Per usare <em>coroutine</em> per eseguire direttamente un processo, invece che accedervi tramite una sottoclasse di <code>Protocol</code>, si chiami <code>create_subprocess_exec()</code> e si specifichi quale si <code>stdout</code>, <code>stderr</code>, e <code>stdin</code> connettere a una conduttura. Il risultato della generazione del processo da parte della <em>coroutine</em> è una istanza di <code>Process</code> che può essere usata per manipolare il sottoprocesso o comuincare con esso.
+</testo_normale>
+<py_code>
+# asyncio_subprocess_coroutine.py
+
+import asyncio
+import asyncio.subprocess
+
+
+async def run_df():
+    print('in run_df')
+
+    buffer = bytearray()
+
+    create = asyncio.create_subprocess_exec(
+        'df', '-hl',
+        stdout=asyncio.subprocess.PIPE,
+    )
+    print('processo lanciato')
+    proc = await create
+    print('processo partito {}'.format(proc.pid))
+</py_code>
+<testo_normale>
+In questo esempio, <code>df</code> non necessita di alcun input eccetto quello dei suoi argomenti da riga di comando, quindi il prossimo passo è leggere tutto il risultato. Con <code>Protocol</code> non vie è controllo su quanti dati vengono letti alla volta. Questo esempio usa <code>readline()</code> ma potrebbe anche chiamare <code>read()</code> direttamente per leggere dati che non siano riga per riga. Il risultato del commando viene conservato, come nell'esempio del protocollo, in modo che possa essere successivamente elaborato.
+</testo_normale>
+<py_code>
+    while True:
+        line = await proc.stdout.readline()
+        print('read {!r}'.format(line))
+        if not line:
+            print('non ci sono più risultati dal comando')
+            break
+        buffer.extend(line)
+</py_code>
+<testo_normale>
+Il metodo <code>readline()</code> ritorna un stringa di byte vuota quando non si sono più risultati in quanto il programma è terminato. Per assicurarsi che il processo sia pulito accuratamente, il passo successivo è attendere che il processo esca completamente.
+</testo_normale>
+<py_code>
+    print('in attesa di completamento del processo')
+    await proc.wait()
+</py_code>
+<testo_normale>
+A questo punto lo stato di uscita può essere esaminato per determinare se elaborare il risultato o trattarso come errore se non è stato prodotto alcun risultato. La logica di elaborazion è la stessa dell'esempio precedente, ma non in una funzione a se stante (qui non mostrata) visto che non vi è una classe protocollo nella quale nasconderla. Dopo che i dati sono stati elaborati, i risultati e il codice di uscita sono ritornati al chiamante.
+</testo_normale>
+<py_code>
+    return_code = proc.returncode
+    print('codice di ritorno {}'.format(return_code))
+    if not return_code:
+        cmd_output = bytes(buffer).decode()
+        results = _parse_results(cmd_output)
+    else:
+        results = []
+
+    return (return_code, results)
+</py_code>
+<testo_normale>
+Il programma principale è simile a quello basato sul protocollo, visto che le modifiche di implementazione sono isolate in <code>run_df()</code>
+</testo_normale>
+<py_code>
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        run_df()
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('\nSpazio libero:')
+    for r in results:
+        print('{Mounted:25}: {Avail}'.format(**r))
+</py_code>
+<testo_normale>
+Visto che il risultato da <code>df</code> può essere letto una riga per volta, viene replicato per mostrare l'avanzamento del programma. Altrimenti il risultato dell'esecuzione sarebbe simile a quello dell'esempio precedente.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_coroutine.py
+
+in run_df
+processo lanciato
+processo partito 20018
+letto b'Filesystem              Size  Used Avail Use% Mounted on\n'
+letto b'/dev/sda8                92G   47G   41G  54% /dati2\n'
+letto b'/dev/sda9               138G   71G   60G  55% /dati3\n'
+letto b'/dev/sda6                92G   41G   47G  47% /dati\n'
+letto b'/dev/sda7               184G  145G   30G  84% /dati1\n'
+letto b''
+non ci sono più risultati dal comando
+in attesa di completamento del processo
+codice di ritorno 0
+elaborazione risultati
+
+Spazio libero:
+/dati2                   : 41G
+/dati3                   : 60G
+/dati                    : 47G
+/dati1                   : 30G
+</py_output>
+<titolo_3>
+Inviare Dati a un Sottoprocesso
+</titolo_3>
+<testo_normale>
+Entrambi gli esempi precedenti usavano solo un singolo canale di comunicazione per leggere dati da un secondo processo. Spesso è necessario inviare dati a un comando affinchè avvenga l'elaborazione. Questo esempio definisce un <em>coroutine</em> per eseguire il comando Unix <a href='https://www.wikiwand.com/it/Tr_(Unix)' target='_blank'>tr</a> per tradurre caratteri nel suo canale in input. In questo caso, <code>tr</code> viene usato per convertire lettere minuscole in maiuscole.
+</testo_normale>
+<testo_normale>
+La <em>coroutine</em> <code>to_upper()</code> riceve come argomento un ciclo di eventi e una stringa. Genera un secondo processo che esegue "<code>tr [:lower] [:upper]</code>".
+</testo_normale>
+<py_code>
+# asyncio_subprocess_coroutine_write.py
+
+import asyncio
+import asyncio.subprocess
+
+
+async def to_upper(input):
+    print('in to_upper')
+
+    create = asyncio.create_subprocess_exec(
+        'tr', '[:lower:]', '[:upper:]',
+        stdout=asyncio.subprocess.PIPE,
+        stdin=asyncio.subprocess.PIPE,
+    )
+    print('processo lanciato')
+    proc = await create
+    print('pid {}'.format(proc.pid))
+</py_code>
+<testo_normale>
+<code>to_upper()</code> usa il metodo <code>communicate()</code> di <code>Process</code> per inviare la stringa in input al comando e leggere tutto il risultato, in modo asincrono. Come per la versione che usa <code>subprocess.Popen</code> dello stesso metodo, <code>communicate()</code> ritorna il risultato completo come stringa di byte. Se è probabile che un comando possa produrre un risultato che non possa essere conservato agevolmente in memoria, l'input non può essere prodotto tutto in una volta, oppure il risultato deve essere elaborato in modo incrementale; è possibile usare i gestori di stdin, stdout e stderr di <code>Process</code> direttamente invece che chiamare <code>communicate()</code>.
+</testo_normale>
+<py_code>
+    print('communicazione con il processo')
+    stdout, stderr = await proc.communicate(input.encode())
+</py_code>
+<testo_normale>
+Dopo il completamento delle operazioni di I/O, l'attendere che il processo esca completamente assicura che sia propriamente pulito.
+</testo_normale>
+<py_code>
+    print('in attesa del completamento del processo')
+    await proc.wait()
+</py_code>
+<testo_normale>
+Il codice di ritorno può essere poi esaminato e la stringa di byte decodificata, per preparare il valore di ritorno dalla <em>coroutine</em>.
+</testo_normale>
+<py_code>
+    return_code = proc.returncode
+    print('return code {}'.format(return_code))
+    if not return_code:
+        results = bytes(stdout).decode()
+    else:
+        results = ''
+
+    return (return_code, results)
+</py_code>
+<testo_normale>
+La parte principale del programma imposta una stringa di messaggio da trasformare, quindi imposta il ciclo di eventi per eseguire <code>to_upper()</code> e stampare il risultato.
+</testo_normale>
+<py_code>
+MESSAGE = """
+Questo messaggio sara' convertito a
+tutte maiuscole.
+"""
+
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        to_upper(MESSAGE)
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('Originale : {!r}'.format(MESSAGE))
+    print('Modificato: {!r}'.format(results))
+</py_code>
+<testo_normale>
+Il risultato mostra la sequenza di operazioni, quindi come il messaggio di testo viene trasformato.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_coroutine_write.py
+
+in to_upper
+processo lanciato
+pid 25350
+communicazione con il processo
+in attesa del completamento del processo
+codice di ritorno 0
+Originale : "\nQuesto messaggio sara' convertito a\ntutte maiuscole.\n"
+Modificato: "\nQUESTO MESSAGGIO SARA' CONVERTITO A\nTUTTE MAIUSCOLE.\n"
+</py_output>
+<titolo_2>
+Ricevere Segnali Unix
+</titolo_2>
+<testo_normale>
+Le notifiche di eventi del sistema Unix in genere interrompe una applicazione, attivando i propri gestori. Quanto usate con <strong>asyncio</strong> i <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono interconnessi con le altre <em>coroutine</em> e <em>callback</em> gestiti dal ciclo di eventi. Il che si traduce in meno funzioni interrote, e la risultante esigenza è di fornire salvaguardie per pulire operazioni imcomplete.
+</testo_normale>
+<testo_normale>
+I gestori di segnali devono essere normali chiamabili, non <em>coroutine</em>
+</testo_normale>
+<py_code>
+# asyncio_signal.py
+
+import asyncio
+import functools
+import os
+import signal
+
+
+def signal_handler(name):
+    print('signal_handler({!r})'.format(name))
+</py_code>
+<testo_normale>
+I gestori di segnale sono registrati usando <code>add_signale_handler()</code>. Il primo argomento è il segnale e il secondo è il <em>callback</em>. I <em>callback</em> sono passati senza argomenti quindi se ci sono argomenti necessari occorre impacchettare la funzione con <code>functools.partial()</code>.
+</testo_normale>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <vedi_anche>
