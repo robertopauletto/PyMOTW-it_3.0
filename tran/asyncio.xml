@@ -1,0 +1,1864 @@
+<xml version="1.0" encoding="Latin-1"?>
+<target>3</target>
+<categoria>Concomitanza con processi, thread e coroutines</categoria>
+<documento_tradotto>
+<titolo_1>
+asyncio - I/O Asincrono, ciclo di eventi e strumenti per la gestione della concorrenza
+</titolo_1>
+<descrizione>
+Una infrastruttura per I/O asincrono e concorrenza
+
+</descrizione>
+<testo_normale>
+Il modulo <strong>asyncio</strong> fornisce strumenti per costruire applicazioni concorrenti usando <em>coroutine</em>. Mentre il modulo <a href='threading.html' target='_blank'>threading</a> implementa la concorrenza attraverso <em>thread</em> di applicazione e <a href='multiprocessing.html' target='_blank'>multiprocessing</a> implementa la concorrenza usando processi di sistema, <strong>asyncio</strong> usa un approccio a <em>thread</em> singolo e processo singolo nel quale parti di un'applicazione cooperano per commutare compiti esplicitamente con tempistiche ottimali. Molto spesso questa commutazione di contesto  accade quando il programma sarebbe altrimenti bloccato in attesa di leggere o scrivere dati, ma <strong>asyncio</strong> include anche il supporto per pianificare l'esecuzione di codice ad una specifico spazio temporale futuro, per abilitare una <em>coroutine</em> ad attendere che un'altra si completi, per gestire segnali di sistema e per riconoscere altri eventi che possano costituire una ragione per un'applicazione per modificare quello su cui sta lavorando.
+</testo_normale>
+<titolo_2>
+Concetti di Concorrenza Asincrona
+</titolo_2>
+<testo_normale>
+La maggior parte dei programmi che usano altri modelli di concorrenza sono scritti linearmente, e fanno affidamento sulla gestione del <em>thread</em> o del processo del linguaggio in fase di esecuzione o del sistema operativo per cambiare contesto quando appropriato. Una applicazione basata su <strong>asyncio</strong> richiede che il suo codice gestisca esplicitamente i cambi di contesto, ed usi tecniche per fare questo correttamente dipende dalla comprensione di parecchi concetti interdipendenti.
+</testo_normale>
+<testo_normale>
+L'infrastruttura fornita da <strong>asyncio</strong> è centrata su di un <em>ciclo di eventi</em> (event loop), un oggetto di prima classe responsabile per la gestione efficiente degli eventi I/O, eventi di sistema e cambiamenti di contesto di applicazioni. Sono fornite parecchie implementazioni del ciclo per trarre vantaggio con efficienza della capacità del sistema operativo. Mentre una impostazione predefinita ragionevole è di solito selezionata automaticamente, è anche possibile scegliere una implementazione particolare del ciclo di eventi all'interno dell'applicazione. Questo è utile sotto Windows, ad esempio, dove alcune classi di ciclo aggiungono supporto per processi esterni in un modo nel quale ne potrebbe beneficiare un ambiente I/O di rete.
+</testo_normale>
+<testo_normale>
+Una applicazione interagisce con il ciclo di eventi in modo esplicito registrando il codice da eseguirsi, e lascia che il ciclo di eventi faccia le chiamate necessarie all'interno del codice dell'applicazione quando le risorse sono disponibili. Ad esempio un server di rete apre dei <em>socket</em>, quindi li registra per potere essere notificato quando su di essi si manifestano degli eventi di input. Il ciclo di eventi allerta il codice del server quando vi è una connessione in arrivo o quando ci sono dati da leggere. Ci si attende che il codice dell'applicazione ceda il controllo nuovamente dopo un breve periodo di tempo quando non c'è più lavoro da fare nel contesto corrente. Ad esempio se non ci sono più dati da leggere da un <em>socket</em> il server dovrebbe riaffidare il controllo al ciclo di eventi.
+</testo_normale>
+<testo_normale>
+Il meccanismo per restituire il controllo al ciclo di eventi dipende dalle <em>coroutine</em> di Python, esse sono funzioni speciali per restituire il controllo al chiamante senza perdere il proprio stato. Le <em>coroutine</em> sono simili alle funzioni generatore, ad in effetti si possono usare generatori per implementare le <em>coroutine</em> in versioni di Python inferiori alla 3.5 senza il supporto nativo degli oggetti di <em>coroutine</em>. <strong>asyncio</strong> fornisce anche uno strato di astrazione basato su classi per <em>protocolli</em> e <em>trasporti</em> per scrivere codice usando <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a>   invece di scrivere direttamente <em>coroutine</em>. In entrambi i modelli basati su classi e modelli di <em>coroutine</em> modificando esplicitamente il contesto ritornando nel ciclo di eventi equivale ad una implicita implementazione dei <em>threading</em> di Python per il cambio di contesto.
+</testo_normale>
+<testo_normale>
+Un <em>future</em> è una struttura dati che rappresenta il risultato di un lavoro che non è ancora stato completato. Il ciclo di eventi può monitorare un oggetto <code>Future</code> per vedere quando viene impostato come ultimato, consentendo ad una parte di applicazione di attendere che un'altra parte finisca un lavoro. A parte i <em>future</em>, <strong>asyncio</strong> fornisce altri primitivi di concorrenzialità come i bloccaggi (<em>locks</em>) e i semafori.
+</testo_normale>
+<testo_normale>
+Un <code>Task</code> (compito) è una sottoclasse di <code>Future</code> che sa come impacchettare e gestire l'esecuzione per una <em>coroutine</em>. I <em>task</em> possono essere pianificati con un ciclo di eventi per essere eseguiti quando le risorse a essi necessarie sono disponibili, e per produrre un risultato che può essere consumato da altre <em>coroutine</em>.
+</testo_normale>
+<titolo_2>
+Multiasking Cooperativo con Coroutine
+</titolo_2>
+<testo_normale>
+Le <em>coroutine</em> sono un costrutto di linguaggio progettato per operazioni concorrenti. Una funzione <em>coroutine</em> crea un oggetto <em>coroutine</em> quando chiamata, poi il chiamante può eseguire il codice della funzione usando il metodo della <em>coroutine</em> <code>send()</code>. Una <em>coroutine</em> può mettere in pausa l'esecuzione usando la parola chiave <code>await</code> con un'altra <em>coroutine</em>. Mentre è il pausa, lo stato della <em>coroutine</em> viene mantenuto, in modo che possa essere ripreso dove era stato lasciato la prossima volta che viene chiamata in causa.
+</testo_normale>
+<titolo_3>
+Fare Partire una Coroutine
+</titolo_3>
+<testo_normale>
+Ci sono alcuni modi diversi per fare in modo che un ciclo di eventi <code>asyncio</code> faccia partire una <em>coroutine</em>. Quello più semplice è usare <code>run_until_complete()</code>, passandogli la <em>coroutine</em> direttamente.
+</testo_normale>
+<py_code>
+# asyncio_coroutine.py
+</py_code>
+<testo_normale>
+Il primo passo è ottenere un riferimento al ciclo di eventi. Può essere usato il tipo di ciclo predefinito, oppure può essere istanziata una classe di ciclo specifica. In questo esempio, si usa il ciclo predefinito. Il metodo <code>run_until_complete()</code> fa partire il ciclo con l'oggetto <em>coroutine</em> ed interrompe il ciclo quando la <em>coroutine</em> esce ritornando.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine.py
+
+coroutine in partenza
+entrata nel ciclo di eventi
+nella coroutine
+chiusura del ciclo di eventi
+</py_output>
+<titolo_3>
+Ritornare Valori da Coroutine
+</titolo_3>
+<testo_normale>
+Il valore di ritorno di una <em>coroutine</em> viene passato al codice che la fa partire e lo attende.
+</testo_normale>
+<py_code>
+# asyncio_coroutine_return.py
+</py_code>
+<testo_normale>
+In questo caso <code>run_until_complete</code> ritorna anche il risultato che la coroutine sta attendendo.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine_return.py
+
+nella coroutine
+ritornato: 'risultato'
+</py_output>
+<titolo_3>
+Concatenare Coroutine
+</titolo_3>
+<testo_normale>
+Una coroutine può far partire un'altra coroutine ed attenderne il risultato. Questo facilita la suddivisione  di un compito in parti riutilizzabili. L'esempio seguente ha due fasi che devono essere eseguite in ordine, ma che possono essere eseguite concorrenzialmente con altre opearazioni
+</testo_normale>
+<py_code>
+# asyncio_coroutine_chain.py
+</py_code>
+<testo_normale>
+La parola chiave <code>await</code> viene usata invece che aggiungere le nuove coroutine al ciclo, poichè il flusso di controllo è già all'interno di una coroutine che è gestita da ciclo non è necessario dire al ciclo di gestire la nuova coroutine.
+</testo_normale>
+<py_output>
+$ python3 asyncio_coroutine_chain.py
+
+all'esterno
+in attesa di result1
+in phase1
+in attesa di result2
+in phase2
+valore ritornato: ('result1', 'result2 deriva da result1')
+</py_output>
+<titolo_3>
+Generatori Invece che Coroutine
+</titolo_3>
+<testo_normale>
+Le funzioni coroutine sono una componente chiave della progettazione di <strong>asyncio</strong>. Esse forniscono un costrutto di linugaggio per interrompere l'esecuzione di parti di un programm, preservando lo stato di quella chiamate, e rientrando in quello stato successivamente, tutte importanti capacità per una infrastruttura di concorrenzialità.
+</testo_normale>
+<testo_normale>
+Python 3.5 ha intradotto nuove caratteristiche di linguaggio per definire nativamente dette coroutine usando <code>async def</code> e per mantenere il controllo usando <code>await</code>. Gli esempio per <strong>asyncio</strong> traggono vantaggio dalle nuove caratteristiche. Versioni precedenti di Python 3 possono usare funzioni generatore impacchetate con il decoratore <code>asyncio.coroutine()</code> e <code>yield from</code> per ottenere lo stesso effetto.
+</testo_normale>
+<py_code>
+# asyncio_generator.py
+</py_code>
+<testo_normale>
+L'esempio precedente riproduce <code>asyncio_coroutine_chain.py</code> usando funzioni generatore in luogo di coroutine native.
+</testo_normale>
+<py_output>
+$ python3 asyncio_generator.py
+
+all'esterno
+in attesa di result1
+in phase1
+in attesa di result2
+in phase2
+valore ritornato: ('result1', 'result2 derived from result1')
+</py_output>
+<titolo_2>
+Pianificare Chiamate a Funzioni Normali
+</titolo_2>
+<testo_normale>
+Oltre a gestire coroutine e <em>callback</em> I/O, il ciclo di eventi di <strong>asyncio</strong> può pianificare chiamate a funzioni normli in base al valore di temporizzazione conservato nel ciclo
+</testo_normale>
+<titolo_3>
+Pianificare un Callback "Presto"
+</titolo_3>
+<testo_normale>
+Se la tempistica del callback non importa, <code>call_soon()</code> può essere usato per pianificare la chiamata per la successiva iterazione del ciclo. Qualunque altro argomento posizionale dopo la funzione viene passato al <em>callback</em> quando viene invocato. Per passare argomenti nominali al <em>callback</em> si usi <code>partial()</code> dal modulo <a href='functools.html' target='_blank'>functools</a>.
+</testo_normale>
+<py_code>
+# asyncio_call_soon.py
+</py_code>
+<testo_normale>
+I <em>callback</em> sono invocati nell'ordine nel quale sono pianificati.
+</testo_normale>
+<py_output>
+$ python3 asyncio_call_soon.py
+
+entrata nel ciclo di eventi
+registrazione callbacks
+callback chiamato con 1 e default
+callback chiamato con 2 e non default
+chiusura del ciclo di eventi
+</py_output>
+<titolo_3>
+Pianificare un Callback per uno Specifico Orario
+</titolo_3>
+<testo_normale>
+E' anche possibile pianificare una chiamata ad uno specifico orario. Il ciclo usa un orologio monotonico, invece che un orologio "da muro", per assicurarsi che il valore di "adesso" non regredisca mai. Per scegliere un orario per un <em>callback</em> pianificato, è necessario partire dallo stato interno di quell'orologio usando il metodo del ciclo <code>time()</code>.
+</testo_normale>
+<py_code>
+# asyncio_call_at.py
+</py_code>
+<testo_normale>
+Si noti che il tempo secondo il ciclo non corrisponde al valore ritornato da <code>time.time()</code>
+</testo_normale>
+<py_output>
+$ python3 asyncio_call_at.py
+
+entrata nel ciclo di eventi
+orario dell'orologio: 1578425160.2366767
+orario del ciclo: 9354.619629288
+registrazione dei callback
+callback 3 chiamato a 9354.619700045
+callback 2 chiamato a 9354.719899194
+callback 1 chiamato a 9354.820147853
+chiusura del ciclo di eventi
+</py_output>
+<titolo_2>
+Produrre Risultati In Modo Asincrono
+</titolo_2>
+<testo_normale>
+Un <code>Future</code> rappresenta il risultato di un lavoro che non è ancora stato completato. Il ciclo di eventi può osservare lo stato di un oggetto <code>Future</code> per verificare quando questo è terminato, consentendo a una parte di applicazione di attendere che un'altra finisca una qualche attività
+</testo_normale>
+<py_code>
+# asyncio_future_event_loop.py
+</py_code>
+<testo_normale>
+Lo stato delle modifiche di un <code>Future</code> cambia a completato quando <code>set_result()</code> viene chiamato e l'istanza di <code>Future</code> trattiene il risultato dabo al metodo per recuperarlo successivamente.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_event_loop.py
+
+pianificazione mark_done
+entrata nel ciclo di eventi
+Impostazione del risultato future a 'il risultato'
+risultato restituito: 'il risultato'
+chiusura del ciclo di eventi
+risultato future: 'il risultato'
+</py_output>
+<testo_normale>
+Un <code>Future</code> può anche essere usato con la parola chiave <code>await</code>, come in questo esempio
+</testo_normale>
+<py_code>
+# asyncio_future_await.py
+</py_code>
+<testo_normale>
+Il risultato del <code>Future</code> viene ritornato da <code>await</code>, quindi è spesso possibile avere lo stesso codice che funziona sia con una <em>coroutine</em> normale che con una istanza di <code>Future</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_await.py
+
+pianificazione di mark_done
+impostazione del risultato del future a 'il risultato'
+risultato ritornato: 'il risultato'
+</py_output>
+<titolo_3>
+Callaback di Future
+</titolo_3>
+<testo_normale>
+Un <code>Future</code>, oltre che lavorare come una coroutine, può invocare <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a>  quando è completato. I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> sono invocati nell'ordine nel quale sono registrati
+</testo_normale>
+<py_code>
+# asyncio_future_callback.py
+</py_code>
+<testo_normale>
+I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> dovrebbero attendersi un argomento, l'istanza di <code>Future</code>. Per passare argomenti addizionali, si usi <code>functools.partial()</code> per inglobarli.
+</testo_normale>
+<py_output>
+$ python3 asyncio_future_callback.py
+
+registrazione dei callbacks sul future
+impostazione risultato del future
+1: future completato: il risultato
+2: future completato: il risultato
+</py_output>
+<titolo_2>
+Eseguire Task in Concomitanza
+</titolo_2>
+<testo_normale>
+I task (attività) costituiscono uno dei modi principali per interagire con il ciclo di eventi. I task inglobano <em>coroutine</em> e rilevano quando esse vengono completate. I <code>Task</code>  sono sottoclassi di <code>Future</code> quindi le altre coroutine possono attenderli e ciascuno di esse ha un risultato che può essere recuperato dopo che l'attività viene completata.
+</testo_normale>
+<titolo_3>
+Far Partire un task
+</titolo_3>
+<testo_normale>
+Per far partire un Task si usi <code>create_task()</code> per creare un istanza di <code>Task</code>. L'attività risultante verrà eseguita come parte delle operazioni concomitanti gestite dal ciclo di eventi fino a quando il ciclo è in esecuzione e la <em>coroutine</em> non ritorna.
+</testo_normale>
+<py_code>
+# asyncio_create_task.py
+</py_code>
+<testo_normale>
+Questo esempio attende che l'attività ritorni un risulato prima che la funzione <code>main()</code> esca.
+</testo_normale>
+<py_output>
+$ python3 asyncio_create_task.py
+
+creazione task
+in attesa di <Task pending coro=<task_func() running at asyncio_create_task.py:6>>
+in task_func
+attività completato <Task finished coro=<task_func() done, defined at asyncio_create_task.py:6> result='il risultato'>
+valore ritornato: 'il risultato'
+</py_output>
+<titolo_3>
+Cancellare un Task
+</titolo_3>
+<testo_normale>
+Mantenendo l'oggetto <code>Task</code> ritornato da <code>create_task()</code> è possibile cancellare l'operazione dell'attività prima che si completi.
+</testo_normale>
+<py_code>
+# asyncio_cancel_task.py
+</py_code>
+<testo_normale>
+Questo esempio crea, quindi cancella un task prima di far partire il ciclo di eventi. Il risultato è una eccezione <code>CancelledError</code> da <code>run_until_complete()</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_cancel_task.py
+
+creazione task
+cancellazione task
+task cancellato <Task cancelling coro=<task_func() running at asyncio_cancel_task.py:6>>
+catturato errore dal task cancellato
+</py_output>
+<testo_normale>
+Se l'attività è cancellata mentre sta attendento un'altra operazione concomitante, viene notificata della cancellazione sollevando una eccezione <code>CancelledError</code> sollevata al punto di attesa.
+</testo_normale>
+<py_code>
+# asyncio_cancel_task2.py
+</py_code>
+<testo_normale>
+Catturando l'eccezione si ha una opportunità di pulire il lavoro già fatto, se necessario.
+</testo_normale>
+<py_output>
+$ python3 asyncio_cancel_task2.py
+
+creazione task
+in task_func, in pausa
+in task_canceller
+cancellazione del task
+task_func è stata cancellata
+anche main() vede il task come cancellato
+</py_output>
+<titolo_3>
+Creare Task da Coroutine
+</titolo_3>
+<testo_normale>
+La funzione <code>ensure_future()</code> ritorna un <code>Task</code> legato all'eseuzione di una <em>coroutine</em>. Quell'istanza di <code>Task</code> può essere quindi passata ad altro codice, il quale può attenderlo senza sapere come la <em>coroutine</em> originale sia stata costruita o chiamata.
+</testo_normale>
+<py_code>
+# asyncio_ensure_future.py
+</py_code>
+<testo_normale>
+Si noti che la <em>coroutine</em> data a <code>ensure_future()</code> non viene fatta partire fino a quando qualcosa usa <code>await</code> per consentirne l'esecuzione.
+</testo_normale>
+<py_output>
+$ python3 asyncio_ensure_future.py
+
+in entrata nel ciclo di eventi
+starter: creazione task
+starter: in attesa di inner
+inner: in partenza
+inner: in attesa di <Task pending coro=<wrapped() running at asyncio_ensure_future.py:6>>
+impacchetato
+inner: task ritornato 'risultato'
+starter: inner ritornato
+</py_output>
+<titolo_2>
+Comporre Coroutine con Strutture di Controllo
+</titolo_2>
+<testo_normale>
+Il flusso di controllo lineare tra una serie di coroutine è facile da gestire con la parola chiave <em>built-in</em> <code>await</code>. E' anche possibile tramite strumenti in <strong>asyncio</strong> che strutture più complicate consentono a una <em>coroutine</em> di attendere che diverse altre siano completate in parallelo.
+</testo_normale>
+<titolo_3>
+Attendere Multiple Coroutine
+</titolo_3>
+<testo_normale>
+E' spesso utile dividere una operazione in diverse parti, quindi eseguirle separatamente. Ad esempio, per scaricare diverse risorse remote o interrogare API remote. In situazioni nelle quali l'ordine di esecuzione non importa, e dove ci potrebbe essere un arbitrario numero di operazioni, <code>wait()</code> può essere usato per mettere in pausa una <em>coroutine</em> fino a quando le altre operazioni siano completate.
+</testo_normale>
+<py_code>
+# asyncio_wait.py
+</py_code>
+<testo_normale>
+Internamente, <code>wait()</code> usa un <code>set</code> per mantenere le istanze di <code>Task</code> create. Ne consegue che esse sono attivate e completate in un ordine non prevedibile. Il valore di ritorno da <code>wait()</code>  è una tupla che contiene due insiemi che racchiudono le attività finite e in corso.
+</testo_normale>
+<py_output>
+$ python3 asyncio_wait.py
+
+partenza di main
+in attesa di completamento fasi
+nella fase 1
+nella fase 2
+nella fase 0
+completato per phase 0
+completato per phase 1
+completato per phase 2
+resultati: ['fase risulta 0', 'fase risulta 1', 'fase risulta 2']
+</py_output>
+<testo_normale>
+Se <code>wait()</code> viene usato con un valore di <em>timeout</em> rimarranno solo le operazioni in corso.
+</testo_normale>
+<py_code>
+# asyncio_wait_timeout.py
+</py_code>
+<testo_normale>
+Le operazioni rimanenti dovrebbero essere cancellate oppure si dovrebbe attenderne il completamento. Lasciarle in corso mentre il ciclo di eventi continua farà sì che esse vengano eseguite in seguito, il che potrebbe essere non desiderabile se l'operazione generale viene considerata come abortita. Se si lasciano pendenti alla fine del processo verranno generati avvertimenti.
+</testo_normale>
+<py_output>
+$ python3 asyncio_wait_timeout.py
+
+in partenza main
+si attende 0.1 per il completamento delle fasi
+nella fase 0
+nella fase 1
+nella fase 2
+fase 0 completata
+1 completate e 2 pendenti
+eliminazione dei tasks
+in uscita da main
+fase 1 cancellata
+fase 2 cancellata
+</py_output>
+<titolo_3>
+Raccogliere i Risultati dalle Coroutine
+</titolo_3>
+<testo_normale>
+Se le fasi sottostanti sono state ben definite, e solo i risultati di queste fasi hanno importanza, allora <code>gather()</code> potrebbe essere più utile per attendere operazioni multiple.
+</testo_normale>
+<py_code>
+# asyncio_gather.py
+</py_code>
+<testo_normale>
+Le attività create da <code>gather()</code> non sono esposte, in modo che non possano essere cancellate. IL valore di ritorno è una lista di risultati nello stesso ordine degli argomenti passati a <code>gather()</code>, a prescindere dall'ordine delle operazioni sottostanti effettivamente completate.
+</testo_normale>
+<py_output>
+$ python3 asyncio_gather.py
+
+in partenza main
+in attesa del completamento delle fasi
+in phase1
+in phase2
+terminata phase2
+terminata phase1
+results: ['risultato di phase1', 'risultato di phase2']
+</py_output>
+<titolo_3>
+Gestire le Operazioni Sottostanti Quando Finiscono
+</titolo_3>
+<testo_normale>
+<code>as_completed()</code> è un genratore che gestisce l'esecuzione di una lista di <em>coroutine</em> fornitegli e produce i loro risultati uno alla volta non appena vengono completate. Come con <code>wait()</code>, l'ordine non è garantito da <code>as_completed()</code>, ma non è ncessario attendere che tutte le operazioni sottostanti siano completate prima di intraprendere altre azioni.
+</testo_normale>
+<py_code>
+# asyncio_as_completed.py
+</py_code>
+<testo_normale>
+Questo esempio fa partire parecchie fasi che finiscono in ordine inverso rispetto a quello di partenza. Mentre il generatore viene consumato, il ciclo attende il risultato della coroutine usando <code>await</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_as_completed.py
+
+in partenza main
+in attesa del completamento delle fasi
+in fase 1
+in fase 2
+in fase 0
+fase 2 terminata
+risposta ricevuta 'risultato 2 fase'
+fase 1 terminata
+risposta ricevuta 'risultato 1 fase'
+fase 0 terminata
+risposta ricevuta 'risultato 0 fase'
+resultati: ['risultato 2 fase', 'risultato 1 fase', 'risultato 0 fase']
+</py_output>
+<titolo_2>
+Sincronizzare i Primitivi
+</titolo_2>
+<testo_normale>
+Sebbene le applicazioni <code>asyncio</code> in genere vengano eseguite in un processo a singolo <em>thread</em>, sono comunque costruite come applicazioni concorrenti. Ogni coroutine o <em>task</em> potrebbero essere eseguiti in un ordine non previsto, in base alle pause e agli <em>interrupt</em> da I/O e altri eventi esterni. Per supportare una concorrenzialità sicura, <code>asyncio</code> include implementazioni di alcuni degli stessi primitivi a basso livello che si trovano nei moduli <a href='threading.html' target='_blank'>threading</a> e <a href='multiprocessing.html' target='_blank'>multiprocessing</a>.
+</testo_normale>
+<titolo_3>
+Bloccaggi (Locks)
+</titolo_3>
+<testo_normale>
+Un <code>Lock</code> può essre usato per sorvegliare gli accessi a una risorsa condivisa. Solo il possessore del bloccaggio può usare la risorsa. I tentativi multipl di acquisire un bloccaggio verranno bloccati in modo che si sia un solo possessore alla volta
+</testo_normale>
+<py_code>
+# asyncio_lock.py
+</py_code>
+<testo_normale>
+Il metodo <code>acquire</code> per un bloccaggio può essere chiamato direttamente, usando <code>await</code> chiamando poi <code>release()</code> quando terminato (come in <code>colo2()</code> in questo esempio). Possono anche essere usati come gestori di contesto asincroni con le parole chiave <code>with await</code>, come in <code>coro1()</code>.
+</testo_normale>
+<py_output>
+$ python3 asyncio_lock.py
+
+acquisizione del bloccaggio prima di far partire coroutine
+bloccaggio acquisito: True
+in attesa di coroutines
+coro1 in attesa del bloccaggio
+coro2 in attesa del bloccaggio
+callback per rilasciare il bloccaggio
+coro1 ha acquisito il bloccaggio
+coro1 ha rilasciato il bloccaggio
+coro2 ha acquisito il bloccaggio
+coro2 ha rilasciato il bloccaggio
+</py_output>
+<titolo_3>
+Eventi
+</titolo_3>
+<testo_normale>
+Un evento <code>asyncio.Event</code> è basato su <code>threading.Event</code>, e viene usato per consentire a molteplici consumatori di attendere che succeda qualcosa senza cercare un valore specifico da associare con la notifica.
+</testo_normale>
+<py_code>
+# asyncio_event.py
+</py_code>
+<testo_normale>
+Così come con <code>Lock</code>, sia <code>coro1()</code> che <code>coro2()</code> attendono che un evento sia impostato. La differenza è che entrambe possono partire non appeno lo stato dell'evento cambia, e non devono acquisire un possesso esclusivo sull'evento oggetto.
+</testo_normale>
+<py_output>
+$ python3 asyncio_event.py
+
+stato di partenza evento: False
+coro1 in attesa dell'evento
+coro2 in attesa dell'evento
+impostazione evento in callback
+coro1 attivato
+coro2 attivato
+stato di fine evento: True
+</py_output>
+<titolo_3>
+Condizioni
+</titolo_3>
+<testo_normale>
+Una condizione (<code>condition</code>) funziona in modo simile a <code>Event</code> eccetto che invece che notificare a tutte le coroutine in attesa il numero di processi attivati viene controllato con un argomento per <code>notify()</code>.
+</testo_normale>
+<py_code>
+# asyncio_condition.py
+</py_code>
+<testo_normale>
+Questo esempio fa partire cinque consumantori di una <code>Condition</code>. Ognuno di essi usa il metodo <code>wait()</code> per attendere via notifica che possono procedere. <code>manipulate_condition()</code> notifica un consumatore, poi due, infine i restanti.
+</testo_normale>
+<py_output>
+$ python3 asyncio_condition.py
+
+manipulate_condition in partenza
+consumatore 4 in attesa
+consumatore 3 in attesa
+consumatore 1 in attesa
+consumatore 2 in attesa
+consumatore 0 in attesa
+notifica 1 consumatori
+consumatore 4 attivato
+chiusura consumatore 4
+notifica 2 consumatori
+consumatore 3 attivato
+chiusura consumatore 3
+consumatore 1 attivato
+chiusura consumatore 1
+notifica i consumatori rimanenti
+ending manipulate_condition
+consumatore 2 attivato
+chiusura consumatore 2
+consumatore 0 attivato
+chiusura consumatore 0
+</py_output>
+<titolo_3>
+Code
+</titolo_3>
+<testo_normale>
+<code>asyncio.Queue</code> fornisce una struttura dati primo-che-entra, primo-che-esce per le coroutine come cosse una una coda <code>queue</code>. <code>Queue</code> fa quello per i <em>thread</em> quello che <code>multiprocessing.Queue</code> fa per i processi.
+</testo_normale>
+<py_code>
+# asyncio_queue.py
+</py_code>
+<testo_normale>
+Le operazioni di aggiunta o rimozione di elementi rispettivamente con <code>put()</code> e <code>get()</code> sono entrambe asincrone, visto che la dimensione della coda potrebbe essere fissa (bloccando una aggiunta) o la coda potrebbe essere vuota (bloccando una chiamata per ottenere un elemento)
+</testo_normale>
+<py_output>
+$ python3 asyncio_queue.py
+
+consumatore 0: in partenza
+consumatore 0: in attesa di un elemento
+consumatore 1: in partenza
+consumatore 1: in attesa di un elemento
+produttore: in partenza
+produttore: aggiunto compito 0 alla coda
+produttore: aggiunto compito 1 alla coda
+consumatore 0: ha elemento 0
+consumatore 1: ha elemento 1
+produttore: aggiunto compito 2 alla coda
+produttore: aggiunto compito 3 alla coda
+consumatore 0: in attesa di un elemento
+consumatore 0: ha elemento 2
+produttore: aggiunto compito 4 alla coda
+consumatore 1: in attesa di un elemento
+consumatore 1: ha elemento 3
+produttore: aggiunto compito 5 alla coda
+produttore: aggiunta di segnali di arresto alla coda
+consumatore 0: in attesa di un elemento
+consumatore 0: ha elemento 4
+consumatore 1: in attesa di un elemento
+consumatore 1: ha elemento 5
+produttore: in attesa che la coda si svuoti
+consumatore 0: in attesa di un elemento
+consumatore 0: ha elemento None
+consumatore 0: in chiusura
+consumatore 1: in attesa di un elemento
+consumatore 1: ha elemento None
+consumatore 1: in chiusura
+produttore: in chiusura
+</py_output>
+<titolo_2>
+Input/Output Asincrono con Astrazioni del Protocollo di Classe
+</titolo_2>
+<testo_normale>
+Fino a questo punto gli esempi hanno tutti evitato di mischiare concorrenza e operazioni I/O per focalizzarsi su un concetto alla votla. Tuttavia lo scambio di contesti con bloccaggi di I/O è uno dei casi di uso primari per <code>asyncio</code>. Basata su concetti di concorrenza già introdotti, questa sezione esamina due programmi di esempio che implementano un semplice server e client che ripetono quanto ricevuto, simili agli esempi usati per <a href='socket.html' target='_blank'>socket</a> e <a href='socketserver' target='_blank'>socketserver</a>. Un client può connettersi al server, inviare dati, quindi ricevere gli stessi dati in risposta. Ogni volta che viene iniziata una opearazione I/O, il codice in esecuzione passa il controllo al ciclo di eventi, consentendo l'esecuzione di altre attività fino a che l'I/O è pronto.
+</testo_normale>
+<titolo_3>
+Server Che Invia Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Il server inizia importando i moduli che gli servono per impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea un oggetto ciclo di eventi.
+</testo_normale>
+<py_code>
+# asyncio_echo_server_protocol.py
+
+import asyncio
+import logging
+import sys
+
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+Quindi definisce una sottoclasse di <code>asyncio.Protocol</code> per gestire la comunicazione con il client. I metodi dell'oggetto protocollo sono chiamati in base agli eventi associati con il <em>socket</em> del server
+</testo_normale>
+<py_code>
+class EchoServer(asyncio.Protocol):
+</py_code>
+<testo_normale>
+Ogni nuova connessione client attiva una chiamata a <code>connection_made()</code>. L'argomento <code>transport</code> è una istanza di <code>asyncio.Transport</code>, che fornisce una astrazione per eseguire I/O asincrono usando il <em>socket</em>. Diversi tipi di comunicazione forniscono diverse implementazioni del trasporto, tutte con la stessa API. Ad esempio ci sono classi di trasporto separate per lavorare con i <em>socket</em> e per lavorare con <em>pipe</em> per i sottoprocessi. L'indirizzo del client in arrivo è disponibile dal trasporto tramite <code>get_extra_info()</code>, un metodo specifico all'imolementazione.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        self.transport = transport
+        self.address = transport.get_extra_info('peername')
+        self.log = logging.getLogger(
+            'EchoServer_{}_{}'.format(*self.address)
+        )
+        self.log.debug('connessione accetata')
+</py_code>
+<testo_normale>
+Dopo che viene stabilita una connessione, quando vengono spediti dati dal client al server, viene invocato il metodo del protocollo <code>data_received()</code> per passare i dati da elaborar. I dati sono passati come stringa di <em>byte</em>, e spetta all'applicazione la decodifica nel modo appropriato. Qui il risultato viene registrato, quindi viene ritornata una risposta immediata al client tramite <code>transport.write()</code>.
+</testo_normale>
+<py_code>
+    def data_received(self, data):
+        self.log.debug('ricevuto {!r}'.format(data))
+        self.transport.write(data)
+        self.log.debug('inviato {!r}'.format(data))
+</py_code>
+<testo_normale>
+Alcuni trasporti supportano un indicatore speciale di fine file ("EOF"). Quando viene rilevato un EOF, viene chiamato il metodo <code>eof_received()</code>. In questa implementazione, EOF viene restituito al client per indicare che è stato ricevuto. Visto che non tutti i trasporti supportano un EOF esplicito, questo protocollo chiede prima al trasporto se sia sicuro inviare un EOF.
+</testo_normale>
+<py_code>
+    def eof_received(self):
+        self.log.debug('ricevuto EOF')
+        if self.transport.can_write_eof():
+            self.transport.write_eof()
+</py_code>
+<testo_normale>
+Quando viene chiusa una connessione, sia normalmente che a causa di un errore, il metodo del protocollo <code>connection_lost()</code> viene chiamato. Se si era verificato un errore, l'argomento contiene un oggetto eccezione appropriato. Altrimenti è <code>None</code>.
+</testo_normale>
+<py_code>
+    def connection_lost(self, error):
+        if error:
+            self.log.error('ERRORE: {}'.format(error))
+        else:
+            self.log.debug('chiusura')
+        super().connection_lost(error)
+</py_code>
+<testo_normale>
+Ci sono due passi da compiere per far partire il server. Prima l'applicazione dice al ciclo di eventi di creare un nuovo oggetto server usando il protocollo di classe, il nome host e il <em>socket</em> sul quale è in ascolto. Il metodo <code>create_server()</code> è una coroutine, quindi i risultati devono essere elaborati dal ciclo di eventi in ordine per far veramente partire il server. Il completamento della coroutine produce una istanza di <code>asyncio.Server</code> legata al ciclo di eventi.
+</testo_normale>
+<py_code>
+# Crea il server e lasci che il ciclo finisca la coroutine prima di far
+# partire il vero ciclo di eventi.
+factory = event_loop.create_server(EchoServer, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+log.debug('in partenza on {} porta {}'.format(*SERVER_ADDRESS))
+</py_code>
+<testo_normale>
+Il ciclo di eventi poi deve esser eseguito nell'ordine per elaborare eventi e gestire le richieste del client. Per un servizio che debba restare in esecuione per lungo tempo, il metodo <code>run_forever()</code> è il modo più semplice per farlo. Quando viene arrestato un ciclo di eventi, sia dal codice applicativo che da un segnale inviato al processo, il server può essere chiuso per pulire correttamente il <em>socket</em>, quindi il ciclo di eventi può essere chiuso per terminare la gestione di altre coroutine prima che il programma esca.
+</testo_normale>
+<py_code>
+# Entra nel ciclo di eventi in modo permanente per gestire tutte le connessioni
+try:
+    event_loop.run_forever()
+finally:
+    log.debug('chiusura del server')
+    server.close()
+    event_loop.run_until_complete(server.wait_closed())
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Client Che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+La costruzione di un client è molto simile a quella di un server. Il codice inizia sempre con l'importazione dei moduli, quindi occorre impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi viene creato un oggetto per la gestione del ciclo di eventi
+</testo_normale>
+<py_code>
+# asyncio_echo_client_protocol.py
+
+import asyncio
+import functools
+import logging
+import sys
+
+MESSAGES = [
+    b'Questo è il messaggio. ',
+    b'Sarà inviato ',
+    b'in parti.',
+]
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+La classe derivata da <code>asyncio.Protocol</code> definisce gli stessi metodi del server, con implementazioni differenti. Il costruttore della classe accetta due argomenti, una lista dei messaggi da inviare e una istanza di <code>Future</code> da usare per segnalare che il client ha completato un ciclo di lavoro in quanto ha ricevuto una risposta dal server.
+</testo_normale>
+<py_code>
+class EchoClient(asyncio.Protocol):
+
+    def __init__(self, messages, future):
+        super().__init__()
+        self.messages = messages
+        self.log = logging.getLogger('EchoClient')
+        self.f = future
+</py_code>
+<testo_normale>
+Quando il client si connette con successo al server, inizia immediatamente la comunicazione. La sequenza dei messaggi viene inviata una alla vota, anche se il codice di rete sottostante possa combinare più messaggi in un'unica tramissione. Quando tutti i messaggi sono consumati, viene inviato un EOF.
+</testo_normale>
+<testo_normale>
+Anche se sembra che tutti i dati siano stati inviati immediatamente, in effetti l'oggetto trasportatore parcheggia i dati in uscita e imposta un <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> per inviare effettivamente i dati quando il <a href='https://www.wikiwand.com/it/Buffer' target='_blank'><em>buffer</em>r</a>  del <a href='https://www.wikiwand.com/it/Socket_(reti)' target='_blank'><em>socket</em>r</a>  è pronto a ricevere dati. Tutto questo è gestito in modo trasparente, quindi il codice dell'applicazione può essere scritto come se le operazioni di I/O avvenissero immediatamente.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        self.transport = transport
+        self.address = transport.get_extra_info('peername')
+        self.log.debug(
+            'connessione a {} porta {}'.format(*self.address)
+        )
+        # Potrebbe essere transport.writelines() eccetto che
+        # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+        # che sta per essere spedito..
+        for msg in self.messages:
+            transport.write(msg)
+            self.log.debug('in invio {!r}'.format(msg))
+        if transport.can_write_eof():
+            transport.write_eof()
+</py_code>
+<testo_normale>
+Quando viene ricevuta la risposta dal server, viene registrata.
+</testo_normale>
+<py_code>
+    def data_received(self, data):
+        self.log.debug('ricevuto {!r}'.format(data))
+</py_code>
+<testo_normale>
+Sia che venga ricevuto un marcatore di fine file (EOF) oppure che la connessione sia chiusa lato server, l'oggetto trasportatore locale vien chiuso e l'oggetto <code>Future</code> viene marcato come completato, impostandone il risultato
+</testo_normale>
+<py_code>
+    def eof_received(self):
+        self.log.debug('ricevuto EOF')
+        self.transport.close()
+        if not self.f.done():
+            self.f.set_result(True)
+
+    def connection_lost(self, exc):
+        self.log.debug('il server ha chiuso la connessione')
+        self.transport.close()
+        if not self.f.done():
+            self.f.set_result(True)
+        super().connection_lost(exc)
+</py_code>
+<testo_normale>
+Normalmente la classe derivata da <code>asyncio.Protocol</code> è passata al ciclo di eventi per creare la connessione. In questo caso, visto che il ciclo di eventi non ha un modo per passare argomenti supplementari al costruttore del protocollo, è necessario creare un <code>partial</code> per impacchettare la classe client e passare l'elenco dei messaggi da inviare e l'istanza di <code>Future</code>. Il nuovo chiamabile viene poi usato sul posto dalla classe quando si chiama <code>create_connection()</code> per stabilire la connessione client.
+</testo_normale>
+<py_code>
+client_completed = asyncio.Future()
+
+client_factory = functools.partial(
+    EchoClient,
+    messages=MESSAGES,
+    future=client_completed,
+)
+factory_coroutine = event_loop.create_connection(
+    client_factory,
+    *SERVER_ADDRESS,
+)
+</py_code>
+<testo_normale>
+Per attivare l'esecuzione del client, il ciclo di eventi viene chiamato una volta con la <em>coroutine</em> per creare il cliente, quindi nuovamente con l'istanza di <code>Future</code> data al client per comunicare quando ha terminato. Usando due chiamate si evita l'avere un ciclo infinito nel programma client, che probabilmente vorrebbe terminare dopo che ha finito di comunicare con il server. Se fosse usata solo la prima chiamata per attendere la <em>coroutine</em> per creare il client, potrebbero non essere propriamente elaborati tutti i dati di risposta  e la pulizia della connessione al server.
+</testo_normale>
+<py_code>
+log.debug('in attesa del client per completare')
+try:
+    event_loop.run_until_complete(factory_coroutine)
+    event_loop.run_until_complete(client_completed)
+finally:
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Risultato
+</titolo_3>
+<testo_normale>
+L'esecuzione del server in una finestra e del client in un'altra produce il seguente risultato
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_client_protocol.py
+
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_protocol.py
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_protocol.py
+asyncio: Using selector: EpollSelector
+main: in attesa del client per completare
+EchoClient: connessione a 127.0.0.1 porta 10000
+EchoClient: in invio b"Questo e' il messaggio. "
+EchoClient: in invio b"Sara' inviato "
+EchoClient: in invio b'in parti.'
+EchoClient: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoClient: ricevuto EOF
+EchoClient: il server ha chiuso la connessione
+main: chiusura del ciclo di eventi
+</py_output>
+<testo_normale>
+Anche se il client manda sempre i messaggi separatamente, la prima volta che il client viene eseguito, il server riceve un unico comprensivo messaggio e lo ritorna al client. Questi risultati variano in esecuzioni susseguenti, in base a quanto sia sovraccarica la rete e se i <a href='https://www.wikiwand.com/it/Buffer' target='_blank'><em>buffer</em>r</a> di rete siano svuotati prima che tutti i dati siano preparati.
+</testo_normale>
+<py_output>
+python3.7 asyncio_echo_server_protocol.py
+
+asyncio: Using selector: EpollSelector
+main: in partenza on localhost porta 10000
+EchoServer_127.0.0.1_46464: connessione accettata
+EchoServer_127.0.0.1_46464: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+EchoServer_127.0.0.1_46464: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+EchoServer_127.0.0.1_46464: ricevuto EOF
+EchoServer_127.0.0.1_46464: chiusura
+
+EchoServer_127.0.0.1_46470: connessione accettata
+EchoServer_127.0.0.1_46470: ricevuto b"Questo e' il messaggio. "
+EchoServer_127.0.0.1_46470: inviato b"Questo e' il messaggio. "
+EchoServer_127.0.0.1_46470: ricevuto b"Sara' inviato in parti."
+EchoServer_127.0.0.1_46470: inviato b"Sara' inviato in parti."
+EchoServer_127.0.0.1_46470: ricevuto EOF
+EchoServer_127.0.0.1_46470: chiusura
+
+EchoServer_127.0.0.1_46472: connessione accettata
+EchoServer_127.0.0.1_46472: ricevuto b"Questo e' il messaggio. Sara' inviato "
+EchoServer_127.0.0.1_46472: inviato b"Questo e' il messaggio. Sara' inviato "
+EchoServer_127.0.0.1_46472: ricevuto b"in parti."
+EchoServer_127.0.0.1_46472: inviato b"in parti."
+EchoServer_127.0.0.1_46472: ricevuto EOF
+EchoServer_127.0.0.1_46472: chiusura
+</py_output>
+<titolo_2>
+I/O Asincrono Usando Coroutine e Canali
+</titolo_2>
+<testo_normale>
+Questa sezione esamina versioni alternative dei due programmi di esempio qui sopra, usando <em>coroutine</em> e <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> per i canali di <code>asyncio</code> in luogo delle astrazioni di classi per il protocollo e il trasporto. Questi esempi operano a un livello di astrazione inveriore rispetto all'<a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>API</a> <code>Protocol</code> discussa precedentemente, ma gli eventi elaborati sono simili.
+</testo_normale>
+<titolo_3>
+Server Che Invia Quanto Ricevuto
+</titolo_3>
+<testo_normale>
+Il server inizia importando i moduli e deve impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea l'oggetto per il ciclo di eventi.
+</testo_normale>
+<py_code>
+# asyncio_echo_server_coroutine.py
+
+import asyncio
+import logging
+import sys
+
+SERVER_ADDRESS = ('localhost', 10000)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+Quindi definisce una coroutine per gestire la comunicazione. Ogni volta che si connette un client, viene invocata una nuova istanza della coroutine in modo che all'interno della funzione il codice comunichi con un solo client alla volta. Il linguaggio in esecuzione di Python gesetisce lo stato per ciascuna istanza di coroutine, in modo che il codice dell'applicazione non deve gestire strutture dati supplementari per tracciare client separati.
+</testo_normale>
+<testo_normale>
+Gli argomenti per le coroutine sono istanze di <code>StreamrReader</code> e <code>StreamWrite</code> associate con la nuova connessione. Così come per <code>Transport</code>, l'indirizzo del client può essere raggiunto attraverso il metodo <code>get_extra_info()</code>.
+</testo_normale>
+<py_code>
+async def echo(reader, writer):
+    address = writer.get_extra_info('peername')
+    log = logging.getLogger('echo_{}_{}'.format(*address))
+    log.debug('connessione accettata')
+</py_code>
+<testo_normale>
+Sebbele la coroutine sia chiamata quando viene stabilita la connessione, potrebbero non esserci ancora dati da leggere. Per evitare di bloccare mentre si sta leggendo, la coroutine usa <code>await</code> con la chiamata di <code>read()</code> per consentire al ciclo di eventi di proseguire elaborando altri compiti fino a quando non ci sono dati da leggere.
+</testo_normale>
+<py_code>
+    while True:
+        data = await reader.read(128)
+</py_code>
+<testo_normale>
+Se il client invia dati, sono ritornati da <code>await</code> e possono essere restituiti al client passandolo all'oggetto che li scrive. Chiamate multiple a <code>write()</code> possono essere usate per accumulare dati in uscita, per poi usare <code>drain()</code> per far uscire i dati. Visto che questa opearzione di I/O su rete può bloccare, ancora una volta viene usato <code>await</code> per riportare il controllo al ciclo di eventi, che monitora il <em>socket</em> di scrittura e chiama l'oggetto che scrive quando possibile per inviare ulteriori dati.
+</testo_normale>
+<py_code>
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+            writer.write(data)
+            await writer.drain()
+            log.debug('inviato {!r}'.format(data))
+</py_code>
+<testo_normale>
+Se il client non ha inviato dati, <code>read()</code> ritorna una stringa di byte vuota per indicare che la connessione è chiusa. Il server deve chiudere il socket per scrivere al client, poi la coroutine può ritornare per indicare che ha terminato.
+</testo_normale>
+<py_code>
+        else:
+            log.debug('in chiusura')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+Ci sono due passi per far partire il server. Prima l'applicazione dice al ciclo di eventi di creare un nuovo oggetto server usando la coroutine, il nome host e il <em>socket</em> sul quale ascoltare. Il metodo <code>start_server()</code> è esso stesso una coroutine, quindi i risultati devono essere elaborati dal ciclo di eventi per far effettivamente partire il server. Il completamento della coroutine produce una istanza di <code>asyncio.Server</code> legata al ciclo di eventi
+</testo_normale>
+<py_code>
+# Crea il server e lascia che ciclo termini la coroutine prima di far
+# partire il ciclo di eventi effettivo.
+factory = asyncio.start_server(echo, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+log.debug('in partenza su {} porta {}'.format(*SERVER_ADDRESS))
+</py_code>
+<testo_normale>
+Successivamente il ciclo di eventi deve essere eseguito per elaborare eventi e gestire le richieste dei cleint. Per un servizio che sia attivo per lunghi periodi, il metodo <code>run_forever()</code> è il modo più semplice per farlo. Quando il ciclo di eventi viene fermato, sia dal codice dell'applicazione che da un segnale inviato al processo, il server puà essere chiuso per pulire correttamente il <em>socket</em>, quindi il ciclo di eventi puà essere chiuso per finire la gestione di ogni altra coroutine prima che il programma esca.
+</testo_normale>
+<py_code>
+# Entra nel ciclo di eventi permanentemente per gestire tutte le connesisoni.
+try:
+    event_loop.run_forever()
+except KeyboardInterrupt:
+    pass
+finally:
+    log.debug('server in chiusura')
+    server.close()
+    event_loop.run_until_complete(server.wait_closed())
+    log.debug('chiusura del ciclo di eventi')
+    event_loop.close()
+</py_code>
+<titolo_3>
+Client che Riceve Quanto Inviato
+</titolo_3>
+<testo_normale>
+La costruzione di un client usando una <em>coroutine</em> è molto simile alla costruzione di un server. Ancora una volta il codice inizia importando i moduli necessari per impostare <code>asyncio</code> e <a href='logging.html' target='_blank'>logging</a>, quindi crea un oggetto per il ciclo di eventi
+</testo_normale>
+<py_code>
+# asyncio_echo_client_coroutine.py
+
+import asyncio
+import logging
+import sys
+
+MESSAGES = [
+    b"Questo e' il messaggio. ",
+    b"Sara' inviato ",
+    b'in parti.',
+]
+SERVER_ADDRESS = ('localhost', 10000)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(name)s: %(message)s',
+    stream=sys.stderr,
+)
+log = logging.getLogger('main')
+
+event_loop = asyncio.get_event_loop()
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>echo_client</code> riceve argomenti che indicano dove sia il server e quale messaggi spedire
+</testo_normale>
+<py_code>
+async def echo_client(address, messages):
+</py_code>
+<testo_normale>
+La <em>coroutine</em> viene chiamata quando inizia l'attività, ma non ha connessioni attive con cui lavorare. Il primo passo, quindi, è quello di impostare al client la sua propria connessione. Usa <code>await</code> per evitare di bloccare altre attività mentre è in esecuzione la <em>coroutine</em> <code>open_connection()</code>.
+</testo_normale>
+<py_code>
+    log = logging.getLogger('echo_client')
+
+    log.debug('connessione a {} porta {}'.format(*address))
+    reader, writer = await asyncio.open_connection(*address)
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>open_connection()</code> ritorna istanze di <code>StreamReader</code>  e <code>StreamWrite</code> associate con il nuovo socket. Il prossimo passo è usare l'oggetto di scrittura per inviare dati al server. Sul server, l'oggetto di scrittura accumulerà i dati in arrivo fino a che il socket è pronto oppure venga usato <code>drain()</code> per forzare la fuoriuscita. Visto questa azione di I/O sulla rete può bloccare, viene usato <code>async</code> ancora una volta per restituire il controllo al ciclo di eventi, il quale monitora il socket di scrittura e chiama l'oggetto che scrive quando possibile per inviare ulteriori dati.
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('in invio {!r}'.format(msg))
+    if writer.can_write_eof():
+        writer.write_eof()
+    await writer.drain()
+</py_code>
+<testo_normale>
+Successivamente il client cerca una risposa dal server tentando di leggere i dati fino che quando non rimane più nulla da leggere. Per evitare il bloccaggio su ogni singola chiamata di <code>read()</code>, <code>await</code> restituisce il controllo al ciclo di eventi. Se il server ha inviato dati, vengono registrati. Se il server non ha inviato dati, <code>read()</code> ritorna una stringa di byte vuota per indicate che la connessione è chiusa. Il client deve chiudere il socket usato per inviare dati al server, quindi ritornare per indicare che ha terminato.
+</testo_normale>
+<py_code>
+    log.debug('in attesa di risposta')
+    while True:
+        data = await reader.read(128)
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+        else:
+            log.debug('in chiusura')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+Per far partire il client, il ciclo di eventi viene chiamato con la <em>coroutine</em> per la creazione del client. L'utilizzo di <code>run_until_complete()</code> evita di avere un ciclo infinito nel programma client. Al contrario dell'esempio sul protocollo visto in precedenza, non è necessario un <em>future</em> separato per segnalare quando la coroutine è finita, poichè <code>echo_client()</code> contiene esso stesso tutta la logica client e non ritorna fino a che ha ricevuto una risposta e chiuso la connessione al server.
+</testo_normale>
+<titolo_3>
+Risultato
+</titolo_3>
+<testo_normale>
+L'esecuzione del server in una finestra di terminale e del client in un'altra, produce il seguente risultato
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_client_coroutine.py
+
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_coroutine.py
+
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+
+$ python3 asyncio_echo_client_coroutine.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: in invio b"Questo e' il messaggio. "
+echo_client: in invio b"Sara' inviato "
+echo_client: in invio b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato "
+echo_client: ricevuto b"in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<testo_normale>
+Sebbene il client invii sempre i messaggi separatamente, le prime due volta che il client viene eseguito il server riceve un messaggio più grande che ripete al client. Questi risultati variano nelle esecuzioni successive, in base a quanto impegnata sia la rete e se i buffer di rete vengano svuotati prima che tutti i dati siano preparati.
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_server_coroutine.py
+
+asyncio: Using selector: EpollSelector
+main: in partenza su localhost porta 10000
+echo_127.0.0.1_50818: connessione accettata
+echo_127.0.0.1_50818: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50818: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50818: in chiusura
+echo_127.0.0.1_50820: connessione accettata
+echo_127.0.0.1_50820: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50820: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_50820: in chiusura
+echo_127.0.0.1_50822: connessione accettata
+echo_127.0.0.1_50822: ricevuto b"Questo e' il messaggio. Sara' inviato"
+echo_127.0.0.1_50822: inviato b"Questo e' il messaggio. Sara' inviato"
+echo_127.0.0.1_50822: ricevuto b" in parti"
+echo_127.0.0.1_50822: inviato b" in parti"
+echo_127.0.0.1_50822: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<titolo_2>
+Usare SSL
+</titolo_2>
+<testo_normale>
+<code>asyncio</code> ha incorporato il supporto per permetter di comunicazioni SSL sui socket. Il passaggio di una istanza di <code>SSLContext</code> alle <em>coroutine</em> che creano connessioni server o client abilita i supporto e fa sì che l'impostazione del protocollo SSL sia compiuta prima che il socket sia presentato come pronto all'utilizzo dall'applicazione
+</testo_normale>
+<testo_normale>
+I server e client basati sulle <em>coroutine</em> della sezione precedente possono essere aggiornati con pochi piccoli cambiamenti. Il primo passo è la creazione del certificato e dei file chiave. Un certificato auto firmato può essere create con un comando tipo:
+</testo_normale>
+<py_output>
+$ openssl req -newkey rsa:2048 -nodes -keyout pymotw.key \
+-x509 -days 365 -out pymotw.crt
+</py_output>
+<testo_normale>
+Il comando <code>openssl</code> richiederà all'utente diversi valor che verranno usati per generare il certificato, quindi produrrà i file in uscita richiesti.
+</testo_normale>
+<testo_normale>
+L'impostazione non sicura del socket dell'esempio del server precedente usa <code>start_server()</code> per creare il socket in ascolto.
+</testo_normale>
+<py_code>
+factory = asyncio.start_server(echo, *SERVER_ADDRESS)
+server = event_loop.run_until_complete(factory)
+</py_code>
+<testo_normale>
+Per aggiungere la codifica, si crei un oggetto <code>SSLContext</code> con il certificato e la chiave appena generati, quindi lo si passi a <code>start_server()</code>
+</testo_normale>
+<py_code>
+# Il certificato è creato con pymotw.com come nome host,
+# il che non corrisponderà quando il codice di esempio viene eseguito
+# altrove, quindi si disabiliti la verifica del nome host
+ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+ssl_context.check_hostname = False
+ssl_context.load_cert_chain('pymotw.crt', 'pymotw.key')
+
+# Crea il server e lascia che il ciclo finisca la coroutine prima di
+# far partire il ciclo di eventi effettivo
+factory = asyncio.start_server(echo, *SERVER_ADDRESS, ssl=ssl_context)
+</py_code>
+<testo_normale>
+Simili modifiche sono necessarie nel client. La vecchia versione usa <code>open_connection()</code> per creare il socket connesso al server
+</testo_normale>
+<py_code>
+reader, writer = await asyncio.open_connection(*address)
+</py_code>
+<testo_normale>
+Anche qui è richiesto un <code>SSLContext</code> per mettere in sicurezza la parte client del socket. L'identità del client non viene forzata, quindi si deve caricare solo il certificato.
+</testo_normale>
+<py_code>
+    # Il certificato è creato con pymotw.com come nome host,
+    # il che non corrisponderà quando il codice di esempio viene eseguito
+    # altrove, quindi si disabiliti la verifica del nome host
+    ssl_context = ssl.create_default_context(
+        ssl.Purpose.SERVER_AUTH,
+    )
+    ssl_context.check_hostname = False
+    ssl_context.load_verify_locations('pymotw.crt')
+    reader, writer = await asyncio.open_connection(
+        *server_address, ssl=ssl_context)
+</py_code>
+<testo_normale>
+Un'altra piccola modifica è richiesta nel client. Visto che la connessione SSL non supporta l'invio di un carattere di fine file (EOF), il client usa al suo postao un byte NULL.
+</testo_normale>
+<testo_normale>
+La vecchia versione del ciclo di invio del client usa <code>write_eof()</code>.
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('in invio {!r}'.format(msg))
+    if writer.can_write_eof():
+        writer.write_eof()
+    await writer.drain()
+</py_code>
+<testo_normale>
+La nuova versione invia byte zero (<code>b'\x00'</code>)
+</testo_normale>
+<py_code>
+    # Potrebbe essere writer.writelines() eccetto che
+    # avrebbe reso più difficile mestrare ciascuna parte del messaggio
+    # che sta per essere spedito..
+    for msg in messages:
+        writer.write(msg)
+        log.debug('sending {!r}'.format(msg))
+    # SSL non supporta EOF, quindi si invia un byte null per indicare
+    # la fine del messaggio.
+    writer.write(b'\x00')
+    await writer.drain()
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>echo()</code> del server deve cercare il byte NULL e chiudere la connessione con il client quando esso viene ricevuto.
+</testo_normale>
+<py_code>
+async def echo(reader, writer):
+    address = writer.get_extra_info('peername')
+    log = logging.getLogger('echo_{}_{}'.format(*address))
+    log.debug('connessione accettata')
+
+    while True:
+        data = await reader.read(128)
+        terminate = data.endswith(b'\x00')
+        data = data.rstrip(b'\x00')
+        if data:
+            log.debug('ricevuto {!r}'.format(data))
+            writer.write(data)
+            await writer.drain()
+            log.debug('inviato {!r}'.format(data))
+        if not data or terminate:
+            log.debug('messaggio terminato, chiusura connessione')
+            writer.close()
+            return
+</py_code>
+<testo_normale>
+L'esecuzione del server in una finestra di terminale e del client in un'altra, produce questo risultato:
+</testo_normale>
+<py_output>
+$ python3 asyncio_echo_server_ssl.py
+
+asyncio: Using selector: EpollSelector
+main: in partenza su localhost porta 10000
+echo_127.0.0.1_54812: connessione accettata
+echo_127.0.0.1_54812: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_54812: inviato b"Questo e' il messaggio. Sara' inviato in parti."
+echo_127.0.0.1_54812: messaggio terminato, chiusura connessione
+
+$ python3.7 asyncio_echo_client_ssl.py
+asyncio: Using selector: EpollSelector
+echo_client: connessione a localhost porta 10000
+echo_client: sending b"Questo e' il messaggio. "
+echo_client: sending b"Sara' inviato "
+echo_client: sending b'in parti.'
+echo_client: in attesa di risposta
+echo_client: ricevuto b"Questo e' il messaggio. Sara' inviato in parti."
+echo_client: in chiusura
+main: chiusura del ciclo di eventi
+</py_output>
+<titolo_3>
+Interagire con i Servizi di Nome di Dominio (DNS)
+</titolo_3>
+<testo_normale>
+Le applicazioni usano la rete per comunicare con i server per operazioni DNS tipo la conversione tras nomi host e indirizzi IP, <strong>asyncio</strong> ha metodi di convenienza sul ciclo di eventi per gestire queste operazioni in <em>background</em> senza bloccare durante le interrogazioni.
+</testo_normale>
+<titolo_3>
+Ricerca Indirizzo per Nome
+</titolo_3>
+<testo_normale>
+Si usi la <em>coroutine</em> <code>getaddrinfo()</code> per convertire un nome host e un numero di porta in un indirizzo IP o IPv6. Come per la versione della funzione del modulo <a href='socket.html' target='_blank'>socket</a> il valore ritornato è una tupla che contiene cinque elementi:
+</testo_normale>
+<lista_ordinata>
+La famiglia dell'indirizzo
+Il tipo di indirizzo
+Il protocollo
+Il nome canonico del server
+Una tupla con l'indirizzo del <em>socket</em> utilizzabile per aprire una connessione al server sulla porta specificata in origine.
+</lista_ordinata>
+<testo_normale>
+Le interrogazioni possono essere filtrate per protocollo, come in questo esempio, dove sono ritornate solo le risposte TCP.
+</testo_normale>
+<py_code>
+# asyncio_getaddrinfo.py
+</py_code>
+<testo_normale>
+Questo esempio converte un nome host e un protocollo in un indirizzo IP e numero di porta
+</testo_normale>
+<py_output>
+$ python3 asyncio_getaddrinfo.py
+
+pymotw.com          : 66.33.211.242
+robyp.x10host.com   : 198.91.81.13
+python.org          : 45.55.99.72
+</py_output>
+<titolo_3>
+Ricerca del Nome per Indirizzo
+</titolo_3>
+<testo_normale>
+La <em>coroutine</em> <code>getnameinfo()</code> converte un indirizzo IP in un nome host e un numero di porta in un nome di protocollo, dove possibile
+</testo_normale>
+<py_code>
+# asyncio_getnameinfo.py
+</py_code>
+<testo_normale>
+Questo esempio mostra che l'indirizzo IP per <code>xrobyp.x10hos.com</code> fa riferimento a un server specificato mentre quello per <code>python.org</code> non viene risolto in un nome host.
+</testo_normale>
+<py_output>
+$ python3 asyncio_getnameinfo.py
+
+104.130.43.121 : 104.130.43.121 https
+198.91.81.13   : xo12.x10hosting.com http
+</py_output>
+<titolo_2>
+Lavorare con Sottoprocessi
+</titolo_2>
+<testo_normale>
+E' di frequente necessario lavorare con altri programmi e processi, per trarre vantaggio dal codice esistente senza riscriverlo o per accedere a librerie o caratteristiche non disponibili all'interno di Python. Come per l'I/O di rete, <strong>asyncio</strong> include due astrazioni per lanciare un altro programma e interagire con esso.
+</testo_normale>
+<titolo_3>
+Usare l'Astrazione di Protocollo con Sottoprocessi
+</titolo_3>
+<testo_normale>
+Questo esempio usa una <em>coroutine</em> per lanciare un processo che esegue il comando unix <a href='https://www.wikiwand.com/it/Df_(Unix)' target='_blank'>df</a> per ottenere lo spazio libero su dischi locali. Usa <code>subprocess_exec()</code> per lanciare il processo e legarlo a una protocollo di classe che sa come leggere ed elaborare il risultato del comando <code>df</code>. I metodo della classe sono chiamati automaticamente in base a eventi I/O del sottoprocesso. Visto che entrambi gli argomenti <code>stdin</code> e <code>stderr</code> sono impostati a <code>None</code>, questi canali di comunicazione cono sono connessi al nuovo processo.
+</testo_normale>
+<py_code>
+asyncio_subprocess_protocol.py
+import asyncio
+import functools
+
+
+async def run_df(loop):
+    print('in run_df')
+
+    cmd_done = asyncio.Future(loop=loop)
+    factory = functools.partial(DFProtocol, cmd_done)
+    proc = loop.subprocess_exec(
+        factory,
+        'df', '-hl',
+        stdin=None,
+        stderr=None,
+    )
+    try:
+        print('launching process')
+        transport, protocol = await proc
+        print('waiting for process to complete')
+        await cmd_done
+    finally:
+        transport.close()
+
+    return cmd_done.result()
+</py_code>
+<testo_normale>
+La classe <code>DFProtocol</code> è derivata da <code>SubProcessProtocol</code>, che definisci una <a href='https://www.wikiwand.com/it/Application_programming_interface' target='_blank'>api</a> per comunicare con un altro processo via conduttura. Ci si attende che l'argomento <code>done</code> sia un <code>Future</code> che il chiamante userà per conoscere quando termina il processo.
+</testo_normale>
+<py_code>
+class DFProtocol(asyncio.SubprocessProtocol):
+
+    FD_NAMES = ['stdin', 'stdout', 'stderr']
+
+    def __init__(self, done_future):
+        self.done = done_future
+        self.buffer = bytearray()
+        super().__init__()
+</py_code>
+<testo_normale>
+Come per la comunicazione via <em>socket</em>, viene chiamato <code>connection_made()</code> con descrittore di file dove i dati sono emessi e gli effettivi dati letti dalla conduttura. La classe salva il risultato dal canale di output standaard in un <em>buffer</em> per successiva elaborazione.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        print('processo iniziato {}'.format(transport.get_pid()))
+        self.transport = transport
+</py_code>
+<testo_normale>
+Così come per una comunicazione via <em>socket</em>, <code>connection_made()</code> viene chiamata quando i canali in input per il nuovo processo sono impoestati. L'argomento <code>transport</code> è una istanza di una sottoclasse di <code>BaseSubprocessTransport</code>. Può leggere dati fatti uscire dal processo e scrvere dati al canale in input per il processo, se il processo è stato configurato per ricevere input.
+</testo_normale>
+<py_code>
+    def connection_made(self, transport):
+        print('processo iniziato {}'.format(transport.get_pid()))
+        self.transport = transport
+</py_code>
+<testo_normale>
+Quando il processo termina, viene chiamato <code>process_exited()</code>. Il codice di uscita del processo è disponibile dall'oggetto di trasporto tramite <code>get_returncode()</code>. In questo caso, se non ci sono errori segnalati il risultato disponibile viene decodificato ed elaborato prima di essere ritornato tramite l'istanza <code>Future</code>. Se c'è un errore, i risultati si considerano vuoti. L'impostazione del <code>Future</code> dice a <code>run_df()</code> che il processo è uscito, quindi viene effettuata una pulizia e ritornato il risultato.
+</testo_normale>
+<py_code>
+    def process_exited(self):
+        print('process uscito')
+        return_code = self.transport.get_returncode()
+        print('codice ritornato {}'.format(return_code))
+        if not return_code:
+            cmd_output = bytes(self.buffer).decode()
+            results = self._parse_results(cmd_output)
+        else:
+            results = []
+        self.done.set_result((return_code, results))
+</py_code>
+<testo_normale>
+Il risultato del comando viene disposto in una sequenza di dizionari che mappano i nomi dell'intestazione ai loro valori per ogni riga del risultato, quindi viene restituita la lista risultante
+</testo_normale>
+<py_code>
+    def _parse_results(self, output):
+        print('elaborazione risultati')
+        # Il risultato ha una riga di intestazioni, tutte parole singole.
+        # Le righe rimanenti sono una per il filesystem, con colonne
+        # che corrispondono alle intestazioni (assumendo che nessun punti di
+        # montaggio abbia spazi nel nome).
+        if not output:
+            return []
+        lines = output.splitlines()
+        headers = lines[0].split()
+        devices = lines[1:]
+        results = [
+            dict(zip(headers, line.split()))
+            for line in devices
+        ]
+        return results
+</py_code>
+<testo_normale>
+La <em>coroutine</em> <code>run_df()</code> viene eseguita usando <code>run_until_complete()</code>, poi i risultati sono esaminati e viene stampato lo spazio libero su ogni dispositivo.
+</testo_normale>
+<py_code>
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        run_df(event_loop)
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('\nSpazio libero:')
+    for r in results:
+        print('{Mounted:25}: {Avail}'.format(**r))
+</py_code>
+<testo_normale>
+Il risultato qui sotto mostra la sequenza di passi compiuti, e lo spazio libero sui drive del sistema dove è stato eseguito il programma.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_protocol.py
+
+in run_df
+lancio del processo
+processo iniziato 14200
+in attesa del completamento del processo
+letti 1319 byte da stdout
+processo uscito
+codice ritornato 0
+elaborazione risultati
+
+Spazio libero:
+/dati2                   : 41G
+/dati3                   : 60G
+/dati                    : 47G
+/dati1                   : 30G
+</py_output>
+<titolo_3>
+Chiamare Sottoprocessi con Coroutine e Canali
+</titolo_3>
+<testo_normale>
+Per usare <em>coroutine</em> per eseguire direttamente un processo, invece che accedervi tramite una sottoclasse di <code>Protocol</code>, si chiami <code>create_subprocess_exec()</code> e si specifichi quale si <code>stdout</code>, <code>stderr</code>, e <code>stdin</code> connettere a una conduttura. Il risultato della generazione del processo da parte della <em>coroutine</em> è una istanza di <code>Process</code> che può essere usata per manipolare il sottoprocesso o comuincare con esso.
+</testo_normale>
+<py_code>
+# asyncio_subprocess_coroutine.py
+
+import asyncio
+import asyncio.subprocess
+
+
+async def run_df():
+    print('in run_df')
+
+    buffer = bytearray()
+
+    create = asyncio.create_subprocess_exec(
+        'df', '-hl',
+        stdout=asyncio.subprocess.PIPE,
+    )
+    print('processo lanciato')
+    proc = await create
+    print('processo partito {}'.format(proc.pid))
+</py_code>
+<testo_normale>
+In questo esempio, <code>df</code> non necessita di alcun input eccetto quello dei suoi argomenti da riga di comando, quindi il prossimo passo è leggere tutto il risultato. Con <code>Protocol</code> non vie è controllo su quanti dati vengono letti alla volta. Questo esempio usa <code>readline()</code> ma potrebbe anche chiamare <code>read()</code> direttamente per leggere dati che non siano riga per riga. Il risultato del commando viene conservato, come nell'esempio del protocollo, in modo che possa essere successivamente elaborato.
+</testo_normale>
+<py_code>
+    while True:
+        line = await proc.stdout.readline()
+        print('read {!r}'.format(line))
+        if not line:
+            print('non ci sono più risultati dal comando')
+            break
+        buffer.extend(line)
+</py_code>
+<testo_normale>
+Il metodo <code>readline()</code> ritorna un stringa di byte vuota quando non si sono più risultati in quanto il programma è terminato. Per assicurarsi che il processo sia pulito accuratamente, il passo successivo è attendere che il processo esca completamente.
+</testo_normale>
+<py_code>
+    print('in attesa di completamento del processo')
+    await proc.wait()
+</py_code>
+<testo_normale>
+A questo punto lo stato di uscita può essere esaminato per determinare se elaborare il risultato o trattarso come errore se non è stato prodotto alcun risultato. La logica di elaborazion è la stessa dell'esempio precedente, ma non in una funzione a se stante (qui non mostrata) visto che non vi è una classe protocollo nella quale nasconderla. Dopo che i dati sono stati elaborati, i risultati e il codice di uscita sono ritornati al chiamante.
+</testo_normale>
+<py_code>
+    return_code = proc.returncode
+    print('codice di ritorno {}'.format(return_code))
+    if not return_code:
+        cmd_output = bytes(buffer).decode()
+        results = _parse_results(cmd_output)
+    else:
+        results = []
+
+    return (return_code, results)
+</py_code>
+<testo_normale>
+Il programma principale è simile a quello basato sul protocollo, visto che le modifiche di implementazione sono isolate in <code>run_df()</code>
+</testo_normale>
+<py_code>
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        run_df()
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('\nSpazio libero:')
+    for r in results:
+        print('{Mounted:25}: {Avail}'.format(**r))
+</py_code>
+<testo_normale>
+Visto che il risultato da <code>df</code> può essere letto una riga per volta, viene replicato per mostrare l'avanzamento del programma. Altrimenti il risultato dell'esecuzione sarebbe simile a quello dell'esempio precedente.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_coroutine.py
+
+in run_df
+processo lanciato
+processo partito 20018
+letto b'Filesystem              Size  Used Avail Use% Mounted on\n'
+letto b'/dev/sda8                92G   47G   41G  54% /dati2\n'
+letto b'/dev/sda9               138G   71G   60G  55% /dati3\n'
+letto b'/dev/sda6                92G   41G   47G  47% /dati\n'
+letto b'/dev/sda7               184G  145G   30G  84% /dati1\n'
+letto b''
+non ci sono più risultati dal comando
+in attesa di completamento del processo
+codice di ritorno 0
+elaborazione risultati
+
+Spazio libero:
+/dati2                   : 41G
+/dati3                   : 60G
+/dati                    : 47G
+/dati1                   : 30G
+</py_output>
+<titolo_3>
+Inviare Dati a un Sottoprocesso
+</titolo_3>
+<testo_normale>
+Entrambi gli esempi precedenti usavano solo un singolo canale di comunicazione per leggere dati da un secondo processo. Spesso è necessario inviare dati a un comando affinchè avvenga l'elaborazione. Questo esempio definisce un <em>coroutine</em> per eseguire il comando Unix <a href='https://www.wikiwand.com/it/Tr_(Unix)' target='_blank'>tr</a> per tradurre caratteri nel suo canale in input. In questo caso, <code>tr</code> viene usato per convertire lettere minuscole in maiuscole.
+</testo_normale>
+<testo_normale>
+La <em>coroutine</em> <code>to_upper()</code> riceve come argomento un ciclo di eventi e una stringa. Genera un secondo processo che esegue "<code>tr [:lower] [:upper]</code>".
+</testo_normale>
+<py_code>
+# asyncio_subprocess_coroutine_write.py
+
+import asyncio
+import asyncio.subprocess
+
+
+async def to_upper(input):
+    print('in to_upper')
+
+    create = asyncio.create_subprocess_exec(
+        'tr', '[:lower:]', '[:upper:]',
+        stdout=asyncio.subprocess.PIPE,
+        stdin=asyncio.subprocess.PIPE,
+    )
+    print('processo lanciato')
+    proc = await create
+    print('pid {}'.format(proc.pid))
+</py_code>
+<testo_normale>
+<code>to_upper()</code> usa il metodo <code>communicate()</code> di <code>Process</code> per inviare la stringa in input al comando e leggere tutto il risultato, in modo asincrono. Come per la versione che usa <code>subprocess.Popen</code> dello stesso metodo, <code>communicate()</code> ritorna il risultato completo come stringa di byte. Se è probabile che un comando possa produrre un risultato che non possa essere conservato agevolmente in memoria, l'input non può essere prodotto tutto in una volta, oppure il risultato deve essere elaborato in modo incrementale; è possibile usare i gestori di stdin, stdout e stderr di <code>Process</code> direttamente invece che chiamare <code>communicate()</code>.
+</testo_normale>
+<py_code>
+    print('communicazione con il processo')
+    stdout, stderr = await proc.communicate(input.encode())
+</py_code>
+<testo_normale>
+Dopo il completamento delle operazioni di I/O, l'attendere che il processo esca completamente assicura che sia propriamente pulito.
+</testo_normale>
+<py_code>
+    print('in attesa del completamento del processo')
+    await proc.wait()
+</py_code>
+<testo_normale>
+Il codice di ritorno può essere poi esaminato e la stringa di byte decodificata, per preparare il valore di ritorno dalla <em>coroutine</em>.
+</testo_normale>
+<py_code>
+    return_code = proc.returncode
+    print('return code {}'.format(return_code))
+    if not return_code:
+        results = bytes(stdout).decode()
+    else:
+        results = ''
+
+    return (return_code, results)
+</py_code>
+<testo_normale>
+La parte principale del programma imposta una stringa di messaggio da trasformare, quindi imposta il ciclo di eventi per eseguire <code>to_upper()</code> e stampare il risultato.
+</testo_normale>
+<py_code>
+MESSAGE = """
+Questo messaggio sara' convertito a
+tutte maiuscole.
+"""
+
+event_loop = asyncio.get_event_loop()
+try:
+    return_code, results = event_loop.run_until_complete(
+        to_upper(MESSAGE)
+    )
+finally:
+    event_loop.close()
+
+if return_code:
+    print('errore in uscita {}'.format(return_code))
+else:
+    print('Originale : {!r}'.format(MESSAGE))
+    print('Modificato: {!r}'.format(results))
+</py_code>
+<testo_normale>
+Il risultato mostra la sequenza di operazioni, quindi come il messaggio di testo viene trasformato.
+</testo_normale>
+<py_output>
+$ python3 asyncio_subprocess_coroutine_write.py
+
+in to_upper
+processo lanciato
+pid 25350
+communicazione con il processo
+in attesa del completamento del processo
+codice di ritorno 0
+Originale : "\nQuesto messaggio sara' convertito a\ntutte maiuscole.\n"
+Modificato: "\nQUESTO MESSAGGIO SARA' CONVERTITO A\nTUTTE MAIUSCOLE.\n"
+</py_output>
+<titolo_2>
+Ricevere Segnali Unix
+</titolo_2>
+<testo_normale>
+Le notifiche di eventi del sistema Unix in genere interrompe una applicazione, attivando i propri gestori. Quanto usate con <strong>asyncio</strong> i <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono interconnessi con le altre <em>coroutine</em> e <em>callback</em> gestiti dal ciclo di eventi. Il che si traduce in meno funzioni interrote, e la risultante esigenza è di fornire salvaguardie per pulire operazioni imcomplete.
+</testo_normale>
+<testo_normale>
+I gestori di segnali devono essere normali chiamabili, non <em>coroutine</em>
+</testo_normale>
+<py_code>
+# asyncio_signal.py
+
+import asyncio
+import functools
+import os
+import signal
+
+
+def signal_handler(name):
+    print('signal_handler({!r})'.format(name))
+</py_code>
+<testo_normale>
+I gestori di segnale sono registrati usando <code>add_signale_handler()</code>. Il primo argomento è il segnale e il secondo è il <em>callback</em>. I <em>callback</em> sono passati senza argomenti quindi se ci sono argomenti necessari occorre impacchettare la funzione con <code>functools.partial()</code>.
+</testo_normale>
+<py_code>
+event_loop = asyncio.get_event_loop()
+
+event_loop.add_signal_handler(
+    signal.SIGHUP,
+    functools.partial(signal_handler, name='SIGHUP'),
+)
+event_loop.add_signal_handler(
+    signal.SIGUSR1,
+    functools.partial(signal_handler, name='SIGUSR1'),
+)
+event_loop.add_signal_handler(
+    signal.SIGINT,
+    functools.partial(signal_handler, name='SIGINT'),
+</py_code>
+<testo_normale>
+Questo programma di esempio usa una <em>coroutine</em> per inviare segnali a se stesso tramite <code>os.kill()</code>. Dopo l'invio di ciascu segnale, la <em>coroutine</em> cede il controllo per consentire al gestore di essere eseguito. In una normale applicazione, ci dovrebbero essere più punti dove il codice dell'applicazione cede il controllo al ciclo di eventi e nessuna "cessione" artificiale come questa sarebbe necessaria
+</testo_normale>
+<py_code>
+async def send_signals():
+    pid = os.getpid()
+    print('Partenza di send_signals per {}'.format(pid))
+
+    for name in ['SIGHUP', 'SIGHUP', 'SIGUSR1', 'SIGINT']:
+        print('sending {}'.format(name))
+        os.kill(pid, getattr(signal, name))
+        # La cessione del controllo consente al gestore del segnale di essere
+        # eseguito visto che il segnale non interrompe il flusso del programma
+        # in altro modo
+        print('cessione del controllo')
+        await asyncio.sleep(0.01)
+    return
+</py_code>
+<testo_normale>
+Il programma principale esegue <code>send_signals()</code> fino a che ha inviato tutti i segnali
+</testo_normale>
+<py_code>
+try:
+    event_loop.run_until_complete(send_signals())
+finally:
+    event_loop.close()
+</py_code>
+<testo_normale>
+Il risultato mostra come i gestori sono chiamati quando <code>send_signals()</code> cede il controllo dopo aver inviato un segnale.
+</testo_normale>
+<py_output>
+$ python3 asyncio_signal.py
+
+Partenza di send_signals per 11691
+sending SIGHUP
+cessione del controllo
+signal_handler('SIGHUP')
+sending SIGHUP
+cessione del controllo
+signal_handler('SIGHUP')
+sending SIGUSR1
+cessione del controllo
+signal_handler('SIGUSR1')
+sending SIGINT
+cessione del controllo
+signal_handler('SIGINT')
+</py_output>
+<titolo_2>
+Combinare Coroutine con Thread e Processi
+</titolo_2>
+<testo_normale>
+Molte delle librerie esistenti non sono pronte per usare <strong>asyncio</strong> nativamente. Potrebbero bloccare, o dipendere su caratteristiche di concorrenzialità non disponibili attraverso il modulo. E' ancora possibile usare queste librerie in una applicazione basata su <strong>asyncio</strong> usando un esecutore da <a href='concurrent.futures.html' target='_blank'>concurrent.futures</a> per eseguire il codice o in un <em>thread</em> separato o in un processo separato.
+</testo_normale>
+<titolo_3>
+Thread
+</titolo_3>
+<testo_normale>
+Il metodo <code>run_in_executor()</code> del ciclo di eventi riceve una istanza di esecutore, un normale chiamabile da invocare, e qualunque argomento sia da passare a quest'ultimo. Ritorna un <code>Future</code> che può essere usato per attendere che una funzione finisca il proprio lavoro e ritorni qualcosa. Se non viene passato alcun esecutore, viene creato un <code>ThreadPoolExecutor</code>. Questo esempio crea esplicitamente un esecutore per limitare il numero di <em>thread</em> di elaboratori che saranno disponibili.
+</testo_normale>
+<testo_normale>
+Un <code>ThreadPoolExecutor</code> lancia i suoi <em>thread</em> esecutori, quindi chiama ognuna delle funzioni fornite una volta in un <em>thread</em>. Questo esempio mostra come combinare <code>run_in_executor()</code> e <code>wait()</code> per fare in modo che una <em>coroutine</em> ceda il controllo al ciclo di eventi mentre le funzioni bloccanti sono eseguite in <em>thread</em> separati, per poi riprendere il controllo quando le funzioni sono terminate.
+</testo_normale>
+<py_code>
+# asyncio_executor_thread.py
+</py_code>
+<testo_normale>
+<code>asyncio_executor_thread.py</code> usa <a href='logging.html' target='_blank'>logging</a> per indicare opportunamente quale <em>thread</em> e funzione stanno producendo ogni messaggio registrato. Visto che un <em>logger</em> separato è usato in ciascuna chiamata a <code>blocks()</code>, il risultato mostra chiaramente che gli stessi <em>thread</em> sono riutilizzati per chiamare multiple copie della funzione con argomenti differenti.
+</testo_normale>
+<py_output>
+$ python3 asyncio_executor_thread.py
+
+MainThread run_blocking_tasks: partenza
+MainThread run_blocking_tasks: creazione dell'attività esecutore
+ThreadPoolExecutor-0_0         blocchi(0): in esecuzione
+ThreadPoolExecutor-0_1         blocchi(1): in esecuzione
+ThreadPoolExecutor-0_2         blocchi(2): in esecuzione
+MainThread run_blocking_tasks: in attesa dell'attività esecutore
+ThreadPoolExecutor-0_0         blocchi(0): done
+ThreadPoolExecutor-0_0         blocchi(3): in esecuzione
+ThreadPoolExecutor-0_1         blocchi(1): done
+ThreadPoolExecutor-0_1         blocchi(4): in esecuzione
+ThreadPoolExecutor-0_2         blocchi(2): done
+ThreadPoolExecutor-0_2         blocchi(5): in esecuzione
+ThreadPoolExecutor-0_0         blocchi(3): done
+ThreadPoolExecutor-0_1         blocchi(4): done
+ThreadPoolExecutor-0_2         blocchi(5): done
+MainThread run_blocking_tasks: risultati: [16, 0, 25, 4, 1, 9]
+MainThread run_blocking_tasks: in uscita
+</py_output>
+<titolo_3>
+Processi
+</titolo_3>
+<testo_normale>
+Un <code>ProcessPoolExecutor</code> lavora pressochè allo stesso modo, creando un insieme di processi esecutori al posto dei <em>thread</em>. L'utilizzo di processi separati richiede più risorse di sistema, ma per operazioni molto pesanti da punti di vista del calcolo computazionale può avere senso eseguire attività separate in ciascun <em>core</em> di CPU
+</testo_normale>
+<py_code>
+# asyncio_executor_process.py
+</py_code>
+<testo_normale>
+Le sole modifiche necessarie per passare dai <em>thread</em> ai processi è la creazione di tipi diversi di esecutori. Questo esempio modifica anche il formato della stringa di registrazione per includere l'identificativo del processo in luogo del nome del <em>thread</em>, per dimostrare che le attività sono in effetti in esecutione su processi separati.
+</testo_normale>
+<py_output>
+$ python3 asyncio_executor_process.py
+
+PID 16924 run_blocking_tasks: partenza
+PID 16924 run_blocking_tasks: creazione dell'attività esecutore
+PID 16924 run_blocking_tasks: in attesa dell'attività esecutore
+PID 16925         blocchi(0): in esecuzione
+PID 16926         blocchi(1): in esecuzione
+PID 16927         blocchi(2): in esecuzione
+PID 16925         blocchi(0): done
+PID 16926         blocchi(1): done
+PID 16927         blocchi(2): done
+PID 16925         blocchi(3): in esecuzione
+PID 16927         blocchi(5): in esecuzione
+PID 16926         blocchi(4): in esecuzione
+PID 16927         blocchi(5): done
+PID 16925         blocchi(3): done
+PID 16926         blocchi(4): done
+PID 16924 run_blocking_tasks: risultati: [9, 16, 25, 0, 1, 4]
+PID 16924 run_blocking_tasks: in uscita
+</py_output>
+<titolo_2>
+Debug con asyncio
+</titolo_2>
+<testo_normale>
+Ci sono parecchie utili caratteristiche di <em>debugging</em> all'interno di <strong>asyncio</strong>
+</testo_normale>
+<testo_normale>
+Per prima cosa il ciclo di eventi usa <a href='logging.html' target='_blank'>logging</a> per emettere messaggi di stato mentre è in esecuzione. Alcuni di essi sono disponibili se viene abilitato il <em>logging</em> in una applicazione. Altri possono essere attivati dicendo al ciclo di emettere ulteriori messaggi di <em>debug</em>. Si chiami <code>set_debug()</code> passando un valore booleano che indichi se il <em>debugging</em> debba essere o meno abilitato.
+</testo_normale>
+<testo_normale>
+Visto che le applicazione costruite su <strong>asyncio</strong> sono molto sensibili rispetto a <em>coroutine</em> che falliscano nel cedere il controllo, è supportata la caratteristica di individuare <em>callback</em> lenti costruiti all'interno del ciclo di eventi. Attivati dall'abilitazione del <em>debugging</em>, gestendo la definizione di "lento" tramite l'impostazione della proprietà del ciclo <code>slow_callback_duration</code> nel numero di secondi dopo i quali si dovrebbe emettere un avvertimento.
+</testo_normale>
+<testo_normale>
+In ultimo, se un'applicazione che usa <strong>asyncio</strong> esce senza pulire qualcuna delle sue <em>coroutine</em> o altre risorse, potrebbe significare che c'è un errore logico che previene parte dell'esecuzione del codice applicativo. Si abiliti <code>ResourceWarning</code> per fare in modo che queste casistiche vengano segnalate quando il programma esce.
+</testo_normale>
+<py_code>
+# asyncio_debug.py
+</py_code>
+<testo_normale>
+Quando eseguito senza il <em>debugging</em> abilitato, tutto sembra a posto con questa applicazione
+</testo_normale>
+<py_output>
+$ python3 asyncio_debug.py
+
+DEBUG: Using selector: EpollSelector
+INFO: entrata nel ciclo di eventi
+INFO: outer in partenza
+INFO: inner in partenza
+INFO: inner completata
+INFO: outer completata
+</py_output>
+<testo_normale>
+L'abilitazione del <em>debugging</em> espone alcuni dei problemi che ha, incluso il fatto che sebbene <code>inner()</code> finisca, impiega più tempo di quanto impostato in <code>slow_callback_duration</code> e che il ciclo di eventi non è propriamente chiuso quando il programma esce.
+</testo_normale>
+<py_output>
+python3 asyncio_debug.py -v
+
+  DEBUG: Using selector: EpollSelector
+   INFO: debugging abilitato
+   INFO: entrata nel ciclo di eventi
+   INFO: outer in partenza
+WARNING: Executing <Task pending coro=<outer() running at asyncio_debug.py:37> wait_for=<Task pending coro=<inner() running at asyncio_debug.py:27> cb=[<TaskWakeupMethWrapper object at 0x7f584708d0d0>()] created at asyncio_debug.py:37> cb=[_run_until_complete_cb() at /dati/anaconda3/lib/python3.7/asyncio/base_events.py:153] created at /dati/anaconda3/lib/python3.7/asyncio/base_events.py:558> took 0.006 seconds
+   INFO: inner in partenza
+   INFO: inner completata
+WARNING: Executing <Task finished coro=<inner() done, defined at asyncio_debug.py:27> result=None created at asyncio_debug.py:37> took 0.101 seconds
+   INFO: outer completata
+</py_output>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<vedi_anche>
+https://docs.python.org/3.5/library/multiprocessing.html|multiprocessing|La documentazione della libreria standard per questo modulo.
+threading.html|threading|API di alto livello per lvaorare con i thread
+https://it.wikipedia.org/wiki/MapReduce|MapReduce - Wikipedia|Panoramica di MapReduce su Wikipedia
+http://research.google.com/archive/mapreduce.html|MapReduce: Simplified Dsta Processing on Large Clusters| Presentazione e documento su MapReduce da parte di Google Labs
+operator.html|Operator|Strumenti sugli operatori tipo <code>itemgetter</code>
+</vedi_anche>
+</documento_tradotto>

@@ -11,7 +11,7 @@ async def wrapped():
 async def inner(task):
     print('inner: in partenza')
     print('inner: in attesa di {!r}'.format(task))
-    result = nert task
+    result = await task
     print('inner: task ritornato {!r}'.format(result))
 
 
