@@ -4,15 +4,15 @@ import asyncio
 
 
 async def phase(i):
-    print('nella fase {}'.format(i))
+    print('in phase {}'.format(i))
     try:
         await asyncio.sleep(0.1 * i)
     except asyncio.CancelledError:
-        print('fase {} cancellata'.format(i))
+        print('phase {} cancellata'.format(i))
         raise
     else:
-        print('fase {} completata'.format(i))
-        return 'risultato {} di fase'.format(i)
+        print('phase {} completata'.format(i))
+        return 'risultato {} di phase'.format(i)
 
 
 async def main(num_phases):
@@ -21,7 +21,7 @@ async def main(num_phases):
         phase(i)
         for i in range(num_phases)
     ]
-    print('si attende 0.1 per il completamento delle fasi')
+    print('si attende 0.1 per il completamento delle funzioni phase')
     completed, pending = await asyncio.wait(phases, timeout=0.1)
     print('{} completate e {} pendenti'.format(
         len(completed), len(pending),

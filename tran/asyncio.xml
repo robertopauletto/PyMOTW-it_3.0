@@ -25,7 +25,7 @@ L'infrastruttura fornita da <strong>asyncio</strong> è centrata su di un <em>ci
 Una applicazione interagisce con il ciclo di eventi in modo esplicito registrando il codice da eseguirsi, e lascia che il ciclo di eventi faccia le chiamate necessarie all'interno del codice dell'applicazione quando le risorse sono disponibili. Ad esempio un server di rete apre dei <em>socket</em>, quindi li registra per potere essere notificato quando su di essi si manifestano degli eventi di input. Il ciclo di eventi allerta il codice del server quando vi è una connessione in arrivo o quando ci sono dati da leggere. Ci si attende che il codice dell'applicazione ceda il controllo nuovamente dopo un breve periodo di tempo quando non c'è più lavoro da fare nel contesto corrente. Ad esempio se non ci sono più dati da leggere da un <em>socket</em> il server dovrebbe riaffidare il controllo al ciclo di eventi.
 </testo_normale>
 <testo_normale>
-Il meccanismo per restituire il controllo al ciclo di eventi dipende dalle <em>coroutine</em> di Python, esse sono funzioni speciali per restituire il controllo al chiamante senza perdere il proprio stato. Le <em>coroutine</em> sono simili alle funzioni generatore, ad in effetti si possono usare generatori per implementare le <em>coroutine</em> in versioni di Python inferiori alla 3.5 senza il supporto nativo degli oggetti di <em>coroutine</em>. <strong>asyncio</strong> fornisce anche uno strato di astrazione basato su classi per <em>protocolli</em> e <em>trasporti</em> per scrivere codice usando <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a>   invece di scrivere direttamente <em>coroutine</em>. In entrambi i modelli basati su classi e modelli di <em>coroutine</em> modificando esplicitamente il contesto ritornando nel ciclo di eventi equivale ad una implicita implementazione dei <em>threading</em> di Python per il cambio di contesto.
+Il meccanismo per restituire il controllo al ciclo di eventi dipende dalle <em>coroutine</em> di Python, esse sono funzioni speciali per restituire il controllo al chiamante senza perdere il proprio stato. Le <em>coroutine</em> sono simili alle funzioni generatore, ad in effetti si possono usare generatori per implementare le <em>coroutine</em> in versioni di Python inferiori alla 3.5 senza il supporto nativo degli oggetti di <em>coroutine</em>. <strong>asyncio</strong> fornisce anche uno strato di astrazione basato su classi per <em>protocolli</em> e <em>trasporti</em> per scrivere codice usando <a href='https://www.wikiwand.com/it/Callback' target='_blank'><a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a></a>   invece di scrivere direttamente <em>coroutine</em>. In entrambi i modelli basati su classi e modelli di <em>coroutine</em> modificando esplicitamente il contesto ritornando nel ciclo di eventi equivale ad una implicita implementazione dei <em>threading</em> di Python per il cambio di contesto.
 </testo_normale>
 <testo_normale>
 Un <em>future</em> è una struttura dati che rappresenta il risultato di un lavoro che non è ancora stato completato. Il ciclo di eventi può monitorare un oggetto <code>Future</code> per vedere quando viene impostato come ultimato, consentendo ad una parte di applicazione di attendere che un'altra parte finisca un lavoro. A parte i <em>future</em>, <strong>asyncio</strong> fornisce altri primitivi di concorrenzialità come i bloccaggi (<em>locks</em>) e i semafori.
@@ -81,13 +81,13 @@ ritornato: 'risultato'
 Concatenare Coroutine
 </titolo_3>
 <testo_normale>
-Una coroutine può far partire un'altra coroutine ed attenderne il risultato. Questo facilita la suddivisione  di un compito in parti riutilizzabili. L'esempio seguente ha due fasi che devono essere eseguite in ordine, ma che possono essere eseguite concorrenzialmente con altre opearazioni
+Una coroutine può far partire un'altra coroutine ed attenderne il risultato. Questo facilita la suddivisione  di un compito in parti riutilizzabili. L'esempio seguente ha due fasi che devono essere eseguite in ordine, ma che possono essere eseguite concorrenzialmente con altre operazioni
 </testo_normale>
 <py_code>
 # asyncio_coroutine_chain.py
 </py_code>
 <testo_normale>
-La parola chiave <code>await</code> viene usata invece che aggiungere le nuove coroutine al ciclo, poichè il flusso di controllo è già all'interno di una coroutine che è gestita da ciclo non è necessario dire al ciclo di gestire la nuova coroutine.
+La parola chiave <code>await</code> viene usata invece di aggiungere le nuove <em>coroutine</em> al ciclo, poichè il flusso di controllo è già all'interno di una <em>coroutine</em> che è gestita dal ciclo non è necessario dire al ciclo di gestire le nuove <em>coroutine</em>.
 </testo_normale>
 <py_output>
 $ python3 asyncio_coroutine_chain.py
@@ -100,13 +100,13 @@ in phase2
 valore ritornato: ('result1', 'result2 deriva da result1')
 </py_output>
 <titolo_3>
-Generatori Invece che Coroutine
+Generatori Invece di Coroutine
 </titolo_3>
 <testo_normale>
-Le funzioni coroutine sono una componente chiave della progettazione di <strong>asyncio</strong>. Esse forniscono un costrutto di linugaggio per interrompere l'esecuzione di parti di un programm, preservando lo stato di quella chiamate, e rientrando in quello stato successivamente, tutte importanti capacità per una infrastruttura di concorrenzialità.
+Le funzioni <em>coroutine</em> sono una componente chiave della progettazione di <strong>asyncio</strong>. Esse forniscono un costrutto di linugaggio per interrompere l'esecuzione di parti di un programm, preservando lo stato di quella chiamata, e rientrando in quello stato successivamente, tutte importanti capacità per una infrastruttura di concorrenzialità.
 </testo_normale>
 <testo_normale>
-Python 3.5 ha intradotto nuove caratteristiche di linguaggio per definire nativamente dette coroutine usando <code>async def</code> e per mantenere il controllo usando <code>await</code>. Gli esempio per <strong>asyncio</strong> traggono vantaggio dalle nuove caratteristiche. Versioni precedenti di Python 3 possono usare funzioni generatore impacchetate con il decoratore <code>asyncio.coroutine()</code> e <code>yield from</code> per ottenere lo stesso effetto.
+Python 3.5 ha intradotto nuove caratteristiche di linguaggio per definire nativamente dette <em>coroutine</em> usando <code>async def</code> e per cedere il controllo usando <code>await</code>. Gli esempi per <strong>asyncio</strong> traggono vantaggio della nuova caratteristica. Versioni precedenti di Python 3 possono usare funzioni generatore impacchetate con il decoratore <code>asyncio.coroutine()</code> e <code>yield from</code> per ottenere lo stesso effetto.
 </testo_normale>
 <py_code>
 # asyncio_generator.py
@@ -128,19 +128,19 @@ valore ritornato: ('result1', 'result2 derived from result1')
 Pianificare Chiamate a Funzioni Normali
 </titolo_2>
 <testo_normale>
-Oltre a gestire coroutine e <em>callback</em> I/O, il ciclo di eventi di <strong>asyncio</strong> può pianificare chiamate a funzioni normli in base al valore di temporizzazione conservato nel ciclo
+Oltre a gestire coroutine e <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> I/O, il ciclo di eventi di <strong>asyncio</strong> può pianificare chiamate a funzioni normli in base al valore di temporizzazione conservato nel ciclo
 </testo_normale>
 <titolo_3>
 Pianificare un Callback "Presto"
 </titolo_3>
 <testo_normale>
-Se la tempistica del callback non importa, <code>call_soon()</code> può essere usato per pianificare la chiamata per la successiva iterazione del ciclo. Qualunque altro argomento posizionale dopo la funzione viene passato al <em>callback</em> quando viene invocato. Per passare argomenti nominali al <em>callback</em> si usi <code>partial()</code> dal modulo <a href='functools.html' target='_blank'>functools</a>.
+Se la tempistica del <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a>  non importa, <code>call_soon()</code> può essere usato per pianificare la chiamata per la successiva iterazione del ciclo. Qualunque altro argomento posizionale dopo la funzione viene passato al <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> quando viene invocato. Per passare argomenti nominali al <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> si usi <code>partial()</code> dal modulo <a href='functools.html' target='_blank'>functools</a>.
 </testo_normale>
 <py_code>
 # asyncio_call_soon.py
 </py_code>
 <testo_normale>
-I <em>callback</em> sono invocati nell'ordine nel quale sono pianificati.
+I <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono invocati nell'ordine nel quale sono pianificati.
 </testo_normale>
 <py_output>
 $ python3 asyncio_call_soon.py
@@ -152,10 +152,32 @@ callback chiamato con 2 e non default
 chiusura del ciclo di eventi
 </py_output>
 <titolo_3>
-Pianificare un Callback per uno Specifico Orario
+Pianificare un Callback con un Differimento
 </titolo_3>
 <testo_normale>
-E' anche possibile pianificare una chiamata ad uno specifico orario. Il ciclo usa un orologio monotonico, invece che un orologio "da muro", per assicurarsi che il valore di "adesso" non regredisca mai. Per scegliere un orario per un <em>callback</em> pianificato, è necessario partire dallo stato interno di quell'orologio usando il metodo del ciclo <code>time()</code>.
+Per posporre un <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> in un tempo futuro, si usi <code>call_later()</code>. Il primo argomento è il differimento in secondi e il secondo argomento è il <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a>.
+</testo_normale>
+<py_code>
+# asyncio_call_later.py
+</py_code>
+<testo_normale>
+In questo esempio, la stessa funzione <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> viene pianificata per parecchie volte con argomenti diversi. L'istanza finale, usando <code>call_soon()</code> risulta nel <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> invocato con argomento <code>3</code> prima di qualsiasi altra istanza pianificata, mostrando che "soon" in genere risulta in un differimento minimale.
+</testo_normale>
+<py_output>
+$ python3 asyncio_call_later.py
+
+entrata nel ciclo di eventi
+registrazione callbacks
+callback 3 invocato
+callback 2 invocato
+callback 1 invocato
+chiusura del ciclo di eventi
+</py_output>
+<titolo_3>
+Pianificare un Callback per un Orario Specifico
+</titolo_3>
+<testo_normale>
+E' anche possibile pianificare una chiamata per un orario specifico. Il ciclo usa un orologio monotonico, invece che un orologio "da muro", per assicurarsi che il valore di "adesso" non regredisca mai. Per scegliere un orario per un <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> pianificato, è necessario partire dallo stato interno di quell'orologio usando il metodo del ciclo <code>time()</code>.
 </testo_normale>
 <py_code>
 # asyncio_call_at.py
@@ -185,7 +207,7 @@ Un <code>Future</code> rappresenta il risultato di un lavoro che non è ancora s
 # asyncio_future_event_loop.py
 </py_code>
 <testo_normale>
-Lo stato delle modifiche di un <code>Future</code> cambia a completato quando <code>set_result()</code> viene chiamato e l'istanza di <code>Future</code> trattiene il risultato dabo al metodo per recuperarlo successivamente.
+Lo stato di un <code>Future</code> cambia a completato quando <code>set_result()</code> viene chiamato e l'istanza di <code>Future</code> trattiene il risultato dato al metodo per recuperarlo successivamente.
 </testo_normale>
 <py_output>
 $ python3 asyncio_future_event_loop.py
@@ -217,13 +239,13 @@ risultato ritornato: 'il risultato'
 Callaback di Future
 </titolo_3>
 <testo_normale>
-Un <code>Future</code>, oltre che lavorare come una coroutine, può invocare <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a>  quando è completato. I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> sono invocati nell'ordine nel quale sono registrati
+Un <code>Future</code>, oltre che lavorare come una coroutine, può invocare <a href='https://www.wikiwand.com/it/Callback' target='_blank'><a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a></a>  quando è completato. I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a></a> sono invocati nell'ordine nel quale sono registrati
 </testo_normale>
 <py_code>
 # asyncio_future_callback.py
 </py_code>
 <testo_normale>
-I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><em>callback</em></a> dovrebbero attendersi un argomento, l'istanza di <code>Future</code>. Per passare argomenti addizionali, si usi <code>functools.partial()</code> per inglobarli.
+I <a href='https://www.wikiwand.com/it/Callback' target='_blank'><a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a></a> dovrebbero attendersi un argomento, l'istanza di <code>Future</code>. Per passare argomenti addizionali, si usi <code>functools.partial()</code> per inglobarli.
 </testo_normale>
 <py_output>
 $ python3 asyncio_future_callback.py
@@ -243,13 +265,13 @@ I task (attività) costituiscono uno dei modi principali per interagire con il c
 Far Partire un task
 </titolo_3>
 <testo_normale>
-Per far partire un Task si usi <code>create_task()</code> per creare un istanza di <code>Task</code>. L'attività risultante verrà eseguita come parte delle operazioni concomitanti gestite dal ciclo di eventi fino a quando il ciclo è in esecuzione e la <em>coroutine</em> non ritorna.
+Per far partire un <em>task</em> si usi <code>create_task()</code> per creare un istanza di <code>Task</code>. L'attività risultante verrà eseguita come parte delle operazioni concomitanti gestite dal ciclo di eventi fino a quando il ciclo è in esecuzione e la <em>coroutine</em> non ritorna.
 </testo_normale>
 <py_code>
 # asyncio_create_task.py
 </py_code>
 <testo_normale>
-Questo esempio attende che l'attività ritorni un risulato prima che la funzione <code>main()</code> esca.
+Questo esempio attende che l'attività ritorni un risultato prima che la funzione <code>main()</code> esca.
 </testo_normale>
 <py_output>
 $ python3 asyncio_create_task.py
@@ -270,7 +292,7 @@ Mantenendo l'oggetto <code>Task</code> ritornato da <code>create_task()</code> �
 # asyncio_cancel_task.py
 </py_code>
 <testo_normale>
-Questo esempio crea, quindi cancella un task prima di far partire il ciclo di eventi. Il risultato è una eccezione <code>CancelledError</code> da <code>run_until_complete()</code>.
+Questo esempio crea, quindi cancella, un <em>task</em> prima di far partire il ciclo di eventi. Il risultato è una eccezione <code>CancelledError</code> da <code>run_until_complete()</code>.
 </testo_normale>
 <py_output>
 $ python3 asyncio_cancel_task.py
@@ -281,7 +303,7 @@ task cancellato <Task cancelling coro=<task_func() running at asyncio_cancel_tas
 catturato errore dal task cancellato
 </py_output>
 <testo_normale>
-Se l'attività è cancellata mentre sta attendento un'altra operazione concomitante, viene notificata della cancellazione sollevando una eccezione <code>CancelledError</code> sollevata al punto di attesa.
+Se l'attività è cancellata mentre sta attendento un'altra operazione concomitante, viene notificata della sua cancellazione sollevando una eccezione <code>CancelledError</code> al punto di attesa.
 </testo_normale>
 <py_code>
 # asyncio_cancel_task2.py
@@ -303,7 +325,7 @@ anche main() vede il task come cancellato
 Creare Task da Coroutine
 </titolo_3>
 <testo_normale>
-La funzione <code>ensure_future()</code> ritorna un <code>Task</code> legato all'eseuzione di una <em>coroutine</em>. Quell'istanza di <code>Task</code> può essere quindi passata ad altro codice, il quale può attenderlo senza sapere come la <em>coroutine</em> originale sia stata costruita o chiamata.
+La funzione <code>ensure_future()</code> ritorna un <code>Task</code> legato all'esecuzione di una <em>coroutine</em>. Quell'istanza di <code>Task</code> può essere quindi passata ad altro codice, il quale può attenderla senza sapere come la <em>coroutine</em> originale sia stata costruita o chiamata.
 </testo_normale>
 <py_code>
 # asyncio_ensure_future.py
@@ -327,7 +349,7 @@ starter: inner ritornato
 Comporre Coroutine con Strutture di Controllo
 </titolo_2>
 <testo_normale>
-Il flusso di controllo lineare tra una serie di coroutine è facile da gestire con la parola chiave <em>built-in</em> <code>await</code>. E' anche possibile tramite strumenti in <strong>asyncio</strong> che strutture più complicate consentono a una <em>coroutine</em> di attendere che diverse altre siano completate in parallelo.
+Il flusso di controllo lineare tra una serie di coroutine è facile da gestire con la parola chiave <em>built-in</em> <code>await</code>. E' anche possibile tramite strumenti in <strong>asyncio</strong> che strutture più complicate consentano a una <em>coroutine</em> di attendere che diverse altre siano completate in parallelo.
 </testo_normale>
 <titolo_3>
 Attendere Multiple Coroutine
@@ -344,15 +366,17 @@ Internamente, <code>wait()</code> usa un <code>set</code> per mantenere le istan
 <py_output>
 $ python3 asyncio_wait.py
 
-partenza di main
-in attesa di completamento fasi
-nella fase 1
-nella fase 2
-nella fase 0
-completato per phase 0
-completato per phase 1
-completato per phase 2
-resultati: ['fase risulta 0', 'fase risulta 1', 'fase risulta 2']
+in partenza main
+si attende 0.1 per il completamento delle funzioni phase
+in phase 0
+in phase 1
+in phase 2
+phase 0 completata
+1 completate e 2 pendenti
+eliminazione dei tasks
+in uscita da main
+phase 1 cancellata
+phase 2 cancellata
 </py_output>
 <testo_normale>
 Se <code>wait()</code> viene usato con un valore di <em>timeout</em> rimarranno solo le operazioni in corso.
@@ -388,7 +412,7 @@ Se le fasi sottostanti sono state ben definite, e solo i risultati di queste fas
 # asyncio_gather.py
 </py_code>
 <testo_normale>
-Le attività create da <code>gather()</code> non sono esposte, in modo che non possano essere cancellate. IL valore di ritorno è una lista di risultati nello stesso ordine degli argomenti passati a <code>gather()</code>, a prescindere dall'ordine delle operazioni sottostanti effettivamente completate.
+Le attività create da <code>gather()</code> non sono esposte, in modo che non possano essere cancellate. Il valore di ritorno è una lista di risultati nello stesso ordine degli argomenti passati a <code>gather()</code>, a prescindere dall'ordine delle operazioni sottostanti effettivamente completate.
 </testo_normale>
 <py_output>
 $ python3 asyncio_gather.py
@@ -402,16 +426,16 @@ terminata phase1
 results: ['risultato di phase1', 'risultato di phase2']
 </py_output>
 <titolo_3>
-Gestire le Operazioni Sottostanti Quando Finiscono
+Gestire le Operazioni Sottostanti Mentre Finiscono
 </titolo_3>
 <testo_normale>
-<code>as_completed()</code> è un genratore che gestisce l'esecuzione di una lista di <em>coroutine</em> fornitegli e produce i loro risultati uno alla volta non appena vengono completate. Come con <code>wait()</code>, l'ordine non è garantito da <code>as_completed()</code>, ma non è ncessario attendere che tutte le operazioni sottostanti siano completate prima di intraprendere altre azioni.
+<code>as_completed()</code> è un generatore che gestisce l'esecuzione di una lista di <em>coroutine</em> fornitegli e produce i loro risultati uno alla volta non appena vengono completate. Come con <code>wait()</code>, l'ordine non è garantito da <code>as_completed()</code>, ma non è necessario attendere che tutte le operazioni sottostanti siano completate prima di intraprendere altre azioni.
 </testo_normale>
 <py_code>
 # asyncio_as_completed.py
 </py_code>
 <testo_normale>
-Questo esempio fa partire parecchie fasi che finiscono in ordine inverso rispetto a quello di partenza. Mentre il generatore viene consumato, il ciclo attende il risultato della coroutine usando <code>await</code>.
+Questo esempio fa partire parecchie fasi che finiscono in ordine inverso rispetto a quello di partenza. Mentre il generatore viene consumato, il ciclo attende il risultato della <em>coroutine</em> usando <code>await</code>.
 </testo_normale>
 <py_output>
 $ python3 asyncio_as_completed.py
@@ -1628,7 +1652,7 @@ Modificato: "\nQUESTO MESSAGGIO SARA' CONVERTITO A\nTUTTE MAIUSCOLE.\n"
 Ricevere Segnali Unix
 </titolo_2>
 <testo_normale>
-Le notifiche di eventi del sistema Unix in genere interrompe una applicazione, attivando i propri gestori. Quanto usate con <strong>asyncio</strong> i <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono interconnessi con le altre <em>coroutine</em> e <em>callback</em> gestiti dal ciclo di eventi. Il che si traduce in meno funzioni interrote, e la risultante esigenza è di fornire salvaguardie per pulire operazioni imcomplete.
+Le notifiche di eventi del sistema Unix in genere interrompe una applicazione, attivando i propri gestori. Quanto usate con <strong>asyncio</strong> i <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono interconnessi con le altre <em>coroutine</em> e <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> gestiti dal ciclo di eventi. Il che si traduce in meno funzioni interrote, e la risultante esigenza è di fornire salvaguardie per pulire operazioni imcomplete.
 </testo_normale>
 <testo_normale>
 I gestori di segnali devono essere normali chiamabili, non <em>coroutine</em>
@@ -1646,7 +1670,7 @@ def signal_handler(name):
     print('signal_handler({!r})'.format(name))
 </py_code>
 <testo_normale>
-I gestori di segnale sono registrati usando <code>add_signale_handler()</code>. Il primo argomento è il segnale e il secondo è il <em>callback</em>. I <em>callback</em> sono passati senza argomenti quindi se ci sono argomenti necessari occorre impacchettare la funzione con <code>functools.partial()</code>.
+I gestori di segnale sono registrati usando <code>add_signale_handler()</code>. Il primo argomento è il segnale e il secondo è il <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a>. I <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> sono passati senza argomenti quindi se ci sono argomenti necessari occorre impacchettare la funzione con <code>functools.partial()</code>.
 </testo_normale>
 <py_code>
 event_loop = asyncio.get_event_loop()
@@ -1795,7 +1819,7 @@ Ci sono parecchie utili caratteristiche di <em>debugging</em> all'interno di <st
 Per prima cosa il ciclo di eventi usa <a href='logging.html' target='_blank'>logging</a> per emettere messaggi di stato mentre è in esecuzione. Alcuni di essi sono disponibili se viene abilitato il <em>logging</em> in una applicazione. Altri possono essere attivati dicendo al ciclo di emettere ulteriori messaggi di <em>debug</em>. Si chiami <code>set_debug()</code> passando un valore booleano che indichi se il <em>debugging</em> debba essere o meno abilitato.
 </testo_normale>
 <testo_normale>
-Visto che le applicazione costruite su <strong>asyncio</strong> sono molto sensibili rispetto a <em>coroutine</em> che falliscano nel cedere il controllo, è supportata la caratteristica di individuare <em>callback</em> lenti costruiti all'interno del ciclo di eventi. Attivati dall'abilitazione del <em>debugging</em>, gestendo la definizione di "lento" tramite l'impostazione della proprietà del ciclo <code>slow_callback_duration</code> nel numero di secondi dopo i quali si dovrebbe emettere un avvertimento.
+Visto che le applicazione costruite su <strong>asyncio</strong> sono molto sensibili rispetto a <em>coroutine</em> che falliscano nel cedere il controllo, è supportata la caratteristica di individuare <a href='https://www.wikiwand.com/it/Callback' target='_blank'>callback</a> lenti costruiti all'interno del ciclo di eventi. Attivati dall'abilitazione del <em>debugging</em>, gestendo la definizione di "lento" tramite l'impostazione della proprietà del ciclo <code>slow_callback_duration</code> nel numero di secondi dopo i quali si dovrebbe emettere un avvertimento.
 </testo_normale>
 <testo_normale>
 In ultimo, se un'applicazione che usa <strong>asyncio</strong> esce senza pulire qualcuna delle sue <em>coroutine</em> o altre risorse, potrebbe significare che c'è un errore logico che previene parte dell'esecuzione del codice applicativo. Si abiliti <code>ResourceWarning</code> per fare in modo che queste casistiche vengano segnalate quando il programma esce.

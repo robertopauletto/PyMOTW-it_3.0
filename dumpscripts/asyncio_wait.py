@@ -4,10 +4,10 @@ import asyncio
 
 
 async def phase(i):
-    print('nella fase {}'.format(i))
+    print('in phase {}'.format(i))
     await asyncio.sleep(0.1 * i)
     print('completato per phase {}'.format(i))
-    return 'fase risulta {}'.format(i)
+    return 'phase risulta {}'.format(i)
 
 
 async def main(num_phases):
@@ -16,10 +16,10 @@ async def main(num_phases):
         phase(i)
         for i in range(num_phases)
     ]
-    print('in attesa di completamento fasi')
+    print('in attesa di completamento phase')
     completed, pending = await asyncio.wait(phases)
     results = [t.result() for t in completed]
-    print('resultati: {!r}'.format(results))
+    print('risultati: {!r}'.format(results))
 
 
 event_loop = asyncio.get_event_loop()
